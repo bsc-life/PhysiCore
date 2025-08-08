@@ -2,6 +2,8 @@
 
 using namespace physicore;
 
+base_agent_data::base_agent_data() : agents_count(0), dims(3) {}
+
 void base_agent_data::add()
 {
 	++agents_count;

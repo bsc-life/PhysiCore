@@ -18,3 +18,14 @@ add_library(physicore-common ${COMMON_SOURCES})
 
 target_include_directories(physicore-common
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Add tests
+include(GoogleTest)
+
+file(GLOB TEST_SOURCES tests/*.cpp)
+foreach(test_src ${TEST_SOURCES})
+  get_filename_component(test_name ${test_src} NAME_WE)
+  add_executable(${test_name} ${test_src})
+  target_link_libraries(${test_name} PRIVATE physicore-common gtest_main)
+  gtest_discover_tests(${test_name})
+endforeach()

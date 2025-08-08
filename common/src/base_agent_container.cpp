@@ -7,7 +7,7 @@ namespace physicore {
 base_agent* base_agent_container::create()
 {
 	data.add();
-	agents.push_back(std::make_unique<base_agent>(data.agents_count, data));
+	agents.push_back(std::make_unique<base_agent>(data.agents_count - 1, data));
 	return agents.back().get();
 }
 

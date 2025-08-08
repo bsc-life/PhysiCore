@@ -10,6 +10,8 @@ struct base_agent_data
 	index_t agents_count;
 	index_t dims;
 
+	base_agent_data();
+
 	void add();
 	void remove_at(index_t position);
 
