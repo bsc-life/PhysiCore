@@ -32,7 +32,9 @@
 			],
 			"settings": {
 				"clangd.path": "/usr/bin/clangd",
-				"editor.formatOnSave": true
+				"editor.formatOnSave": true,
+				"files.trimTrailingWhitespace": true,
+				"files.insertFinalNewline": true
 			}
 		}
 	}
