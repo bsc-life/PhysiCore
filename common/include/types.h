@@ -5,7 +5,6 @@
 namespace physicore {
 
 using real_t = double;
-
-using index_t = std::int64_t;
+using index_t = std::size_t;
 
 } // namespace physicore

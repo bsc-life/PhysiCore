@@ -25,13 +25,18 @@ set(gtest_force_shared_crt
     CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+# Add subdirectory for physicore-common
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../common
+                 ${CMAKE_CURRENT_BINARY_DIR}/common_build)
+
 # Add source files (update as needed)
 file(GLOB_RECURSE BIOFVM_SOURCES src/*.cpp)
 add_library(biofvm ${BIOFVM_SOURCES})
 
 target_include_directories(
-  biofvm PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../common
+  biofvm PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../common/include
                 ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(biofvm PUBLIC physicore-common)
 
 # Example: Add a test executable (update test sources as needed)
 file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
