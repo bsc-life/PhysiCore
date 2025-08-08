@@ -13,3 +13,6 @@ add_subdirectory(reactions-diffusion/biofvm)
 # Add main executable
 add_executable(physicore src/main.cpp)
 target_link_libraries(physicore PRIVATE biofvm)
+
+# Make ctest see all tests
+enable_testing()
