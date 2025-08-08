@@ -20,6 +20,7 @@ target_include_directories(physicore-common
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Add tests
+enable_testing()
 include(GoogleTest)
 
 file(GLOB TEST_SOURCES tests/*.cpp)
