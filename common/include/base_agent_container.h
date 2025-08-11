@@ -20,6 +20,8 @@ public:
 	virtual void remove(base_agent* agent);
 
 	virtual void remove_at(index_t index);
+
+	virtual ~base_agent_container() = default;
 };
 
 } // namespace physicore
