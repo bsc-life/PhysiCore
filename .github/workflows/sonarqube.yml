@@ -9,17 +9,19 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install Build Wrapper
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v4
-      - name: Build
+      - name: Run Build Wrapper
         run: |
           mkdir build
           cmake -S . -B build -DCOVERAGE_BUILD=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-          cmake --build build/ --config Release
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
       - name: Run tests to generate coverage information
         run: |
           build/reactions-diffusion/biofvm/biofvm_tests
@@ -38,7 +40,7 @@ jobs:
           args: >
             --define sonar.projectKey=bsc-life_PhysiCore
             --define sonar.organization=bsc-life
-            --define sonar.cfamily.compile-commands=build/compile_commands.json
+            --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
             --define sonar.cfamily.llvm-cov.reportPath=coverage.txt
-            --define sonar.sources=src/,common/src/,common/include/,reactions-diffusion/biofvm/src/,reactions-diffusion/biofvm/include/
-            --define sonar.tests=common/tests/,reactions-diffusion/biofvm/tests/
+            --define sonar.sources=src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include
+            --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests
