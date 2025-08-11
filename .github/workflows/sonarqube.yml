@@ -44,3 +44,4 @@ jobs:
             --define sonar.cfamily.llvm-cov.reportPath=coverage.txt
             --define sonar.sources=src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include
             --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests
+            --define sonar.coverage.exclusions=**/tests/**
