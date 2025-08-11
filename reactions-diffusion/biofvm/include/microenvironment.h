@@ -10,7 +10,7 @@ class microenvironment : public process
 	real_t timestep;
 
 public:
-	explicit microenvironment(real_t timestep);
+	explicit microenvironment(real_t timestep, real_t X);
 
 	void run_single_timestep() override;
 };
