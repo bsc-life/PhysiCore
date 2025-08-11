@@ -28,10 +28,10 @@ jobs:
           ctest
       - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
         run: |
-          llvm-profdata-18 merge -o merged.profdata build/reaction-diffusion/biofvm/default.profraw build/reaction-diffusion/biofvm/common/default.profraw
+          llvm-profdata-18 merge -o merged.profdata build/reactions-diffusion/biofvm/default.profraw build/reactions-diffusion/biofvm/common/default.profraw
       - name: Collect the coverage
         run: |
-          llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/reaction-diffusion/biofvm/biofvm_tests -object build/reaction-diffusion/biofvm/common/common_test > coverage.txt
+          llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/reactions-diffusion/biofvm/biofvm_tests -object build/reactions-diffusion/biofvm/common/common_tests > coverage.txt
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
