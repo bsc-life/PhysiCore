@@ -1,0 +1,46 @@
+name: SonarQube Analysis
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v4
+      - name: Run Build Wrapper
+        run: |
+          mkdir build
+          cmake -S . -B build -DCOVERAGE_BUILD=ON -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_BUILD_TYPE=Debug
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build
+      - name: Run tests to generate coverage information
+        run: |
+          LLVM_PROFILE_FILE="biofvm.profraw" build/reactions-diffusion/biofvm/biofvm_tests
+          LLVM_PROFILE_FILE="common.profraw" build/reactions-diffusion/biofvm/common/common_tests
+      - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
+        run: |
+          llvm-profdata-18 merge -o merged.profdata biofvm.profraw common.profraw
+      - name: Collect the coverage
+        run: |
+          llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/reactions-diffusion/biofvm/biofvm_tests -object build/reactions-diffusion/biofvm/common/common_tests > coverage.txt
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
+        with:
+          args: >
+            --define sonar.projectKey=bsc-life_PhysiCore
+            --define sonar.organization=bsc-life
+            --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
+            --define sonar.cfamily.llvm-cov.reportPath=coverage.txt
+            --define sonar.sources=src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include
+            --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests
