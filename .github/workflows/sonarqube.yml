@@ -1,4 +1,4 @@
-name: SonarQube Scan
+name: SonarQube Analysis
 on:
   push:
     branches:
@@ -6,8 +6,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
-  build:
-    name: Build
+  analyze:
+    name: Analyze
     runs-on: ubuntu-latest
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
@@ -20,8 +20,16 @@ jobs:
       - name: Run Build Wrapper
         run: |
           mkdir build
-          cmake -S . -B build
+          cmake -S . -B build -DCOVERAGE_BUILD=ON
           build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Release
+      - name: Run tests to generate coverage information
+        run: ctest
+      - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
+        run: |
+          llvm-profdata merge -o merged.profdata reaction-diffusion/biofvm/default.profraw reaction-diffusion/biofvm/common/default.profraw
+      - name: Collect the coverage
+        run: |
+          llvm-cov show --show-branches=count --instr-profile merged.profdata reaction-diffusion/biofvm/biofvm_tests -object reaction-diffusion/biofvm/common/common_test > coverage.txt
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
@@ -29,3 +37,4 @@ jobs:
         with:
           args: >
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
+            --define sonar.cfamily.llvm-cov.reportPath=coverage.txt

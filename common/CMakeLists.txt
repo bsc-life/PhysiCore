@@ -24,9 +24,7 @@ enable_testing()
 include(GoogleTest)
 
 file(GLOB TEST_SOURCES tests/*.cpp)
-foreach(test_src ${TEST_SOURCES})
-  get_filename_component(test_name ${test_src} NAME_WE)
-  add_executable(${test_name} ${test_src})
-  target_link_libraries(${test_name} PRIVATE physicore-common gtest_main)
-  gtest_discover_tests(${test_name})
-endforeach()
+
+add_executable(common_tests ${TEST_SOURCES})
+target_link_libraries(common_tests PRIVATE physicore-common gtest_main)
+gtest_discover_tests(common_tests)

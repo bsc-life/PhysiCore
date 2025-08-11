@@ -27,7 +27,7 @@ FetchContent_MakeAvailable(googletest)
 
 # Add subdirectory for physicore-common
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../common
-                 ${CMAKE_CURRENT_BINARY_DIR}/common_build)
+                 ${CMAKE_CURRENT_BINARY_DIR}/common)
 
 # Add source files (update as needed)
 file(GLOB_RECURSE BIOFVM_SOURCES src/*.cpp)
