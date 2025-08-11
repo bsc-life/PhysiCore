@@ -11,7 +11,8 @@ option(COVERAGE_BUILD OFF "Enable coverage build")
 
 if(${COVERAGE_BUILD})
   set(CMAKE_CXX_FLAGS
-      " ${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping -O0 -g")
+      " ${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping -mllvm -runtime-counter-relocation"
+  )
 endif()
 
 # Add subdirectory for biofvm (which also adds common)
