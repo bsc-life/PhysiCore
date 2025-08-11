@@ -1,3 +1,6 @@
+[![CMake Build on Ubuntu, Windows, and MacOS](https://github.com/bsc-life/PhysiCore/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/bsc-life/PhysiCore/actions/workflows/cmake-multi-platform.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bsc-life_PhysiCore&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bsc-life_PhysiCore)
+
 # PhysiCore
 
 **PhysiCore** is a modern re-architecture of the [PhysiCell](http://physicell.org) agent-based simulation framework, built for flexibility, performance, and clarity.
