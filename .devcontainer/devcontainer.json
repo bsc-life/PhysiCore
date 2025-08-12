@@ -34,7 +34,8 @@
 				"clangd.path": "/usr/bin/clangd",
 				"editor.formatOnSave": true,
 				"files.trimTrailingWhitespace": true,
-				"files.insertFinalNewline": true
+				"files.insertFinalNewline": true,
+				"C_Cpp.intelliSenseEngine": "disabled"
 			}
 		}
 	}
