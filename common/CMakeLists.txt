@@ -19,10 +19,6 @@ add_library(physicore-common ${COMMON_SOURCES})
 target_include_directories(physicore-common
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Add tests
-enable_testing()
-include(GoogleTest)
-
 file(GLOB TEST_SOURCES tests/*.cpp)
 
 add_executable(common_tests ${TEST_SOURCES})

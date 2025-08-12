@@ -15,12 +15,25 @@ if(${COVERAGE_BUILD})
   )
 endif()
 
-# Add subdirectory for biofvm (which also adds common)
+# FetchContent for GoogleTest
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/heads/main.zip
+      DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt
+    ON
+    CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+include(GoogleTest)
+enable_testing()
+
+add_subdirectory(common)
 add_subdirectory(reactions-diffusion/biofvm)
+add_subdirectory(mechanics/physicell)
 
 # Add main executable
 add_executable(physicore src/main.cpp)
-target_link_libraries(physicore PRIVATE biofvm)
-
-# Make ctest see all tests
-enable_testing()
+target_link_libraries(physicore PRIVATE biofvm micromechanics)

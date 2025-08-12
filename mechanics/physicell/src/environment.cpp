@@ -1,0 +1,9 @@
+#include "environment.h"
+
+using namespace physicore::micromechanics;
+
+void environment::run_single_timestep()
+{
+	// Implementation of the single timestep logic
+	// This is a placeholder; actual implementation will depend on the specific requirements
+}
