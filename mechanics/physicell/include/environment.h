@@ -10,7 +10,7 @@ class environment : public process
 	real_t timestep;
 
 public:
-	environment(real_t timestep) : timestep(timestep) {}
+	explicit environment(real_t timestep) : timestep(timestep) {}
 
 	void run_single_timestep() override;
 };
