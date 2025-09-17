@@ -7,9 +7,9 @@
 	],
 	"remoteEnv": {
 		"VCPKG_ROOT": "/usr/local/vcpkg",
-		"PATH": "${containerEnv:PATH}:/usr/local/vcpkg"
+		"PATH": "${containerEnv:PATH}:/usr/local/vcpkg:/usr/lib/llvm-20/bin"
 	},
-	"postCreateCommand": ".devcontainer/install_vcpkg.sh",
+	"onCreateCommand": ".devcontainer/configure.sh",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {
 			"toolsToInstall": "cmakelang"
@@ -27,10 +27,7 @@
 				"zip",
 				"unzip",
 				"tar",
-				"pkg-config",
-				"llvm-19",
-				"clang-19",
-				"clangd-19"
+				"pkg-config"
 			]
 		}
 	},
@@ -40,14 +37,15 @@
 				"llvm-vs-code-extensions.vscode-clangd",
 				"cheshirekow.cmake-format",
 				"ms-vscode.cpptools-extension-pack",
-				"ms-vscode.cmake-tools"
+				"ms-vscode.cmake-tools",
+				"github.vscode-github-actions"
 			],
 			"settings": {
-				"clangd.path": "/usr/bin/clangd-19",
 				"editor.formatOnSave": true,
 				"files.trimTrailingWhitespace": true,
 				"files.insertFinalNewline": true,
-				"C_Cpp.intelliSenseEngine": "disabled"
+				"C_Cpp.intelliSenseEngine": "disabled",
+				"cmake.copyCompileCommands": "${containerWorkspaceFolder}/build/compile_commands.json"
 			}
 		}
 	}
