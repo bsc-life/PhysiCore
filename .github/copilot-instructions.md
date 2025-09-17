@@ -1,44 +1,83 @@
-# Copilot Instructions for PhysiCore
+<!--
+These instructions are read by AI coding assistants to help them be productive in the
+PhysiCore repository. Keep this file short and strictly actionable. Do not add
+policy text or generic advice.
+-->
 
-## Project Overview
-- **PhysiCore** is a modular, high-performance agent-based simulation framework, re-architected from PhysiCell.
-- Major components:
-  - `common/`: Core agent data structures and utilities (e.g., `base_agent_data.h`, `types.h`).
-  - `mechanics/physicell/`: Mechanics engines (force models, integration methods).
-  - `reactions-diffusion/biofvm/`: Diffusion solvers (FEM, FVM, FDM, etc.).
-  - `src/`: Main entry point and top-level simulation logic.
-- Each submodule (mechanics, diffusion) is designed to be swappable and independently testable.
+# Copilot / AI assistant guidance — PhysiCore
 
-## Build & Test Workflow
-- **Build:**
-  - Use CMake (see `CMakeLists.txt` at root and in submodules).
-  - Typical build: `cmake -S . -B build && cmake --build build`
-- **Test:**
-  - Tests are in `common/src/tests/`, `mechanics/physicell/tests/`, `reactions-diffusion/biofvm/tests/`.
-  - Run all tests: `ctest --test-dir build`
+Summary
+- PhysiCore is a modular C++ simulation core. Major components (see top-level
+  `CMakeLists.txt`) are:
+  - `common/` — data structures, core interfaces (e.g. `process`, `base_agent`,
+    `base_agent_data`). Look under `common/include` for canonical patterns.
+  - `reactions-diffusion/biofvm/` — microenvironment / diffusion backends.
+  - `mechanics/physicell/` — mechanics engines (implements `process` interface).
+  - `phenotype/physicore/` — example executable that wires components together.
 
-## Coding Patterns & Conventions
-- **Namespaces:** All core code is under the `physicore` namespace.
-- **Data Layout:**
-  - Agent data is stored in SoA (Structure of Arrays) style for performance (see `base_agent_data`).
-  - Use `index_t` and `real_t` typedefs from `types.h` for indices and floating-point values.
-- **Extensibility:**
-  - Add new mechanics or diffusion models by creating new subfolders under `mechanics/` or `reactions-diffusion/` and updating CMake.
-  - Keep interfaces minimal and decoupled; avoid cross-module dependencies.
-- **Testing:**
-  - Use GoogleTest (vendored in `build/_deps/googletest-src/`).
-  - Place new tests in the relevant `tests/` subfolder.
+Big-picture/Why
+- The code separates simulation core (data + interfaces) from pluggable
+  numerical backends. Libraries are created per-subsystem and then linked into
+  the example executable (`physicore.phenotype.physicore`). This lets the
+  project swap diffusion / mechanics engines without changing core agent code.
 
-## Integration & External Dependencies
-- **GoogleTest** is included as a submodule and built automatically.
-- No external runtime dependencies beyond standard C++ and CMake.
+Build, test, and debug (canonical commands)
+- This repo uses CMake presets (see `CMakePresets.json`) and Ninja. Preferred
+  workflows are via CMake presets. Example commands you can run in the repo root:
 
-## Examples
-- See `common/include/base_agent_data.h` for agent data layout and API.
-- See `mechanics/physicell/` and `reactions-diffusion/biofvm/` for pluggable module structure.
+  - Configure + build (GCC Debug):
+    cmake --preset=gcc-debug
+    cmake --build --preset=gcc-debug
 
-## Tips for AI Agents
-- When adding new modules, mirror the structure and CMake patterns of existing ones.
-- Prefer explicit, minimal interfaces between modules.
-- Always update or add tests for new features.
-- Reference the root `README.md` for project vision and architectural goals.
+  - Configure + build + test (single preset):
+    cmake --workflow=gcc-debug
+
+  - Run tests for a preset (after configure/build):
+    ctest --preset gcc-debug --output-on-failure
+
+Notes about presets:
+- Useful presets in `CMakePresets.json`: `gcc-debug`, `gcc-relwithdebinfo`,
+  `gcc-release`, `llvm-debug`, `llvm-cov-debug`. The presets set sanitizer flags
+  for Debug/TSAN/Coverage variants — prefer these when reproducing CI.
+
+Project-specific conventions
+- C++20, header-only public headers are exported using CMake FILE_SET HEADERS
+  (see subproject CMakeLists). Use `physicore::...` target aliases when linking.
+- Public API lives in `*/include/*.h`. Implementation belongs in `*/src/`.
+- Tests are enabled with `PHYSICORE_BUILD_TESTS` (default on top-level builds).
+  Tests use GoogleTest; tests live in each submodule under `tests/` and follow
+  the pattern `*.tests` targets in CMake.
+- Interfaces use small abstract classes in `common/include` (e.g., `process`).
+  New engines/components should implement these interfaces and register as
+  separate libraries that link `physicore::common`.
+
+Integration points and examples
+- Example wiring: `phenotype/physicore/CMakeLists.txt` and
+  `phenotype/physicore/src/main.cpp` (executable entry) link
+  `physicore::mechanics::physicell` and `physicore::reactions-diffusion::biofvm`.
+- Example interface: `mechanics/physicell/include/environment.h` implements
+  `process` (see `common/include/process.h`). Use `run_single_timestep()` as the
+  per-step hook.
+
+Quick tips for code edits
+- When adding a new subsystem:
+  1. Create a subdirectory and CMake target `add_library(physicore.<subsystem>)`.
+  2. Export public headers with FILE_SET HEADERS under `include/` and add an
+     ALIAS target `physicore::<subsystem>`.
+  3. Link to `physicore::common` and follow the tests pattern if adding tests.
+- Prefer modifying `common/include` for cross-cutting interfaces. Keep
+  implementation details in `src/` to avoid exposing internal headers.
+
+Files to read first (in order)
+1. `README.md` — project intent and vision
+2. `CMakePresets.json` — canonical build/test presets used by CI
+3. `CMakeLists.txt` (top-level) — module boundaries
+4. `common/include/*` — core interfaces and data shapes
+5. `phenotype/physicore/src/main.cpp` — how components are wired at runtime
+
+If something is ambiguous
+- Ask the user to run a specific preset (`cmake --workflow=gcc-debug`) or to
+  share failing build/test logs. For design questions, point to the small set
+  of example files above so reviewers can see real usage.
+
+End — ask for feedback if anything is missing or unclear.
