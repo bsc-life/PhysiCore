@@ -37,7 +37,7 @@ jobs:
       run: cmake --preset ${{ matrix.preset }}
 
     - name: Build
-      run: cmake --build --preset ${{ matrix.preset }} --config Release
+      run: cmake --build --preset ${{ matrix.preset }}
 
     - name: Test
-      run: ctest --preset ${{ matrix.preset }} --build-config Release
+      run: ctest --preset ${{ matrix.preset }}
