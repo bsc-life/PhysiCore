@@ -79,8 +79,8 @@
             "name": "_msvc-base",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "cl",
-                "CMAKE_CXX_COMPILER": "cl",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe",
                 "CMAKE_C_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Zi",
                 "CMAKE_CXX_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Zi",
                 "CMAKE_C_FLAGS_RELEASE_INIT": "/W4",
