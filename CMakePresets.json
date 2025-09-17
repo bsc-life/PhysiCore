@@ -1,0 +1,539 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "_root-config",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            }
+        },
+        {
+            "name": "_debug-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "_relwithdebinfo-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "_release-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "_gcc-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "CMAKE_C_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize-undefined-trap-on-error",
+                "CMAKE_CXX_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize-undefined-trap-on-error",
+                "CMAKE_C_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
+                "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
+                "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
+            }
+        },
+        {
+            "name": "_llvm-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_C_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize-undefined-trap-on-error",
+                "CMAKE_CXX_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize-undefined-trap-on-error",
+                "CMAKE_C_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
+                "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
+                "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
+            }
+        },
+        {
+            "name": "_appleclang-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cc",
+                "CMAKE_CXX_COMPILER": "c++",
+                "CMAKE_C_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined",
+                "CMAKE_CXX_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined",
+                "CMAKE_C_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
+                "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
+                "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
+                "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
+            }
+        },
+        {
+            "name": "_msvc-base",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl",
+                "CMAKE_C_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Zi",
+                "CMAKE_CXX_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Zi",
+                "CMAKE_C_FLAGS_RELEASE_INIT": "/W4",
+                "CMAKE_CXX_FLAGS_RELEASE_INIT": "/W4"
+            }
+        },
+        {
+            "name": "gcc-debug",
+            "displayName": "GCC Debug Build",
+            "inherits": [
+                "_root-config",
+                "_debug-base",
+                "_gcc-base"
+            ]
+        },
+        {
+            "name": "gcc-relwithdebinfo",
+            "displayName": "GCC RelWithDebInfo TSan Build",
+            "inherits": [
+                "_root-config",
+                "_relwithdebinfo-base",
+                "_gcc-base"
+            ]
+        },
+        {
+            "name": "gcc-release",
+            "displayName": "GCC Release Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_gcc-base"
+            ]
+        },
+        {
+            "name": "llvm-debug",
+            "displayName": "LLVM Debug Build",
+            "inherits": [
+                "_root-config",
+                "_debug-base",
+                "_llvm-base"
+            ]
+        },
+        {
+            "name": "llvm-cov-debug",
+            "displayName": "LLVM Coverage Build",
+            "inherits": [
+                "_root-config",
+                "_debug-base"
+            ],
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CXX_FLAGS": "-fprofile-instr-generate -fcoverage-mapping"
+            }
+        },
+        {
+            "name": "llvm-relwithdebinfo",
+            "displayName": "LLVM RelWithDebInfo TSan Build",
+            "inherits": [
+                "_root-config",
+                "_relwithdebinfo-base",
+                "_llvm-base"
+            ]
+        },
+        {
+            "name": "llvm-release",
+            "displayName": "LLVM Release Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_llvm-base"
+            ]
+        },
+        {
+            "name": "appleclang-debug",
+            "displayName": "AppleClang Debug Build",
+            "inherits": [
+                "_root-config",
+                "_debug-base",
+                "_appleclang-base"
+            ]
+        },
+        {
+            "name": "appleclang-relwithdebinfo",
+            "displayName": "AppleClang RelWithDebInfo TSan Build",
+            "inherits": [
+                "_root-config",
+                "_relwithdebinfo-base",
+                "_appleclang-base"
+            ]
+        },
+        {
+            "name": "appleclang-release",
+            "displayName": "AppleClang Release Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_appleclang-base"
+            ]
+        },
+        {
+            "name": "msvc-debug",
+            "displayName": "MSVC Debug Build",
+            "inherits": [
+                "_root-config",
+                "_debug-base",
+                "_msvc-base"
+            ]
+        },
+        {
+            "name": "msvc-release",
+            "displayName": "MSVC Release Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_msvc-base"
+            ]
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "_root-build",
+            "hidden": true
+        },
+        {
+            "name": "gcc-debug",
+            "configurePreset": "gcc-debug",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "gcc-relwithdebinfo",
+            "configurePreset": "gcc-relwithdebinfo",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "gcc-release",
+            "configurePreset": "gcc-release",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "llvm-debug",
+            "configurePreset": "llvm-debug",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "llvm-cov-debug",
+            "configurePreset": "llvm-cov-debug",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "llvm-relwithdebinfo",
+            "configurePreset": "llvm-relwithdebinfo",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "llvm-release",
+            "configurePreset": "llvm-release",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "appleclang-debug",
+            "configurePreset": "appleclang-debug",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "appleclang-release",
+            "configurePreset": "appleclang-release",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "appleclang-relwithdebinfo",
+            "configurePreset": "appleclang-relwithdebinfo",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "msvc-debug",
+            "configurePreset": "msvc-debug",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "msvc-release",
+            "configurePreset": "msvc-release",
+            "inherits": [
+                "_root-build"
+            ]
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "_test_base",
+            "hidden": true,
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "gcc-debug",
+            "inherits": "_test_base",
+            "configurePreset": "gcc-debug"
+        },
+        {
+            "name": "gcc-relwithdebinfo",
+            "inherits": "_test_base",
+            "configurePreset": "gcc-relwithdebinfo"
+        },
+        {
+            "name": "gcc-release",
+            "inherits": "_test_base",
+            "configurePreset": "gcc-release"
+        },
+        {
+            "name": "llvm-debug",
+            "inherits": "_test_base",
+            "configurePreset": "llvm-debug"
+        },
+        {
+            "name": "llvm-relwithdebinfo",
+            "inherits": "_test_base",
+            "configurePreset": "llvm-relwithdebinfo"
+        },
+        {
+            "name": "llvm-release",
+            "inherits": "_test_base",
+            "configurePreset": "llvm-release"
+        },
+        {
+            "name": "appleclang-debug",
+            "inherits": "_test_base",
+            "configurePreset": "appleclang-debug"
+        },
+        {
+            "name": "appleclang-relwithdebinfo",
+            "inherits": "_test_base",
+            "configurePreset": "appleclang-relwithdebinfo"
+        },
+        {
+            "name": "appleclang-release",
+            "inherits": "_test_base",
+            "configurePreset": "appleclang-release"
+        },
+        {
+            "name": "msvc-debug",
+            "inherits": "_test_base",
+            "configurePreset": "msvc-debug"
+        },
+        {
+            "name": "msvc-release",
+            "inherits": "_test_base",
+            "configurePreset": "msvc-release"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "gcc-debug",
+            "displayName": "GCC Debug MaxSan Build and Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "gcc-debug"
+                },
+                {
+                    "type": "build",
+                    "name": "gcc-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "gcc-debug"
+                }
+            ]
+        },
+        {
+            "name": "gcc-relwithdebinfo",
+            "displayName": "GCC RelWithDebInfo TSan Build and Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "gcc-relwithdebinfo"
+                },
+                {
+                    "type": "build",
+                    "name": "gcc-relwithdebinfo"
+                },
+                {
+                    "type": "test",
+                    "name": "gcc-relwithdebinfo"
+                }
+            ]
+        },
+        {
+            "name": "gcc-release",
+            "displayName": "GCC Release Build and Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "gcc-release"
+                },
+                {
+                    "type": "build",
+                    "name": "gcc-release"
+                },
+                {
+                    "type": "test",
+                    "name": "gcc-release"
+                }
+            ]
+        },
+        {
+            "name": "llvm-debug",
+            "displayName": "LLVM Debug MaxSan Build and Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "llvm-debug"
+                },
+                {
+                    "type": "build",
+                    "name": "llvm-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "llvm-debug"
+                }
+            ]
+        },
+        {
+            "name": "llvm-relwithdebinfo",
+            "displayName": "LLVM RelWithDebInfo TSan Build and Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "llvm-relwithdebinfo"
+                },
+                {
+                    "type": "build",
+                    "name": "llvm-relwithdebinfo"
+                },
+                {
+                    "type": "test",
+                    "name": "llvm-relwithdebinfo"
+                }
+            ]
+        },
+        {
+            "name": "llvm-release",
+            "displayName": "LLVM Release Build and Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "llvm-release"
+                },
+                {
+                    "type": "build",
+                    "name": "llvm-release"
+                },
+                {
+                    "type": "test",
+                    "name": "llvm-release"
+                }
+            ]
+        },
+        {
+            "name": "appleclang-debug",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "appleclang-debug"
+                },
+                {
+                    "type": "build",
+                    "name": "appleclang-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "appleclang-debug"
+                }
+            ]
+        },
+        {
+            "name": "appleclang-release",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "appleclang-release"
+                },
+                {
+                    "type": "build",
+                    "name": "appleclang-release"
+                },
+                {
+                    "type": "test",
+                    "name": "appleclang-release"
+                }
+            ]
+        },
+        {
+            "name": "msvc-debug",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "msvc-debug"
+                },
+                {
+                    "type": "build",
+                    "name": "msvc-debug"
+                },
+                {
+                    "type": "test",
+                    "name": "msvc-debug"
+                }
+            ]
+        },
+        {
+            "name": "msvc-release",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "msvc-release"
+                },
+                {
+                    "type": "build",
+                    "name": "msvc-release"
+                },
+                {
+                    "type": "test",
+                    "name": "msvc-release"
+                }
+            ]
+        }
+    ]
+}

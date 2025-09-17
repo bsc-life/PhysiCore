@@ -1,4 +1,3 @@
 .cache
 .vscode
 build
-vcpkg_installed
