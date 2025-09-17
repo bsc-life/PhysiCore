@@ -33,11 +33,7 @@ jobs:
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
 
-    - name: Configure CMake
-      run: cmake --preset ${{ matrix.preset }}
-
-    - name: Build
-      run: cmake --build --preset ${{ matrix.preset }}
-
-    - name: Test
-      run: ctest --preset ${{ matrix.preset }}
+    - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
+      uses: lukka/run-cmake@v10
+      with:
+        workflowPreset: ${{ matrix.preset }}
