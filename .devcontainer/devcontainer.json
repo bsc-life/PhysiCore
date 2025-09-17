@@ -1,10 +1,15 @@
 {
 	"name": "physicore-dev",
-	"image": "gcc:latest",
+	"image": "gcc:15.2.0",
 	"remoteUser": "${localEnv:USER}",
 	"mounts": [
 		"source=/home/${localEnv:USER}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly"
 	],
+	"remoteEnv": {
+		"VCPKG_ROOT": "/usr/local/vcpkg",
+		"PATH": "${containerEnv:PATH}:/usr/local/vcpkg"
+	},
+	"postCreateCommand": ".devcontainer/install_vcpkg.sh",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {
 			"toolsToInstall": "cmakelang"
@@ -13,12 +18,19 @@
 			"configureZshAsDefaultShell": true
 		},
 		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers-community/features/llvm:3": {},
 		"ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
 			"packages": [
 				"cmake",
 				"ninja-build",
-				"gdb"
+				"gdb",
+				"curl",
+				"zip",
+				"unzip",
+				"tar",
+				"pkg-config",
+				"llvm-19",
+				"clang-19",
+				"clangd-19"
 			]
 		}
 	},
@@ -31,7 +43,7 @@
 				"ms-vscode.cmake-tools"
 			],
 			"settings": {
-				"clangd.path": "/usr/bin/clangd",
+				"clangd.path": "/usr/bin/clangd-19",
 				"editor.formatOnSave": true,
 				"files.trimTrailingWhitespace": true,
 				"files.insertFinalNewline": true,
