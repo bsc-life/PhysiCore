@@ -19,15 +19,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         preset: [gcc-release, llvm-release, appleclang-release, msvc-release]
-        exclude:
-          - os: windows-latest
-            preset: gcc-release
-          - os: windows-latest
-            preset: llvm-release
-          - os: windows-latest
-            preset: appleclang-release
+        include:
           - os: ubuntu-latest
+            preset: gcc-release
+          - os: ubuntu-latest
+            preset: llvm-release
+          - os: macos-latest
             preset: appleclang-release
+          - os: windows-latest
+            preset: msvc-release
 
     steps:
     - uses: actions/checkout@v4
