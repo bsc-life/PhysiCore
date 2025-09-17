@@ -17,8 +17,6 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        preset: [gcc-release, llvm-release, appleclang-release, msvc-release]
         include:
           - os: ubuntu-latest
             preset: gcc-release
