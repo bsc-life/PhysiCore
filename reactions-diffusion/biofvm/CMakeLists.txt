@@ -1,27 +1,31 @@
-cmake_minimum_required(VERSION 3.14)
-project(BioFVM LANGUAGES CXX)
+add_library(physicore.reactions-diffusion.biofvm)
+add_library(physicore::reactions-diffusion::biofvm ALIAS
+            physicore.reactions-diffusion.biofvm)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+target_sources(physicore.reactions-diffusion.biofvm
+               PRIVATE src/microenvironment.cpp)
 
-# Enable all warnings
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-elseif(MSVC)
-  add_compile_options(/W4)
+target_sources(
+  physicore.reactions-diffusion.biofvm
+  PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
+         "${CMAKE_CURRENT_SOURCE_DIR}/include/microenvironment.h")
+
+target_link_libraries(physicore.reactions-diffusion.biofvm
+                      PUBLIC physicore::common)
+
+if(PHYSICORE_BUILD_TESTS)
+  find_package(GTest REQUIRED)
+  add_executable(physicore.reactions-diffusion.biofvm.tests)
+
+  file(GLOB TEST_SOURCES tests/*.cpp)
+  target_sources(physicore.reactions-diffusion.biofvm.tests
+                 PRIVATE ${TEST_SOURCES})
+
+  target_link_libraries(
+    physicore.reactions-diffusion.biofvm.tests
+    PRIVATE physicore::reactions-diffusion::biofvm GTest::gtest
+            GTest::gtest_main)
+
+  include(GoogleTest)
+  gtest_discover_tests(physicore.reactions-diffusion.biofvm.tests)
 endif()
-
-# Add source files (update as needed)
-file(GLOB_RECURSE BIOFVM_SOURCES src/*.cpp)
-add_library(biofvm ${BIOFVM_SOURCES})
-
-target_include_directories(biofvm PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(biofvm PUBLIC physicore-common)
-
-file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
-
-add_executable(biofvm_tests ${TEST_SOURCES})
-target_link_libraries(biofvm_tests PRIVATE biofvm gtest_main)
-gtest_discover_tests(biofvm_tests)

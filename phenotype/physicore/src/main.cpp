@@ -1,4 +1,4 @@
-#include "../reactions-diffusion/biofvm/include/microenvironment.h"
+#include <microenvironment.h>
 
 using namespace physicore;
 

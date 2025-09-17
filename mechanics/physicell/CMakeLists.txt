@@ -1,28 +1,26 @@
-cmake_minimum_required(VERSION 3.14)
-project(MicroMechanics LANGUAGES CXX)
+add_library(physicore.mechanics.physicell)
+add_library(physicore::mechanics::physicell ALIAS physicore.mechanics.physicell)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+target_sources(physicore.mechanics.physicell PRIVATE src/environment.cpp)
 
-# Enable all warnings
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-elseif(MSVC)
-  add_compile_options(/W4)
+target_sources(
+  physicore.mechanics.physicell
+  PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
+         "${CMAKE_CURRENT_SOURCE_DIR}/include/environment.h")
+
+target_link_libraries(physicore.mechanics.physicell PUBLIC physicore::common)
+
+if(PHYSICORE_BUILD_TESTS)
+  find_package(GTest REQUIRED)
+  add_executable(physicore.mechanics.physicell.tests)
+
+  file(GLOB TEST_SOURCES tests/*.cpp)
+  target_sources(physicore.mechanics.physicell.tests PRIVATE ${TEST_SOURCES})
+
+  target_link_libraries(
+    physicore.mechanics.physicell.tests PRIVATE physicore::mechanics::physicell
+                                                GTest::gtest GTest::gtest_main)
+
+  include(GoogleTest)
+  gtest_discover_tests(physicore.mechanics.physicell.tests)
 endif()
-
-# Add source files (update as needed)
-file(GLOB_RECURSE MECH_SOURCES src/*.cpp)
-add_library(micromechanics ${MECH_SOURCES})
-
-target_include_directories(micromechanics
-                           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(micromechanics PUBLIC physicore-common)
-
-file(GLOB_RECURSE TEST_SOURCES tests/*.cpp)
-
-add_executable(micromechanics_tests ${TEST_SOURCES})
-target_link_libraries(micromechanics_tests PRIVATE micromechanics gtest_main)
-gtest_discover_tests(micromechanics_tests)

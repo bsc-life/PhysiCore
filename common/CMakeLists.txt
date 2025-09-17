@@ -1,26 +1,33 @@
-cmake_minimum_required(VERSION 3.14)
+add_library(physicore.common)
+add_library(physicore::common ALIAS physicore.common)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+target_sources(
+  physicore.common PRIVATE src/base_agent_container.cpp src/base_agent_data.cpp
+                           src/base_agent.cpp)
 
-# Enable all warnings
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-elseif(MSVC)
-  add_compile_options(/W4)
+target_sources(
+  physicore.common
+  PUBLIC FILE_SET
+         HEADERS
+         BASE_DIRS
+         "${CMAKE_CURRENT_SOURCE_DIR}/include"
+         FILES
+         "${CMAKE_CURRENT_SOURCE_DIR}/include/base_agent_container.h"
+         "${CMAKE_CURRENT_SOURCE_DIR}/include/base_agent_data.h"
+         "${CMAKE_CURRENT_SOURCE_DIR}/include/base_agent.h"
+         "${CMAKE_CURRENT_SOURCE_DIR}/include/types.h")
+
+if(PHYSICORE_BUILD_TESTS)
+  find_package(GTest REQUIRED)
+  add_executable(physicore.common.tests)
+
+  file(GLOB TEST_SOURCES tests/*.cpp)
+  target_sources(physicore.common.tests PRIVATE ${TEST_SOURCES})
+
+  target_link_libraries(
+    physicore.common.tests PRIVATE physicore::common GTest::gtest
+                                   GTest::gtest_main)
+
+  include(GoogleTest)
+  gtest_discover_tests(physicore.common.tests)
 endif()
-
-# Add source files (update as needed)
-file(GLOB_RECURSE COMMON_SOURCES src/*.cpp)
-add_library(physicore-common ${COMMON_SOURCES})
-
-target_include_directories(physicore-common
-                           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-file(GLOB TEST_SOURCES tests/*.cpp)
-
-add_executable(common_tests ${TEST_SOURCES})
-target_link_libraries(common_tests PRIVATE physicore-common gtest_main)
-gtest_discover_tests(common_tests)
