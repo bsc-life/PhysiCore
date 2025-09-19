@@ -5,7 +5,7 @@
 
 namespace physicore::biofvm {
 
-class microenvironment : public process
+class microenvironment : public timestep_executor
 {
 	real_t timestep;
 
