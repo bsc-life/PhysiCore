@@ -28,7 +28,7 @@ public:
 
 	index_t substrate_count;
 
-	agent_data(physicore::base_agent_data& base_data, index_t substrate_count = 1);
+	explicit agent_data(physicore::base_agent_data& base_data, index_t substrate_count = 1);
 
 	void add();
 	void remove_at(index_t position);

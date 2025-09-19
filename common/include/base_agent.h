@@ -12,7 +12,7 @@ class base_agent
 {
 protected:
 	index_t index;
-	base_agent_data& data;
+	base_agent_data& base_data;
 
 	friend base_agent_container;
 
