@@ -1,5 +1,7 @@
 #include "base_agent_data.h"
 
+#include <cassert>
+
 using namespace physicore;
 
 void base_agent_data::add()
@@ -10,13 +12,15 @@ void base_agent_data::add()
 
 void base_agent_data::remove_at(index_t position)
 {
+	assert(position < agents_count);
+
 	if (position >= agents_count)
 		return;
 	--agents_count;
 
-	for (size_t d = 0; d < dims; ++d)
+	if (position != agents_count)
 	{
-		positions[position * dims + d] = positions[agents_count * dims + d];
+		move_vector(&positions[position * dims], &positions[agents_count * dims], dims);
 	}
 
 	positions.resize(agents_count * dims);
