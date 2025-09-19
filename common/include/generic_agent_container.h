@@ -1,13 +1,26 @@
 #pragma once
 
 #include <cassert>
+#include <concepts>
 #include <ranges>
 
 #include "base_agent_container.h"
+#include "types.h"
 
 namespace physicore {
 
-template <typename AgentDataType, typename AgentType>
+// Concept to check if a type has the required agent data methods
+template <typename T>
+concept agent_data_type = requires(T data, index_t pos) {
+	{ data.add() } -> std::same_as<void>;
+	{ data.remove_at(pos) } -> std::same_as<void>;
+};
+
+// Concept to check if a type is derived from base_agent
+template <typename T>
+concept derived_from_base_agent = std::derived_from<T, base_agent>;
+
+template <agent_data_type AgentDataType, derived_from_base_agent AgentType>
 class generic_agent_container : public base_agent_container
 {
 protected:
@@ -18,7 +31,7 @@ public:
 	generic_agent_container(Args&&... args) : base_agent_container(), data(this->base_data, std::forward<Args>(args)...)
 	{}
 
-	AgentType* create()
+	virtual AgentType* create() override
 	{
 		data.add();
 		auto new_agent = std::make_unique<AgentType>(this->base_data.agents_count - 1, data);
@@ -27,7 +40,7 @@ public:
 		return agent_ptr;
 	}
 
-	AgentType* get_agent_at(index_t position)
+	virtual AgentType* get_agent_at(index_t position) override
 	{
 		base_agent* base_agent = base_agent_container::get_agent_at(position);
 		AgentType* agent = dynamic_cast<AgentType*>(base_agent);
@@ -44,7 +57,7 @@ public:
 		if (static_cast<size_t>(position) >= this->agents.size())
 			return;
 
-		data.remove(position);
+		data.remove_at(position);
 
 		swap_and_erase_agent(position);
 	}

@@ -24,7 +24,7 @@ void agent_data::add()
 	volumes.resize(base_data.agents_count);
 }
 
-void agent_data::remove(index_t position)
+void agent_data::remove_at(index_t position)
 {
 	assert(position < base_data.agents_count);
 

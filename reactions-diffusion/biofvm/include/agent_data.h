@@ -31,7 +31,7 @@ public:
 	agent_data(physicore::base_agent_data& base_data, index_t substrate_count = 1);
 
 	void add();
-	void remove(index_t position);
+	void remove_at(index_t position);
 };
 
 } // namespace physicore::biofvm

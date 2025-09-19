@@ -71,7 +71,7 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	EXPECT_EQ(data.volumes.size(), expected_size);
 
 	// Remove agent at position 1
-	data.remove(1);
+	data.remove_at(1);
 
 	expected_size = 2;
 
@@ -86,7 +86,7 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	EXPECT_EQ(data.volumes.size(), expected_size);
 
 	// Remove agent at position 0
-	data.remove(0);
+	data.remove_at(0);
 
 	expected_size = 1;
 
