@@ -12,7 +12,7 @@ protected:
 	agent_data& data;
 
 public:
-	agent(agent_data& data, index_t index);
+	agent(index_t index, agent_data& data);
 
 	std::span<real_t> secretion_rates();
 	std::span<real_t> saturation_densities();

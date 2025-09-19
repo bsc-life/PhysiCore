@@ -3,7 +3,7 @@
 using namespace physicore;
 using namespace physicore::biofvm;
 
-agent::agent(agent_data& data, index_t index) : physicore::base_agent(index, data.base_data), data(data) {}
+agent::agent(index_t index, agent_data& data) : physicore::base_agent(index, data.base_data), data(data) {}
 
 std::span<real_t> agent::secretion_rates()
 {

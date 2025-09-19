@@ -24,7 +24,7 @@ protected:
 
 TEST_F(AgentTest, SecretionRates)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	auto rates = test_agent.secretion_rates();
 	ASSERT_EQ(rates.size(), 2);
 
@@ -37,7 +37,7 @@ TEST_F(AgentTest, SecretionRates)
 
 TEST_F(AgentTest, SaturationDensities)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	auto densities = test_agent.saturation_densities();
 	ASSERT_EQ(densities.size(), 2);
 
@@ -49,7 +49,7 @@ TEST_F(AgentTest, SaturationDensities)
 
 TEST_F(AgentTest, UptakeRates)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	auto rates = test_agent.uptake_rates();
 	ASSERT_EQ(rates.size(), 2);
 
@@ -61,7 +61,7 @@ TEST_F(AgentTest, UptakeRates)
 
 TEST_F(AgentTest, NetExportRates)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	auto rates = test_agent.net_export_rates();
 	ASSERT_EQ(rates.size(), 2);
 
@@ -73,7 +73,7 @@ TEST_F(AgentTest, NetExportRates)
 
 TEST_F(AgentTest, InternalizedSubstrates)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	auto substrates = test_agent.internalized_substrates();
 	ASSERT_EQ(substrates.size(), 2);
 
@@ -85,7 +85,7 @@ TEST_F(AgentTest, InternalizedSubstrates)
 
 TEST_F(AgentTest, FractionReleasedAtDeath)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	auto fractions = test_agent.fraction_released_at_death();
 	ASSERT_EQ(fractions.size(), 2);
 
@@ -97,7 +97,7 @@ TEST_F(AgentTest, FractionReleasedAtDeath)
 
 TEST_F(AgentTest, FractionTransferredWhenIngested)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	auto fractions = test_agent.fraction_transferred_when_ingested();
 	ASSERT_EQ(fractions.size(), 2);
 
@@ -109,7 +109,7 @@ TEST_F(AgentTest, FractionTransferredWhenIngested)
 
 TEST_F(AgentTest, Volume)
 {
-	agent test_agent(data, 0);
+	agent test_agent(0, data);
 	test_agent.volume() = 100.5;
 	EXPECT_EQ(test_agent.volume(), 100.5);
 }
@@ -117,8 +117,8 @@ TEST_F(AgentTest, Volume)
 TEST_F(AgentTest, MultipleAgents)
 {
 	data.add(); // Add second agent
-	agent agent0(data, 0);
-	agent agent1(data, 1);
+	agent agent0(0, data);
+	agent agent1(1, data);
 
 	// Test that the agents access different memory locations
 	agent0.secretion_rates()[0] = 1.0;

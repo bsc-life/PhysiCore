@@ -10,16 +10,21 @@ class base_agent;
 
 class base_agent_container
 {
-	base_agent_data data;
+protected:
+	base_agent_data base_data;
 
 	std::vector<std::unique_ptr<base_agent>> agents;
+
+	void swap_and_erase_agent(index_t position);
 
 public:
 	virtual base_agent* create();
 
-	virtual void remove(base_agent* agent);
+	virtual base_agent* get_agent_at(index_t position);
 
-	virtual void remove_at(index_t index);
+	virtual void remove_agent(base_agent* agent);
+
+	virtual void remove_at(index_t position);
 
 	virtual ~base_agent_container() = default;
 };
