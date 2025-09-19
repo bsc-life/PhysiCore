@@ -1,0 +1,73 @@
+#pragma once
+
+#include <optional>
+
+#include "mesh.h"
+#include "microenvironment.h"
+#include "types.h"
+
+namespace physicore::biofvm {
+
+class microenvironment_builder
+{
+	std::string name, time_units, space_units;
+
+	real_t timestep = 0.01;
+	std::optional<cartesian_mesh> mesh_;
+
+	std::vector<std::string> substrates_names;
+	std::vector<std::string> substrates_units;
+
+	std::vector<real_t> diffusion_coefficients;
+	std::vector<real_t> decay_rates;
+	std::vector<real_t> initial_conditions;
+
+	std::vector<index_t> dirichlet_voxels;
+	std::vector<real_t> dirichlet_values;
+	std::vector<bool> dirichlet_conditions;
+
+	std::vector<std::array<real_t, 3>> boundary_dirichlet_mins_values;
+	std::vector<std::array<real_t, 3>> boundary_dirichlet_maxs_values;
+	std::vector<std::array<bool, 3>> boundary_dirichlet_mins_conditions;
+	std::vector<std::array<bool, 3>> boundary_dirichlet_maxs_conditions;
+
+	microenvironment::bulk_func_t supply_rate_func, uptake_rate_func, supply_target_densities_func;
+
+	bool compute_internalized_substrates = false;
+
+	void fill_dirichlet_vectors(microenvironment& m);
+
+public:
+	void set_name(const std::string& name);
+	void set_time_units(const std::string& units);
+	void set_space_units(const std::string& units);
+
+	void set_time_step(real_t time_step);
+
+	// mesh functions
+	void resize(index_t dims, std::array<index_t, 3> bounding_box_mins, std::array<index_t, 3> bounding_box_maxs,
+				std::array<index_t, 3> voxel_shape);
+
+	// density functions
+	void add_density(const std::string& name, const std::string& units, real_t diffusion_coefficient = 0,
+					 real_t decay_rate = 0, real_t initial_condition = 0);
+	std::size_t get_density_index(const std::string& name) const;
+
+	// dirichlet functions
+	void add_dirichlet_node(std::array<index_t, 3> voxel_index, std::vector<real_t> values,
+							std::vector<bool> conditions = {});
+	void add_boundary_dirichlet_conditions(std::size_t density_index, std::array<real_t, 3> mins_values,
+										   std::array<real_t, 3> maxs_values,
+										   std::array<bool, 3> mins_conditions = { true, true, true },
+										   std::array<bool, 3> maxs_conditions = { true, true, true });
+
+	void set_bulk_functions(microenvironment::bulk_func_t supply_rate_func,
+							microenvironment::bulk_func_t uptake_rate_func,
+							microenvironment::bulk_func_t supply_target_densities_func);
+
+	void do_compute_internalized_substrates();
+
+	std::unique_ptr<microenvironment> build();
+};
+
+} // namespace physicore::biofvm
