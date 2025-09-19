@@ -10,6 +10,7 @@ class base_agent_container;
 
 class base_agent
 {
+protected:
 	index_t index;
 	base_agent_data& data;
 
