@@ -3,7 +3,7 @@ add_library(physicore::reactions-diffusion::biofvm ALIAS
             physicore.reactions-diffusion.biofvm)
 
 target_sources(physicore.reactions-diffusion.biofvm
-               PRIVATE src/microenvironment.cpp)
+               PRIVATE src/microenvironment.cpp src/agent_data.cpp)
 
 target_sources(
   physicore.reactions-diffusion.biofvm
