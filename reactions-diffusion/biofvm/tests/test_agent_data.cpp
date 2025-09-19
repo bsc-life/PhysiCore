@@ -17,7 +17,7 @@ base_agent_data make_base_agent_data(index_t count)
 	return data;
 }
 
-TEST(AgentData, AddInitializesVectorsCorrectly)
+TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 {
 	base_agent_data base = make_base_agent_data(0);
 	index_t substrate_count = 3;
@@ -48,7 +48,7 @@ TEST(AgentData, AddInitializesVectorsCorrectly)
 	EXPECT_EQ(data.volumes.size(), 2);
 }
 
-TEST(AgentData, RemoveShrinksVectorsCorrectly)
+TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 {
 	base_agent_data base = make_base_agent_data(0);
 	index_t substrate_count = 2;
