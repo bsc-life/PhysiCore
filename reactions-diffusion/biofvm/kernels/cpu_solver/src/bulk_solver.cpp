@@ -5,7 +5,7 @@
 using namespace physicore;
 using namespace physicore::biofvm::kernels::cpu;
 
-void bulk_solver::initialize(microenvironment& m)
+void bulk_solver::initialize(const microenvironment& m)
 {
 	supply_rate_f_ = m.supply_rate_func;
 	uptake_rate_f_ = m.uptake_rate_func;

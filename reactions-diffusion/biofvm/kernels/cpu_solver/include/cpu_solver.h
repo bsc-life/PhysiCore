@@ -15,7 +15,7 @@ class cpu_solver : public solver
 	bulk_solver b_solver;
 	cell_solver c_solver;
 	diffusion_solver d_solver;
-	dirichlet_solver dir_solver;
+	[[no_unique_address]] dirichlet_solver dir_solver;
 
 public:
 	void solve(microenvironment& m, index_t iterations) override;

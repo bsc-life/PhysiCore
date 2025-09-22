@@ -32,7 +32,7 @@ struct problem_t
 		problem.nz = m.mesh.grid_shape[2];
 		problem.substrates_count = m.substrates_count;
 		problem.iterations = iterations;
-		problem.dt = static_cast<real_t>(m.diffusion_timestep);
+		problem.dt = m.diffusion_timestep;
 		problem.diffusion_coefficients =
 			std::vector<real_t>(m.diffusion_coefficients.get(), m.diffusion_coefficients.get() + m.substrates_count);
 		problem.decay_rates = std::vector<real_t>(m.decay_rates.get(), m.decay_rates.get() + m.substrates_count);

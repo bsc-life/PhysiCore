@@ -38,9 +38,9 @@ class microenvironment_builder
 	void fill_dirichlet_vectors(microenvironment& m);
 
 public:
-	void set_name(const std::string& name);
-	void set_time_units(const std::string& units);
-	void set_space_units(const std::string& units);
+	void set_name(std::string_view name);
+	void set_time_units(std::string_view units);
+	void set_space_units(std::string_view units);
 
 	void set_time_step(real_t time_step);
 

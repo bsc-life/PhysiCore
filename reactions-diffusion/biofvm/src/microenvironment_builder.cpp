@@ -9,11 +9,11 @@
 using namespace physicore::biofvm;
 using namespace physicore;
 
-void microenvironment_builder::set_name(const std::string& name) { this->name = name; }
+void microenvironment_builder::set_name(std::string_view name) { this->name = name; }
 
-void microenvironment_builder::set_time_units(const std::string& time_units) { this->time_units = time_units; }
+void microenvironment_builder::set_time_units(std::string_view time_units) { this->time_units = time_units; }
 
-void microenvironment_builder::set_space_units(const std::string& space_units) { this->space_units = space_units; }
+void microenvironment_builder::set_space_units(std::string_view space_units) { this->space_units = space_units; }
 
 void microenvironment_builder::set_time_step(real_t time_step) { this->timestep = time_step; }
 
@@ -40,7 +40,7 @@ void microenvironment_builder::add_density(const std::string& name, const std::s
 
 std::size_t microenvironment_builder::get_density_index(const std::string& name) const
 {
-	auto it = std::find(substrates_names.begin(), substrates_names.end(), name);
+	auto it = std::ranges::find(substrates_names, name);
 	if (it == substrates_names.end())
 	{
 		throw std::runtime_error("Density " + name + " not found");
@@ -166,24 +166,23 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 	m->substrates_units = std::move(substrates_units);
 
 	m->initial_conditions = std::make_unique<real_t[]>(initial_conditions.size());
-	std::memcpy(m->initial_conditions.get(), initial_conditions.data(), initial_conditions.size() * sizeof(real_t));
+	std::ranges::copy(initial_conditions, m->initial_conditions.get());
 
 	m->diffusion_coefficients = std::make_unique<real_t[]>(diffusion_coefficients.size());
-	std::memcpy(m->diffusion_coefficients.get(), diffusion_coefficients.data(),
-				diffusion_coefficients.size() * sizeof(real_t));
+	std::ranges::copy(diffusion_coefficients, m->diffusion_coefficients.get());
 
 	m->decay_rates = std::make_unique<real_t[]>(decay_rates.size());
-	std::memcpy(m->decay_rates.get(), decay_rates.data(), decay_rates.size() * sizeof(real_t));
+	std::ranges::copy(decay_rates, m->decay_rates.get());
 
 	m->dirichlet_interior_voxels_count = dirichlet_voxels.size() / m->mesh.dims;
 	m->dirichlet_interior_voxels = std::make_unique<index_t[]>(dirichlet_voxels.size());
-	std::copy(dirichlet_voxels.begin(), dirichlet_voxels.end(), m->dirichlet_interior_voxels.get());
+	std::ranges::copy(dirichlet_voxels, m->dirichlet_interior_voxels.get());
 
 	m->dirichlet_interior_values = std::make_unique<real_t[]>(dirichlet_values.size());
-	std::copy(dirichlet_values.begin(), dirichlet_values.end(), m->dirichlet_interior_values.get());
+	std::ranges::copy(dirichlet_values, m->dirichlet_interior_values.get());
 
 	m->dirichlet_interior_conditions = std::make_unique<bool[]>(dirichlet_conditions.size());
-	std::copy(dirichlet_conditions.begin(), dirichlet_conditions.end(), m->dirichlet_interior_conditions.get());
+	std::ranges::copy(dirichlet_conditions, m->dirichlet_interior_conditions.get());
 
 	fill_dirichlet_vectors(*m);
 

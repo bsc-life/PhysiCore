@@ -47,15 +47,15 @@ std::array<index_t, 3> cartesian_mesh::voxel_position(std::span<const real_t> po
 			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]),
 					 (index_t)((position[1] - bounding_box_mins[1]) / voxel_shape[1]),
 					 (index_t)((position[2] - bounding_box_mins[2]) / voxel_shape[2]) };
+		default:
+			assert(false); // Should never reach here
+			return { 0, 0, 0 };
 	}
-
-	assert(false); // Should never reach here
-	return { 0, 0, 0 };
 }
 
 std::array<real_t, 3> cartesian_mesh::voxel_center(std::array<index_t, 3> position) const
 {
-	return { (real_t)(position[0] * voxel_shape[0] + voxel_shape[0] / 2.0 + bounding_box_mins[0]),
-			 (real_t)(position[1] * voxel_shape[1] + voxel_shape[1] / 2.0 + bounding_box_mins[1]),
-			 (real_t)(position[2] * voxel_shape[2] + voxel_shape[2] / 2.0 + bounding_box_mins[2]) };
+	return { position[0] * voxel_shape[0] + voxel_shape[0] / 2.0 + bounding_box_mins[0],
+			 position[1] * voxel_shape[1] + voxel_shape[1] / 2.0 + bounding_box_mins[1],
+			 position[2] * voxel_shape[2] + voxel_shape[2] / 2.0 + bounding_box_mins[2] };
 }

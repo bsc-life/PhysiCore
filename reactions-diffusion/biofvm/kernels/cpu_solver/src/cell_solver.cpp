@@ -9,7 +9,7 @@ using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::cpu;
 
 
-static constexpr index_t no_ballot = std::numeric_limits<index_t>().max();
+static constexpr index_t no_ballot = std::numeric_limits<index_t>::max();
 
 template <index_t dims>
 auto fix_dims(const real_t* cell_position, const cartesian_mesh& m)
@@ -154,7 +154,7 @@ template <typename density_layout_t>
 void compute_fused(real_t* HWY_RESTRICT substrate_densities, real_t* HWY_RESTRICT internalized_substrates,
 				   const std::atomic<real_t>* HWY_RESTRICT numerator,
 				   const std::atomic<real_t>* HWY_RESTRICT denominator, const std::atomic<real_t>* HWY_RESTRICT factor,
-				   index_t voxel_volume, density_layout_t dens_l)
+				   real_t voxel_volume, density_layout_t dens_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
@@ -181,7 +181,7 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 					const real_t* numerators, const real_t* denominators, const real_t* factors,
 					const std::atomic<index_t>* ballots, bool with_internalized, bool is_conflict)
 {
-	index_t voxel_volume = mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
+	real_t voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
 	if (with_internalized && !is_conflict)
 	{
@@ -235,7 +235,7 @@ void simulate(const auto dens_l, const auto ballot_l, agent_data& data, microenv
 	{
 		compute_intermediates(numerators, denominators, factors, data.secretion_rates.data(), data.uptake_rates.data(),
 							  data.saturation_densities.data(), data.net_export_rates.data(), data.volumes.data(),
-							  m.mesh.voxel_volume(), m.diffusion_timestep, data.base_data.agents_count,
+							  (real_t)m.mesh.voxel_volume(), m.diffusion_timestep, data.base_data.agents_count,
 							  data.substrate_count);
 
 		clear_ballots<dims>(ballot_l, data.base_data.positions.data(), ballots, reduced_numerators,
@@ -295,6 +295,9 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 						factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
 			return;
 		}
+		default:
+			assert(false);
+			return;
 	}
 }
 
@@ -307,7 +310,7 @@ void release_internal(real_t* HWY_RESTRICT substrate_densities, real_t* HWY_REST
 
 	for (index_t s = 0; s < substrates_count; s++)
 	{
-		std::atomic_ref<real_t>((dens_l | noarr::get_at<'s'>(substrate_densities, s)))
+		std::atomic_ref<real_t>(dens_l | noarr::get_at<'s'>(substrate_densities, s))
 			.fetch_add(internalized_substrates[s] * fraction_released_at_death[s] / voxel_volume,
 					   std::memory_order_relaxed);
 
@@ -318,7 +321,7 @@ void release_internal(real_t* HWY_RESTRICT substrate_densities, real_t* HWY_REST
 template <index_t dims>
 void release_dim(const auto dens_l, agent_data& data, const cartesian_mesh& mesh, real_t* substrates, index_t index)
 {
-	index_t voxel_volume = mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
+	real_t voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
 	release_internal(substrates, data.internalized_substrates.data() + index * data.substrate_count,
 					 data.fraction_released_at_death.data() + index * data.substrate_count, voxel_volume,
@@ -344,10 +347,13 @@ void cell_solver::release_internalized_substrates(microenvironment& m, diffusion
 			release_dim<3>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
 						   d_solver.get_substrates_pointer(), index);
 			return;
+		default:
+			assert(false);
+			return;
 	}
 }
 
-void cell_solver::resize(microenvironment& m)
+void cell_solver::resize(const microenvironment& m)
 {
 	auto prev_capacity = numerators_.capacity();
 
@@ -365,7 +371,7 @@ void cell_solver::resize(microenvironment& m)
 	}
 }
 
-void cell_solver::initialize(microenvironment& m)
+void cell_solver::initialize(const microenvironment& m)
 {
 	compute_internalized_substrates_ = m.compute_internalized_substrates;
 

@@ -23,7 +23,7 @@ class bulk_solver
 	std::unique_ptr<real_t[]> supply_rates_, uptake_rates_, supply_target_densities_;
 
 public:
-	void initialize(microenvironment& m);
+	void initialize(const microenvironment& m);
 
 	void solve(microenvironment& m, diffusion_solver& d_solver);
 };

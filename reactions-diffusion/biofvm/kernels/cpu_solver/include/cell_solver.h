@@ -55,12 +55,12 @@ class cell_solver : generic_agent_solver<agent_data>
 
 	std::unique_ptr<std::atomic<index_t>[]> ballots_;
 
-	void resize(microenvironment& m);
+	void resize(const microenvironment& m);
 
 	static void release_internalized_substrates(agent_data& data, index_t index);
 
 public:
-	void initialize(microenvironment& m);
+	void initialize(const microenvironment& m);
 
 	void simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, bool recompute);
 

@@ -33,11 +33,11 @@ protected:
 
 public:
 	template <typename... Args>
-	generic_agent_container(index_t dims = 3, Args&&... args)
+	explicit generic_agent_container(index_t dims = 3, Args&&... args)
 		: base_agent_container(dims), data(this->base_data, std::forward<Args>(args)...)
 	{}
 
-	virtual AgentType* create() override
+	AgentType* create() override
 	{
 		data.add();
 		auto new_agent = std::make_unique<AgentType>(this->base_data.agents_count - 1, data);
@@ -46,17 +46,17 @@ public:
 		return agent_ptr;
 	}
 
-	virtual AgentType* get_agent_at(index_t position) override
+	AgentType* get_agent_at(index_t position) override
 	{
 		base_agent* base_agent = base_agent_container::get_agent_at(position);
-		AgentType* agent = dynamic_cast<AgentType*>(base_agent);
+		auto agent = dynamic_cast<AgentType*>(base_agent);
 
 		assert(base_agent == nullptr || agent != nullptr); // if base_agent is not null, dynamic_cast must succeed
 
 		return agent;
 	}
 
-	virtual void remove_at(index_t position) override
+	void remove_at(index_t position) override
 	{
 		assert(position < this->base_data.agents_count);
 
