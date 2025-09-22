@@ -46,6 +46,7 @@ jobs:
         brew install libomp
         echo "export LDFLAGS=\"-L/opt/homebrew/opt/libomp/lib\"" >> $GITHUB_ENV
         echo "export CPPFLAGS=\"-I/opt/homebrew/opt/libomp/include\"" >> $GITHUB_ENV
+
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
 
