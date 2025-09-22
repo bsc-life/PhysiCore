@@ -23,7 +23,7 @@ struct cartesian_mesh
 	std::size_t voxel_count() const;
 	index_t voxel_volume() const;
 
-	std::array<index_t, 3> voxel_position(std::span<real_t> position) const;
+	std::array<index_t, 3> voxel_position(std::span<const real_t> position) const;
 
 	std::array<real_t, 3> voxel_center(std::array<index_t, 3> position) const;
 };

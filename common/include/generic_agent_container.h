@@ -20,11 +20,16 @@ concept agent_data_type = requires(T data, index_t pos) {
 template <typename T>
 concept derived_from_base_agent = std::derived_from<T, base_agent>;
 
+template <agent_data_type AgentDataType>
+class generic_agent_solver;
+
 template <agent_data_type AgentDataType, derived_from_base_agent AgentType>
 class generic_agent_container : public base_agent_container
 {
 protected:
 	AgentDataType data;
+
+	friend generic_agent_solver<AgentDataType>;
 
 public:
 	template <typename... Args>

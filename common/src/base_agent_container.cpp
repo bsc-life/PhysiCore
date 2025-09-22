@@ -43,4 +43,6 @@ void base_agent_container::swap_and_erase_agent(index_t position)
 	agents.resize(base_data.agents_count);
 }
 
+std::size_t base_agent_container::size() const { return agents.size(); }
+
 } // namespace physicore

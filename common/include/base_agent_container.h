@@ -26,6 +26,8 @@ public:
 
 	virtual void remove_at(index_t position);
 
+	virtual std::size_t size() const;
+
 	virtual ~base_agent_container() = default;
 };
 

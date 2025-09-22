@@ -32,18 +32,17 @@ std::size_t cartesian_mesh::voxel_count() const
 
 index_t cartesian_mesh::voxel_volume() const { return voxel_shape[0] * voxel_shape[1] * voxel_shape[2]; }
 
-std::array<index_t, 3> cartesian_mesh::voxel_position(std::span<real_t> position) const
+std::array<index_t, 3> cartesian_mesh::voxel_position(std::span<const real_t> position) const
 {
 	assert(position.size() == (size_t)dims);
 
-	switch (dims)
+	switch (position.size())
 	{
 		case 1:
-			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]),
-					 (index_t)((position[1] - bounding_box_mins[1]) / voxel_shape[1]) };
+			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]), 0, 0 };
 		case 2:
 			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]),
-					 (index_t)((position[1] - bounding_box_mins[1]) / voxel_shape[1]) };
+					 (index_t)((position[1] - bounding_box_mins[1]) / voxel_shape[1]), 0 };
 		case 3:
 			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]),
 					 (index_t)((position[1] - bounding_box_mins[1]) / voxel_shape[1]),

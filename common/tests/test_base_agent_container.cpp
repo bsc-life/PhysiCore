@@ -9,11 +9,14 @@ TEST(BaseAgentContainerTest, CreateAndRemove)
 {
 	base_agent_container container;
 	auto* agent1 = container.create();
+	EXPECT_EQ(container.size(), 1);
 	EXPECT_NE(agent1, nullptr);
 	auto* agent2 = container.create();
+	EXPECT_EQ(container.size(), 2);
 	EXPECT_NE(agent2, nullptr);
 	EXPECT_NE(agent1, agent2);
 	container.remove_agent(agent1);
+	EXPECT_EQ(container.size(), 1);
 	// After removal, agent1 pointer is invalid, but agent2 should still be valid
 	EXPECT_NE(container.create(), nullptr);
 }

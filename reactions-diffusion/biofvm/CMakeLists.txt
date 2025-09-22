@@ -15,6 +15,8 @@ target_sources(
 target_link_libraries(physicore.reactions-diffusion.biofvm
                       PUBLIC physicore::common)
 
+add_subdirectory(src/kernels/cpu_solver)
+
 if(PHYSICORE_BUILD_TESTS)
   find_package(GTest REQUIRED)
   add_executable(physicore.reactions-diffusion.biofvm.tests)
