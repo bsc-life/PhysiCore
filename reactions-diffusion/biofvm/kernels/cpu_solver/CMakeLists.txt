@@ -4,7 +4,7 @@ add_library(physicore::reactions-diffusion::kernels::cpu_solver ALIAS
 
 find_package(hwy CONFIG REQUIRED)
 
-find_package(OpenMP REQUIRED)
+find_package(OpenMP 4)
 
 target_sources(
   physicore.reactions-diffusion.kernels.cpu_solver
@@ -20,7 +20,12 @@ target_link_libraries(physicore.reactions-diffusion.kernels.cpu_solver
                       PUBLIC physicore::common)
 
 target_link_libraries(physicore.reactions-diffusion.kernels.cpu_solver
-                      PRIVATE hwy::hwy OpenMP::OpenMP_CXX)
+                      PRIVATE hwy::hwy)
+
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(physicore.reactions-diffusion.kernels.cpu_solver
+                        PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
 target_include_directories(physicore.reactions-diffusion.kernels.cpu_solver
                            PUBLIC noarr-structures/include)
@@ -36,8 +41,13 @@ if(PHYSICORE_BUILD_TESTS)
   target_link_libraries(
     physicore.reactions-diffusion.kernels.cpu_solver.tests
     PRIVATE physicore::reactions-diffusion::kernels::cpu_solver
-            physicore::reactions-diffusion::biofvm OpenMP::OpenMP_CXX
-            GTest::gtest GTest::gtest_main)
+            physicore::reactions-diffusion::biofvm GTest::gtest
+            GTest::gtest_main)
+
+  if(OpenMP_CXX_FOUND)
+    target_link_libraries(physicore.reactions-diffusion.kernels.cpu_solver.tests
+                          PRIVATE OpenMP::OpenMP_CXX)
+  endif()
 
   include(GoogleTest)
   gtest_discover_tests(physicore.reactions-diffusion.kernels.cpu_solver.tests)
