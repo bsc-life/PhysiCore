@@ -9,7 +9,9 @@ namespace physicore {
 struct base_agent_data
 {
 	index_t agents_count = 0;
-	index_t dims = 3; // Default to 3D
+	index_t dims;
+
+	explicit base_agent_data(index_t dims = 3);
 
 	void add();
 	void remove_at(index_t position);

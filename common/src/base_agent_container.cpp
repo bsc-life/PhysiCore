@@ -6,6 +6,8 @@
 
 namespace physicore {
 
+base_agent_container::base_agent_container(index_t dims) : base_data(dims) {}
+
 base_agent* base_agent_container::create()
 {
 	base_data.add();

@@ -33,7 +33,8 @@ protected:
 
 public:
 	template <typename... Args>
-	generic_agent_container(Args&&... args) : base_agent_container(), data(this->base_data, std::forward<Args>(args)...)
+	generic_agent_container(index_t dims = 3, Args&&... args)
+		: base_agent_container(dims), data(this->base_data, std::forward<Args>(args)...)
 	{}
 
 	virtual AgentType* create() override
