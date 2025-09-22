@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../../include/microenvironment.h"
+#include "../../../include/microenvironment.h"
 #include "diffusion_solver.h"
 
 /*

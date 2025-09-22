@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../../../../include/microenvironment.h"
+#include "../../../include/microenvironment.h"
 
 namespace physicore::biofvm::kernels::cpu {
 

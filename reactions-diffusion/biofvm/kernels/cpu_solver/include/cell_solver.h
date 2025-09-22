@@ -4,9 +4,9 @@
 #include <memory>
 #include <vector>
 
-#include "generic_agent_solver.h"
-#include "../../../../include/microenvironment.h"
+#include "../../../include/microenvironment.h"
 #include "diffusion_solver.h"
+#include "generic_agent_solver.h"
 
 /*
 Performs secretion and uptake of cells.
