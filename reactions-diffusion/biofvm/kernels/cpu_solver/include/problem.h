@@ -9,8 +9,12 @@ namespace physicore::biofvm::kernels::cpu {
 struct problem_t
 {
 	index_t dims = 3;
-	index_t dx = 20, dy = 20, dz = 20;
-	index_t nx = 1, ny = 1, nz = 1;
+	index_t dx = 20;
+	index_t dy = 20;
+	index_t dz = 20;
+	index_t nx = 1;
+	index_t ny = 1;
+	index_t nz = 1;
 	index_t substrates_count = 1;
 
 	index_t iterations = 1;

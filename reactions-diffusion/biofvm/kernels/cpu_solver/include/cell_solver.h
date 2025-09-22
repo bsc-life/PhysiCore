@@ -39,7 +39,7 @@ D = D + I*F/v
 
 namespace physicore::biofvm::kernels::cpu {
 
-class cell_solver : generic_agent_solver<agent_data>
+class cell_solver : private generic_agent_solver<agent_data>
 {
 	bool compute_internalized_substrates_;
 

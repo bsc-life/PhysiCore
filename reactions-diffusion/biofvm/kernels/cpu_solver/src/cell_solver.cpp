@@ -181,7 +181,7 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 					const real_t* numerators, const real_t* denominators, const real_t* factors,
 					const std::atomic<index_t>* ballots, bool with_internalized, bool is_conflict)
 {
-	real_t voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
+	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
 	if (with_internalized && !is_conflict)
 	{
@@ -321,7 +321,7 @@ void release_internal(real_t* HWY_RESTRICT substrate_densities, real_t* HWY_REST
 template <index_t dims>
 void release_dim(const auto dens_l, agent_data& data, const cartesian_mesh& mesh, real_t* substrates, index_t index)
 {
-	real_t voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
+	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
 	release_internal(substrates, data.internalized_substrates.data() + index * data.substrate_count,
 					 data.fraction_released_at_death.data() + index * data.substrate_count, voxel_volume,

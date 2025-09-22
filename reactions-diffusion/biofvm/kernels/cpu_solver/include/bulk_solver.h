@@ -18,9 +18,13 @@ namespace physicore::biofvm::kernels::cpu {
 
 class bulk_solver
 {
-	physicore::biofvm::microenvironment::bulk_func_t supply_rate_f_, uptake_rate_f_, supply_target_densities_f_;
+	physicore::biofvm::microenvironment::bulk_func_t supply_rate_f_;
+	physicore::biofvm::microenvironment::bulk_func_t uptake_rate_f_;
+	physicore::biofvm::microenvironment::bulk_func_t supply_target_densities_f_;
 
-	std::unique_ptr<real_t[]> supply_rates_, uptake_rates_, supply_target_densities_;
+	std::unique_ptr<real_t[]> supply_rates_;
+	std::unique_ptr<real_t[]> uptake_rates_;
+	std::unique_ptr<real_t[]> supply_target_densities_;
 
 public:
 	void initialize(const microenvironment& m);
