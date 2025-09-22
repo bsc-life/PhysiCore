@@ -1,0 +1,5 @@
+# Suppress OpenMP-specific race conditions
+race:libomp.so
+race:libgomp.so
+# Suppress any OpenMP runtime calls
+race:*openmp*
