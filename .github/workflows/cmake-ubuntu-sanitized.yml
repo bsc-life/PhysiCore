@@ -24,7 +24,16 @@ jobs:
             workflow: llvm-relwithdebinfo
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libomp-dev
 
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
