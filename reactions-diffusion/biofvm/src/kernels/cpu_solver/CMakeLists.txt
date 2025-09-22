@@ -23,7 +23,7 @@ target_link_libraries(physicore.reactions-diffusion.kernels.cpu_solver
                       PRIVATE hwy::hwy OpenMP::OpenMP_CXX)
 
 target_include_directories(physicore.reactions-diffusion.kernels.cpu_solver
-                           PRIVATE noarr-structures/include)
+                           PUBLIC noarr-structures/include)
 
 if(PHYSICORE_BUILD_TESTS)
   find_package(GTest REQUIRED)
@@ -35,8 +35,9 @@ if(PHYSICORE_BUILD_TESTS)
 
   target_link_libraries(
     physicore.reactions-diffusion.kernels.cpu_solver.tests
-    PRIVATE physicore::reactions-diffusion::kernels::cpu_solver GTest::gtest
-            GTest::gtest_main)
+    PRIVATE physicore::reactions-diffusion::kernels::cpu_solver
+            physicore::reactions-diffusion::biofvm OpenMP::OpenMP_CXX
+            GTest::gtest GTest::gtest_main)
 
   include(GoogleTest)
   gtest_discover_tests(physicore.reactions-diffusion.kernels.cpu_solver.tests)

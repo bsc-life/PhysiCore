@@ -796,52 +796,46 @@ void diffusion_solver::solve()
 {
 	if (problem.dims == 1)
 	{
-#pragma omp parallel
+		for (index_t i = 0; i < problem.iterations; i++)
 		{
-			for (index_t i = 0; i < problem.iterations; i++)
-				solve_slice_x_1d<index_t>(this->substrates_.get(), bx_.get(), cx_.get(), ex_.get(),
-										  get_substrates_layout<1>(), get_diagonal_layout(problem, problem.nx));
+			solve_slice_x_1d<sindex_t>(this->substrates_.get(), bx_.get(), cx_.get(), ex_.get(),
+									   get_substrates_layout<1>(), get_diagonal_layout(problem, problem.nx));
+#pragma omp barrier
 		}
 	}
 	else if (problem.dims == 2)
 	{
-#pragma omp parallel
+		for (index_t i = 0; i < problem.iterations; i++)
 		{
-			for (index_t i = 0; i < problem.iterations; i++)
-			{
-				solve_slice_x_2d_and_3d<index_t>(this->substrates_.get(), bx_.get(), cx_.get(), ex_.get(),
-												 get_substrates_layout<2>() ^ noarr::rename<'y', 'm'>(),
-												 get_diagonal_layout(problem, problem.nx));
+			solve_slice_x_2d_and_3d<sindex_t>(this->substrates_.get(), bx_.get(), cx_.get(), ex_.get(),
+											  get_substrates_layout<2>() ^ noarr::rename<'y', 'm'>(),
+											  get_diagonal_layout(problem, problem.nx));
 #pragma omp barrier
-				solve_slice_y_2d<index_t>(this->substrates_.get(), by_.get(), cy_.get(), ey_.get(),
-										  get_substrates_layout<2>(),
-										  get_diagonal_layout_c(problem, problem.ny, (index_t)substrate_copies_),
-										  substrate_copies_, xs_tile_size_);
+			solve_slice_y_2d<sindex_t>(this->substrates_.get(), by_.get(), cy_.get(), ey_.get(),
+									   get_substrates_layout<2>(),
+									   get_diagonal_layout_c(problem, problem.ny, (index_t)substrate_copies_),
+									   substrate_copies_, xs_tile_size_);
 #pragma omp barrier
-			}
 		}
 	}
 	else if (problem.dims == 3)
 	{
-#pragma omp parallel
+		for (index_t i = 0; i < problem.iterations; i++)
 		{
-			for (index_t i = 0; i < problem.iterations; i++)
-			{
-				solve_slice_x_2d_and_3d<index_t>(this->substrates_.get(), bx_.get(), cx_.get(), ex_.get(),
-												 get_substrates_layout<3>() ^ noarr::merge_blocks<'z', 'y', 'm'>(),
-												 get_diagonal_layout(problem, problem.nx));
+			solve_slice_x_2d_and_3d<sindex_t>(this->substrates_.get(), bx_.get(), cx_.get(), ex_.get(),
+											  get_substrates_layout<3>() ^ noarr::merge_blocks<'z', 'y', 'm'>(),
+											  get_diagonal_layout(problem, problem.nx));
 #pragma omp barrier
-				solve_slice_y_3d<index_t>(this->substrates_.get(), by_.get(), cy_.get(), ey_.get(),
-										  get_substrates_layout<3>(),
-										  get_diagonal_layout_c(problem, problem.ny, (index_t)substrate_copies_),
-										  substrate_copies_, xs_tile_size_);
+			solve_slice_y_3d<sindex_t>(this->substrates_.get(), by_.get(), cy_.get(), ey_.get(),
+									   get_substrates_layout<3>(),
+									   get_diagonal_layout_c(problem, problem.ny, (index_t)substrate_copies_),
+									   substrate_copies_, xs_tile_size_);
 #pragma omp barrier
-				solve_slice_z_3d<index_t>(this->substrates_.get(), bz_.get(), cz_.get(), ez_.get(),
-										  get_substrates_layout<3>(),
-										  get_diagonal_layout_c(problem, problem.ny, (index_t)substrate_copies_),
-										  substrate_copies_, xs_tile_size_);
+			solve_slice_z_3d<sindex_t>(this->substrates_.get(), bz_.get(), cz_.get(), ez_.get(),
+									   get_substrates_layout<3>(),
+									   get_diagonal_layout_c(problem, problem.ny, (index_t)substrate_copies_),
+									   substrate_copies_, xs_tile_size_);
 #pragma omp barrier
-			}
 		}
 	}
 }

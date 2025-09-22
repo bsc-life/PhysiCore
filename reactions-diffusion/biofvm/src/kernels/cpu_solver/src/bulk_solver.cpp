@@ -33,6 +33,7 @@ void solve_single(real_t* __restrict__ densities, const real_t* __restrict__ sup
 
 void bulk_solver::solve(microenvironment& m, diffusion_solver& d_solver)
 {
+#pragma omp for collapse(3)
 	for (index_t z = 0; z < m.mesh.grid_shape[2]; z++)
 	{
 		for (index_t y = 0; y < m.mesh.grid_shape[1]; y++)

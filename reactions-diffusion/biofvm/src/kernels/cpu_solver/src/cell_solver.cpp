@@ -254,11 +254,6 @@ void simulate(const auto dens_l, const auto ballot_l, agent_data& data, microenv
 
 void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, bool recompute)
 {
-	const auto dens_l = d_solver.get_substrates_layout();
-	const auto ballot_l =
-		noarr::scalar<std::atomic<index_t>>()
-		^ noarr::vectors<'x', 'y', 'z'>(m.mesh.grid_shape[0], m.mesh.grid_shape[1], m.mesh.grid_shape[2]);
-
 	real_t* substrates = d_solver.get_substrates_pointer();
 
 #pragma omp single
@@ -268,9 +263,39 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 		is_conflict_.store(false, std::memory_order_relaxed);
 	}
 
-	simulate<3>(dens_l, ballot_l, retrieve_agent_data(m.agents), m, substrates, reduced_numerators_.get(),
-				reduced_denominators_.get(), reduced_factors_.get(), numerators_.data(), denominators_.data(),
-				factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
+	switch (m.mesh.dims)
+	{
+		case 1: {
+			const auto dens_l = d_solver.get_substrates_layout<1>();
+			const auto ballot_l = noarr::scalar<std::atomic<index_t>>() ^ noarr::vectors<'x'>(m.mesh.grid_shape[0]);
+
+			simulate<1>(dens_l, ballot_l, retrieve_agent_data(m.agents), m, substrates, reduced_numerators_.get(),
+						reduced_denominators_.get(), reduced_factors_.get(), numerators_.data(), denominators_.data(),
+						factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
+			return;
+		}
+		case 2: {
+			const auto dens_l = d_solver.get_substrates_layout<2>();
+			const auto ballot_l = noarr::scalar<std::atomic<index_t>>()
+								  ^ noarr::vectors<'x', 'y'>(m.mesh.grid_shape[0], m.mesh.grid_shape[1]);
+
+			simulate<2>(dens_l, ballot_l, retrieve_agent_data(m.agents), m, substrates, reduced_numerators_.get(),
+						reduced_denominators_.get(), reduced_factors_.get(), numerators_.data(), denominators_.data(),
+						factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
+			return;
+		}
+		case 3: {
+			const auto dens_l = d_solver.get_substrates_layout<3>();
+			const auto ballot_l =
+				noarr::scalar<std::atomic<index_t>>()
+				^ noarr::vectors<'x', 'y', 'z'>(m.mesh.grid_shape[0], m.mesh.grid_shape[1], m.mesh.grid_shape[2]);
+
+			simulate<3>(dens_l, ballot_l, retrieve_agent_data(m.agents), m, substrates, reduced_numerators_.get(),
+						reduced_denominators_.get(), reduced_factors_.get(), numerators_.data(), denominators_.data(),
+						factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
+			return;
+		}
+	}
 }
 
 template <typename density_layout_t>
@@ -305,8 +330,21 @@ void cell_solver::release_internalized_substrates(microenvironment& m, diffusion
 	if (!compute_internalized_substrates_)
 		return;
 
-	release_dim<3>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
-				   d_solver.get_substrates_pointer(), index);
+	switch (m.mesh.dims)
+	{
+		case 1:
+			release_dim<1>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
+						   d_solver.get_substrates_pointer(), index);
+			return;
+		case 2:
+			release_dim<2>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
+						   d_solver.get_substrates_pointer(), index);
+			return;
+		case 3:
+			release_dim<3>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
+						   d_solver.get_substrates_pointer(), index);
+			return;
+	}
 }
 
 void cell_solver::resize(microenvironment& m)

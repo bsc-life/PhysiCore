@@ -7,22 +7,21 @@ using namespace physicore;
 using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::cpu;
 
-template <index_t dims>
-auto fix_dims(const index_t* voxel_index)
+auto fix_dims(const index_t* voxel_index, index_t dims)
 {
-	if constexpr (dims == 1)
-		return noarr::fix<'x'>(voxel_index[0]);
-	else if constexpr (dims == 2)
-		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]);
-	else if constexpr (dims == 3)
+	if (dims == 1)
+		return noarr::fix<'x', 'y', 'z'>(voxel_index[0], 0, 0);
+	else if (dims == 2)
+		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(0);
+	else if (dims == 3)
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
+	return noarr::fix<'x', 'y', 'z'>(0, 0, 0);
 }
 
-template <index_t dims>
 void solve_interior(const auto dens_l, real_t* __restrict__ substrate_densities,
 					const index_t* __restrict__ dirichlet_voxels, const real_t* __restrict__ dirichlet_values,
 					const bool* __restrict__ dirichlet_conditions, index_t substrates_count,
-					index_t dirichlet_voxels_count)
+					index_t dirichlet_voxels_count, index_t dims)
 {
 	if (dirichlet_voxels_count == 0)
 		return;
@@ -30,7 +29,7 @@ void solve_interior(const auto dens_l, real_t* __restrict__ substrate_densities,
 #pragma omp for
 	for (index_t voxel_idx = 0; voxel_idx < dirichlet_voxels_count; ++voxel_idx)
 	{
-		auto subs_l = dens_l ^ fix_dims<dims>(dirichlet_voxels + dims * voxel_idx);
+		auto subs_l = dens_l ^ fix_dims(dirichlet_voxels + dims * voxel_idx, dims);
 
 		for (index_t s = 0; s < substrates_count; ++s)
 		{
@@ -48,7 +47,7 @@ void solve_boundary(real_t* __restrict__ substrate_densities, const real_t* __re
 	if (dirichlet_values == nullptr)
 		return;
 
-	omp_trav_for_each(noarr::traverser(dens_l), [=](auto state) {
+	omp_trav_for_each_no_parallel(noarr::traverser(dens_l), [=](auto state) {
 		auto s = noarr::get_index<'s'>(state);
 
 		if (dirichlet_conditions[s])
@@ -85,7 +84,8 @@ void solve_boundaries(const auto dens_l, real_t* __restrict__ substrate_densitie
 void dirichlet_solver::solve(microenvironment& m, diffusion_solver& d_solver)
 {
 	solve_boundaries(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(), m);
-	solve_interior<3>(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(),
-					  m.dirichlet_interior_voxels.get(), m.dirichlet_interior_values.get(),
-					  m.dirichlet_interior_conditions.get(), m.substrates_count, m.dirichlet_interior_voxels_count);
+	solve_interior(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(),
+				   m.dirichlet_interior_voxels.get(), m.dirichlet_interior_values.get(),
+				   m.dirichlet_interior_conditions.get(), m.substrates_count, m.dirichlet_interior_voxels_count,
+				   m.mesh.dims);
 }

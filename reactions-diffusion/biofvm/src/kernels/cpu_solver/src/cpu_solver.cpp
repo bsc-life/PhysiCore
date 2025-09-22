@@ -19,6 +19,7 @@ void cpu_solver::solve(biofvm::microenvironment& m, index_t iterations)
 		initialized = true;
 	}
 
+#pragma omp parallel
 	for (index_t it = 0; it < iterations; it++)
 	{
 		d_solver.solve();

@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "../../../../../../common/include/generic_agent_solver.h"
+#include "generic_agent_solver.h"
 #include "../../../../include/microenvironment.h"
 #include "diffusion_solver.h"
 

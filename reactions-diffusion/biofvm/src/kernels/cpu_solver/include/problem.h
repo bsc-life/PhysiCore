@@ -28,8 +28,8 @@ struct problem_t
 		problem.dy = m.mesh.voxel_shape[1];
 		problem.dz = m.mesh.voxel_shape[2];
 		problem.nx = m.mesh.grid_shape[0];
-		problem.ny = m.mesh.grid_shape[0];
-		problem.nz = m.mesh.grid_shape[0];
+		problem.ny = m.mesh.grid_shape[1];
+		problem.nz = m.mesh.grid_shape[2];
 		problem.substrates_count = m.substrates_count;
 		problem.iterations = iterations;
 		problem.dt = static_cast<real_t>(m.diffusion_timestep);

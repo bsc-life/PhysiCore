@@ -5,7 +5,7 @@
 #include <hwy/aligned_allocator.h>
 #include <noarr/structures_extended.hpp>
 
-#include "../../../../../../common/include/types.h"
+#include "types.h"
 #include "problem.h"
 
 /*
