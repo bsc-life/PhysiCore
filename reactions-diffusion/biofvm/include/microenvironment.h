@@ -8,6 +8,7 @@
 
 #include "agent_container.h"
 #include "mesh.h"
+#include "solver.h"
 
 namespace physicore::biofvm {
 
@@ -30,6 +31,8 @@ public:
 	cartesian_mesh mesh;
 
 	agent_container agents;
+
+	solver_ptr solver;
 
 	index_t substrates_count;
 	real_t diffusion_timestep;

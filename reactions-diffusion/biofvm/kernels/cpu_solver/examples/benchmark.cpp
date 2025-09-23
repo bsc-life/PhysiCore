@@ -1,11 +1,11 @@
 #include <chrono>
 #include <iostream>
 
-#include "../../../include/microenvironment.h"
 #include "bulk_solver.h"
 #include "cell_solver.h"
 #include "diffusion_solver.h"
 #include "dirichlet_solver.h"
+#include "microenvironment.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;
