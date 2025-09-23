@@ -42,7 +42,7 @@ void solve_single(real_t* HWY_RESTRICT densities, auto&& supply_rates, auto&& up
 	}
 }
 
-void bulk_solver::solve(microenvironment& m, diffusion_solver& d_solver)
+void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 {
 	solve_single(d_solver.get_substrates_pointer(), supply_rate_f_, uptake_rate_f_, supply_target_densities_f_,
 				 m.diffusion_timestep, d_solver.get_substrates_layout());

@@ -69,7 +69,7 @@ int main()
 {
 	cartesian_mesh mesh(3, { 0, 0, 0 }, { 5000, 5000, 5000 }, { 20, 20, 20 });
 
-	real_t diffusion_timestep = 5;
+	real_t diffusion_timestep = 0.01;
 	index_t substrates_count = 4;
 
 	microenvironment m(mesh, substrates_count, diffusion_timestep);
@@ -87,13 +87,11 @@ int main()
 	}
 
 	// --- bulk functors -------------------------------------------------
-	m.supply_rate_func = [](index_t s, index_t, index_t, index_t) { return static_cast<real_t>(0.01 * (s + 1)); };
+	m.supply_rate_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
 
-	m.uptake_rate_func = [](index_t s, index_t, index_t, index_t) { return static_cast<real_t>(0.01 * (s + 1)); };
+	m.uptake_rate_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
 
-	m.supply_target_densities_func = [](index_t s, index_t, index_t, index_t) {
-		return static_cast<real_t>(0.01 * (s + 1));
-	};
+	m.supply_target_densities_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
 
 	// --- dirichlet / boundary conditions -------------------------------
 	for (index_t dim = 0; dim < m.mesh.dims; ++dim)
@@ -105,8 +103,8 @@ int main()
 
 		for (index_t s = 0; s < m.substrates_count; ++s)
 		{
-			m.dirichlet_min_boundary_values[dim][s] = static_cast<real_t>(0.0);
-			m.dirichlet_max_boundary_values[dim][s] = static_cast<real_t>(0.5 * (dim + 1));
+			m.dirichlet_min_boundary_values[dim][s] = 0.0;
+			m.dirichlet_max_boundary_values[dim][s] = 0.5 * (dim + 1);
 
 			m.dirichlet_min_boundary_conditions[dim][s] = true;
 			m.dirichlet_max_boundary_conditions[dim][s] = true;

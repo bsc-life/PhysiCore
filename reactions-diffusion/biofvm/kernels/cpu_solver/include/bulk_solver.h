@@ -25,7 +25,7 @@ class bulk_solver
 public:
 	void initialize(const microenvironment& m);
 
-	void solve(microenvironment& m, diffusion_solver& d_solver);
+	void solve(const microenvironment& m, diffusion_solver& d_solver);
 };
 
 } // namespace physicore::biofvm::kernels::cpu
