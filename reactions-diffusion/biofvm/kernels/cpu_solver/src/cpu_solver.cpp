@@ -1,7 +1,5 @@
 #include "cpu_solver.h"
 
-#include "diffusion_solver.h"
-
 using namespace physicore;
 using namespace physicore::biofvm::kernels::cpu;
 

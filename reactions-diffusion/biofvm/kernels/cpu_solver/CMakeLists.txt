@@ -9,12 +9,11 @@ find_package(OpenMP 4)
 target_sources(
   physicore.reactions-diffusion.kernels.cpu_solver
   PRIVATE src/bulk_solver.cpp src/cell_solver.cpp src/diffusion_solver.cpp
-          src/dirichlet_solver.cpp src/cpu_solver.cpp)
+          src/dirichlet_solver.cpp src/cpu_solver.cpp src/register_solver.cpp)
 
 target_sources(
   physicore.reactions-diffusion.kernels.cpu_solver
-  PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
-         "${CMAKE_CURRENT_SOURCE_DIR}/include/cpu_solver.h")
+  PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(physicore.reactions-diffusion.kernels.cpu_solver
                       PUBLIC physicore::common)
@@ -28,7 +27,7 @@ if(OpenMP_CXX_FOUND)
 endif()
 
 target_include_directories(physicore.reactions-diffusion.kernels.cpu_solver
-                           PUBLIC noarr-structures/include)
+                           PRIVATE noarr-structures/include)
 
 if(PHYSICORE_BUILD_TESTS)
   find_package(GTest REQUIRED)
@@ -43,6 +42,10 @@ if(PHYSICORE_BUILD_TESTS)
     PRIVATE physicore::reactions-diffusion::kernels::cpu_solver
             physicore::reactions-diffusion::biofvm GTest::gtest
             GTest::gtest_main)
+
+  target_include_directories(
+    physicore.reactions-diffusion.kernels.cpu_solver.tests
+    PRIVATE noarr-structures/include)
 
   if(OpenMP_CXX_FOUND)
     target_link_libraries(physicore.reactions-diffusion.kernels.cpu_solver.tests

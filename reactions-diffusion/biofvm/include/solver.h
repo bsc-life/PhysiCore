@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "types.h"
 
 namespace physicore::biofvm {
@@ -13,5 +15,7 @@ public:
 
 	virtual ~solver() = default;
 };
+
+using solver_ptr = std::unique_ptr<solver>;
 
 } // namespace physicore::biofvm
