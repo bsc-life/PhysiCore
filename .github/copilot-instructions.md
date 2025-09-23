@@ -7,77 +7,71 @@ policy text or generic advice.
 # Copilot / AI assistant guidance — PhysiCore
 
 Summary
-- PhysiCore is a modular C++ simulation core. Major components (see top-level
-  `CMakeLists.txt`) are:
-  - `common/` — data structures, core interfaces (e.g. `process`, `base_agent`,
-    `base_agent_data`). Look under `common/include` for canonical patterns.
-  - `reactions-diffusion/biofvm/` — microenvironment / diffusion backends.
-  - `mechanics/physicell/` — mechanics engines (implements `process` interface).
-  - `phenotype/physicore/` — example executable that wires components together.
+- PhysiCore is a modular C++20 simulation core. Major components (see top-level
+  `CMakeLists.txt`):
+  - `common/` — core data shapes and small abstract interfaces (look in
+    `common/include`). Example: `timestep_executor` with `run_single_timestep()`.
+  - `reactions-diffusion/biofvm/` — microenvironment and diffusion solver code.
+  - `mechanics/physicell/` — mechanics engine implementing the timestep API.
+  - `phenotype/physicore/` — example executable wiring subsystems together.
 
-Big-picture/Why
-- The code separates simulation core (data + interfaces) from pluggable
-  numerical backends. Libraries are created per-subsystem and then linked into
-  the example executable (`physicore.phenotype.physicore`). This lets the
-  project swap diffusion / mechanics engines without changing core agent code.
+Big-picture (why it looks like this)
+- The repo keeps a tiny, stable core API in `common/` and implements numerical
+  engines as independently-buildable libraries. Subsystems are linked into the
+  example executable so implementations can be swapped without changing core
+  agent logic.
 
-Build, test, and debug (canonical commands)
-- This repo uses CMake presets (see `CMakePresets.json`) and Ninja. Preferred
-  workflows are via CMake presets. Example commands you can run in the repo root:
-
-  - Configure + build (GCC Debug):
+Build / test / debug (exact commands)
+- This project uses CMake presets + Ninja. Use presets to reproduce CI precisely.
+  - Configure + build (GCC debug):
     cmake --preset=gcc-debug
     cmake --build --preset=gcc-debug
-
-  - Configure + build + test (single preset):
+  - Full configure + build + test workflow:
     cmake --workflow=gcc-debug
-
-  - Run tests for a preset (after configure/build):
+  - Run tests (after configure/build):
     ctest --preset gcc-debug --output-on-failure
+- Notes: presets configure sanitizers and toolchain via `$VCPKG_ROOT`. Ensure
+  vcpkg is available or `VCPKG_ROOT` is set. TSAN builds reference
+  `tsan-suppressions.txt` from the repo root.
 
-Notes about presets:
-- Useful presets in `CMakePresets.json`: `gcc-debug`, `gcc-relwithdebinfo`,
-  `gcc-release`, `llvm-debug`, `llvm-cov-debug`. The presets set sanitizer flags
-  for Debug/TSAN/Coverage variants — prefer these when reproducing CI.
+Project conventions and patterns
+- Language: C++20. Public API: `*/include/*.h`. Implementation: `*/src/`.
+- Subprojects export headers using CMake `FILE_SET HEADERS` and expose alias
+  targets `physicore::<subsystem>` (see subproject CMakeLists in
+  `mechanics/physicell/` and `reactions-diffusion/biofvm/`). Link to those
+  aliases from `phenotype/physicore` when wiring an executable.
+- Tests: enabled by `PHYSICORE_BUILD_TESTS` (defaults ON for top-level builds).
+  Tests live under `*/tests/` and use GoogleTest with CMake `*.tests` targets.
+- Interfaces: small abstract classes live in `common/include`. Example:
+  `common/include/process.h` defines `timestep_executor::run_single_timestep()`;
+  implementors in `mechanics/physicell/` or `reactions-diffusion/biofvm/` should
+  implement that method.
 
-Project-specific conventions
-- C++20, header-only public headers are exported using CMake FILE_SET HEADERS
-  (see subproject CMakeLists). Use `physicore::...` target aliases when linking.
-- Public API lives in `*/include/*.h`. Implementation belongs in `*/src/`.
-- Tests are enabled with `PHYSICORE_BUILD_TESTS` (default on top-level builds).
-  Tests use GoogleTest; tests live in each submodule under `tests/` and follow
-  the pattern `*.tests` targets in CMake.
-- Interfaces use small abstract classes in `common/include` (e.g., `process`).
-  New engines/components should implement these interfaces and register as
-  separate libraries that link `physicore::common`.
+Integration points and concrete examples
+- Wiring example: `phenotype/physicore/CMakeLists.txt` and
+  `phenotype/physicore/src/main.cpp` show how libraries are linked into the
+  executable — use them to see which subsystems are active by default.
+- Interface example: `mechanics/physicell/include/environment.h` implements the
+  core timestep interface. Use `run_single_timestep()` as the per-step hook.
+- VCPKG: project CMake uses `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake`.
+  If CI fails due to missing packages, ensure vcpkg dependencies are installed
+  via the repository `vcpkg.json` manifest.
 
-Integration points and examples
-- Example wiring: `phenotype/physicore/CMakeLists.txt` and
-  `phenotype/physicore/src/main.cpp` (executable entry) link
-  `physicore::mechanics::physicell` and `physicore::reactions-diffusion::biofvm`.
-- Example interface: `mechanics/physicell/include/environment.h` implements
-  `process` (see `common/include/process.h`). Use `run_single_timestep()` as the
-  per-step hook.
+Quick checklist for adding a subsystem
+1. Create `your_subsystem/` with `include/` and `src/`.
+2. Add `add_library(physicore.your_subsystem)` in that subproject CMakeLists.
+3. Export headers with `FILE_SET HEADERS` and add an alias `physicore::your_subsystem`.
+4. Link to `physicore::common` and add tests under `tests/` following `*.tests`.
 
-Quick tips for code edits
-- When adding a new subsystem:
-  1. Create a subdirectory and CMake target `add_library(physicore.<subsystem>)`.
-  2. Export public headers with FILE_SET HEADERS under `include/` and add an
-     ALIAS target `physicore::<subsystem>`.
-  3. Link to `physicore::common` and follow the tests pattern if adding tests.
-- Prefer modifying `common/include` for cross-cutting interfaces. Keep
-  implementation details in `src/` to avoid exposing internal headers.
-
-Files to read first (in order)
-1. `README.md` — project intent and vision
-2. `CMakePresets.json` — canonical build/test presets used by CI
+Files to read first
+1. `README.md` — high-level intent
+2. `CMakePresets.json` — canonical build/test presets
 3. `CMakeLists.txt` (top-level) — module boundaries
 4. `common/include/*` — core interfaces and data shapes
-5. `phenotype/physicore/src/main.cpp` — how components are wired at runtime
+5. `phenotype/physicore/src/main.cpp` — wiring example
 
 If something is ambiguous
-- Ask the user to run a specific preset (`cmake --workflow=gcc-debug`) or to
-  share failing build/test logs. For design questions, point to the small set
-  of example files above so reviewers can see real usage.
+- Ask for the failing preset + build/test logs (run `cmake --workflow=gcc-debug`)
+  or point reviewers to the small set of wiring files above.
 
-End — ask for feedback if anything is missing or unclear.
+End — request feedback on any missing or unclear sections so I can iterate.
