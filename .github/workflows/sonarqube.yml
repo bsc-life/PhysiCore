@@ -51,5 +51,5 @@ jobs:
             --define sonar.organization=bsc-life
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
             --define sonar.cfamily.llvm-cov.reportPath=coverage.txt
-            --define sonar.sources=phenotype/physicore/src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include,mechanics/physicell/src,mechanics/physicell/include,reactions-diffusion/biofvm/kernels/cpu_solver/src,reactions-diffusion/biofvm/kernels/cpu_solver/examples,reactions-diffusion/biofvm/kernels/cpu_solver/include,reactions-diffusion/biofvm/kernels/cpu_solver/include/cpu_solver
+            --define sonar.sources=phenotype/physicore/src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include,mechanics/physicell/src,mechanics/physicell/include,reactions-diffusion/biofvm/kernels/cpu_solver/src,reactions-diffusion/biofvm/kernels/cpu_solver/examples,reactions-diffusion/biofvm/kernels/cpu_solver/include
             --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests,mechanics/physicell/tests,reactions-diffusion/biofvm/kernels/cpu_solver/tests
