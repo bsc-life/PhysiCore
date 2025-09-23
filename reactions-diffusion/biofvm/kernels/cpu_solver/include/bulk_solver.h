@@ -22,10 +22,6 @@ class bulk_solver
 	physicore::biofvm::microenvironment::bulk_func_t uptake_rate_f_;
 	physicore::biofvm::microenvironment::bulk_func_t supply_target_densities_f_;
 
-	std::unique_ptr<real_t[]> supply_rates_;
-	std::unique_ptr<real_t[]> uptake_rates_;
-	std::unique_ptr<real_t[]> supply_target_densities_;
-
 public:
 	void initialize(const microenvironment& m);
 

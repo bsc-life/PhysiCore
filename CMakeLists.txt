@@ -10,6 +10,11 @@ option(
   "Enable building tests and test infrastructure. Default: ${PROJECT_IS_TOP_LEVEL}. Values: { ON, OFF }."
   ${PROJECT_IS_TOP_LEVEL})
 
+option(
+  PHYSICORE_BUILD_EXAMPLES
+  "Enable building examples. Default: ${PROJECT_IS_TOP_LEVEL}. Values: { ON, OFF }."
+  ${PROJECT_IS_TOP_LEVEL})
+
 include(CTest)
 
 add_subdirectory(common)

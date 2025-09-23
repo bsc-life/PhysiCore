@@ -95,8 +95,12 @@ TEST(MicroenvironmentBuilder, BulkFunctionsAndInternalizedSubstrates)
 	builder.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 
 	bool bulk_called = false;
-	builder.set_bulk_functions([&](microenvironment&, std::array<index_t, 3>, real_t*) { bulk_called = true; }, nullptr,
-							   nullptr);
+	builder.set_bulk_functions(
+		[&](index_t, index_t, index_t, index_t) {
+			bulk_called = true;
+			return 0;
+		},
+		nullptr, nullptr);
 	builder.do_compute_internalized_substrates();
 
 	auto env = builder.build();
@@ -104,7 +108,7 @@ TEST(MicroenvironmentBuilder, BulkFunctionsAndInternalizedSubstrates)
 	ASSERT_TRUE(env->supply_rate_func != nullptr);
 
 	// Call bulk function to check assignment
-	env->supply_rate_func(*env, { 0, 0, 0 }, nullptr);
+	env->supply_rate_func(0, 0, 0, 0);
 	ASSERT_TRUE(bulk_called);
 }
 

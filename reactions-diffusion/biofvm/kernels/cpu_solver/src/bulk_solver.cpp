@@ -10,45 +10,40 @@ void bulk_solver::initialize(const microenvironment& m)
 	supply_rate_f_ = m.supply_rate_func;
 	uptake_rate_f_ = m.uptake_rate_func;
 	supply_target_densities_f_ = m.supply_target_densities_func;
-
-	supply_rates_ = std::make_unique<real_t[]>(m.substrates_count);
-	uptake_rates_ = std::make_unique<real_t[]>(m.substrates_count);
-	supply_target_densities_ = std::make_unique<real_t[]>(m.substrates_count);
 }
 
 template <typename density_layout_t>
-void solve_single(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT supply_rates,
-				  const real_t* HWY_RESTRICT uptake_rates, const real_t* HWY_RESTRICT supply_target_densities,
-				  real_t time_step, const density_layout_t dens_l)
+void solve_single(real_t* HWY_RESTRICT densities, auto&& supply_rates, auto&& uptake_rates,
+				  auto&& supply_target_densities, real_t time_step, const density_layout_t dens_l)
 {
+	const index_t x_dim = dens_l | noarr::get_length<'x'>();
+	const index_t y_dim = dens_l | noarr::get_length<'y'>();
+	const index_t z_dim = dens_l | noarr::get_length<'z'>();
 	const index_t s_dim = dens_l | noarr::get_length<'s'>();
 
-	for (index_t s = 0; s < s_dim; s++)
+#pragma omp for collapse(3)
+	for (index_t z = 0; z < z_dim; z++)
 	{
-		(dens_l | noarr::get_at<'s'>(densities, s)) =
-			((dens_l | noarr::get_at<'s'>(densities, s)) + time_step * supply_rates[s] * supply_target_densities[s])
-			/ (1 + time_step * (uptake_rates[s] + supply_rates[s]));
+		for (index_t y = 0; y < y_dim; y++)
+		{
+			for (index_t x = 0; x < x_dim; x++)
+			{
+				for (index_t s = 0; s < s_dim; s++)
+				{
+					auto idx = noarr::idx<'s', 'x', 'y', 'z'>(s, x, y, z);
+
+					(dens_l | noarr::get_at(densities, idx)) =
+						((dens_l | noarr::get_at(densities, idx))
+						 + time_step * supply_rates(x, y, z, s) * supply_target_densities(x, y, z, s))
+						/ (1 + time_step * (uptake_rates(x, y, z, s) + supply_rates(x, y, z, s)));
+				}
+			}
+		}
 	}
 }
 
 void bulk_solver::solve(microenvironment& m, diffusion_solver& d_solver)
 {
-#pragma omp for collapse(3)
-	for (index_t z = 0; z < m.mesh.grid_shape[2]; z++)
-	{
-		for (index_t y = 0; y < m.mesh.grid_shape[1]; y++)
-		{
-			for (index_t x = 0; x < m.mesh.grid_shape[0]; x++)
-			{
-				supply_rate_f_(m, { x, y, z }, supply_rates_.get());
-				uptake_rate_f_(m, { x, y, z }, uptake_rates_.get());
-				supply_target_densities_f_(m, { x, y, z }, supply_target_densities_.get());
-
-				solve_single(d_solver.get_substrates_pointer(), supply_rates_.get(), uptake_rates_.get(),
-							 supply_target_densities_.get(), m.diffusion_timestep,
-							 d_solver.get_substrates_layout() ^ noarr::fix<'x'>(x) ^ noarr::fix<'y'>(y)
-								 ^ noarr::fix<'z'>(z));
-			}
-		}
-	}
+	solve_single(d_solver.get_substrates_pointer(), supply_rate_f_, uptake_rate_f_, supply_target_densities_f_,
+				 m.diffusion_timestep, d_solver.get_substrates_layout());
 }
