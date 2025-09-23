@@ -14,7 +14,7 @@ namespace physicore::biofvm {
 class microenvironment : public timestep_executor
 {
 public:
-	microenvironment(cartesian_mesh mesh, index_t substrates_count, real_t timestep);
+	microenvironment(const cartesian_mesh& mesh, index_t substrates_count, real_t timestep);
 
 	microenvironment(microenvironment&&) = delete;
 	microenvironment(const microenvironment&) = delete;
