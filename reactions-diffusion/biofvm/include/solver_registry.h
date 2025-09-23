@@ -2,9 +2,9 @@
 
 #include <concepts>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 #include "solver.h"
 
@@ -14,7 +14,7 @@ class solver_registry
 {
 public:
 	using solver_factory_func_t = std::function<solver_ptr()>;
-	using registry_map_t = std::map<std::string, solver_factory_func_t>;
+	using registry_map_t = std::unordered_map<std::string, solver_factory_func_t>;
 
 	registry_map_t factory_registry;
 
@@ -31,7 +31,7 @@ concept derived_from_solver = std::derived_from<T, solver>;
 template <derived_from_solver SolverT>
 struct registry_adder
 {
-	registry_adder(std::string solver_name)
+	explicit registry_adder(std::string solver_name)
 	{
 		solver_registry::instance().register_factory(std::move(solver_name),
 													 []() { return std::make_unique<SolverT>(); });

@@ -39,4 +39,4 @@ struct attachment_point
 	attachment_point() { kernels::cpu::attach_to_registry(); }
 };
 
-static attachment_point ap;
+static const attachment_point ap;
