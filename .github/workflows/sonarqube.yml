@@ -53,3 +53,4 @@ jobs:
             --define sonar.cfamily.llvm-cov.reportPath=coverage.txt
             --define sonar.sources=phenotype/physicore/src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include,mechanics/physicell/src,mechanics/physicell/include,reactions-diffusion/biofvm/kernels/cpu_solver/src,reactions-diffusion/biofvm/kernels/cpu_solver/examples,reactions-diffusion/biofvm/kernels/cpu_solver/include
             --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests,mechanics/physicell/tests,reactions-diffusion/biofvm/kernels/cpu_solver/tests
+            --define sonar.coverage.exclusions=reactions-diffusion/biofvm/kernels/cpu_solver/examples/*
