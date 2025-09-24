@@ -116,6 +116,9 @@ void set_default_agent_values(agent* a, index_t rates_offset, index_t volume, st
 	a->net_export_rates()[0] = rates_offset + 400;
 	a->net_export_rates()[1] = 0;
 
+	a->fraction_released_at_death()[0] = 1;
+	a->fraction_released_at_death()[1] = 0;
+
 	a->volume() = volume;
 
 	for (index_t i = 0; i < dims; ++i)
@@ -202,6 +205,13 @@ TEST_P(RecomputeTest, Simple1D)
 
 	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 0)), 475.398378);
 	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 1)), 1);
+
+	if (compute_internalized)
+	{
+		s.release_internalized_substrates(*m, d_s, 0);
+		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 0)), 1);
+		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 1)), 1);
+	}
 }
 
 TEST_P(RecomputeTest, Simple2D)
@@ -278,6 +288,13 @@ TEST_P(RecomputeTest, Simple2D)
 
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 475.398378);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1);
+
+	if (compute_internalized)
+	{
+		s.release_internalized_substrates(*m, d_s, 0);
+		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 1);
+		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1);
+	}
 }
 
 TEST_P(RecomputeTest, Simple3D)
@@ -354,6 +371,13 @@ TEST_P(RecomputeTest, Simple3D)
 
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 475.398378);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1);
+
+	if (compute_internalized)
+	{
+		s.release_internalized_substrates(*m, d_s, 0);
+		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 1);
+		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1);
+	}
 }
 
 class agent_retriever : public generic_agent_solver<agent_data>
