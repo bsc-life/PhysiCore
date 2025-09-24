@@ -18,7 +18,7 @@ public:
 
 	registry_map_t factory_registry;
 
-	void register_factory(std::string solver_name, solver_factory_func_t&& f);
+	bool register_factory(std::string solver_name, solver_factory_func_t&& f);
 
 	solver_ptr get(const std::string& solver_name);
 

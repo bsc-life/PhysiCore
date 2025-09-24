@@ -6,15 +6,11 @@
 
 using namespace physicore::biofvm;
 
-void solver_registry::register_factory(std::string solver_name, solver_factory_func_t&& f)
+bool solver_registry::register_factory(std::string solver_name, solver_factory_func_t&& f)
 {
-	if (factory_registry.contains(solver_name))
-	{
-		assert(false);
-		return;
-	}
+	auto [it, emplaced] = factory_registry.try_emplace(std::move(solver_name), std::move(f));
 
-	factory_registry.emplace(std::move(solver_name), std::move(f));
+	return emplaced;
 }
 
 std::unique_ptr<solver> solver_registry::get(const std::string& solver_name)
