@@ -32,10 +32,12 @@ void solve_single(real_t* HWY_RESTRICT densities, auto&& supply_rates, auto&& up
 				{
 					auto idx = noarr::idx<'s', 'x', 'y', 'z'>(s, x, y, z);
 
-					(dens_l | noarr::get_at(densities, idx)) =
-						((dens_l | noarr::get_at(densities, idx))
-						 + time_step * supply_rates(x, y, z, s) * supply_target_densities(x, y, z, s))
-						/ (1 + time_step * (uptake_rates(x, y, z, s) + supply_rates(x, y, z, s)));
+					const real_t S = supply_rates(s, x, y, z);
+					const real_t U = uptake_rates(s, x, y, z);
+					const real_t T = supply_target_densities(s, x, y, z);
+					real_t& D = dens_l | noarr::get_at(densities, idx);
+
+					D = (D + time_step * S * T) / (1 + time_step * (U + S));
 				}
 			}
 		}
