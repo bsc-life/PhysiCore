@@ -574,4 +574,19 @@ TEST_P(RecomputeTest, ConflictBig)
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
 		}
 	}
+
+#pragma omp parallel for
+	for (std::size_t i = 0; i < agents.size(); i++)
+	{
+		s.release_internalized_substrates(*m, d_s, i);
+	}
+
+	if (compute_internalized)
+	{
+		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
+		{
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 1);
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), 1);
+		}
+	}
 }
