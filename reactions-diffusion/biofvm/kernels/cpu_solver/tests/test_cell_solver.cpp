@@ -60,8 +60,7 @@ static void compute_expected_agent_internalized_1d(auto densities, microenvironm
 				m.mesh.voxel_position(std::span<const real_t>(agent_data.base_data.positions.data() + i, 1));
 
 			expected_internalized[i * m.substrates_count + s] -=
-				(m.mesh.voxel_volume() * -denom * densities.template at<'x', 's'>(mesh_idx[0], s) + num) / (1 + denom)
-				+ factor;
+				(m.mesh.voxel_volume() * -denom * densities.template at<'x', 's'>(mesh_idx[0], s) + num) + factor;
 		}
 	}
 }
@@ -113,11 +112,11 @@ void set_default_agent_values(agent* a, index_t rates_offset, index_t volume, st
 	a->saturation_densities()[0] = rates_offset + 300;
 	a->saturation_densities()[1] = 0;
 
-	a->net_export_rates()[0] = rates_offset + 400;
-	a->net_export_rates()[1] = 0;
+	a->net_export_rates()[0] = 0;
+	a->net_export_rates()[1] = rates_offset + 400;
 
 	a->fraction_released_at_death()[0] = 1;
-	a->fraction_released_at_death()[1] = 0;
+	a->fraction_released_at_death()[1] = 1;
 
 	a->volume() = volume;
 
@@ -163,54 +162,57 @@ TEST_P(RecomputeTest, Simple1D)
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216004.000000);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216000.000000);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -4);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469060.631579);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469052.6);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -8);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927715.703704);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927703.8);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -12);
 	}
 
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(0, 0)), 28.000500);
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(0, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(0, 0)), 28);
+	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(0, 1)), 1.0005);
 
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(1, 0)), 184.632579);
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(1, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(1, 0)), 184.63158);
+	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(1, 1)), 1.001);
 
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 0)), 366.964463);
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 0)), 366.963);
+	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 1)), 1.0015);
 
 #pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, recompute);
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216004.000000 + -157093.818182);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -373091);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -8);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469060.631579 + -618551.844632);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -2087601.1);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -16);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927715.703704 + -867471.319407);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -3795171.5);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -24);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 0)), 47.637227);
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 0)), 47.636364);
+	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 1)), 1.001);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(1, 0)), 261.951560);
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(1, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(1, 0)), 261.95);
+	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(1, 1)), 1.002);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 0)), 475.398378);
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 0)), 475.39642);
+	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 1)), 1.003);
+
+	s.release_internalized_substrates(*m, d_s, 0);
 
 	if (compute_internalized)
 	{
-		s.release_internalized_substrates(*m, d_s, 0);
 		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 0)), 1);
 		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 1)), 1);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -246,54 +248,57 @@ TEST_P(RecomputeTest, Simple2D)
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216004.000000);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216000.000000);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -4);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469060.631579);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469052.6);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -8);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927715.703704);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927703.8);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -12);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 28.000500);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 28);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1.0005);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 0)), 184.632579);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 0)), 184.63158);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 1)), 1.001);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 366.964463);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 366.963);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.0015);
 
 #pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, recompute);
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216004.000000 + -157093.818182);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -373091);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -8);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469060.631579 + -618551.844632);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -2087601.1);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -16);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927715.703704 + -867471.319407);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -3795171.5);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -24);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 47.637227);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 47.636364);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1.001);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 0)), 261.951560);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 0)), 261.95);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 1)), 1.002);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 475.398378);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 475.39642);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.003);
+
+	s.release_internalized_substrates(*m, d_s, 0);
 
 	if (compute_internalized)
 	{
-		s.release_internalized_substrates(*m, d_s, 0);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 1);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -329,54 +334,57 @@ TEST_P(RecomputeTest, Simple3D)
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216004.000000);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216000.000000);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -4);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469060.631579);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469052.6);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -8);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927715.703704);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927703.8);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -12);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 28.000500);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 28);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1.0005);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 184.632579);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 184.63158);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1.001);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 366.964463);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 366.963);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.0015);
 
 #pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, recompute);
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216004.000000 + -157093.818182);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -373091);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -8);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469060.631579 + -618551.844632);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -2087601.1);
+		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -16);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927715.703704 + -867471.319407);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], 0);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -3795171.5);
+		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -24);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 47.637227);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 47.636364);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1.001);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 261.951560);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 261.95);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1.002);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 475.398378);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 475.39642);
+	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.003);
+
+	s.release_internalized_substrates(*m, d_s, 0);
 
 	if (compute_internalized)
 	{
-		s.release_internalized_substrates(*m, d_s, 0);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 1);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -420,10 +428,10 @@ TEST_P(RecomputeTest, Conflict)
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
 
-	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
-
 #pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, true);
+
+	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
 	if (compute_internalized)
 	{
@@ -443,12 +451,12 @@ TEST_P(RecomputeTest, Conflict)
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
 		}
 	}
-
-	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
 #pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, recompute);
 
+	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
+
 	if (compute_internalized)
 	{
 		for (std::size_t i = 0; i < agents.size(); i++)
@@ -465,6 +473,21 @@ TEST_P(RecomputeTest, Conflict)
 		{
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), expected[2 * x]);
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
+		}
+	}
+
+#pragma omp parallel for
+	for (std::size_t i = 0; i < agents.size(); i++)
+	{
+		s.release_internalized_substrates(*m, d_s, i);
+	}
+
+	if (compute_internalized)
+	{
+		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
+		{
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 1);
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), 1);
 		}
 	}
 }
@@ -504,10 +527,10 @@ TEST_P(RecomputeTest, ConflictBig)
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
 
-	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
-
 #pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, true);
+
+	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
 	if (compute_internalized)
 	{
@@ -527,12 +550,12 @@ TEST_P(RecomputeTest, ConflictBig)
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
 		}
 	}
-
-	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
 #pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, recompute);
 
+	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
+
 	if (compute_internalized)
 	{
 		for (std::size_t i = 0; i < agents.size(); i++)
@@ -549,6 +572,21 @@ TEST_P(RecomputeTest, ConflictBig)
 		{
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), expected[2 * x]);
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
+		}
+	}
+
+#pragma omp parallel for
+	for (std::size_t i = 0; i < agents.size(); i++)
+	{
+		s.release_internalized_substrates(*m, d_s, i);
+	}
+
+	if (compute_internalized)
+	{
+		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
+		{
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 1);
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), 1);
 		}
 	}
 }

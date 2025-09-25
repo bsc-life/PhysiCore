@@ -125,9 +125,7 @@ void compute_internalized(real_t* HWY_RESTRICT internalized_substrates, const re
 	{
 		internalized_substrates[s] -=
 			voxel_volume
-			* (((-denominator[s]) * (dens_l | noarr::get_at<'s'>(substrate_densities, s)) + numerator[s])
-				   / (1 + denominator[s])
-			   + factor[s]);
+			* (numerator[s] - (dens_l | noarr::get_at<'s'>(substrate_densities, s)) * denominator[s] + factor[s]);
 	}
 }
 
@@ -160,17 +158,15 @@ void compute_fused(real_t* HWY_RESTRICT substrate_densities, real_t* HWY_RESTRIC
 
 	for (index_t s = 0; s < substrates_count; s++)
 	{
-		internalized_substrates[s] -= voxel_volume
-									  * (((1 - denominator[s].load(std::memory_order_relaxed))
-											  * (dens_l | noarr::get_at<'s'>(substrate_densities, s))
-										  + numerator[s].load(std::memory_order_relaxed))
-											 / (denominator[s].load(std::memory_order_relaxed))
-										 + factor[s].load(std::memory_order_relaxed));
+		auto previous_densities = (dens_l | noarr::get_at<'s'>(substrate_densities, s));
 
 		(dens_l | noarr::get_at<'s'>(substrate_densities, s)) =
 			((dens_l | noarr::get_at<'s'>(substrate_densities, s)) + numerator[s].load(std::memory_order_relaxed))
 				/ denominator[s].load(std::memory_order_relaxed)
 			+ factor[s].load(std::memory_order_relaxed);
+
+		internalized_substrates[s] +=
+			voxel_volume * (previous_densities - (dens_l | noarr::get_at<'s'>(substrate_densities, s)));
 	}
 }
 
@@ -199,6 +195,17 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 		return;
 	}
 
+#pragma omp for
+	for (index_t i = 0; i < data.base_data.agents_count; i++)
+	{
+		auto fixed_dims = fix_dims<dims>(data.base_data.positions.data() + i * dims, mesh);
+
+		auto ballot = ((ballot_l ^ fixed_dims) | noarr::get_at(ballots)).load(std::memory_order_relaxed);
+		compute_densities(substrates, reduced_numerators + i * data.substrate_count,
+						  reduced_denominators + i * data.substrate_count, reduced_factors + i * data.substrate_count,
+						  ballot == i, dens_l ^ fixed_dims);
+	}
+
 	if (with_internalized)
 	{
 #pragma omp for
@@ -210,17 +217,6 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 								 numerators + i * data.substrate_count, denominators + i * data.substrate_count,
 								 factors + i * data.substrate_count, voxel_volume, dens_l ^ fixed_dims);
 		}
-	}
-
-#pragma omp for
-	for (index_t i = 0; i < data.base_data.agents_count; i++)
-	{
-		auto fixed_dims = fix_dims<dims>(data.base_data.positions.data() + i * dims, mesh);
-
-		auto ballot = ((ballot_l ^ fixed_dims) | noarr::get_at(ballots)).load(std::memory_order_relaxed);
-		compute_densities(substrates, reduced_numerators + i * data.substrate_count,
-						  reduced_denominators + i * data.substrate_count, reduced_factors + i * data.substrate_count,
-						  ballot == i, dens_l ^ fixed_dims);
 	}
 }
 
