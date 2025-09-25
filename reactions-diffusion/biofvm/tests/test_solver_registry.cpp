@@ -16,7 +16,7 @@ TEST(SolverRegistryTest, CheckPresentSolvers)
 {
 	auto registry = solver_registry::instance();
 
-	EXPECT_NE(registry.get("cpu_solver"), nullptr);
+	EXPECT_NE(registry.get("openmp_solver"), nullptr);
 }
 
 TEST(SolverRegistryTest, GetAndSet)
@@ -47,7 +47,7 @@ TEST(SolverRegistryTest, RegistryAdder)
 {
 	auto& registry = solver_registry::instance();
 
-	registry_adder<mock_solver> cpu_solver_adder("solver_x");
+	registry_adder<mock_solver> openmp_solver_adder("solver_x");
 
 	EXPECT_NE(registry.get("solver_x"), nullptr);
 }

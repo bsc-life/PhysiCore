@@ -8,7 +8,7 @@
 
 namespace physicore::biofvm::kernels::cpu {
 
-class cpu_solver : public solver
+class openmp_solver : public solver
 {
 	bool initialized = false;
 

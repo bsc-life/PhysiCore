@@ -15,11 +15,11 @@ target_sources(
 target_link_libraries(physicore.reactions-diffusion.biofvm
                       PUBLIC physicore::common)
 
-add_subdirectory(kernels/cpu_solver)
+add_subdirectory(kernels/openmp_solver)
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm
-  PRIVATE physicore::reactions-diffusion::kernels::cpu_solver)
+  PRIVATE physicore::reactions-diffusion::kernels::openmp_solver)
 
 if(PHYSICORE_BUILD_TESTS)
   find_package(GTest REQUIRED)
@@ -32,7 +32,7 @@ if(PHYSICORE_BUILD_TESTS)
   target_link_libraries(
     physicore.reactions-diffusion.biofvm.tests
     PRIVATE physicore::reactions-diffusion::biofvm
-            physicore::reactions-diffusion::kernels::cpu_solver GTest::gtest
+            physicore::reactions-diffusion::kernels::openmp_solver GTest::gtest
             GTest::gtest_main)
 
   include(GoogleTest)

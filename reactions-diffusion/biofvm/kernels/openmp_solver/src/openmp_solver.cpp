@@ -1,9 +1,9 @@
-#include "cpu_solver.h"
+#include "openmp_solver.h"
 
 using namespace physicore;
 using namespace physicore::biofvm::kernels::cpu;
 
-void cpu_solver::solve(biofvm::microenvironment& m, index_t iterations)
+void openmp_solver::solve(biofvm::microenvironment& m, index_t iterations)
 {
 	if (!initialized)
 	{
