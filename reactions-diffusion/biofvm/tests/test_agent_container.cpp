@@ -6,7 +6,7 @@
 using namespace physicore;
 using namespace physicore::biofvm;
 
-agent_container make_agent_container() { return agent_container { 1 }; }
+agent_container make_agent_container() { return agent_container { 3, 1 }; }
 
 TEST(AgentContainerTest, CreateAndRemove)
 {

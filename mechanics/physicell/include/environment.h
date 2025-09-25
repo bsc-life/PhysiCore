@@ -5,7 +5,7 @@
 
 namespace physicore::micromechanics {
 
-class environment : public process
+class environment : public timestep_executor
 {
 	real_t timestep;
 

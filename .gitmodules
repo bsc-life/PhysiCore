@@ -1,0 +1,3 @@
+[submodule "reactions-diffusion/biofvm/kernels/cpu_solver/noarr-structures"]
+	path = reactions-diffusion/biofvm/kernels/cpu_solver/noarr-structures
+	url = git@github.com:ParaCoToUl/noarr-structures.git

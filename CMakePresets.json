@@ -45,6 +45,9 @@
                 "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
                 "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
+            },
+            "environment": {
+                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
             }
         },
         {
@@ -59,6 +62,9 @@
                 "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
                 "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
+            },
+            "environment": {
+                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
             }
         },
         {
@@ -73,6 +79,9 @@
                 "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
                 "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
+            },
+            "environment": {
+                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
             }
         },
         {

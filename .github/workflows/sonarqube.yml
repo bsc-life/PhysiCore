@@ -12,9 +12,15 @@ jobs:
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+          submodules: recursive
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libomp-dev
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
       - name: Install Build Wrapper
@@ -28,12 +34,13 @@ jobs:
           LLVM_PROFILE_FILE="common.profraw" build/llvm-cov-debug/common/physicore.common.tests
           LLVM_PROFILE_FILE="biofvm.profraw" build/llvm-cov-debug/reactions-diffusion/biofvm/physicore.reactions-diffusion.biofvm.tests
           LLVM_PROFILE_FILE="micromechanics.profraw" build/llvm-cov-debug/mechanics/physicell/physicore.mechanics.physicell.tests
+          LLVM_PROFILE_FILE="biofvm.cpu_solver.profraw" build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/cpu_solver/tests/physicore.reactions-diffusion.kernels.cpu_solver.tests
       - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
         run: |
-          llvm-profdata-18 merge -o merged.profdata common.profraw biofvm.profraw micromechanics.profraw
+          llvm-profdata-18 merge -o merged.profdata common.profraw biofvm.profraw micromechanics.profraw biofvm.cpu_solver.profraw
       - name: Collect the coverage
         run: |
-          llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/llvm-cov-debug/common/physicore.common.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/physicore.reactions-diffusion.biofvm.tests -object build/llvm-cov-debug/mechanics/physicell/physicore.mechanics.physicell.tests > coverage.txt
+          llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/llvm-cov-debug/common/physicore.common.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/physicore.reactions-diffusion.biofvm.tests -object build/llvm-cov-debug/mechanics/physicell/physicore.mechanics.physicell.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/cpu_solver/tests/physicore.reactions-diffusion.kernels.cpu_solver.tests > coverage.txt
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
         env:
@@ -44,5 +51,6 @@ jobs:
             --define sonar.organization=bsc-life
             --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
             --define sonar.cfamily.llvm-cov.reportPath=coverage.txt
-            --define sonar.sources=phenotype/physicore/src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include,mechanics/physicell/src,mechanics/physicell/include
-            --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests,mechanics/physicell/tests
+            --define sonar.sources=phenotype/physicore/src,common/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include,mechanics/physicell/src,mechanics/physicell/include,reactions-diffusion/biofvm/kernels/cpu_solver/src,reactions-diffusion/biofvm/kernels/cpu_solver/examples,reactions-diffusion/biofvm/kernels/cpu_solver/include
+            --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests,mechanics/physicell/tests,reactions-diffusion/biofvm/kernels/cpu_solver/tests
+            --define sonar.coverage.exclusions=reactions-diffusion/biofvm/kernels/cpu_solver/examples/*

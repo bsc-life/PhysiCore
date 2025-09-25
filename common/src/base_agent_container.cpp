@@ -6,6 +6,8 @@
 
 namespace physicore {
 
+base_agent_container::base_agent_container(index_t dims) : base_data(dims) {}
+
 base_agent* base_agent_container::create()
 {
 	base_data.add();
@@ -42,5 +44,7 @@ void base_agent_container::swap_and_erase_agent(index_t position)
 	std::swap(agents[position], agents.back());
 	agents.resize(base_data.agents_count);
 }
+
+std::size_t base_agent_container::size() const { return agents.size(); }
 
 } // namespace physicore

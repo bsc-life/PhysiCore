@@ -18,6 +18,8 @@ protected:
 	void swap_and_erase_agent(index_t position);
 
 public:
+	explicit base_agent_container(index_t dims = 3);
+
 	virtual base_agent* create();
 
 	virtual base_agent* get_agent_at(index_t position);
@@ -25,6 +27,8 @@ public:
 	virtual void remove_agent(base_agent* agent);
 
 	virtual void remove_at(index_t position);
+
+	virtual std::size_t size() const;
 
 	virtual ~base_agent_container() = default;
 };

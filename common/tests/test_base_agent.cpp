@@ -14,7 +14,7 @@ TEST(BaseAgentTest, GetPosition)
 	data.positions[0] = 1.0;
 	data.positions[1] = 2.0;
 	base_agent agent(0, data);
-	auto pos = agent.get_position();
+	auto pos = agent.position();
 	ASSERT_EQ(pos.size(), 2);
 	EXPECT_EQ(pos[0], 1.0);
 	EXPECT_EQ(pos[1], 2.0);
@@ -30,7 +30,7 @@ TEST(BaseAgentTest, GetPosition3D)
 	data.positions[1] = 4.0;
 	data.positions[2] = 5.0;
 	base_agent agent(0, data);
-	auto pos = agent.get_position();
+	auto pos = agent.position();
 	ASSERT_EQ(pos.size(), 3);
 	EXPECT_EQ(pos[0], 3.0);
 	EXPECT_EQ(pos[1], 4.0);
@@ -50,8 +50,8 @@ TEST(BaseAgentTest, MultipleAgentsGetPosition)
 	data.positions[3] = 40.0;
 	base_agent agent0(0, data);
 	base_agent agent1(1, data);
-	auto pos0 = agent0.get_position();
-	auto pos1 = agent1.get_position();
+	auto pos0 = agent0.position();
+	auto pos1 = agent1.position();
 	ASSERT_EQ(pos0.size(), 2);
 	ASSERT_EQ(pos1.size(), 2);
 	EXPECT_EQ(pos0[0], 10.0);

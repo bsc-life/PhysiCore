@@ -3,8 +3,9 @@ add_library(physicore::reactions-diffusion::biofvm ALIAS
             physicore.reactions-diffusion.biofvm)
 
 target_sources(
-  physicore.reactions-diffusion.biofvm PRIVATE src/microenvironment.cpp
-                                               src/agent_data.cpp src/agent.cpp)
+  physicore.reactions-diffusion.biofvm
+  PRIVATE src/microenvironment.cpp src/microenvironment_builder.cpp
+          src/agent_data.cpp src/agent.cpp src/mesh.cpp src/solver_registry.cpp)
 
 target_sources(
   physicore.reactions-diffusion.biofvm
@@ -13,6 +14,12 @@ target_sources(
 
 target_link_libraries(physicore.reactions-diffusion.biofvm
                       PUBLIC physicore::common)
+
+add_subdirectory(kernels/cpu_solver)
+
+target_link_libraries(
+  physicore.reactions-diffusion.biofvm
+  PRIVATE physicore::reactions-diffusion::kernels::cpu_solver)
 
 if(PHYSICORE_BUILD_TESTS)
   find_package(GTest REQUIRED)
@@ -24,7 +31,8 @@ if(PHYSICORE_BUILD_TESTS)
 
   target_link_libraries(
     physicore.reactions-diffusion.biofvm.tests
-    PRIVATE physicore::reactions-diffusion::biofvm GTest::gtest
+    PRIVATE physicore::reactions-diffusion::biofvm
+            physicore::reactions-diffusion::kernels::cpu_solver GTest::gtest
             GTest::gtest_main)
 
   include(GoogleTest)
