@@ -15,7 +15,9 @@ protected:
 		data.base_data.dims = 3;
 		data.base_data.agents_count = 0;
 		data.substrate_count = 2; // Testing with 2 substrates
-		data.add();				  // Add first agent
+		data.add_component<secretion_uptake_component>();
+		data.add_component<net_export_component>();
+		data.add(); // Add first agent
 	}
 
 	base_agent_data base_data;
@@ -24,7 +26,7 @@ protected:
 
 TEST_F(AgentTest, SecretionRates)
 {
-	agent test_agent(0, data);
+	secretion_uptake_agent_mixin<agent> test_agent(0, data);
 	auto rates = test_agent.secretion_rates();
 	ASSERT_EQ(rates.size(), 2);
 
@@ -37,7 +39,7 @@ TEST_F(AgentTest, SecretionRates)
 
 TEST_F(AgentTest, SaturationDensities)
 {
-	agent test_agent(0, data);
+	secretion_uptake_agent_mixin<agent> test_agent(0, data);
 	auto densities = test_agent.saturation_densities();
 	ASSERT_EQ(densities.size(), 2);
 
@@ -49,7 +51,7 @@ TEST_F(AgentTest, SaturationDensities)
 
 TEST_F(AgentTest, UptakeRates)
 {
-	agent test_agent(0, data);
+	secretion_uptake_agent_mixin<agent> test_agent(0, data);
 	auto rates = test_agent.uptake_rates();
 	ASSERT_EQ(rates.size(), 2);
 
@@ -61,7 +63,7 @@ TEST_F(AgentTest, UptakeRates)
 
 TEST_F(AgentTest, NetExportRates)
 {
-	agent test_agent(0, data);
+	net_export_agent_mixin<agent> test_agent(0, data);
 	auto rates = test_agent.net_export_rates();
 	ASSERT_EQ(rates.size(), 2);
 
@@ -117,8 +119,8 @@ TEST_F(AgentTest, Volume)
 TEST_F(AgentTest, MultipleAgents)
 {
 	data.add(); // Add second agent
-	agent agent0(0, data);
-	agent agent1(1, data);
+	secretion_uptake_agent_mixin<agent> agent0(0, data);
+	secretion_uptake_agent_mixin<agent> agent1(1, data);
 
 	// Test that the agents access different memory locations
 	agent0.secretion_rates()[0] = 1.0;

@@ -46,15 +46,16 @@ static void compute_expected_agent_internalized_1d(auto densities, microenvironm
 	{
 		for (index_t s = 0; s < m.substrates_count; s++)
 		{
-			auto num = agent_data.secretion_rates[i * m.substrates_count + s]
-					   * agent_data.saturation_densities[i * m.substrates_count + s] * m.diffusion_timestep
-					   * agent_data.volumes[i];
+			auto num = agent_data.get<secretion_uptake_component>()->secretion_rates[i * m.substrates_count + s]
+					   * agent_data.get<secretion_uptake_component>()->saturation_densities[i * m.substrates_count + s]
+					   * m.diffusion_timestep * agent_data.volumes[i];
 
-			auto denom = (agent_data.secretion_rates[i * m.substrates_count + s]
-						  + agent_data.uptake_rates[i * m.substrates_count + s])
+			auto denom = (agent_data.get<secretion_uptake_component>()->secretion_rates[i * m.substrates_count + s]
+						  + agent_data.get<secretion_uptake_component>()->uptake_rates[i * m.substrates_count + s])
 						 * m.diffusion_timestep * agent_data.volumes[i] / m.mesh.voxel_volume();
 
-			auto factor = agent_data.net_export_rates[i * m.substrates_count + s] * m.diffusion_timestep;
+			auto factor = agent_data.get<net_export_component>()->net_export_rates[i * m.substrates_count + s]
+						  * m.diffusion_timestep;
 
 			auto mesh_idx =
 				m.mesh.voxel_position(std::span<const real_t>(agent_data.base_data.positions.data() + i, 1));
@@ -81,16 +82,17 @@ static std::vector<real_t> compute_expected_agent_densities_1d(auto densities, m
 			{
 				if (agent_data.base_data.positions[i] / m.mesh.voxel_shape[0] == x)
 				{
-					num += agent_data.secretion_rates[i * m.substrates_count + s]
-						   * agent_data.saturation_densities[i * m.substrates_count + s] * m.diffusion_timestep
-						   * agent_data.volumes[i] / m.mesh.voxel_volume();
+					num +=
+						agent_data.get<secretion_uptake_component>()->secretion_rates[i * m.substrates_count + s]
+						* agent_data.get<secretion_uptake_component>()->saturation_densities[i * m.substrates_count + s]
+						* m.diffusion_timestep * agent_data.volumes[i] / m.mesh.voxel_volume();
 
-					denom += (agent_data.secretion_rates[i * m.substrates_count + s]
-							  + agent_data.uptake_rates[i * m.substrates_count + s])
+					denom += (agent_data.get<secretion_uptake_component>()->secretion_rates[i * m.substrates_count + s]
+							  + agent_data.get<secretion_uptake_component>()->uptake_rates[i * m.substrates_count + s])
 							 * m.diffusion_timestep * agent_data.volumes[i] / m.mesh.voxel_volume();
 
-					factor += agent_data.net_export_rates[i * m.substrates_count + s] * m.diffusion_timestep
-							  / m.mesh.voxel_volume();
+					factor += agent_data.get<net_export_component>()->net_export_rates[i * m.substrates_count + s]
+							  * m.diffusion_timestep / m.mesh.voxel_volume();
 				}
 			}
 			expected_densities[x * m.substrates_count + s] =
@@ -206,11 +208,14 @@ TEST_P(RecomputeTest, Simple1D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 0)), 475.398378);
 	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 1)), 1);
 
+	s.release_internalized_substrates(*m, d_s, 0);
+
 	if (compute_internalized)
 	{
-		s.release_internalized_substrates(*m, d_s, 0);
 		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 0)), 1);
 		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 1)), 1);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -289,11 +294,14 @@ TEST_P(RecomputeTest, Simple2D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 475.398378);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1);
 
+	s.release_internalized_substrates(*m, d_s, 0);
+
 	if (compute_internalized)
 	{
-		s.release_internalized_substrates(*m, d_s, 0);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 1);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -372,11 +380,14 @@ TEST_P(RecomputeTest, Simple3D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 475.398378);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1);
 
+	s.release_internalized_substrates(*m, d_s, 0);
+
 	if (compute_internalized)
 	{
-		s.release_internalized_substrates(*m, d_s, 0);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 1);
 		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -465,6 +476,21 @@ TEST_P(RecomputeTest, Conflict)
 		{
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), expected[2 * x]);
 			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
+		}
+	}
+
+#pragma omp parallel for
+	for (std::size_t i = 0; i < agents.size(); i++)
+	{
+		s.release_internalized_substrates(*m, d_s, i);
+	}
+
+	if (compute_internalized)
+	{
+		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
+		{
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 1);
+			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), 1);
 		}
 	}
 }

@@ -5,26 +5,6 @@ using namespace physicore::biofvm;
 
 agent::agent(index_t index, agent_data& data) : physicore::base_agent(index, data.base_data), data(data) {}
 
-std::span<real_t> agent::secretion_rates()
-{
-	return std::span<real_t>(&data.secretion_rates[index * data.substrate_count], data.substrate_count);
-}
-
-std::span<real_t> agent::saturation_densities()
-{
-	return std::span<real_t>(&data.saturation_densities[index * data.substrate_count], data.substrate_count);
-}
-
-std::span<real_t> agent::uptake_rates()
-{
-	return std::span<real_t>(&data.uptake_rates[index * data.substrate_count], data.substrate_count);
-}
-
-std::span<real_t> agent::net_export_rates()
-{
-	return std::span<real_t>(&data.net_export_rates[index * data.substrate_count], data.substrate_count);
-}
-
 std::span<real_t> agent::internalized_substrates()
 {
 	return std::span<real_t>(&data.internalized_substrates[index * data.substrate_count], data.substrate_count);

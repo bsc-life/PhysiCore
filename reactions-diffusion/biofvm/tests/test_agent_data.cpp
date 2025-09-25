@@ -23,13 +23,16 @@ TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 	index_t substrate_count = 3;
 	agent_data data(base, substrate_count);
 
+	data.add_component<secretion_uptake_component>();
+	data.add_component<net_export_component>();
+
 	data.add(); // adds one agent
 
 	EXPECT_EQ(base.agents_count, 1);
-	EXPECT_EQ(data.secretion_rates.size(), substrate_count);
-	EXPECT_EQ(data.saturation_densities.size(), substrate_count);
-	EXPECT_EQ(data.uptake_rates.size(), substrate_count);
-	EXPECT_EQ(data.net_export_rates.size(), substrate_count);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->secretion_rates.size(), substrate_count);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->saturation_densities.size(), substrate_count);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->uptake_rates.size(), substrate_count);
+	EXPECT_EQ(data.get<net_export_component>()->net_export_rates.size(), substrate_count);
 	EXPECT_EQ(data.internalized_substrates.size(), substrate_count);
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count);
@@ -38,10 +41,10 @@ TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 	data.add(); // adds another agent
 
 	EXPECT_EQ(base.agents_count, 2);
-	EXPECT_EQ(data.secretion_rates.size(), substrate_count * 2);
-	EXPECT_EQ(data.saturation_densities.size(), substrate_count * 2);
-	EXPECT_EQ(data.uptake_rates.size(), substrate_count * 2);
-	EXPECT_EQ(data.net_export_rates.size(), substrate_count * 2);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->secretion_rates.size(), substrate_count * 2);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->saturation_densities.size(), substrate_count * 2);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->uptake_rates.size(), substrate_count * 2);
+	EXPECT_EQ(data.get<net_export_component>()->net_export_rates.size(), substrate_count * 2);
 	EXPECT_EQ(data.internalized_substrates.size(), substrate_count * 2);
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * 2);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * 2);
@@ -54,6 +57,9 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	index_t substrate_count = 2;
 	agent_data data(base, substrate_count);
 
+	data.add_component<secretion_uptake_component>();
+	data.add_component<net_export_component>();
+
 	data.add(); // agent 0
 	data.add(); // agent 1
 	data.add(); // agent 2
@@ -61,10 +67,10 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	index_t expected_size = 3;
 
 	EXPECT_EQ(base.agents_count, expected_size);
-	EXPECT_EQ(data.secretion_rates.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.saturation_densities.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.uptake_rates.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.net_export_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->secretion_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->saturation_densities.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->uptake_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<net_export_component>()->net_export_rates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.internalized_substrates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * expected_size);
@@ -76,10 +82,10 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	expected_size = 2;
 
 	EXPECT_EQ(base.agents_count, expected_size);
-	EXPECT_EQ(data.secretion_rates.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.saturation_densities.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.uptake_rates.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.net_export_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->secretion_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->saturation_densities.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->uptake_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<net_export_component>()->net_export_rates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.internalized_substrates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * expected_size);
@@ -91,10 +97,10 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	expected_size = 1;
 
 	EXPECT_EQ(base.agents_count, expected_size);
-	EXPECT_EQ(data.secretion_rates.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.saturation_densities.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.uptake_rates.size(), substrate_count * expected_size);
-	EXPECT_EQ(data.net_export_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->secretion_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->saturation_densities.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<secretion_uptake_component>()->uptake_rates.size(), substrate_count * expected_size);
+	EXPECT_EQ(data.get<net_export_component>()->net_export_rates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.internalized_substrates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * expected_size);

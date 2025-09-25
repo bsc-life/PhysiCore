@@ -2,11 +2,15 @@
 
 #include "agent.h"
 #include "agent_container.h"
+#include "agent_data.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;
 
-agent_container make_agent_container() { return agent_container { 3, 1 }; }
+agent_container make_agent_container()
+{
+	return agent_container { 3, 1, net_export_component {}, secretion_uptake_component {} };
+}
 
 TEST(AgentContainerTest, CreateAndRemove)
 {
