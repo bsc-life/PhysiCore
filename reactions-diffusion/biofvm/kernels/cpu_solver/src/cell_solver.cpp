@@ -116,22 +116,16 @@ void ballot_and_sum(const auto ballot_l, std::atomic<real_t>* HWY_RESTRICT reduc
 
 template <typename density_layout_t>
 void compute_internalized(real_t* HWY_RESTRICT internalized_substrates, const real_t* HWY_RESTRICT substrate_densities,
-						  const real_t* HWY_RESTRICT secretion_rates, const real_t* HWY_RESTRICT uptake_rates,
-						  const real_t* HWY_RESTRICT saturation_densities, const real_t* HWY_RESTRICT net_export_rate,
-						  real_t agent_volume, real_t voxel_volume, real_t timestep, density_layout_t dens_l)
+						  const real_t* HWY_RESTRICT numerator, const real_t* HWY_RESTRICT denominator,
+						  const real_t* HWY_RESTRICT factor, real_t voxel_volume, density_layout_t dens_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
 	for (index_t s = 0; s < substrates_count; s++)
 	{
-		const real_t D = (dens_l | noarr::get_at<'s'>(substrate_densities, s));
-		const real_t S = secretion_rates[s];
-		const real_t T = saturation_densities[s];
-		const real_t U = uptake_rates[s];
-		const real_t N = net_export_rate[s];
-
-		internalized_substrates[s] -= timestep * agent_volume * (S * (T - D) - U * D)
-									  + timestep * N * (1 + timestep * (agent_volume / voxel_volume) * (S + U));
+		internalized_substrates[s] -=
+			voxel_volume
+			* (numerator[s] - (dens_l | noarr::get_at<'s'>(substrate_densities, s)) * denominator[s] + factor[s]);
 	}
 }
 
@@ -164,27 +158,23 @@ void compute_fused(real_t* HWY_RESTRICT substrate_densities, real_t* HWY_RESTRIC
 
 	for (index_t s = 0; s < substrates_count; s++)
 	{
-		auto tmp = (dens_l | noarr::get_at<'s'>(substrate_densities, s));
-		// internalized_substrates[s] -= voxel_volume
-		// 							  * (((1 - denominator[s].load(std::memory_order_relaxed))
-		// 									  * (dens_l | noarr::get_at<'s'>(substrate_densities, s))
-		// 								  + numerator[s].load(std::memory_order_relaxed))
-		// 									 / (denominator[s].load(std::memory_order_relaxed))
-		// 								 + factor[s].load(std::memory_order_relaxed));
+		auto previous_densities = (dens_l | noarr::get_at<'s'>(substrate_densities, s));
 
 		(dens_l | noarr::get_at<'s'>(substrate_densities, s)) =
 			((dens_l | noarr::get_at<'s'>(substrate_densities, s)) + numerator[s].load(std::memory_order_relaxed))
 				/ denominator[s].load(std::memory_order_relaxed)
 			+ factor[s].load(std::memory_order_relaxed);
 
-		internalized_substrates[s] += voxel_volume * (tmp - (dens_l | noarr::get_at<'s'>(substrate_densities, s)));
+		internalized_substrates[s] +=
+			voxel_volume * (previous_densities - (dens_l | noarr::get_at<'s'>(substrate_densities, s)));
 	}
 }
 
 template <index_t dims>
 void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, const cartesian_mesh& mesh,
-					const real_t timestep, real_t* substrates, const std::atomic<real_t>* reduced_numerators,
+					real_t* substrates, const std::atomic<real_t>* reduced_numerators,
 					const std::atomic<real_t>* reduced_denominators, const std::atomic<real_t>* reduced_factors,
+					const real_t* numerators, const real_t* denominators, const real_t* factors,
 					const std::atomic<index_t>* ballots, bool with_internalized, bool is_conflict)
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
@@ -224,11 +214,8 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 			auto fixed_dims = fix_dims<dims>(data.base_data.positions.data() + i * dims, mesh);
 
 			compute_internalized(data.internalized_substrates.data() + i * data.substrate_count, substrates,
-								 data.secretion_rates.data() + i * data.substrate_count,
-								 data.uptake_rates.data() + i * data.substrate_count,
-								 data.saturation_densities.data() + i * data.substrate_count,
-								 data.net_export_rates.data() + i * data.substrate_count, data.volumes[i], voxel_volume,
-								 timestep, dens_l ^ fixed_dims);
+								 numerators + i * data.substrate_count, denominators + i * data.substrate_count,
+								 factors + i * data.substrate_count, voxel_volume, dens_l ^ fixed_dims);
 		}
 	}
 }
@@ -256,8 +243,8 @@ void simulate(const auto dens_l, const auto ballot_l, agent_data& data, microenv
 							 data.base_data.agents_count, data.substrate_count, m.mesh, is_conflict);
 	}
 
-	compute_result<dims>(dens_l, ballot_l, data, m.mesh, m.diffusion_timestep, substrates, reduced_numerators,
-						 reduced_denominators, reduced_factors, ballots, with_internalized,
+	compute_result<dims>(dens_l, ballot_l, data, m.mesh, substrates, reduced_numerators, reduced_denominators,
+						 reduced_factors, numerators, denominators, factors, ballots, with_internalized,
 						 is_conflict[0].load(std::memory_order_relaxed));
 }
 
