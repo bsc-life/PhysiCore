@@ -1,9 +1,8 @@
 add_library(physicore.common)
 add_library(physicore::common ALIAS physicore.common)
 
-target_sources(
-  physicore.common PRIVATE src/base_agent_container.cpp src/base_agent_data.cpp
-                           src/base_agent.cpp)
+target_sources(physicore.common PRIVATE src/base_agent_container.cpp
+                                        src/base_agent.cpp)
 
 target_sources(
   physicore.common
