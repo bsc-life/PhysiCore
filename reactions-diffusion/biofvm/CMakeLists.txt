@@ -16,6 +16,7 @@ target_link_libraries(physicore.reactions-diffusion.biofvm
                       PUBLIC physicore::common)
 
 add_subdirectory(kernels/openmp_solver)
+add_subdirectory(kernels/thrust_solver)
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm

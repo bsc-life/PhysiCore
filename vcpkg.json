@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "gtest",
-    "highway"
+    "highway",
+    "tbb"
   ]
 }

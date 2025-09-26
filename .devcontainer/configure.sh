@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo chown -R $USER:$USER /workspaces
+
 # Install LLVM
 wget https://apt.llvm.org/llvm.sh
 chmod +x ./llvm.sh
