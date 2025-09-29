@@ -7,7 +7,7 @@ using namespace physicore;
 using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::cpu;
 
-auto fix_dims(const index_t* voxel_index, index_t dims)
+static auto fix_dims(const index_t* voxel_index, index_t dims)
 {
 	if (dims == 1)
 		return noarr::fix<'x', 'y', 'z'>(voxel_index[0], 0, 0);
@@ -18,10 +18,10 @@ auto fix_dims(const index_t* voxel_index, index_t dims)
 	return noarr::fix<'x', 'y', 'z'>(0, 0, 0);
 }
 
-void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_densities,
-					const index_t* HWY_RESTRICT dirichlet_voxels, const real_t* HWY_RESTRICT dirichlet_values,
-					const bool* HWY_RESTRICT dirichlet_conditions, index_t substrates_count,
-					index_t dirichlet_voxels_count, index_t dims)
+static void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_densities,
+						   const index_t* HWY_RESTRICT dirichlet_voxels, const real_t* HWY_RESTRICT dirichlet_values,
+						   const bool* HWY_RESTRICT dirichlet_conditions, index_t substrates_count,
+						   index_t dirichlet_voxels_count, index_t dims)
 {
 	if (dirichlet_voxels_count == 0)
 		return;
@@ -41,8 +41,8 @@ void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_densities,
 }
 
 template <typename density_layout_t>
-void solve_boundary(real_t* HWY_RESTRICT substrate_densities, const real_t* HWY_RESTRICT dirichlet_values,
-					const bool* HWY_RESTRICT dirichlet_conditions, const density_layout_t dens_l)
+static void solve_boundary(real_t* HWY_RESTRICT substrate_densities, const real_t* HWY_RESTRICT dirichlet_values,
+						   const bool* HWY_RESTRICT dirichlet_conditions, const density_layout_t dens_l)
 {
 	if (dirichlet_values == nullptr)
 		return;
@@ -55,7 +55,7 @@ void solve_boundary(real_t* HWY_RESTRICT substrate_densities, const real_t* HWY_
 	});
 }
 
-void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_densities, microenvironment& m)
+static void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_densities, microenvironment& m)
 {
 	solve_boundary(substrate_densities, m.dirichlet_min_boundary_values[0].get(),
 				   m.dirichlet_min_boundary_conditions[0].get(), dens_l ^ noarr::fix<'x'>(noarr::lit<0>));
