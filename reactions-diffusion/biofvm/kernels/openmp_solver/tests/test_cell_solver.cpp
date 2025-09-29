@@ -139,9 +139,9 @@ TEST_P(RecomputeTest, Simple1D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents.create();
-	auto a2 = m->agents.create();
-	auto a3 = m->agents.create();
+	auto a1 = m->agents->create_agent();
+	auto a2 = m->agents->create_agent();
+	auto a3 = m->agents->create_agent();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 0, 0 }, 1);
 	set_default_agent_values(a2, 400, 1000, { 30, 0, 0 }, 1);
@@ -225,9 +225,9 @@ TEST_P(RecomputeTest, Simple2D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents.create();
-	auto a2 = m->agents.create();
-	auto a3 = m->agents.create();
+	auto a1 = m->agents->create_agent();
+	auto a2 = m->agents->create_agent();
+	auto a3 = m->agents->create_agent();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 0 }, 2);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 0 }, 2);
@@ -311,9 +311,9 @@ TEST_P(RecomputeTest, Simple3D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents.create();
-	auto a2 = m->agents.create();
-	auto a3 = m->agents.create();
+	auto a1 = m->agents->create_agent();
+	auto a2 = m->agents->create_agent();
+	auto a3 = m->agents->create_agent();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 10 }, 3);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 30 }, 3);
@@ -403,7 +403,7 @@ TEST_P(RecomputeTest, Conflict)
 	std::vector<agent*> agents;
 
 	for (int i = 0; i < 6; i++)
-		agents.push_back(m->agents.create());
+		agents.push_back(m->agents->create_agent());
 
 	set_default_agent_values(agents[0], 0, 500, { 10, 0, 0 }, 1);
 
@@ -424,7 +424,7 @@ TEST_P(RecomputeTest, Conflict)
 	auto dens_l = d_s.get_substrates_layout<1>();
 	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
 
-	auto& agent_data = agent_retriever().retrieve_agent_data(m->agents);
+	auto& agent_data = agent_retriever().retrieve_agent_data(*m->agents);
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
 
@@ -508,7 +508,7 @@ TEST_P(RecomputeTest, ConflictBig)
 	{
 		for (index_t j = 0; j < conflict_in_each_voxel; j++)
 		{
-			agents.push_back(m->agents.create());
+			agents.push_back(m->agents->create_agent());
 			set_default_agent_values(agents.back(), 0, 500, mesh.voxel_center({ i, 0, 0 }), 1);
 		}
 	}
@@ -523,7 +523,7 @@ TEST_P(RecomputeTest, ConflictBig)
 	auto dens_l = d_s.get_substrates_layout<1>();
 	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
 
-	auto& agent_data = agent_retriever().retrieve_agent_data(m->agents);
+	auto& agent_data = agent_retriever().retrieve_agent_data(*m->agents);
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
 

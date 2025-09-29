@@ -11,14 +11,14 @@ agent_container make_agent_container() { return agent_container { 3, 1 }; }
 TEST(AgentContainerTest, CreateAndRemove)
 {
 	agent_container container = make_agent_container();
-	agent* agent1 = container.create();
+	agent* agent1 = container.create_agent();
 	EXPECT_NE(agent1, nullptr);
-	agent* agent2 = container.create();
+	agent* agent2 = container.create_agent();
 	EXPECT_NE(agent2, nullptr);
 	EXPECT_NE(agent1, agent2);
 	container.remove_agent(agent1);
 	// After removal, agent1 pointer is invalid, but agent2 should still be valid
-	EXPECT_NE(container.create(), nullptr);
+	EXPECT_NE(container.create_agent(), nullptr);
 }
 
 class RemoveAgentTest : public ::testing::TestWithParam<std::tuple<int, bool>>
@@ -29,9 +29,9 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent_container container = make_agent_container();
 
 	// Create test agents
-	auto* agent0 = container.create();
-	auto* agent1 = container.create();
-	auto* agent2 = container.create();
+	auto* agent0 = container.create_agent();
+	auto* agent1 = container.create_agent();
+	auto* agent2 = container.create_agent();
 
 	// Set unique values for each agent to verify correct data management
 	agent0->volume() = 1.0;
@@ -113,9 +113,9 @@ TEST(AgentContainerTest, GetAgentAt)
 	agent_container container = make_agent_container();
 
 	// Create multiple agents and set unique values
-	auto* agent0 = container.create();
-	auto* agent1 = container.create();
-	auto* agent2 = container.create();
+	auto* agent0 = container.create_agent();
+	auto* agent1 = container.create_agent();
+	auto* agent2 = container.create_agent();
 
 	// Set distinctive values for each agent
 	agent0->volume() = 1.5;

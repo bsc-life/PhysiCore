@@ -4,6 +4,7 @@
 #include <concepts>
 #include <ranges>
 
+#include "base_agent.h"
 #include "base_agent_container.h"
 #include "types.h"
 
@@ -23,28 +24,13 @@ concept derived_from_base_agent = std::derived_from<T, base_agent>;
 template <agent_data_type AgentDataType>
 class generic_agent_solver;
 
-template <agent_data_type AgentDataType, derived_from_base_agent AgentType>
+template <derived_from_base_agent AgentType>
 class generic_agent_container : public base_agent_container
 {
-protected:
-	AgentDataType data;
-
-	friend generic_agent_solver<AgentDataType>;
-
 public:
-	template <typename... Args>
-	explicit generic_agent_container(index_t dims = 3, Args&&... args)
-		: base_agent_container(dims), data(this->base_data, std::forward<Args>(args)...)
-	{}
+	explicit generic_agent_container(index_t dims = 3) : base_agent_container(dims) {}
 
-	AgentType* create() override
-	{
-		data.add();
-		auto new_agent = std::make_unique<AgentType>(this->base_data.agents_count - 1, data);
-		AgentType* agent_ptr = new_agent.get();
-		this->agents.emplace_back(std::move(new_agent));
-		return agent_ptr;
-	}
+	virtual AgentType* create_agent() = 0;
 
 	AgentType* get_agent_at(index_t position) override
 	{
@@ -56,6 +42,35 @@ public:
 		return agent;
 	}
 
+	auto get_agents() const
+	{
+		return this->agents | std::views::transform([](auto& ptr) { return dynamic_cast<AgentType*>(ptr.get()); });
+	}
+};
+
+template <agent_data_type AgentDataType, derived_from_base_agent AgentType>
+class generic_agent_and_data_container : public generic_agent_container<AgentType>
+{
+protected:
+	AgentDataType data;
+
+	friend generic_agent_solver<AgentDataType>;
+
+public:
+	template <typename... Args>
+	explicit generic_agent_and_data_container(index_t dims = 3, Args&&... args)
+		: generic_agent_container<AgentType>(dims), data(this->base_data, std::forward<Args>(args)...)
+	{}
+
+	AgentType* create_agent() override
+	{
+		data.add();
+		auto new_agent = std::make_unique<AgentType>(this->base_data.agents_count - 1, data);
+		AgentType* agent_ptr = new_agent.get();
+		this->agents.emplace_back(std::move(new_agent));
+		return agent_ptr;
+	}
+
 	void remove_at(index_t position) override
 	{
 		assert(position < this->base_data.agents_count);
@@ -65,12 +80,7 @@ public:
 
 		data.remove_at(position);
 
-		swap_and_erase_agent(position);
-	}
-
-	auto get_agents() const
-	{
-		return this->agents | std::views::transform([](auto& ptr) { return dynamic_cast<AgentType*>(ptr.get()); });
+		this->swap_and_erase_agent(position);
 	}
 };
 

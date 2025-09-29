@@ -265,7 +265,7 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 			const auto dens_l = d_solver.get_substrates_layout<1>();
 			const auto ballot_l = noarr::scalar<std::atomic<index_t>>() ^ noarr::vectors<'x'>(m.mesh.grid_shape[0]);
 
-			simulate<1>(dens_l, ballot_l, retrieve_agent_data(m.agents), m, substrates, reduced_numerators_.get(),
+			simulate<1>(dens_l, ballot_l, retrieve_agent_data(*m.agents), m, substrates, reduced_numerators_.get(),
 						reduced_denominators_.get(), reduced_factors_.get(), numerators_.data(), denominators_.data(),
 						factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
 			return;
@@ -275,7 +275,7 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 			const auto ballot_l = noarr::scalar<std::atomic<index_t>>()
 								  ^ noarr::vectors<'x', 'y'>(m.mesh.grid_shape[0], m.mesh.grid_shape[1]);
 
-			simulate<2>(dens_l, ballot_l, retrieve_agent_data(m.agents), m, substrates, reduced_numerators_.get(),
+			simulate<2>(dens_l, ballot_l, retrieve_agent_data(*m.agents), m, substrates, reduced_numerators_.get(),
 						reduced_denominators_.get(), reduced_factors_.get(), numerators_.data(), denominators_.data(),
 						factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
 			return;
@@ -286,7 +286,7 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 				noarr::scalar<std::atomic<index_t>>()
 				^ noarr::vectors<'x', 'y', 'z'>(m.mesh.grid_shape[0], m.mesh.grid_shape[1], m.mesh.grid_shape[2]);
 
-			simulate<3>(dens_l, ballot_l, retrieve_agent_data(m.agents), m, substrates, reduced_numerators_.get(),
+			simulate<3>(dens_l, ballot_l, retrieve_agent_data(*m.agents), m, substrates, reduced_numerators_.get(),
 						reduced_denominators_.get(), reduced_factors_.get(), numerators_.data(), denominators_.data(),
 						factors_.data(), ballots_.get(), recompute, compute_internalized_substrates_, &is_conflict_);
 			return;
@@ -332,15 +332,15 @@ void cell_solver::release_internalized_substrates(microenvironment& m, diffusion
 	switch (m.mesh.dims)
 	{
 		case 1:
-			release_dim<1>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
+			release_dim<1>(d_solver.get_substrates_layout(), retrieve_agent_data(*m.agents), m.mesh,
 						   d_solver.get_substrates_pointer(), index);
 			return;
 		case 2:
-			release_dim<2>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
+			release_dim<2>(d_solver.get_substrates_layout(), retrieve_agent_data(*m.agents), m.mesh,
 						   d_solver.get_substrates_pointer(), index);
 			return;
 		case 3:
-			release_dim<3>(d_solver.get_substrates_layout(), retrieve_agent_data(m.agents), m.mesh,
+			release_dim<3>(d_solver.get_substrates_layout(), retrieve_agent_data(*m.agents), m.mesh,
 						   d_solver.get_substrates_pointer(), index);
 			return;
 		default:
@@ -353,9 +353,9 @@ void cell_solver::resize(const microenvironment& m)
 {
 	auto prev_capacity = numerators_.capacity();
 
-	numerators_.resize(m.substrates_count * m.agents.size());
-	denominators_.resize(m.substrates_count * m.agents.size());
-	factors_.resize(m.substrates_count * m.agents.size());
+	numerators_.resize(m.substrates_count * m.agents->size());
+	denominators_.resize(m.substrates_count * m.agents->size());
+	factors_.resize(m.substrates_count * m.agents->size());
 
 	auto new_capacity = numerators_.capacity();
 

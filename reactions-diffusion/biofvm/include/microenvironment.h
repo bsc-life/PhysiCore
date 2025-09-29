@@ -30,7 +30,7 @@ public:
 
 	cartesian_mesh mesh;
 
-	agent_container agents;
+	std::unique_ptr<agent_container_base> agents;
 
 	solver_ptr solver;
 
