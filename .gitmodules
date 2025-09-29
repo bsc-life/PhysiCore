@@ -1,3 +1,6 @@
 [submodule "reactions-diffusion/biofvm/kernels/openmp_solver/noarr-structures"]
 	path = reactions-diffusion/biofvm/kernels/openmp_solver/noarr-structures
 	url = git@github.com:ParaCoToUl/noarr-structures.git
+[submodule "reactions-diffusion/biofvm/kernels/thrust_solver/cccl"]
+	path = reactions-diffusion/biofvm/kernels/thrust_solver/cccl
+	url = https://github.com/NVIDIA/cccl.git
