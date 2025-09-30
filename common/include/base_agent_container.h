@@ -8,10 +8,18 @@ namespace physicore {
 
 class base_agent;
 
+// Concept to check if a type has the required agent data methods
+template <typename T>
+concept agent_data_type = requires(T data, index_t pos) {
+	{ data.add() } -> std::same_as<void>;
+	{ data.remove_at(pos) } -> std::same_as<void>;
+};
+
+template <agent_data_type AgentDataType>
 class base_agent_container
 {
 protected:
-	base_agent_data base_data;
+	AgentDataType base_data;
 
 	std::vector<std::unique_ptr<base_agent>> agents;
 

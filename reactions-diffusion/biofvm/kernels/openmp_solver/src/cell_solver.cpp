@@ -12,18 +12,19 @@ using namespace physicore::biofvm::kernels::cpu;
 static constexpr index_t no_ballot = std::numeric_limits<index_t>::max();
 
 template <index_t dims>
-auto fix_dims(const real_t* cell_position, const cartesian_mesh& m)
+static auto fix_dims(const real_t* cell_position, const cartesian_mesh& m)
 {
 	std::array<index_t, 3> voxel_index = m.voxel_position(std::span<const real_t, dims>(cell_position, dims));
 	return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
 }
 
 template <index_t dims>
-void clear_ballots(const auto ballot_l, const real_t* HWY_RESTRICT cell_positions,
-				   std::atomic<index_t>* HWY_RESTRICT ballots, std::atomic<real_t>* HWY_RESTRICT reduced_numerators,
-				   std::atomic<real_t>* HWY_RESTRICT reduced_denominators,
-				   std::atomic<real_t>* HWY_RESTRICT reduced_factors, index_t n, const cartesian_mesh& m,
-				   index_t substrate_densities)
+static void clear_ballots(const auto ballot_l, const real_t* HWY_RESTRICT cell_positions,
+						  std::atomic<index_t>* HWY_RESTRICT ballots,
+						  std::atomic<real_t>* HWY_RESTRICT reduced_numerators,
+						  std::atomic<real_t>* HWY_RESTRICT reduced_denominators,
+						  std::atomic<real_t>* HWY_RESTRICT reduced_factors, index_t n, const cartesian_mesh& m,
+						  index_t substrate_densities)
 {
 #pragma omp for
 	for (index_t i = 0; i < n; i++)
@@ -43,11 +44,12 @@ void clear_ballots(const auto ballot_l, const real_t* HWY_RESTRICT cell_position
 	}
 }
 
-void compute_intermediates(real_t* HWY_RESTRICT numerators, real_t* HWY_RESTRICT denominators,
-						   real_t* HWY_RESTRICT factors, const real_t* HWY_RESTRICT secretion_rates,
-						   const real_t* HWY_RESTRICT uptake_rates, const real_t* HWY_RESTRICT saturation_densities,
-						   const real_t* HWY_RESTRICT net_export_rates, const real_t* HWY_RESTRICT cell_volumes,
-						   real_t voxel_volume, real_t time_step, index_t n, index_t substrates_count)
+static void compute_intermediates(real_t* HWY_RESTRICT numerators, real_t* HWY_RESTRICT denominators,
+								  real_t* HWY_RESTRICT factors, const real_t* HWY_RESTRICT secretion_rates,
+								  const real_t* HWY_RESTRICT uptake_rates,
+								  const real_t* HWY_RESTRICT saturation_densities,
+								  const real_t* HWY_RESTRICT net_export_rates, const real_t* HWY_RESTRICT cell_volumes,
+								  real_t voxel_volume, real_t time_step, index_t n, index_t substrates_count)
 {
 #pragma omp for
 	for (index_t i = 0; i < n; i++)
