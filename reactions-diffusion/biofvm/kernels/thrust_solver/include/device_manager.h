@@ -10,6 +10,12 @@
 #include "base_agent_data_generic_storage.h"
 #include "base_agent_generic_storage.h"
 
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
+	#define PHYSICORE_DEVICE __device__
+#else
+	#define PHYSICORE_DEVICE
+#endif
+
 namespace physicore::biofvm::kernels::thrust_solver {
 
 using device_agent_data = agent_data_generic_storage<thrust::universal_vector>;

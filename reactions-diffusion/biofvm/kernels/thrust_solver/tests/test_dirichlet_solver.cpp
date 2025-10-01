@@ -94,6 +94,7 @@ TEST(ThrustDirichletSolverTest, Interior1D)
 	dirichlet_solver s;
 
 	d_s.initialize(*m, 1);
+	s.initialize(*m);
 	s.solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<1>();
@@ -123,6 +124,7 @@ TEST(ThrustDirichletSolverTest, Interior2D)
 	dirichlet_solver s;
 
 	d_s.initialize(*m, 1);
+	s.initialize(*m);
 	s.solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<2>();
@@ -160,6 +162,7 @@ TEST(ThrustDirichletSolverTest, Interior3D)
 	dirichlet_solver s;
 
 	d_s.initialize(*m, 1);
+	s.initialize(*m);
 	s.solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<3>();
@@ -203,6 +206,7 @@ TEST(ThrustDirichletSolverTest, Boundary1D)
 	dirichlet_solver s;
 
 	d_s.initialize(*m, 1);
+	s.initialize(*m);
 	s.solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<1>();
@@ -236,6 +240,7 @@ TEST(ThrustDirichletSolverTest, Boundary2D)
 	dirichlet_solver s;
 
 	d_s.initialize(*m, 1);
+	s.initialize(*m);
 	s.solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<2>();
@@ -291,6 +296,7 @@ TEST(ThrustDirichletSolverTest, Boundary3D)
 	dirichlet_solver s;
 
 	d_s.initialize(*m, 1);
+	s.initialize(*m);
 	s.solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<3>();

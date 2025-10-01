@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cuda/std/atomic>
+#include <thrust/device_ptr.h>
 
 #include "../../../include/microenvironment.h"
 #include "diffusion_solver.h"
@@ -49,7 +50,7 @@ class cell_solver : private generic_agent_solver<device_agent>
 	device_vector<real_t> reduced_denominators_;
 	device_vector<real_t> reduced_factors_;
 
-	cuda::std::atomic<bool> is_conflict_;
+	device_vector<bool> is_conflict_;
 
 	device_vector<index_t> ballots_;
 

@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include "base_agent.h"
 #include "base_agent_container.h"
 
 using namespace physicore;

@@ -53,6 +53,8 @@ class diffusion_solver
 
 	device_vector<real_t> substrate_densities_;
 
+	device_vector<real_t> initial_conditions_;
+
 public:
 	static void precompute_values(device_vector<real_t>& b, device_vector<real_t>& c, device_vector<real_t>& e,
 								  index_t shape, index_t dims, index_t n, const microenvironment& m, index_t copies);

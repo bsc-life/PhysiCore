@@ -40,19 +40,19 @@ TEST(BulkSolverTest, SimulateBulkSource)
 
 	auto m = default_microenv(mesh);
 
-	m->supply_rate_func = [](index_t s, index_t x, index_t y, index_t z) {
+	m->supply_rate_func = [](index_t s, index_t x, index_t y, index_t z) -> real_t {
 		if (x == 1 && y == 1 && z == 1 && s == 0)
 			return 5;
 		return 0;
 	};
 
-	m->supply_target_densities_func = [](index_t s, index_t x, index_t y, index_t z) {
+	m->supply_target_densities_func = [](index_t s, index_t x, index_t y, index_t z) -> real_t {
 		if (x == 1 && y == 1 && z == 1 && s == 0)
 			return 6;
 		return 0;
 	};
 
-	m->uptake_rate_func = [](index_t s, index_t x, index_t y, index_t z) {
+	m->uptake_rate_func = [](index_t s, index_t x, index_t y, index_t z) -> real_t {
 		if (x == 1 && y == 1 && z == 1 && s == 0)
 			return 7;
 		return 0;

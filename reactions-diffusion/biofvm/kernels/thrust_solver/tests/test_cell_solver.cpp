@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
 
-#include "agent.h"
 #include "cell_solver.h"
 #include "device_manager.h"
 #include "diffusion_solver.h"
 #include "generic_agent_container.h"
 #include "generic_agent_solver.h"
 #include "microenvironment.h"
+#include "thrust/execution_policy.h"
 #include "thrust/iterator/counting_iterator.h"
 
 using namespace physicore;
@@ -472,7 +472,7 @@ TEST_P(RecomputeTest, Conflict)
 		}
 	}
 
-	thrust::for_each_n(thrust::make_counting_iterator(0), agents.size(),
+	thrust::for_each_n(thrust::host, thrust::make_counting_iterator(0), agents.size(),
 					   [&](std::size_t i) { s.release_internalized_substrates(*m, d_s, i); });
 
 	if (compute_internalized)
@@ -565,7 +565,7 @@ TEST_P(RecomputeTest, ConflictBig)
 		}
 	}
 
-	thrust::for_each_n(thrust::make_counting_iterator(0), agents.size(),
+	thrust::for_each_n(thrust::host, thrust::make_counting_iterator(0), agents.size(),
 					   [&](std::size_t i) { s.release_internalized_substrates(*m, d_s, i); });
 
 	if (compute_internalized)

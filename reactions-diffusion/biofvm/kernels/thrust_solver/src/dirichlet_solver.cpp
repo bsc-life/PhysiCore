@@ -1,12 +1,13 @@
 #include "dirichlet_solver.h"
 
-#include <hwy/highway.h>
+#include <thrust/execution_policy.h>
+#include <thrust/for_each.h>
 
 using namespace physicore;
 using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::thrust_solver;
 
-static auto fix_dims(const index_t* voxel_index, index_t dims)
+static constexpr auto fix_dims(const index_t* voxel_index, index_t dims)
 {
 	if (dims == 1)
 		return noarr::fix<'x', 'y', 'z'>(voxel_index[0], 0, 0);
@@ -17,16 +18,19 @@ static auto fix_dims(const index_t* voxel_index, index_t dims)
 	return noarr::fix<'x', 'y', 'z'>(0, 0, 0);
 }
 
-static void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_densities,
-						   const index_t* HWY_RESTRICT dirichlet_voxels, const real_t* HWY_RESTRICT dirichlet_values,
-						   const bool* HWY_RESTRICT dirichlet_conditions, index_t substrates_count,
+template <typename density_layout_t>
+static void solve_interior(const density_layout_t dens_l, real_t* __restrict__ substrate_densities,
+						   const index_t* __restrict__ dirichlet_voxels, const real_t* __restrict__ dirichlet_values,
+						   const bool* __restrict__ dirichlet_conditions, index_t substrates_count,
 						   index_t dirichlet_voxels_count, index_t dims)
 {
 	if (dirichlet_voxels_count == 0)
 		return;
 
-	thrust::for_each(thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(dirichlet_voxels_count),
-					 [=](index_t voxel_idx) {
+	thrust::for_each(thrust::device, thrust::make_counting_iterator<index_t>(0),
+					 thrust::make_counting_iterator(dirichlet_voxels_count),
+					 [dens_l, substrate_densities, dirichlet_voxels, dirichlet_values, dirichlet_conditions,
+					  substrates_count, dims] PHYSICORE_DEVICE(index_t voxel_idx) {
 						 auto subs_l = dens_l ^ fix_dims(dirichlet_voxels + dims * voxel_idx, dims);
 
 						 for (index_t s = 0; s < substrates_count; ++s)
@@ -38,7 +42,12 @@ static void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_den
 					 });
 }
 
-static void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_densities, microenvironment& m)
+template <typename density_layout_t>
+static void solve_boundaries(const density_layout_t dens_l, real_t* __restrict__ substrate_densities,
+							 microenvironment& m, std::array<device_vector<real_t>, 3>& dirichlet_min_boundary_values,
+							 std::array<device_vector<real_t>, 3>& dirichlet_max_boundary_values,
+							 std::array<device_vector<bool>, 3>& dirichlet_min_boundary_conditions,
+							 std::array<device_vector<bool>, 3>& dirichlet_max_boundary_conditions)
 {
 	index_t s_len = m.substrates_count;
 	index_t x_len = m.mesh.grid_shape[0];
@@ -49,31 +58,38 @@ static void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_d
 
 	// x min
 	if (m.dirichlet_min_boundary_values[0])
-		thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
-						 thrust::make_counting_iterator(dirichlet_x_side_work), [=, &m](std::size_t voxel_idx) {
-							 const index_t s = voxel_idx % s_len;
-							 voxel_idx /= s_len;
-							 const index_t y = voxel_idx % y_len;
-							 const index_t z = voxel_idx / y_len;
+		thrust::for_each(
+			thrust::device, thrust::make_counting_iterator<std::size_t>(0),
+			thrust::make_counting_iterator(dirichlet_x_side_work),
+			[dens_l, s_len, y_len, substrate_densities,
+			 dirichlet_conditions = dirichlet_min_boundary_conditions[0].data().get(),
+			 dirichlet_values = dirichlet_min_boundary_values[0].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+				const index_t s = voxel_idx % s_len;
+				voxel_idx /= s_len;
+				const index_t y = voxel_idx % y_len;
+				const index_t z = voxel_idx / y_len;
 
-							 if (m.dirichlet_min_boundary_conditions[0][s])
-								 (dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, 0, y, z)) =
-									 m.dirichlet_min_boundary_values[0][s];
-						 });
+				if (dirichlet_conditions[s])
+					(dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, 0, y, z)) = dirichlet_values[s];
+			});
 
 	// x max
 	if (m.dirichlet_max_boundary_values[0])
-		thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
-						 thrust::make_counting_iterator(dirichlet_x_side_work), [=, &m](std::size_t voxel_idx) {
-							 const index_t s = voxel_idx % s_len;
-							 voxel_idx /= s_len;
-							 const index_t y = voxel_idx % y_len;
-							 const index_t z = voxel_idx / y_len;
+		thrust::for_each(
+			thrust::device, thrust::make_counting_iterator<std::size_t>(0),
+			thrust::make_counting_iterator(dirichlet_x_side_work),
+			[dens_l, s_len, x_len, y_len, substrate_densities,
+			 dirichlet_conditions = dirichlet_max_boundary_conditions[0].data().get(),
+			 dirichlet_values = dirichlet_max_boundary_values[0].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+				const index_t s = voxel_idx % s_len;
+				voxel_idx /= s_len;
+				const index_t y = voxel_idx % y_len;
+				const index_t z = voxel_idx / y_len;
 
-							 if (m.dirichlet_max_boundary_conditions[0][s])
-								 (dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x_len - 1, y, z)) =
-									 m.dirichlet_max_boundary_values[0][s];
-						 });
+				if (dirichlet_conditions[s])
+					(dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x_len - 1, y, z)) =
+						dirichlet_values[s];
+			});
 
 
 	if (m.mesh.dims > 1)
@@ -82,32 +98,41 @@ static void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_d
 
 		// y min
 		if (m.dirichlet_min_boundary_values[1])
-			thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
-							 thrust::make_counting_iterator(dirichlet_y_side_work), [=, &m](std::size_t voxel_idx) {
-								 const index_t s = voxel_idx % s_len;
-								 voxel_idx /= s_len;
-								 const index_t x = voxel_idx % x_len;
-								 const index_t z = voxel_idx / x_len;
+			thrust::for_each(
+				thrust::device, thrust::make_counting_iterator<std::size_t>(0),
+				thrust::make_counting_iterator(dirichlet_y_side_work),
+				[dens_l, s_len, x_len, substrate_densities,
+				 dirichlet_conditions = dirichlet_min_boundary_conditions[1].data().get(),
+				 dirichlet_values =
+					 dirichlet_min_boundary_values[1].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					const index_t s = voxel_idx % s_len;
+					voxel_idx /= s_len;
+					const index_t x = voxel_idx % x_len;
+					const index_t z = voxel_idx / x_len;
 
-								 if (m.dirichlet_min_boundary_conditions[1][s])
-									 (dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, 0, z)) =
-										 m.dirichlet_min_boundary_values[1][s];
-							 });
+					if (dirichlet_conditions[s])
+						(dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, 0, z)) =
+							dirichlet_values[s];
+				});
 
 		// y max
 		if (m.dirichlet_max_boundary_values[1])
-			thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
-							 thrust::make_counting_iterator(dirichlet_y_side_work), [=, &m](std::size_t voxel_idx) {
-								 const index_t s = voxel_idx % s_len;
-								 voxel_idx /= s_len;
-								 const index_t x = voxel_idx % x_len;
-								 const index_t z = voxel_idx / x_len;
+			thrust::for_each(
+				thrust::device, thrust::make_counting_iterator<std::size_t>(0),
+				thrust::make_counting_iterator(dirichlet_y_side_work),
+				[dens_l, s_len, x_len, y_len, substrate_densities,
+				 dirichlet_conditions = dirichlet_max_boundary_conditions[1].data().get(),
+				 dirichlet_values =
+					 dirichlet_max_boundary_values[1].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					const index_t s = voxel_idx % s_len;
+					voxel_idx /= s_len;
+					const index_t x = voxel_idx % x_len;
+					const index_t z = voxel_idx / x_len;
 
-								 if (m.dirichlet_max_boundary_conditions[1][s])
-									 (dens_l
-									  | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, y_len - 1, z)) =
-										 m.dirichlet_max_boundary_values[1][s];
-							 });
+					if (dirichlet_conditions[s])
+						(dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, y_len - 1, z)) =
+							dirichlet_values[s];
+				});
 	}
 
 	if (m.mesh.dims > 2)
@@ -116,40 +141,79 @@ static void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_d
 
 		// z min
 		if (m.dirichlet_min_boundary_values[2])
-			thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
-							 thrust::make_counting_iterator(dirichlet_z_side_work), [=, &m](std::size_t voxel_idx) {
-								 const index_t s = voxel_idx % s_len;
-								 voxel_idx /= s_len;
-								 const index_t x = voxel_idx % x_len;
-								 const index_t y = voxel_idx / x_len;
+			thrust::for_each(
+				thrust::device, thrust::make_counting_iterator<std::size_t>(0),
+				thrust::make_counting_iterator(dirichlet_z_side_work),
+				[dens_l, s_len, x_len, substrate_densities,
+				 dirichlet_conditions = dirichlet_min_boundary_conditions[2].data().get(),
+				 dirichlet_values =
+					 dirichlet_min_boundary_values[2].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					const index_t s = voxel_idx % s_len;
+					voxel_idx /= s_len;
+					const index_t x = voxel_idx % x_len;
+					const index_t y = voxel_idx / x_len;
 
-								 if (m.dirichlet_min_boundary_conditions[2][s])
-									 (dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, y, 0)) =
-										 m.dirichlet_min_boundary_values[2][s];
-							 });
+					if (dirichlet_conditions[s])
+						(dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, y, 0)) =
+							dirichlet_values[s];
+				});
 
 		// z max
 		if (m.dirichlet_max_boundary_values[2])
-			thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
-							 thrust::make_counting_iterator(dirichlet_z_side_work), [=, &m](std::size_t voxel_idx) {
-								 const index_t s = voxel_idx % s_len;
-								 voxel_idx /= s_len;
-								 const index_t x = voxel_idx % x_len;
-								 const index_t y = voxel_idx / x_len;
+			thrust::for_each(
+				thrust::device, thrust::make_counting_iterator<std::size_t>(0),
+				thrust::make_counting_iterator(dirichlet_z_side_work),
+				[dens_l, s_len, x_len, z_len, substrate_densities,
+				 dirichlet_conditions = dirichlet_max_boundary_conditions[2].data().get(),
+				 dirichlet_values =
+					 dirichlet_max_boundary_values[2].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					const index_t s = voxel_idx % s_len;
+					voxel_idx /= s_len;
+					const index_t x = voxel_idx % x_len;
+					const index_t y = voxel_idx / x_len;
 
-								 if (m.dirichlet_max_boundary_conditions[2][s])
-									 (dens_l
-									  | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, y, z_len - 1)) =
-										 m.dirichlet_max_boundary_values[2][s];
-							 });
+					if (dirichlet_conditions[s])
+						(dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(substrate_densities, s, x, y, z_len - 1)) =
+							dirichlet_values[s];
+				});
 	}
+}
+
+void dirichlet_solver::initialize(microenvironment& m)
+{
+	index_t s_len = m.substrates_count;
+
+	auto copy = [](auto&& host_pointer, auto&& device_vector, index_t len) {
+		if (host_pointer == nullptr)
+			return;
+
+		device_vector.resize(len);
+		device_vector.shrink_to_fit();
+
+		thrust::copy(host_pointer, host_pointer + len, device_vector.begin());
+	};
+
+	for (index_t i = 0; i < m.mesh.dims; i++)
+	{
+		copy(m.dirichlet_min_boundary_values[i].get(), dirichlet_min_boundary_values[i], s_len);
+		copy(m.dirichlet_max_boundary_values[i].get(), dirichlet_max_boundary_values[i], s_len);
+		copy(m.dirichlet_min_boundary_conditions[i].get(), dirichlet_min_boundary_conditions[i], s_len);
+		copy(m.dirichlet_max_boundary_conditions[i].get(), dirichlet_max_boundary_conditions[i], s_len);
+	}
+
+	copy(m.dirichlet_interior_voxels.get(), dirichlet_interior_voxels, m.dirichlet_interior_voxels_count * m.mesh.dims);
+	copy(m.dirichlet_interior_values.get(), dirichlet_interior_values, m.dirichlet_interior_voxels_count * s_len);
+	copy(m.dirichlet_interior_conditions.get(), dirichlet_interior_conditions,
+		 m.dirichlet_interior_voxels_count * s_len);
 }
 
 void dirichlet_solver::solve(microenvironment& m, diffusion_solver& d_solver)
 {
-	solve_boundaries(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(), m);
+	solve_boundaries(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(), m,
+					 dirichlet_min_boundary_values, dirichlet_max_boundary_values, dirichlet_min_boundary_conditions,
+					 dirichlet_max_boundary_conditions);
 	solve_interior(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(),
-				   m.dirichlet_interior_voxels.get(), m.dirichlet_interior_values.get(),
-				   m.dirichlet_interior_conditions.get(), m.substrates_count, m.dirichlet_interior_voxels_count,
+				   dirichlet_interior_voxels.data().get(), dirichlet_interior_values.data().get(),
+				   dirichlet_interior_conditions.data().get(), m.substrates_count, m.dirichlet_interior_voxels_count,
 				   m.mesh.dims);
 }

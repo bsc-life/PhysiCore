@@ -16,8 +16,18 @@ namespace physicore::biofvm::kernels::thrust_solver {
 
 class dirichlet_solver
 {
+	device_vector<index_t> dirichlet_interior_voxels;
+	device_vector<real_t> dirichlet_interior_values;
+	device_vector<bool> dirichlet_interior_conditions;
+
+	std::array<device_vector<real_t>, 3> dirichlet_min_boundary_values;
+	std::array<device_vector<real_t>, 3> dirichlet_max_boundary_values;
+	std::array<device_vector<bool>, 3> dirichlet_min_boundary_conditions;
+	std::array<device_vector<bool>, 3> dirichlet_max_boundary_conditions;
+
 public:
-	static void solve(microenvironment& m, diffusion_solver& d_solver);
+	void initialize(microenvironment& m);
+	void solve(microenvironment& m, diffusion_solver& d_solver);
 };
 
 } // namespace physicore::biofvm::kernels::thrust_solver

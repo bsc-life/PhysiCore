@@ -7,7 +7,6 @@
 
 #include "types.h"
 
-
 using namespace physicore;
 using namespace physicore::biofvm::kernels::thrust_solver;
 
@@ -63,11 +62,16 @@ void diffusion_solver::initialize(microenvironment& m, index_t substrate_factor)
 	substrate_densities_.resize((std::size_t)ns_ * nx_ * ny_ * nz_);
 	substrate_densities_.shrink_to_fit();
 
+	initial_conditions_.resize(ns_);
+	initial_conditions_.shrink_to_fit();
+	thrust::copy(m.initial_conditions.get(), m.initial_conditions.get() + ns_, initial_conditions_.begin());
+
 	thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
 					 thrust::make_counting_iterator((std::size_t)ns_ * nx_ * ny_ * nz_),
-					 [=, this, &m](std::size_t voxel_idx) {
-						 const index_t s = voxel_idx % ns_;
-						 substrate_densities_[voxel_idx] = m.initial_conditions[s];
+					 [ns = ns_, densities = substrate_densities_.data().get(),
+					  initial_conditions = initial_conditions_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+						 const index_t s = voxel_idx % ns;
+						 densities[voxel_idx] = initial_conditions[s];
 					 });
 }
 
@@ -148,8 +152,9 @@ void diffusion_solver::precompute_values(device_vector<real_t>& b, device_vector
 }
 
 template <char swipe_dim, typename density_layout_t, typename index_t>
-void solve_slice(real_t* __restrict__ densities, const real_t* __restrict__ b, const real_t* __restrict__ c,
-				 const real_t* __restrict__ e, const density_layout_t dens_l, index_t s)
+static constexpr void solve_slice(real_t* __restrict__ densities, const real_t* __restrict__ b,
+								  const real_t* __restrict__ c, const real_t* __restrict__ e,
+								  const density_layout_t dens_l, index_t s)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 	const index_t n = dens_l | noarr::get_length<swipe_dim>();
@@ -185,34 +190,40 @@ void diffusion_solver::solve()
 	std::size_t x_work = (std::size_t)ns_ * ny_ * nz_;
 
 	// swipe x
-	thrust::for_each(thrust::device, thrust::make_counting_iterator<std::size_t>(0),
-					 thrust::make_counting_iterator(x_work), [=, this](std::size_t voxel_idx) {
-						 const index_t s = voxel_idx % ns_;
-						 voxel_idx /= ns_;
-						 const index_t y = voxel_idx % ny_;
-						 const index_t z = voxel_idx / ny_;
+	thrust::for_each(
+		thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(x_work),
+		[dens_l, densities = substrate_densities_.data().get(), b = bx_.data().get(), c = cx_.data().get(),
+		 e = ex_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+			const index_t s_len = dens_l | noarr::get_length<'s'>();
+			const index_t y_len = dens_l | noarr::get_length<'y'>();
 
-						 solve_slice<'x'>(substrate_densities_.data().get(), bx_.data().get(), cx_.data().get(),
-										  ex_.data().get(), dens_l ^ noarr::fix<'y'>(y) ^ noarr::fix<'z'>(z),
-										  (sindex_t)s);
-					 });
+			const index_t s = voxel_idx % s_len;
+			voxel_idx /= s_len;
+			const index_t y = voxel_idx % y_len;
+			const index_t z = voxel_idx / y_len;
+
+			solve_slice<'x'>(densities, b, c, e, dens_l ^ noarr::fix<'y'>(y) ^ noarr::fix<'z'>(z), (sindex_t)s);
+		});
 
 	if (ny_ != 1)
 	{
 		std::size_t y_work = (std::size_t)ns_ * nx_ * nz_;
 
 		// swipe y
-		thrust::for_each(thrust::device, thrust::make_counting_iterator<std::size_t>(0),
-						 thrust::make_counting_iterator(y_work), [=, this](std::size_t voxel_idx) {
-							 const index_t s = voxel_idx % ns_;
-							 voxel_idx /= ns_;
-							 const index_t x = voxel_idx % nx_;
-							 const index_t z = voxel_idx / nx_;
+		thrust::for_each(
+			thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(y_work),
+			[dens_l, densities = substrate_densities_.data().get(), b = by_.data().get(), c = cy_.data().get(),
+			 e = ey_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+				const index_t s_len = dens_l | noarr::get_length<'s'>();
+				const index_t x_len = dens_l | noarr::get_length<'x'>();
 
-							 solve_slice<'y'>(substrate_densities_.data().get(), by_.data().get(), cy_.data().get(),
-											  ey_.data().get(), dens_l ^ noarr::fix<'x'>(x) ^ noarr::fix<'z'>(z),
-											  (sindex_t)s);
-						 });
+				const index_t s = voxel_idx % s_len;
+				voxel_idx /= s_len;
+				const index_t x = voxel_idx % x_len;
+				const index_t z = voxel_idx / x_len;
+
+				solve_slice<'y'>(densities, b, c, e, dens_l ^ noarr::fix<'x'>(x) ^ noarr::fix<'z'>(z), (sindex_t)s);
+			});
 	}
 
 	if (nz_ != 1)
@@ -220,16 +231,19 @@ void diffusion_solver::solve()
 		std::size_t z_work = (std::size_t)ns_ * nx_ * ny_;
 
 		// swipe y
-		thrust::for_each(thrust::device, thrust::make_counting_iterator<std::size_t>(0),
-						 thrust::make_counting_iterator(z_work), [=, this](std::size_t voxel_idx) {
-							 const index_t s = voxel_idx % ns_;
-							 voxel_idx /= ns_;
-							 const index_t x = voxel_idx % nx_;
-							 const index_t y = voxel_idx / nx_;
+		thrust::for_each(
+			thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(z_work),
+			[dens_l, densities = substrate_densities_.data().get(), b = bz_.data().get(), c = cz_.data().get(),
+			 e = ez_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+				const index_t s_len = dens_l | noarr::get_length<'s'>();
+				const index_t x_len = dens_l | noarr::get_length<'x'>();
 
-							 solve_slice<'z'>(substrate_densities_.data().get(), bz_.data().get(), cz_.data().get(),
-											  ez_.data().get(), dens_l ^ noarr::fix<'x'>(x) ^ noarr::fix<'y'>(y),
-											  (sindex_t)s);
-						 });
+				const index_t s = voxel_idx % s_len;
+				voxel_idx /= s_len;
+				const index_t x = voxel_idx % x_len;
+				const index_t y = voxel_idx / x_len;
+
+				solve_slice<'z'>(densities, b, c, e, dens_l ^ noarr::fix<'x'>(x) ^ noarr::fix<'y'>(y), (sindex_t)s);
+			});
 	}
 }
