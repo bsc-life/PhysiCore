@@ -8,6 +8,7 @@
 #include "generic_agent_container.h"
 #include "generic_agent_solver.h"
 #include "microenvironment.h"
+#include "thrust/iterator/counting_iterator.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;
@@ -37,8 +38,10 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, b
 
 	m->compute_internalized_substrates = compute_interalized;
 
-	m->agents =
-		std::make_unique<generic_agent_and_data_container<device_agent_data, agent>>(mesh.dims, substrates_count);
+	auto device_base_data = std::make_unique<device_base_agent::DataType>(mesh.dims);
+	auto device_data = std::make_unique<device_agent::DataType>(*device_base_data, substrates_count);
+	m->agents = std::make_unique<generic_agent_and_data_container<device_base_agent, device_agent>>(
+		std::move(device_base_data), std::move(device_data));
 
 	return m;
 }
@@ -105,7 +108,7 @@ static std::vector<real_t> compute_expected_agent_densities_1d(auto densities, m
 	return expected_densities;
 }
 
-void set_default_agent_values(agent* a, index_t rates_offset, index_t volume, std::array<real_t, 3> position,
+void set_default_agent_values(agent_interface* a, index_t rates_offset, index_t volume, std::array<real_t, 3> position,
 							  index_t dims)
 {
 	a->secretion_rates()[0] = rates_offset + 100;
@@ -144,9 +147,9 @@ TEST_P(RecomputeTest, Simple1D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create_agent();
-	auto a2 = m->agents->create_agent();
-	auto a3 = m->agents->create_agent();
+	auto a1 = m->agents->create();
+	auto a2 = m->agents->create();
+	auto a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 0, 0 }, 1);
 	set_default_agent_values(a2, 400, 1000, { 30, 0, 0 }, 1);
@@ -184,7 +187,6 @@ TEST_P(RecomputeTest, Simple1D)
 	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 0)), 366.963);
 	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 1)), 1.0015);
 
-#pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, recompute);
 
 	if (compute_internalized)
@@ -228,9 +230,9 @@ TEST_P(RecomputeTest, Simple2D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create_agent();
-	auto a2 = m->agents->create_agent();
-	auto a3 = m->agents->create_agent();
+	auto a1 = m->agents->create();
+	auto a2 = m->agents->create();
+	auto a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 0 }, 2);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 0 }, 2);
@@ -268,7 +270,6 @@ TEST_P(RecomputeTest, Simple2D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 366.963);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.0015);
 
-#pragma omp parallel
 	s.simulate_secretion_and_uptake(*m, d_s, recompute);
 
 	if (compute_internalized)
@@ -312,9 +313,9 @@ TEST_P(RecomputeTest, Simple3D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create_agent();
-	auto a2 = m->agents->create_agent();
-	auto a3 = m->agents->create_agent();
+	auto a1 = m->agents->create();
+	auto a2 = m->agents->create();
+	auto a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 10 }, 3);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 30 }, 3);
@@ -386,7 +387,7 @@ TEST_P(RecomputeTest, Simple3D)
 	}
 }
 
-class agent_retriever : public generic_agent_solver<device_agent_data>
+class agent_retriever : public generic_agent_solver<device_agent>
 {};
 
 TEST_P(RecomputeTest, Conflict)
@@ -398,10 +399,10 @@ TEST_P(RecomputeTest, Conflict)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	std::vector<agent*> agents;
+	std::vector<agent_interface*> agents;
 
 	for (int i = 0; i < 6; i++)
-		agents.push_back(m->agents->create_agent());
+		agents.push_back(m->agents->create());
 
 	set_default_agent_values(agents[0], 0, 500, { 10, 0, 0 }, 1);
 
@@ -471,10 +472,8 @@ TEST_P(RecomputeTest, Conflict)
 		}
 	}
 
-	for (std::size_t i = 0; i < agents.size(); i++)
-	{
-		s.release_internalized_substrates(*m, d_s, i);
-	}
+	thrust::for_each_n(thrust::make_counting_iterator(0), agents.size(),
+					   [&](std::size_t i) { s.release_internalized_substrates(*m, d_s, i); });
 
 	if (compute_internalized)
 	{
@@ -496,13 +495,13 @@ TEST_P(RecomputeTest, ConflictBig)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	std::vector<agent*> agents;
+	std::vector<agent_interface*> agents;
 
 	for (index_t i = 0; i < mesh.grid_shape[0]; i++)
 	{
 		for (index_t j = 0; j < conflict_in_each_voxel; j++)
 		{
-			agents.push_back(m->agents->create_agent());
+			agents.push_back(m->agents->create());
 			set_default_agent_values(agents.back(), 0, 500, mesh.voxel_center({ i, 0, 0 }), 1);
 		}
 	}
@@ -566,10 +565,8 @@ TEST_P(RecomputeTest, ConflictBig)
 		}
 	}
 
-	for (std::size_t i = 0; i < agents.size(); i++)
-	{
-		s.release_internalized_substrates(*m, d_s, i);
-	}
+	thrust::for_each_n(thrust::make_counting_iterator(0), agents.size(),
+					   [&](std::size_t i) { s.release_internalized_substrates(*m, d_s, i); });
 
 	if (compute_internalized)
 	{

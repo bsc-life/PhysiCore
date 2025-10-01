@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../../include/microenvironment.h"
 #include "device_manager.h"
 
 /*

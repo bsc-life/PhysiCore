@@ -1,20 +1,23 @@
 #pragma once
 
-#include <memory>
-
-#include "generic_agent_container.h"
+#include "concepts.h"
 
 namespace physicore {
 
-template <agent_data_type AgentDataType>
+template <derived_from_base_agent T>
+class generic_agent_interface_container;
+
+template <derived_from_base_agent T>
+class generic_agent_impl_container;
+
+template <derived_from_base_agent AgentType>
 class generic_agent_solver
 {
 public:
-	template <derived_from_base_agent AgentType>
-	AgentDataType& retrieve_agent_data(generic_agent_container<AgentType>& container)
+	typename AgentType::DataType& retrieve_agent_data(
+		generic_agent_interface_container<typename AgentType::InterfaceType>& container)
 	{
-		auto& casted_container = dynamic_cast<generic_agent_and_data_container<AgentDataType, AgentType>&>(container);
-
+		auto& casted_container = dynamic_cast<generic_agent_impl_container<AgentType>&>(container);
 		return casted_container.data;
 	}
 };

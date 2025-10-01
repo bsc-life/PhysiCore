@@ -37,7 +37,7 @@ D = D + I*F/v
 
 namespace physicore::biofvm::kernels::thrust_solver {
 
-class cell_solver : private generic_agent_solver<device_agent_data>
+class cell_solver : private generic_agent_solver<device_agent>
 {
 	bool compute_internalized_substrates_;
 

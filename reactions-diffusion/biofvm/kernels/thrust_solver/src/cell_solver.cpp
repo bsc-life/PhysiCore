@@ -163,10 +163,7 @@ void compute_fused(real_t* HWY_RESTRICT substrate_densities, real_t* HWY_RESTRIC
 		auto previous_densities = (dens_l | noarr::get_at<'s'>(substrate_densities, s));
 
 		(dens_l | noarr::get_at<'s'>(substrate_densities, s)) =
-			((dens_l | noarr::get_at<'s'>(substrate_densities, s))
-			 + cuda::std::atomic_ref(numerator[s]).load(cuda::std::memory_order_relaxed))
-				/ cuda::std::atomic_ref(denominator[s]).load(cuda::std::memory_order_relaxed)
-			+ cuda::std::atomic_ref(factor[s]).load(cuda::std::memory_order_relaxed);
+			((dens_l | noarr::get_at<'s'>(substrate_densities, s)) + numerator[s]) / denominator[s] + factor[s];
 
 		internalized_substrates[s] +=
 			voxel_volume * (previous_densities - (dens_l | noarr::get_at<'s'>(substrate_densities, s)));
@@ -184,7 +181,7 @@ void compute_result(const auto dens_l, const auto ballot_l, device_agent_data& d
 	if (with_internalized && !is_conflict)
 	{
 		thrust::for_each(thrust::make_counting_iterator<index_t>(0),
-						 thrust::make_counting_iterator(data.base_data.agents_count), [=](index_t i) mutable {
+						 thrust::make_counting_iterator(data.base_data.agents_count), [=, &data](index_t i) mutable {
 							 auto fixed_dims = fix_dims<dims>(data.base_data.positions.data().get() + i * dims, mesh);
 
 							 compute_fused(
@@ -198,7 +195,7 @@ void compute_result(const auto dens_l, const auto ballot_l, device_agent_data& d
 	}
 
 	thrust::for_each(thrust::make_counting_iterator<index_t>(0),
-					 thrust::make_counting_iterator(data.base_data.agents_count), [=](index_t i) {
+					 thrust::make_counting_iterator(data.base_data.agents_count), [=, &data](index_t i) {
 						 auto fixed_dims = fix_dims<dims>(data.base_data.positions.data().get() + i * dims, mesh);
 
 						 auto ballot = cuda::std::atomic_ref((ballot_l ^ fixed_dims) | noarr::get_at(ballots))
@@ -212,7 +209,7 @@ void compute_result(const auto dens_l, const auto ballot_l, device_agent_data& d
 	if (with_internalized)
 	{
 		thrust::for_each(thrust::make_counting_iterator<index_t>(0),
-						 thrust::make_counting_iterator(data.base_data.agents_count), [=](index_t i) mutable {
+						 thrust::make_counting_iterator(data.base_data.agents_count), [=, &data](index_t i) mutable {
 							 auto fixed_dims = fix_dims<dims>(data.base_data.positions.data().get() + i * dims, mesh);
 
 							 compute_internalized(

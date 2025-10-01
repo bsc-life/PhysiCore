@@ -100,7 +100,7 @@ static std::vector<real_t> compute_expected_agent_densities_1d(auto densities, m
 	return expected_densities;
 }
 
-void set_default_agent_values(agent* a, index_t rates_offset, index_t volume, std::array<real_t, 3> position,
+void set_default_agent_values(agent_interface* a, index_t rates_offset, index_t volume, std::array<real_t, 3> position,
 							  index_t dims)
 {
 	a->secretion_rates()[0] = rates_offset + 100;
@@ -139,9 +139,9 @@ TEST_P(RecomputeTest, Simple1D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create_agent();
-	auto a2 = m->agents->create_agent();
-	auto a3 = m->agents->create_agent();
+	auto a1 = m->agents->create();
+	auto a2 = m->agents->create();
+	auto a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 0, 0 }, 1);
 	set_default_agent_values(a2, 400, 1000, { 30, 0, 0 }, 1);
@@ -225,9 +225,9 @@ TEST_P(RecomputeTest, Simple2D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create_agent();
-	auto a2 = m->agents->create_agent();
-	auto a3 = m->agents->create_agent();
+	auto a1 = m->agents->create();
+	auto a2 = m->agents->create();
+	auto a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 0 }, 2);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 0 }, 2);
@@ -311,9 +311,9 @@ TEST_P(RecomputeTest, Simple3D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create_agent();
-	auto a2 = m->agents->create_agent();
-	auto a3 = m->agents->create_agent();
+	auto a1 = m->agents->create();
+	auto a2 = m->agents->create();
+	auto a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 10 }, 3);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 30 }, 3);
@@ -388,7 +388,7 @@ TEST_P(RecomputeTest, Simple3D)
 	}
 }
 
-class agent_retriever : public generic_agent_solver<agent_data>
+class agent_retriever : public generic_agent_solver<agent>
 {};
 
 TEST_P(RecomputeTest, Conflict)
@@ -400,10 +400,10 @@ TEST_P(RecomputeTest, Conflict)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	std::vector<agent*> agents;
+	std::vector<agent_interface*> agents;
 
 	for (int i = 0; i < 6; i++)
-		agents.push_back(m->agents->create_agent());
+		agents.push_back(m->agents->create());
 
 	set_default_agent_values(agents[0], 0, 500, { 10, 0, 0 }, 1);
 
@@ -502,13 +502,13 @@ TEST_P(RecomputeTest, ConflictBig)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	std::vector<agent*> agents;
+	std::vector<agent_interface*> agents;
 
 	for (index_t i = 0; i < mesh.grid_shape[0]; i++)
 	{
 		for (index_t j = 0; j < conflict_in_each_voxel; j++)
 		{
-			agents.push_back(m->agents->create_agent());
+			agents.push_back(m->agents->create());
 			set_default_agent_values(agents.back(), 0, 500, mesh.voxel_center({ i, 0, 0 }), 1);
 		}
 	}

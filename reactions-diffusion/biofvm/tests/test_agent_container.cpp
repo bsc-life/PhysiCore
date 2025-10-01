@@ -6,19 +6,25 @@
 using namespace physicore;
 using namespace physicore::biofvm;
 
-agent_container make_agent_container() { return agent_container { 3, 1 }; }
+agent_container make_agent_container()
+{
+	auto base_data = std::make_unique<base_agent_data>(3);
+	auto data = std::make_unique<agent_data>(*base_data, 1);
+
+	return agent_container(std::move(base_data), std::move(data));
+}
 
 TEST(AgentContainerTest, CreateAndRemove)
 {
 	agent_container container = make_agent_container();
-	agent* agent1 = container.create_agent();
+	agent* agent1 = container.create();
 	EXPECT_NE(agent1, nullptr);
-	agent* agent2 = container.create_agent();
+	agent* agent2 = container.create();
 	EXPECT_NE(agent2, nullptr);
 	EXPECT_NE(agent1, agent2);
 	container.remove_agent(agent1);
 	// After removal, agent1 pointer is invalid, but agent2 should still be valid
-	EXPECT_NE(container.create_agent(), nullptr);
+	EXPECT_NE(container.create(), nullptr);
 }
 
 class RemoveAgentTest : public ::testing::TestWithParam<std::tuple<int, bool>>
@@ -29,9 +35,9 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent_container container = make_agent_container();
 
 	// Create test agents
-	auto* agent0 = container.create_agent();
-	auto* agent1 = container.create_agent();
-	auto* agent2 = container.create_agent();
+	auto* agent0 = container.create();
+	auto* agent1 = container.create();
+	auto* agent2 = container.create();
 
 	// Set unique values for each agent to verify correct data management
 	agent0->volume() = 1.0;
@@ -42,6 +48,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent0->internalized_substrates()[0] = 0.5;
 	agent0->fraction_released_at_death()[0] = 0.6;
 	agent0->fraction_transferred_when_ingested()[0] = 0.7;
+	agent0->position()[0] = 0.8;
 
 	agent1->volume() = 2.0;
 	agent1->secretion_rates()[0] = 1.1;
@@ -51,6 +58,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent1->internalized_substrates()[0] = 1.5;
 	agent1->fraction_released_at_death()[0] = 1.6;
 	agent1->fraction_transferred_when_ingested()[0] = 1.7;
+	agent1->position()[0] = 1.8;
 
 	agent2->volume() = 3.0;
 	agent2->secretion_rates()[0] = 2.1;
@@ -60,6 +68,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent2->internalized_substrates()[0] = 2.5;
 	agent2->fraction_released_at_death()[0] = 2.6;
 	agent2->fraction_transferred_when_ingested()[0] = 2.7;
+	agent2->position()[0] = 2.8;
 
 	int remove_idx = std::get<0>(GetParam());
 	bool remove_via_pointer = std::get<1>(GetParam());
@@ -80,6 +89,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 		EXPECT_DOUBLE_EQ(agent0->internalized_substrates()[0], 0.5);
 		EXPECT_DOUBLE_EQ(agent0->fraction_released_at_death()[0], 0.6);
 		EXPECT_DOUBLE_EQ(agent0->fraction_transferred_when_ingested()[0], 0.7);
+		EXPECT_DOUBLE_EQ(agent0->position()[0], 0.8);
 	}
 	if (remove_idx != 1)
 	{
@@ -91,6 +101,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 		EXPECT_DOUBLE_EQ(agent1->internalized_substrates()[0], 1.5);
 		EXPECT_DOUBLE_EQ(agent1->fraction_released_at_death()[0], 1.6);
 		EXPECT_DOUBLE_EQ(agent1->fraction_transferred_when_ingested()[0], 1.7);
+		EXPECT_DOUBLE_EQ(agent1->position()[0], 1.8);
 	}
 	if (remove_idx != 2)
 	{
@@ -102,6 +113,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 		EXPECT_DOUBLE_EQ(agent2->internalized_substrates()[0], 2.5);
 		EXPECT_DOUBLE_EQ(agent2->fraction_released_at_death()[0], 2.6);
 		EXPECT_DOUBLE_EQ(agent2->fraction_transferred_when_ingested()[0], 2.7);
+		EXPECT_DOUBLE_EQ(agent2->position()[0], 2.8);
 	}
 }
 
@@ -113,9 +125,9 @@ TEST(AgentContainerTest, GetAgentAt)
 	agent_container container = make_agent_container();
 
 	// Create multiple agents and set unique values
-	auto* agent0 = container.create_agent();
-	auto* agent1 = container.create_agent();
-	auto* agent2 = container.create_agent();
+	auto* agent0 = container.create();
+	auto* agent1 = container.create();
+	auto* agent2 = container.create();
 
 	// Set distinctive values for each agent
 	agent0->volume() = 1.5;
