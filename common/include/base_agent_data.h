@@ -1,33 +1,9 @@
 #pragma once
 
-#include <cstring>
-#include <vector>
-
-#include "types.h"
+#include "base_agent_data_generic_storage.h"
 
 namespace physicore {
-struct base_agent_data
-{
-	index_t agents_count = 0;
-	index_t dims;
 
-	explicit base_agent_data(index_t dims = 3);
+using base_agent_data = base_agent_data_generic_storage<std::vector>;
 
-	void add();
-	void remove_at(index_t position);
-
-	template <typename T>
-	static void move_scalar(T* dst, const T* src)
-	{
-		dst[0] = src[0];
-	}
-
-	template <typename T>
-	static void move_vector(T* dst, const T* src, index_t size)
-	{
-		std::memcpy(dst, src, size * sizeof(T));
-	}
-
-	std::vector<real_t> positions;
-};
-} // namespace physicore
+}

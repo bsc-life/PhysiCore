@@ -1,0 +1,9 @@
+{
+    "name": "noarr-structures",
+    "version-string": "0.20.0",
+    "description": "Noarr structures is a header-only library that facilitates creation of many data structures and provides a layout-agnostic way of accessing the values stored in them.",
+    "dependencies": [
+        "vcpkg-cmake",
+        "vcpkg-cmake-config"
+    ]
+}

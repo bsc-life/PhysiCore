@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-#include "cpu_solver/register_solver.h"
+#include "openmp_solver/register_solver.h"
 
 using namespace physicore::biofvm;
 

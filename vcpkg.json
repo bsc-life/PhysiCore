@@ -1,6 +1,9 @@
 {
   "dependencies": [
     "gtest",
-    "highway"
+    "highway",
+    "tbb",
+    "noarr-structures",
+    "cccl"
   ]
 }

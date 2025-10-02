@@ -15,7 +15,10 @@ protected:
 		data.base_data.dims = 3;
 		data.base_data.agents_count = 0;
 		data.substrate_count = 2; // Testing with 2 substrates
-		data.add();				  // Add first agent
+
+		// Add first agent
+		base_data.add();
+		data.add();
 	}
 
 	base_agent_data base_data;
@@ -116,7 +119,10 @@ TEST_F(AgentTest, Volume)
 
 TEST_F(AgentTest, MultipleAgents)
 {
-	data.add(); // Add second agent
+	// Add second agent
+	base_data.add();
+	data.add();
+
 	agent agent0(0, data);
 	agent agent1(1, data);
 

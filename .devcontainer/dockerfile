@@ -1,0 +1,2 @@
+FROM nvidia/cuda:13.0.1-devel-ubuntu24.04
+RUN userdel -r ubuntu

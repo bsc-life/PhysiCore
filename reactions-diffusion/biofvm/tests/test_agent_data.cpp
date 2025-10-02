@@ -25,7 +25,7 @@ TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 
 	data.add(); // adds one agent
 
-	EXPECT_EQ(base.agents_count, 1);
+	EXPECT_EQ(data.agents_count, 1);
 	EXPECT_EQ(data.secretion_rates.size(), substrate_count);
 	EXPECT_EQ(data.saturation_densities.size(), substrate_count);
 	EXPECT_EQ(data.uptake_rates.size(), substrate_count);
@@ -37,7 +37,7 @@ TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 
 	data.add(); // adds another agent
 
-	EXPECT_EQ(base.agents_count, 2);
+	EXPECT_EQ(data.agents_count, 2);
 	EXPECT_EQ(data.secretion_rates.size(), substrate_count * 2);
 	EXPECT_EQ(data.saturation_densities.size(), substrate_count * 2);
 	EXPECT_EQ(data.uptake_rates.size(), substrate_count * 2);
@@ -60,7 +60,7 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 
 	index_t expected_size = 3;
 
-	EXPECT_EQ(base.agents_count, expected_size);
+	EXPECT_EQ(data.agents_count, expected_size);
 	EXPECT_EQ(data.secretion_rates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.saturation_densities.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.uptake_rates.size(), substrate_count * expected_size);
@@ -75,7 +75,7 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 
 	expected_size = 2;
 
-	EXPECT_EQ(base.agents_count, expected_size);
+	EXPECT_EQ(data.agents_count, expected_size);
 	EXPECT_EQ(data.secretion_rates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.saturation_densities.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.uptake_rates.size(), substrate_count * expected_size);
@@ -90,7 +90,7 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 
 	expected_size = 1;
 
-	EXPECT_EQ(base.agents_count, expected_size);
+	EXPECT_EQ(data.agents_count, expected_size);
 	EXPECT_EQ(data.secretion_rates.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.saturation_densities.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.uptake_rates.size(), substrate_count * expected_size);

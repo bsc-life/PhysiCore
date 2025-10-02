@@ -182,7 +182,7 @@ TEST(MicroenvironmentBuilder, BulkFunctionsAndInternalizedSubstrates)
 
 	bool bulk_called = false;
 	builder.set_bulk_functions(
-		[&](index_t, index_t, index_t, index_t) {
+		[&](index_t, index_t, index_t, index_t)  ->real_t{
 			bulk_called = true;
 			return 0;
 		},

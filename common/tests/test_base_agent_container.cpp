@@ -1,13 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "base_agent.h"
 #include "base_agent_container.h"
 
 using namespace physicore;
 
 TEST(BaseAgentContainerTest, CreateAndRemove)
 {
-	base_agent_container container;
+	base_agent_container container(std::make_unique<base_agent_data>());
 	auto* agent1 = container.create();
 	EXPECT_EQ(container.size(), 1);
 	EXPECT_NE(agent1, nullptr);
@@ -26,7 +25,7 @@ class RemoveAgentTest : public ::testing::TestWithParam<int>
 
 TEST_P(RemoveAgentTest, RemoveAgentsAndCheckPositions)
 {
-	base_agent_container container;
+	base_agent_container container(std::make_unique<base_agent_data>());
 	auto* agent0 = container.create();
 	auto* agent1 = container.create();
 	auto* agent2 = container.create();
