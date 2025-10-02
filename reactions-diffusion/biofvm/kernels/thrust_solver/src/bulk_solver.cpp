@@ -1,11 +1,9 @@
 #include "bulk_solver.h"
 
-#include <cuda/std/functional>
 #include <noarr/structures_extended.hpp>
 #include <thrust/execution_policy.h>
 #include <thrust/for_each.h>
-
-#include "thrust/iterator/counting_iterator.h"
+#include <thrust/iterator/counting_iterator.h>
 
 using namespace physicore;
 using namespace physicore::biofvm::kernels::thrust_solver;

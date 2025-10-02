@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 
+#include <cuda/std/atomic>
 #include <noarr/structures_extended.hpp>
 #include <thrust/device_free.h>
 #include <thrust/device_make_unique.h>

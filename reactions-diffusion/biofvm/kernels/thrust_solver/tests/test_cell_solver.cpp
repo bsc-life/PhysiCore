@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
+#include <thrust/execution_policy.h>
+#include <thrust/iterator/counting_iterator.h>
 
 #include "cell_solver.h"
 #include "device_manager.h"
@@ -7,8 +9,6 @@
 #include "generic_agent_container.h"
 #include "generic_agent_solver.h"
 #include "microenvironment.h"
-#include "thrust/execution_policy.h"
-#include "thrust/iterator/counting_iterator.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;

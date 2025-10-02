@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cuda/std/atomic>
 #include <thrust/device_ptr.h>
 
 #include "../../../include/microenvironment.h"
