@@ -8,10 +8,6 @@ find_package(Thrust REQUIRED CONFIG)
 
 thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
 
-target_include_directories(
-  physicore.reactions-diffusion.kernels.tbb_thrust_solver
-  PRIVATE ../openmp_solver/noarr-structures/include)
-
 target_sources(
   physicore.reactions-diffusion.kernels.tbb_thrust_solver
   PRIVATE src/bulk_solver.cpp src/dirichlet_solver.cpp src/cell_solver.cpp
@@ -59,10 +55,6 @@ if(${CUDAToolkit_FOUND})
                         PROPERTIES CUDA_ARCHITECTURES native)
 
   thrust_create_target(ThrustCUDA HOST TBB DEVICE CUDA)
-
-  target_include_directories(
-    physicore.reactions-diffusion.kernels.cuda_thrust_solver
-    PRIVATE ../openmp_solver/noarr-structures/include)
 
   target_compile_options(
     physicore.reactions-diffusion.kernels.cuda_thrust_solver

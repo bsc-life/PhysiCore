@@ -14,8 +14,4 @@ foreach(example ${ALL_EXAMPLES})
       physicore.reactions-diffusion.kernels.openmp_solver.${example}
       PRIVATE OpenMP::OpenMP_CXX)
   endif()
-
-  target_include_directories(
-    physicore.reactions-diffusion.kernels.openmp_solver.${example}
-    PRIVATE ../noarr-structures/include)
 endforeach()

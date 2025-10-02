@@ -11,10 +11,6 @@ target_link_libraries(
   PRIVATE physicore::reactions-diffusion::kernels::tbb_thrust_solver ThrustTBB
           physicore::reactions-diffusion::biofvm GTest::gtest GTest::gtest_main)
 
-target_include_directories(
-  physicore.reactions-diffusion.kernels.tbb_thrust_solver.tests
-  PRIVATE ../../openmp_solver/noarr-structures/include)
-
 include(GoogleTest)
 gtest_discover_tests(
   physicore.reactions-diffusion.kernels.tbb_thrust_solver.tests)
@@ -52,8 +48,4 @@ if(${CUDAToolkit_FOUND})
     PRIVATE physicore::reactions-diffusion::kernels::cuda_thrust_solver
             ThrustCUDA physicore::reactions-diffusion::biofvm GTest::gtest
             GTest::gtest_main)
-
-  target_include_directories(
-    physicore.reactions-diffusion.kernels.cuda_thrust_solver.tests
-    PRIVATE ../../openmp_solver/noarr-structures/include)
 endif()

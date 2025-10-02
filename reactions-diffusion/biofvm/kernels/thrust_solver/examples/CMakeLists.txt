@@ -10,10 +10,6 @@ foreach(example ${ALL_EXAMPLES})
     physicore.reactions-diffusion.kernels.tbb_thrust_solver.${example}
     PRIVATE physicore::reactions-diffusion::kernels::tbb_thrust_solver
             ThrustTBB physicore::reactions-diffusion::biofvm)
-
-  target_include_directories(
-    physicore.reactions-diffusion.kernels.tbb_thrust_solver.${example}
-    PRIVATE ../../openmp_solver/noarr-structures/include)
 endforeach()
 
 if(${CUDAToolkit_FOUND})
@@ -41,9 +37,5 @@ if(${CUDAToolkit_FOUND})
       physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}
       PRIVATE physicore::reactions-diffusion::kernels::cuda_thrust_solver
               ThrustCUDA physicore::reactions-diffusion::biofvm)
-
-    target_include_directories(
-      physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}
-      PRIVATE ../../openmp_solver/noarr-structures/include)
   endforeach()
 endif()

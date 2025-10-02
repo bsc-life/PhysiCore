@@ -27,9 +27,6 @@ if(OpenMP_CXX_FOUND)
                         PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-target_include_directories(physicore.reactions-diffusion.kernels.openmp_solver
-                           PRIVATE noarr-structures/include)
-
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()

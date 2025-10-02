@@ -11,10 +11,6 @@ target_link_libraries(
   PRIVATE physicore::reactions-diffusion::kernels::openmp_solver
           physicore::reactions-diffusion::biofvm GTest::gtest GTest::gtest_main)
 
-target_include_directories(
-  physicore.reactions-diffusion.kernels.openmp_solver.tests
-  PRIVATE ../noarr-structures/include)
-
 if(OpenMP_CXX_FOUND)
   target_link_libraries(
     physicore.reactions-diffusion.kernels.openmp_solver.tests
