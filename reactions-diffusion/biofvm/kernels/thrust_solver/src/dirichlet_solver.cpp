@@ -31,7 +31,7 @@ static void solve_interior(const density_layout_t dens_l, real_t* _CCCL_RESTRICT
 	thrust::for_each(thrust::device, thrust::make_counting_iterator<index_t>(0),
 					 thrust::make_counting_iterator(dirichlet_voxels_count),
 					 [dens_l, substrate_densities, dirichlet_voxels, dirichlet_values, dirichlet_conditions,
-					  substrates_count, dims] PHYSICORE_DEVICE(index_t voxel_idx) {
+					  substrates_count, dims] PHYSICORE_THRUST_DEVICE_FN(index_t voxel_idx) {
 						 auto subs_l = dens_l ^ fix_dims(dirichlet_voxels + dims * voxel_idx, dims);
 
 						 for (index_t s = 0; s < substrates_count; ++s)
@@ -64,7 +64,8 @@ static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRI
 			thrust::make_counting_iterator(dirichlet_x_side_work),
 			[dens_l, s_len, y_len, substrate_densities,
 			 dirichlet_conditions = dirichlet_min_boundary_conditions[0].data().get(),
-			 dirichlet_values = dirichlet_min_boundary_values[0].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+			 dirichlet_values =
+				 dirichlet_min_boundary_values[0].data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 				const index_t s = voxel_idx % s_len;
 				voxel_idx /= s_len;
 				const index_t y = voxel_idx % y_len;
@@ -81,7 +82,8 @@ static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRI
 			thrust::make_counting_iterator(dirichlet_x_side_work),
 			[dens_l, s_len, x_len, y_len, substrate_densities,
 			 dirichlet_conditions = dirichlet_max_boundary_conditions[0].data().get(),
-			 dirichlet_values = dirichlet_max_boundary_values[0].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+			 dirichlet_values =
+				 dirichlet_max_boundary_values[0].data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 				const index_t s = voxel_idx % s_len;
 				voxel_idx /= s_len;
 				const index_t y = voxel_idx % y_len;
@@ -105,7 +107,7 @@ static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRI
 				[dens_l, s_len, x_len, substrate_densities,
 				 dirichlet_conditions = dirichlet_min_boundary_conditions[1].data().get(),
 				 dirichlet_values =
-					 dirichlet_min_boundary_values[1].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					 dirichlet_min_boundary_values[1].data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 					const index_t s = voxel_idx % s_len;
 					voxel_idx /= s_len;
 					const index_t x = voxel_idx % x_len;
@@ -124,7 +126,7 @@ static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRI
 				[dens_l, s_len, x_len, y_len, substrate_densities,
 				 dirichlet_conditions = dirichlet_max_boundary_conditions[1].data().get(),
 				 dirichlet_values =
-					 dirichlet_max_boundary_values[1].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					 dirichlet_max_boundary_values[1].data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 					const index_t s = voxel_idx % s_len;
 					voxel_idx /= s_len;
 					const index_t x = voxel_idx % x_len;
@@ -148,7 +150,7 @@ static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRI
 				[dens_l, s_len, x_len, substrate_densities,
 				 dirichlet_conditions = dirichlet_min_boundary_conditions[2].data().get(),
 				 dirichlet_values =
-					 dirichlet_min_boundary_values[2].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					 dirichlet_min_boundary_values[2].data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 					const index_t s = voxel_idx % s_len;
 					voxel_idx /= s_len;
 					const index_t x = voxel_idx % x_len;
@@ -167,7 +169,7 @@ static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRI
 				[dens_l, s_len, x_len, z_len, substrate_densities,
 				 dirichlet_conditions = dirichlet_max_boundary_conditions[2].data().get(),
 				 dirichlet_values =
-					 dirichlet_max_boundary_values[2].data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+					 dirichlet_max_boundary_values[2].data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 					const index_t s = voxel_idx % s_len;
 					voxel_idx /= s_len;
 					const index_t x = voxel_idx % x_len;

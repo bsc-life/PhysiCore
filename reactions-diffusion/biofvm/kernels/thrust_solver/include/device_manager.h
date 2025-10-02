@@ -11,9 +11,11 @@
 #include "base_agent_generic_storage.h"
 
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
-	#define PHYSICORE_DEVICE __device__
+	#define PHYSICORE_THRUST_DEVICE_FN __device__
+	#define PHYSICORE_THRUST_STD cuda::std
 #else
-	#define PHYSICORE_DEVICE
+	#define PHYSICORE_THRUST_DEVICE_FN
+	#define PHYSICORE_THRUST_STD std
 #endif
 
 namespace physicore::biofvm::kernels::thrust_solver {

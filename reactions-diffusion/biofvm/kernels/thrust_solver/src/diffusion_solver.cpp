@@ -66,13 +66,14 @@ void diffusion_solver::initialize(microenvironment& m, index_t substrate_factor)
 	initial_conditions_.shrink_to_fit();
 	thrust::copy(m.initial_conditions.get(), m.initial_conditions.get() + ns_, initial_conditions_.begin());
 
-	thrust::for_each(thrust::make_counting_iterator<std::size_t>(0),
-					 thrust::make_counting_iterator((std::size_t)ns_ * nx_ * ny_ * nz_),
-					 [ns = ns_, densities = substrate_densities_.data().get(),
-					  initial_conditions = initial_conditions_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
-						 const index_t s = voxel_idx % ns;
-						 densities[voxel_idx] = initial_conditions[s];
-					 });
+	thrust::for_each(
+		thrust::make_counting_iterator<std::size_t>(0),
+		thrust::make_counting_iterator((std::size_t)ns_ * nx_ * ny_ * nz_),
+		[ns = ns_, densities = substrate_densities_.data().get(),
+		 initial_conditions = initial_conditions_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
+			const index_t s = voxel_idx % ns;
+			densities[voxel_idx] = initial_conditions[s];
+		});
 }
 
 void diffusion_solver::precompute_values(device_vector<real_t>& b, device_vector<real_t>& c, device_vector<real_t>& e,
@@ -193,7 +194,7 @@ void diffusion_solver::solve()
 	thrust::for_each(
 		thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(x_work),
 		[dens_l, densities = substrate_densities_.data().get(), b = bx_.data().get(), c = cx_.data().get(),
-		 e = ex_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+		 e = ex_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 			const index_t s_len = dens_l | noarr::get_length<'s'>();
 			const index_t y_len = dens_l | noarr::get_length<'y'>();
 
@@ -213,7 +214,7 @@ void diffusion_solver::solve()
 		thrust::for_each(
 			thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(y_work),
 			[dens_l, densities = substrate_densities_.data().get(), b = by_.data().get(), c = cy_.data().get(),
-			 e = ey_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+			 e = ey_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 				const index_t s_len = dens_l | noarr::get_length<'s'>();
 				const index_t x_len = dens_l | noarr::get_length<'x'>();
 
@@ -234,7 +235,7 @@ void diffusion_solver::solve()
 		thrust::for_each(
 			thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(z_work),
 			[dens_l, densities = substrate_densities_.data().get(), b = bz_.data().get(), c = cz_.data().get(),
-			 e = ez_.data().get()] PHYSICORE_DEVICE(std::size_t voxel_idx) {
+			 e = ez_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 				const index_t s_len = dens_l | noarr::get_length<'s'>();
 				const index_t x_len = dens_l | noarr::get_length<'x'>();
 

@@ -3,13 +3,18 @@
 #include <iostream>
 #include <limits>
 
-#include <cuda/std/atomic>
 #include <noarr/structures_extended.hpp>
 #include <thrust/device_free.h>
 #include <thrust/device_make_unique.h>
 #include <thrust/execution_policy.h>
 #include <thrust/for_each.h>
 #include <thrust/iterator/counting_iterator.h>
+
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
+	#include <cuda/std/atomic>
+#else
+	#include <atomic>
+#endif
 
 using namespace physicore;
 using namespace physicore::biofvm;
@@ -50,32 +55,32 @@ static void clear_ballots(const ballot_layout_t ballot_l, const real_t* _CCCL_RE
 						  real_t* _CCCL_RESTRICT reduced_denominators, real_t* _CCCL_RESTRICT reduced_factors,
 						  index_t n, const cartesian_mesh& m, index_t substrate_densities)
 {
-	cuda::std::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
-													   m.bounding_box_mins[2] };
-	cuda::std::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1], m.voxel_shape[2] };
+	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
+																  m.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1], m.voxel_shape[2] };
 
 
-	thrust::for_each(thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
-					 [ballot_l, cell_positions, ballots, reduced_numerators, reduced_denominators, reduced_factors,
-					  bounding_box_mins, voxel_shape, substrate_densities] PHYSICORE_DEVICE(index_t i) {
-						 auto b_l =
-							 ballot_l
-							 ^ fix_dims<dims>(cell_positions + dims * i, bounding_box_mins.data(), voxel_shape.data());
+	thrust::for_each(
+		thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
+		[ballot_l, cell_positions, ballots, reduced_numerators, reduced_denominators, reduced_factors,
+		 bounding_box_mins, voxel_shape, substrate_densities] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
+			auto b_l =
+				ballot_l ^ fix_dims<dims>(cell_positions + dims * i, bounding_box_mins.data(), voxel_shape.data());
 
-						 auto& b = b_l | noarr::get_at(ballots);
+			auto& b = b_l | noarr::get_at(ballots);
 
-						 cuda::std::atomic_ref(b).store(no_ballot, cuda::std::memory_order_relaxed);
+			PHYSICORE_THRUST_STD::atomic_ref(b).store(no_ballot, PHYSICORE_THRUST_STD::memory_order_relaxed);
 
-						 for (index_t s = 0; s < substrate_densities; s++)
-						 {
-							 cuda::std::atomic_ref(reduced_numerators[i * substrate_densities + s])
-								 .store(0, cuda::std::memory_order_relaxed);
-							 cuda::std::atomic_ref(reduced_denominators[i * substrate_densities + s])
-								 .store(0, cuda::std::memory_order_relaxed);
-							 cuda::std::atomic_ref(reduced_factors[i * substrate_densities + s])
-								 .store(0, cuda::std::memory_order_relaxed);
-						 }
-					 });
+			for (index_t s = 0; s < substrate_densities; s++)
+			{
+				PHYSICORE_THRUST_STD::atomic_ref(reduced_numerators[i * substrate_densities + s])
+					.store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
+				PHYSICORE_THRUST_STD::atomic_ref(reduced_denominators[i * substrate_densities + s])
+					.store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
+				PHYSICORE_THRUST_STD::atomic_ref(reduced_factors[i * substrate_densities + s])
+					.store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
+			}
+		});
 }
 
 static void compute_intermediates(real_t* _CCCL_RESTRICT numerators, real_t* _CCCL_RESTRICT denominators,
@@ -89,7 +94,7 @@ static void compute_intermediates(real_t* _CCCL_RESTRICT numerators, real_t* _CC
 	thrust::for_each(thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
 					 [numerators, denominators, factors, secretion_rates, uptake_rates, saturation_densities,
 					  net_export_rates, cell_volumes, voxel_volume, time_step,
-					  substrates_count] PHYSICORE_DEVICE(index_t i) {
+					  substrates_count] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
 						 for (index_t s = 0; s < substrates_count; s++)
 						 {
 							 numerators[i * substrates_count + s] = secretion_rates[i * substrates_count + s]
@@ -114,48 +119,50 @@ static void ballot_and_sum(const ballot_layout_t ballot_l, real_t* _CCCL_RESTRIC
 						   index_t* _CCCL_RESTRICT ballots, index_t n, index_t substrates_count,
 						   const cartesian_mesh& m, bool* _CCCL_RESTRICT is_conflict)
 {
-	cuda::std::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
-													   m.bounding_box_mins[2] };
-	cuda::std::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1], m.voxel_shape[2] };
+	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
+																  m.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1], m.voxel_shape[2] };
 
 	thrust::for_each(
 		thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
 		[ballot_l, reduced_numerators, reduced_denominators, reduced_factors, numerators, denominators, factors,
 		 cell_positions, ballots, substrates_count, bounding_box_mins, voxel_shape,
-		 is_conflict] PHYSICORE_DEVICE(index_t i) {
+		 is_conflict] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
 			auto b_l =
 				ballot_l ^ fix_dims<dims>(cell_positions + dims * i, bounding_box_mins.data(), voxel_shape.data());
 
 			auto& b = b_l | noarr::get_at(ballots);
 
 			auto expected = no_ballot;
-			bool success = cuda::std::atomic_ref(b).compare_exchange_strong(
-				expected, i, cuda::std::memory_order_acq_rel, cuda::std::memory_order_acquire);
+			bool success = PHYSICORE_THRUST_STD::atomic_ref(b).compare_exchange_strong(
+				expected, i, PHYSICORE_THRUST_STD::memory_order_acq_rel, PHYSICORE_THRUST_STD::memory_order_acquire);
 
 			if (success)
 			{
 				for (index_t s = 0; s < substrates_count; s++)
 				{
-					cuda::std::atomic_ref(reduced_numerators[i * substrates_count + s])
-						.fetch_add(numerators[i * substrates_count + s], cuda::std::memory_order_relaxed);
-					cuda::std::atomic_ref(reduced_denominators[i * substrates_count + s])
-						.fetch_add(denominators[i * substrates_count + s] + 1, cuda::std::memory_order_relaxed);
-					cuda::std::atomic_ref(reduced_factors[i * substrates_count + s])
-						.fetch_add(factors[i * substrates_count + s], cuda::std::memory_order_relaxed);
+					PHYSICORE_THRUST_STD::atomic_ref(reduced_numerators[i * substrates_count + s])
+						.fetch_add(numerators[i * substrates_count + s], PHYSICORE_THRUST_STD::memory_order_relaxed);
+					PHYSICORE_THRUST_STD::atomic_ref(reduced_denominators[i * substrates_count + s])
+						.fetch_add(denominators[i * substrates_count + s] + 1,
+								   PHYSICORE_THRUST_STD::memory_order_relaxed);
+					PHYSICORE_THRUST_STD::atomic_ref(reduced_factors[i * substrates_count + s])
+						.fetch_add(factors[i * substrates_count + s], PHYSICORE_THRUST_STD::memory_order_relaxed);
 				}
 			}
 			else
 			{
-				cuda::std::atomic_ref(is_conflict[0]).store(true, cuda::std::memory_order_relaxed);
+				PHYSICORE_THRUST_STD::atomic_ref(is_conflict[0])
+					.store(true, PHYSICORE_THRUST_STD::memory_order_relaxed);
 
 				for (index_t s = 0; s < substrates_count; s++)
 				{
-					cuda::std::atomic_ref(reduced_numerators[expected * substrates_count + s])
-						.fetch_add(numerators[i * substrates_count + s], cuda::std::memory_order_relaxed);
-					cuda::std::atomic_ref(reduced_denominators[expected * substrates_count + s])
-						.fetch_add(denominators[i * substrates_count + s], cuda::std::memory_order_relaxed);
-					cuda::std::atomic_ref(reduced_factors[expected * substrates_count + s])
-						.fetch_add(factors[i * substrates_count + s], cuda::std::memory_order_relaxed);
+					PHYSICORE_THRUST_STD::atomic_ref(reduced_numerators[expected * substrates_count + s])
+						.fetch_add(numerators[i * substrates_count + s], PHYSICORE_THRUST_STD::memory_order_relaxed);
+					PHYSICORE_THRUST_STD::atomic_ref(reduced_denominators[expected * substrates_count + s])
+						.fetch_add(denominators[i * substrates_count + s], PHYSICORE_THRUST_STD::memory_order_relaxed);
+					PHYSICORE_THRUST_STD::atomic_ref(reduced_factors[expected * substrates_count + s])
+						.fetch_add(factors[i * substrates_count + s], PHYSICORE_THRUST_STD::memory_order_relaxed);
 				}
 			}
 		});
@@ -193,9 +200,9 @@ static constexpr void compute_densities(real_t* _CCCL_RESTRICT substrate_densiti
 		{
 			(dens_l | noarr::get_at<'s'>(substrate_densities, s)) =
 				((dens_l | noarr::get_at<'s'>(substrate_densities, s))
-				 + cuda::std::atomic_ref(numerator[s]).load(cuda::std::memory_order_relaxed))
-					/ cuda::std::atomic_ref(denominator[s]).load(cuda::std::memory_order_relaxed)
-				+ cuda::std::atomic_ref(factor[s]).load(cuda::std::memory_order_relaxed);
+				 + PHYSICORE_THRUST_STD::atomic_ref(numerator[s]).load(PHYSICORE_THRUST_STD::memory_order_relaxed))
+					/ PHYSICORE_THRUST_STD::atomic_ref(denominator[s]).load(PHYSICORE_THRUST_STD::memory_order_relaxed)
+				+ PHYSICORE_THRUST_STD::atomic_ref(factor[s]).load(PHYSICORE_THRUST_STD::memory_order_relaxed);
 		}
 	}
 }
@@ -230,9 +237,10 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
 
-	cuda::std::array<index_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
-													   mesh.bounding_box_mins[2] };
-	cuda::std::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1], mesh.voxel_shape[2] };
+	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
+																  mesh.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
+															mesh.voxel_shape[2] };
 
 	if (with_internalized && !is_conflict)
 	{
@@ -242,7 +250,7 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 			[dens_l, internalized_substrates = data.internalized_substrates.data().get(),
 			 positions = data.base_data.positions.data().get(), bounding_box_mins, voxel_shape, substrates,
 			 reduced_numerators, reduced_denominators, reduced_factors,
-			 voxel_volume] PHYSICORE_DEVICE(index_t i) mutable {
+			 voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
 				const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 				auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
 
@@ -254,20 +262,22 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 		return;
 	}
 
-	thrust::for_each(
-		thrust::device, thrust::make_counting_iterator<index_t>(0),
-		thrust::make_counting_iterator(data.base_data.agents_count),
-		[dens_l, ballot_l, bounding_box_mins, voxel_shape, substrates, reduced_numerators, reduced_denominators,
-		 reduced_factors, positions = data.base_data.positions.data().get(), ballots] PHYSICORE_DEVICE(index_t i) {
-			const index_t substrates_count = dens_l | noarr::get_length<'s'>();
-			auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
+	thrust::for_each(thrust::device, thrust::make_counting_iterator<index_t>(0),
+					 thrust::make_counting_iterator(data.base_data.agents_count),
+					 [dens_l, ballot_l, bounding_box_mins, voxel_shape, substrates, reduced_numerators,
+					  reduced_denominators, reduced_factors, positions = data.base_data.positions.data().get(),
+					  ballots] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
+						 const index_t substrates_count = dens_l | noarr::get_length<'s'>();
+						 auto fixed_dims =
+							 fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
 
-			auto ballot = cuda::std::atomic_ref((ballot_l ^ fixed_dims) | noarr::get_at(ballots))
-							  .load(cuda::std::memory_order_relaxed);
-			compute_densities(substrates, reduced_numerators + i * substrates_count,
-							  reduced_denominators + i * substrates_count, reduced_factors + i * substrates_count,
-							  ballot == i, dens_l ^ fixed_dims);
-		});
+						 auto ballot =
+							 PHYSICORE_THRUST_STD::atomic_ref((ballot_l ^ fixed_dims) | noarr::get_at(ballots))
+								 .load(PHYSICORE_THRUST_STD::memory_order_relaxed);
+						 compute_densities(substrates, reduced_numerators + i * substrates_count,
+										   reduced_denominators + i * substrates_count,
+										   reduced_factors + i * substrates_count, ballot == i, dens_l ^ fixed_dims);
+					 });
 
 	if (with_internalized)
 	{
@@ -276,7 +286,7 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 			thrust::make_counting_iterator(data.base_data.agents_count),
 			[dens_l, internalized_substrates = data.internalized_substrates.data().get(),
 			 positions = data.base_data.positions.data().get(), bounding_box_mins, voxel_shape, substrates, numerators,
-			 denominators, factors, voxel_volume] PHYSICORE_DEVICE(index_t i) mutable {
+			 denominators, factors, voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
 				const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 				auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
 
@@ -377,9 +387,9 @@ void release_internal(real_t* _CCCL_RESTRICT substrate_densities, real_t* _CCCL_
 
 	for (index_t s = 0; s < substrates_count; s++)
 	{
-		cuda::std::atomic_ref<real_t>(dens_l | noarr::get_at<'s'>(substrate_densities, s))
+		PHYSICORE_THRUST_STD::atomic_ref<real_t>(dens_l | noarr::get_at<'s'>(substrate_densities, s))
 			.fetch_add(internalized_substrates[s] * fraction_released_at_death[s] / voxel_volume,
-					   cuda::std::memory_order_relaxed);
+					   PHYSICORE_THRUST_STD::memory_order_relaxed);
 
 		internalized_substrates[s] = 0;
 	}
