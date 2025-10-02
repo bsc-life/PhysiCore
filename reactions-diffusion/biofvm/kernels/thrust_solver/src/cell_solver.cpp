@@ -22,23 +22,24 @@ static constexpr auto fix_dims(const real_t* cell_position, const index_t* bound
 							   const index_t* voxel_shape)
 {
 	index_t voxel_index[3];
-	switch (dims)
+	if constexpr (dims == 1)
 	{
-		case 1:
-			voxel_index[0] = (index_t)((cell_position[0] - bounding_box_mins[0]) / voxel_shape[0]);
-			break;
-		case 2:
-			voxel_index[0] = (index_t)((cell_position[0] - bounding_box_mins[0]) / voxel_shape[0]);
-			voxel_index[1] = (index_t)((cell_position[1] - bounding_box_mins[1]) / voxel_shape[1]);
-			break;
-		case 3:
-			voxel_index[0] = (index_t)((cell_position[0] - bounding_box_mins[0]) / voxel_shape[0]);
-			voxel_index[1] = (index_t)((cell_position[1] - bounding_box_mins[1]) / voxel_shape[1]);
-			voxel_index[2] = (index_t)((cell_position[2] - bounding_box_mins[2]) / voxel_shape[2]);
-			break;
+		voxel_index[0] = (index_t)((cell_position[0] - bounding_box_mins[0]) / voxel_shape[0]);
+		return noarr::fix<'x'>(voxel_index[0]);
 	}
-
-	return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
+	else if constexpr (dims == 2)
+	{
+		voxel_index[0] = (index_t)((cell_position[0] - bounding_box_mins[0]) / voxel_shape[0]);
+		voxel_index[1] = (index_t)((cell_position[1] - bounding_box_mins[1]) / voxel_shape[1]);
+		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]);
+	}
+	else if constexpr (dims == 3)
+	{
+		voxel_index[0] = (index_t)((cell_position[0] - bounding_box_mins[0]) / voxel_shape[0]);
+		voxel_index[1] = (index_t)((cell_position[1] - bounding_box_mins[1]) / voxel_shape[1]);
+		voxel_index[2] = (index_t)((cell_position[2] - bounding_box_mins[2]) / voxel_shape[2]);
+		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
+	}
 }
 
 
