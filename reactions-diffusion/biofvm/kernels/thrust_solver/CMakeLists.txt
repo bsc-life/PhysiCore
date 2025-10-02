@@ -2,8 +2,6 @@ add_library(physicore.reactions-diffusion.kernels.tbb_thrust_solver)
 add_library(physicore::reactions-diffusion::kernels::tbb_thrust_solver ALIAS
             physicore.reactions-diffusion.kernels.tbb_thrust_solver)
 
-set(Thrust_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cccl/lib/cmake/thrust")
-
 find_package(Thrust REQUIRED CONFIG)
 
 thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)

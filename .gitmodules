@@ -1,3 +1,0 @@
-[submodule "reactions-diffusion/biofvm/kernels/thrust_solver/cccl"]
-	path = reactions-diffusion/biofvm/kernels/thrust_solver/cccl
-	url = https://github.com/NVIDIA/cccl.git

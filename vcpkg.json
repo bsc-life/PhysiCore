@@ -3,6 +3,7 @@
     "gtest",
     "highway",
     "tbb",
-    "noarr-structures"
+    "noarr-structures",
+    "cccl"
   ]
 }

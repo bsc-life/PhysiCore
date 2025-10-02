@@ -1,0 +1,25 @@
+vcpkg_from_git(
+  OUT_SOURCE_PATH SOURCE_PATH URL https://github.com/NVIDIA/cccl.git REF
+  9c40ed11560fa8ffd21abe4cdc8dc3ce875e48e3)
+
+vcpkg_cmake_configure(
+  SOURCE_PATH
+  ${SOURCE_PATH}
+  OPTIONS
+  -DCMAKE_CUDA_ARCHITECTURES=all-major-cccl
+  -DCCCL_ENABLE_UNSTABLE=OFF
+  -DCCCL_ENABLE_LIBCUDACXX=OFF
+  -DCCCL_ENABLE_CUB=OFF
+  -DCCCL_ENABLE_THRUST=OFF
+  -DCCCL_ENABLE_CUDAX=OFF
+  -DCCCL_ENABLE_TESTING=OFF
+  -DCCCL_ENABLE_EXAMPLES=OFF
+  -Dlibcudacxx_ENABLE_INSTALL_RULES=ON
+  -DCUB_ENABLE_INSTALL_RULES=ON
+  -DThrust_ENABLE_INSTALL_RULES=ON)
+
+vcpkg_cmake_build()
+
+vcpkg_cmake_install()
+
+# vcpkg_cmake_config_fixup()
