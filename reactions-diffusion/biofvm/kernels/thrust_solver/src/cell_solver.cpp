@@ -44,10 +44,9 @@ static constexpr auto fix_dims(const real_t* cell_position, const index_t* bound
 
 
 template <index_t dims, typename ballot_layout_t>
-static void clear_ballots(const ballot_layout_t ballot_l, const real_t* _CCCL_RESTRICT cell_positions,
-						  index_t* _CCCL_RESTRICT ballots, real_t* _CCCL_RESTRICT reduced_numerators,
-						  real_t* _CCCL_RESTRICT reduced_denominators, real_t* _CCCL_RESTRICT reduced_factors,
-						  index_t n, const cartesian_mesh& m, index_t substrate_densities)
+static void clear_ballots(const ballot_layout_t ballot_l, const real_t* cell_positions, index_t* ballots,
+						  real_t* reduced_numerators, real_t* reduced_denominators, real_t* reduced_factors, index_t n,
+						  const cartesian_mesh& m, index_t substrate_densities)
 {
 	cuda::std::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
 													   m.bounding_box_mins[2] };
@@ -77,13 +76,11 @@ static void clear_ballots(const ballot_layout_t ballot_l, const real_t* _CCCL_RE
 					 });
 }
 
-static void compute_intermediates(real_t* _CCCL_RESTRICT numerators, real_t* _CCCL_RESTRICT denominators,
-								  real_t* _CCCL_RESTRICT factors, const real_t* _CCCL_RESTRICT secretion_rates,
-								  const real_t* _CCCL_RESTRICT uptake_rates,
-								  const real_t* _CCCL_RESTRICT saturation_densities,
-								  const real_t* _CCCL_RESTRICT net_export_rates,
-								  const real_t* _CCCL_RESTRICT cell_volumes, real_t voxel_volume, real_t time_step,
-								  index_t n, index_t substrates_count)
+static void compute_intermediates(real_t* numerators, real_t* denominators, real_t* factors,
+								  const real_t* secretion_rates, const real_t* uptake_rates,
+								  const real_t* saturation_densities, const real_t* net_export_rates,
+								  const real_t* cell_volumes, real_t voxel_volume, real_t time_step, index_t n,
+								  index_t substrates_count)
 {
 	thrust::for_each(thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
 					 [numerators, denominators, factors, secretion_rates, uptake_rates, saturation_densities,
@@ -106,12 +103,10 @@ static void compute_intermediates(real_t* _CCCL_RESTRICT numerators, real_t* _CC
 }
 
 template <index_t dims, typename ballot_layout_t>
-static void ballot_and_sum(const ballot_layout_t ballot_l, real_t* _CCCL_RESTRICT reduced_numerators,
-						   real_t* _CCCL_RESTRICT reduced_denominators, real_t* _CCCL_RESTRICT reduced_factors,
-						   const real_t* _CCCL_RESTRICT numerators, const real_t* _CCCL_RESTRICT denominators,
-						   const real_t* _CCCL_RESTRICT factors, const real_t* _CCCL_RESTRICT cell_positions,
-						   index_t* _CCCL_RESTRICT ballots, index_t n, index_t substrates_count,
-						   const cartesian_mesh& m, bool* _CCCL_RESTRICT is_conflict)
+static void ballot_and_sum(const ballot_layout_t ballot_l, real_t* reduced_numerators, real_t* reduced_denominators,
+						   real_t* reduced_factors, const real_t* numerators, const real_t* denominators,
+						   const real_t* factors, const real_t* cell_positions, index_t* ballots, index_t n,
+						   index_t substrates_count, const cartesian_mesh& m, bool* is_conflict)
 {
 	cuda::std::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
 													   m.bounding_box_mins[2] };
@@ -161,12 +156,9 @@ static void ballot_and_sum(const ballot_layout_t ballot_l, real_t* _CCCL_RESTRIC
 }
 
 template <typename density_layout_t>
-static constexpr void compute_internalized(real_t* _CCCL_RESTRICT internalized_substrates,
-										   const real_t* _CCCL_RESTRICT substrate_densities,
-										   const real_t* _CCCL_RESTRICT numerator,
-										   const real_t* _CCCL_RESTRICT denominator,
-										   const real_t* _CCCL_RESTRICT factor, real_t voxel_volume,
-										   density_layout_t dens_l)
+static constexpr void compute_internalized(real_t* internalized_substrates, const real_t* substrate_densities,
+										   const real_t* numerator, const real_t* denominator, const real_t* factor,
+										   real_t voxel_volume, density_layout_t dens_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
@@ -179,10 +171,8 @@ static constexpr void compute_internalized(real_t* _CCCL_RESTRICT internalized_s
 }
 
 template <typename density_layout_t>
-static constexpr void compute_densities(real_t* _CCCL_RESTRICT substrate_densities,
-										const real_t* _CCCL_RESTRICT numerator,
-										const real_t* _CCCL_RESTRICT denominator, const real_t* _CCCL_RESTRICT factor,
-										bool has_ballot, density_layout_t dens_l)
+static constexpr void compute_densities(real_t* substrate_densities, const real_t* numerator, const real_t* denominator,
+										const real_t* factor, bool has_ballot, density_layout_t dens_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
@@ -200,10 +190,9 @@ static constexpr void compute_densities(real_t* _CCCL_RESTRICT substrate_densiti
 }
 
 template <typename density_layout_t>
-static constexpr void compute_fused(real_t* _CCCL_RESTRICT substrate_densities,
-									real_t* _CCCL_RESTRICT internalized_substrates,
-									const real_t* _CCCL_RESTRICT numerator, const real_t* _CCCL_RESTRICT denominator,
-									const real_t* _CCCL_RESTRICT factor, real_t voxel_volume, density_layout_t dens_l)
+static constexpr void compute_fused(real_t* substrate_densities, real_t* internalized_substrates,
+									const real_t* numerator, const real_t* denominator, const real_t* factor,
+									real_t voxel_volume, density_layout_t dens_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
@@ -290,7 +279,7 @@ template <index_t dims>
 void simulate(const auto dens_l, const auto ballot_l, device_agent_data& data, microenvironment& m, real_t* substrates,
 			  real_t* reduced_numerators, real_t* reduced_denominators, real_t* reduced_factors, real_t* numerators,
 			  real_t* denominators, real_t* factors, index_t* ballots, bool recompute, bool with_internalized,
-			  bool* _CCCL_RESTRICT is_conflict)
+			  bool* is_conflict)
 {
 	if (recompute)
 	{
@@ -368,9 +357,8 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 }
 
 template <typename density_layout_t>
-void release_internal(real_t* _CCCL_RESTRICT substrate_densities, real_t* _CCCL_RESTRICT internalized_substrates,
-					  const real_t* _CCCL_RESTRICT fraction_released_at_death, real_t voxel_volume,
-					  density_layout_t dens_l)
+void release_internal(real_t* substrate_densities, real_t* internalized_substrates,
+					  const real_t* fraction_released_at_death, real_t voxel_volume, density_layout_t dens_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
