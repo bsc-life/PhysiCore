@@ -213,8 +213,10 @@ void dirichlet_solver::solve(microenvironment& m, diffusion_solver& d_solver)
 	solve_boundaries(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(), m,
 					 dirichlet_min_boundary_values, dirichlet_max_boundary_values, dirichlet_min_boundary_conditions,
 					 dirichlet_max_boundary_conditions);
-	solve_interior(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(),
-				   dirichlet_interior_voxels.data().get(), dirichlet_interior_values.data().get(),
-				   dirichlet_interior_conditions.data().get(), m.substrates_count, m.dirichlet_interior_voxels_count,
-				   m.mesh.dims);
+
+	if (m.dirichlet_interior_voxels_count != 0)
+		solve_interior(d_solver.get_substrates_layout(), d_solver.get_substrates_pointer(),
+					   dirichlet_interior_voxels.data().get(), dirichlet_interior_values.data().get(),
+					   dirichlet_interior_conditions.data().get(), m.substrates_count,
+					   m.dirichlet_interior_voxels_count, m.mesh.dims);
 }
