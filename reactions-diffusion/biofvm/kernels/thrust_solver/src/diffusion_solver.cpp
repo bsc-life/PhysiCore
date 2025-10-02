@@ -152,8 +152,8 @@ void diffusion_solver::precompute_values(device_vector<real_t>& b, device_vector
 }
 
 template <char swipe_dim, typename density_layout_t, typename index_t>
-static constexpr void solve_slice(real_t* __restrict__ densities, const real_t* __restrict__ b,
-								  const real_t* __restrict__ c, const real_t* __restrict__ e,
+static constexpr void solve_slice(real_t* _CCCL_RESTRICT densities, const real_t* _CCCL_RESTRICT b,
+								  const real_t* _CCCL_RESTRICT c, const real_t* _CCCL_RESTRICT e,
 								  const density_layout_t dens_l, index_t s)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();

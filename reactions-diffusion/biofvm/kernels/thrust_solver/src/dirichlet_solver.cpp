@@ -19,9 +19,10 @@ static constexpr auto fix_dims(const index_t* voxel_index, index_t dims)
 }
 
 template <typename density_layout_t>
-static void solve_interior(const density_layout_t dens_l, real_t* __restrict__ substrate_densities,
-						   const index_t* __restrict__ dirichlet_voxels, const real_t* __restrict__ dirichlet_values,
-						   const bool* __restrict__ dirichlet_conditions, index_t substrates_count,
+static void solve_interior(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities,
+						   const index_t* _CCCL_RESTRICT dirichlet_voxels,
+						   const real_t* _CCCL_RESTRICT dirichlet_values,
+						   const bool* _CCCL_RESTRICT dirichlet_conditions, index_t substrates_count,
 						   index_t dirichlet_voxels_count, index_t dims)
 {
 	if (dirichlet_voxels_count == 0)
@@ -43,7 +44,7 @@ static void solve_interior(const density_layout_t dens_l, real_t* __restrict__ s
 }
 
 template <typename density_layout_t>
-static void solve_boundaries(const density_layout_t dens_l, real_t* __restrict__ substrate_densities,
+static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities,
 							 microenvironment& m, std::array<device_vector<real_t>, 3>& dirichlet_min_boundary_values,
 							 std::array<device_vector<real_t>, 3>& dirichlet_max_boundary_values,
 							 std::array<device_vector<bool>, 3>& dirichlet_min_boundary_conditions,
