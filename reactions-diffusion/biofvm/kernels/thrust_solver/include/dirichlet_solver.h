@@ -1,5 +1,7 @@
 #pragma once
 
+#include <thrust/device_vector.h>
+
 #include "diffusion_solver.h"
 
 /*
@@ -16,14 +18,14 @@ namespace physicore::biofvm::kernels::thrust_solver {
 
 class dirichlet_solver
 {
-	device_vector<index_t> dirichlet_interior_voxels;
-	device_vector<real_t> dirichlet_interior_values;
-	device_vector<bool> dirichlet_interior_conditions;
+	thrust::device_vector<index_t> dirichlet_interior_voxels;
+	thrust::device_vector<real_t> dirichlet_interior_values;
+	thrust::device_vector<bool> dirichlet_interior_conditions;
 
-	std::array<device_vector<real_t>, 3> dirichlet_min_boundary_values;
-	std::array<device_vector<real_t>, 3> dirichlet_max_boundary_values;
-	std::array<device_vector<bool>, 3> dirichlet_min_boundary_conditions;
-	std::array<device_vector<bool>, 3> dirichlet_max_boundary_conditions;
+	std::array<thrust::device_vector<real_t>, 3> dirichlet_min_boundary_values;
+	std::array<thrust::device_vector<real_t>, 3> dirichlet_max_boundary_values;
+	std::array<thrust::device_vector<bool>, 3> dirichlet_min_boundary_conditions;
+	std::array<thrust::device_vector<bool>, 3> dirichlet_max_boundary_conditions;
 
 public:
 	void initialize(microenvironment& m);

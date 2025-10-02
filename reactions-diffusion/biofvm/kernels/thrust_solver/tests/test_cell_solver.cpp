@@ -65,7 +65,7 @@ static void compute_expected_agent_internalized_1d(auto densities, microenvironm
 			auto factor = agent_data.net_export_rates[i * m.substrates_count + s] * m.diffusion_timestep;
 
 			auto mesh_idx =
-				m.mesh.voxel_position(std::span<const real_t>(agent_data.base_data.positions.data().get() + i, 1));
+				m.mesh.voxel_position(std::span<const real_t>(agent_data.base_data.positions.data() + i, 1));
 
 			expected_internalized[i * m.substrates_count + s] -=
 				(m.mesh.voxel_volume() * -denom * densities.template at<'x', 's'>(mesh_idx[0], s) + num) + factor;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <thrust/device_ptr.h>
+
 #include "../../../include/microenvironment.h"
 #include "device_manager.h"
 
@@ -40,9 +42,9 @@ namespace physicore::biofvm::kernels::thrust_solver {
 
 class diffusion_solver
 {
-	device_vector<real_t> bx_, cx_, ex_;
-	device_vector<real_t> by_, cy_, ey_;
-	device_vector<real_t> bz_, cz_, ez_;
+	thrust::device_ptr<real_t> bx_, cx_, ex_;
+	thrust::device_ptr<real_t> by_, cy_, ey_;
+	thrust::device_ptr<real_t> bz_, cz_, ez_;
 
 	index_t substrate_factor_;
 
@@ -51,13 +53,14 @@ class diffusion_solver
 	index_t ny_;
 	index_t nz_;
 
-	device_vector<real_t> substrate_densities_;
+	thrust::device_ptr<real_t> substrate_densities_;
 
-	device_vector<real_t> initial_conditions_;
+	thrust::device_ptr<real_t> initial_conditions_;
 
 public:
-	static void precompute_values(device_vector<real_t>& b, device_vector<real_t>& c, device_vector<real_t>& e,
-								  index_t shape, index_t dims, index_t n, const microenvironment& m, index_t copies);
+	static void precompute_values(thrust::device_ptr<real_t>& b, thrust::device_ptr<real_t>& c,
+								  thrust::device_ptr<real_t>& e, index_t shape, index_t dims, index_t n,
+								  const microenvironment& m, index_t copies);
 
 	template <std::size_t dims = 3>
 	auto get_substrates_layout()
@@ -75,7 +78,11 @@ public:
 	void initialize(microenvironment& m);
 	void initialize(microenvironment& m, index_t substrate_factor);
 
+	void deinitialize();
+
 	void solve();
+
+	~diffusion_solver();
 };
 
 } // namespace physicore::biofvm::kernels::thrust_solver

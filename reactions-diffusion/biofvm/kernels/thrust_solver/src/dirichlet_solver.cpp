@@ -45,10 +45,11 @@ static void solve_interior(const density_layout_t dens_l, real_t* _CCCL_RESTRICT
 
 template <typename density_layout_t>
 static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities,
-							 microenvironment& m, std::array<device_vector<real_t>, 3>& dirichlet_min_boundary_values,
-							 std::array<device_vector<real_t>, 3>& dirichlet_max_boundary_values,
-							 std::array<device_vector<bool>, 3>& dirichlet_min_boundary_conditions,
-							 std::array<device_vector<bool>, 3>& dirichlet_max_boundary_conditions)
+							 microenvironment& m,
+							 std::array<thrust::device_vector<real_t>, 3>& dirichlet_min_boundary_values,
+							 std::array<thrust::device_vector<real_t>, 3>& dirichlet_max_boundary_values,
+							 std::array<thrust::device_vector<bool>, 3>& dirichlet_min_boundary_conditions,
+							 std::array<thrust::device_vector<bool>, 3>& dirichlet_max_boundary_conditions)
 {
 	index_t s_len = m.substrates_count;
 	index_t x_len = m.mesh.grid_shape[0];

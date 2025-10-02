@@ -3,6 +3,8 @@
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/bag.hpp>
 #include <noarr/structures_extended.hpp>
+#include <thrust/device_delete.h>
+#include <thrust/device_new.h>
 #include <thrust/execution_policy.h>
 
 #include "types.h"
@@ -43,6 +45,8 @@ void diffusion_solver::initialize(microenvironment& m)
 
 void diffusion_solver::initialize(microenvironment& m, index_t substrate_factor)
 {
+	deinitialize();
+
 	substrate_factor_ = substrate_factor;
 
 	if (m.mesh.dims >= 1)
@@ -59,31 +63,28 @@ void diffusion_solver::initialize(microenvironment& m, index_t substrate_factor)
 	ny_ = m.mesh.grid_shape[1];
 	nz_ = m.mesh.grid_shape[2];
 
-	substrate_densities_.resize((std::size_t)ns_ * nx_ * ny_ * nz_);
-	substrate_densities_.shrink_to_fit();
+	substrate_densities_ = thrust::device_new<real_t>((std::size_t)ns_ * nx_ * ny_ * nz_);
 
-	initial_conditions_.resize(ns_);
-	initial_conditions_.shrink_to_fit();
-	thrust::copy(m.initial_conditions.get(), m.initial_conditions.get() + ns_, initial_conditions_.begin());
+	initial_conditions_ = thrust::device_new<real_t>(ns_);
+	thrust::copy(m.initial_conditions.get(), m.initial_conditions.get() + ns_, initial_conditions_.get());
 
 	thrust::for_each(
 		thrust::make_counting_iterator<std::size_t>(0),
 		thrust::make_counting_iterator((std::size_t)ns_ * nx_ * ny_ * nz_),
-		[ns = ns_, densities = substrate_densities_.data().get(),
-		 initial_conditions = initial_conditions_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
+		[ns = ns_, densities = substrate_densities_.get(),
+		 initial_conditions = initial_conditions_.get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 			const index_t s = voxel_idx % ns;
 			densities[voxel_idx] = initial_conditions[s];
 		});
 }
 
-void diffusion_solver::precompute_values(device_vector<real_t>& b, device_vector<real_t>& c, device_vector<real_t>& e,
-										 index_t shape, index_t dims, index_t n, const microenvironment& m,
-										 index_t copies)
+void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& b, thrust::device_ptr<real_t>& c,
+										 thrust::device_ptr<real_t>& e, index_t shape, index_t dims, index_t n,
+										 const microenvironment& m, index_t copies)
 {
 	if (n == 1) // special case
 	{
-		b.resize(m.substrates_count * copies);
-		b.shrink_to_fit();
+		b = thrust::device_new<real_t>(m.substrates_count * copies);
 
 		for (index_t x = 0; x < copies; x++)
 			for (index_t s = 0; s < m.substrates_count; s++)
@@ -92,19 +93,16 @@ void diffusion_solver::precompute_values(device_vector<real_t>& b, device_vector
 		return;
 	}
 
-	b.resize(n * m.substrates_count * copies);
-	e.resize((n - 1) * m.substrates_count * copies);
-	c.resize(m.substrates_count * copies);
-	b.shrink_to_fit();
-	e.shrink_to_fit();
-	c.shrink_to_fit();
+	b = thrust::device_new<real_t>(n * m.substrates_count * copies);
+	e = thrust::device_new<real_t>((n - 1) * m.substrates_count * copies);
+	c = thrust::device_new<real_t>(m.substrates_count * copies);
 
 	auto layout = noarr::scalar<real_t>() ^ noarr::vector<'s'>() ^ noarr::vector<'x'>() ^ noarr::vector<'i'>()
 				  ^ noarr::set_length<'i'>(n) ^ noarr::set_length<'x'>(copies)
 				  ^ noarr::set_length<'s'>(m.substrates_count);
 
-	auto b_diag = noarr::make_bag(layout, b.data().get());
-	auto e_diag = noarr::make_bag(layout, e.data().get());
+	auto b_diag = noarr::make_bag(layout, b.get());
+	auto e_diag = noarr::make_bag(layout, e.get());
 
 	// compute c_i
 	for (index_t x = 0; x < copies; x++)
@@ -182,7 +180,7 @@ static constexpr void solve_slice(real_t* _CCCL_RESTRICT densities, const real_t
 	}
 }
 
-real_t* diffusion_solver::get_substrates_pointer() { return substrate_densities_.data().get(); }
+real_t* diffusion_solver::get_substrates_pointer() { return substrate_densities_.get(); }
 
 void diffusion_solver::solve()
 {
@@ -193,8 +191,8 @@ void diffusion_solver::solve()
 	// swipe x
 	thrust::for_each(
 		thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(x_work),
-		[dens_l, densities = substrate_densities_.data().get(), b = bx_.data().get(), c = cx_.data().get(),
-		 e = ex_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
+		[dens_l, densities = substrate_densities_.get(), b = bx_.get(), c = cx_.get(),
+		 e = ex_.get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 			const index_t s_len = dens_l | noarr::get_length<'s'>();
 			const index_t y_len = dens_l | noarr::get_length<'y'>();
 
@@ -213,8 +211,8 @@ void diffusion_solver::solve()
 		// swipe y
 		thrust::for_each(
 			thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(y_work),
-			[dens_l, densities = substrate_densities_.data().get(), b = by_.data().get(), c = cy_.data().get(),
-			 e = ey_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
+			[dens_l, densities = substrate_densities_.get(), b = by_.get(), c = cy_.get(),
+			 e = ey_.get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 				const index_t s_len = dens_l | noarr::get_length<'s'>();
 				const index_t x_len = dens_l | noarr::get_length<'x'>();
 
@@ -234,8 +232,8 @@ void diffusion_solver::solve()
 		// swipe y
 		thrust::for_each(
 			thrust::device, thrust::make_counting_iterator<std::size_t>(0), thrust::make_counting_iterator(z_work),
-			[dens_l, densities = substrate_densities_.data().get(), b = bz_.data().get(), c = cz_.data().get(),
-			 e = ez_.data().get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
+			[dens_l, densities = substrate_densities_.get(), b = bz_.get(), c = cz_.get(),
+			 e = ez_.get()] PHYSICORE_THRUST_DEVICE_FN(std::size_t voxel_idx) {
 				const index_t s_len = dens_l | noarr::get_length<'s'>();
 				const index_t x_len = dens_l | noarr::get_length<'x'>();
 
@@ -248,3 +246,23 @@ void diffusion_solver::solve()
 			});
 	}
 }
+
+void diffusion_solver::deinitialize()
+{
+	thrust::device_delete(bx_);
+	thrust::device_delete(cx_);
+	thrust::device_delete(ex_);
+
+	thrust::device_delete(by_);
+	thrust::device_delete(cy_);
+	thrust::device_delete(ey_);
+
+	thrust::device_delete(bz_);
+	thrust::device_delete(cz_);
+	thrust::device_delete(ez_);
+
+	thrust::device_delete(substrate_densities_);
+	thrust::device_delete(initial_conditions_);
+}
+
+diffusion_solver::~diffusion_solver() { deinitialize(); }

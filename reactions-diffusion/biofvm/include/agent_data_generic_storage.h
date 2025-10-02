@@ -35,6 +35,9 @@ public:
 
 	void add();
 	void remove_at(index_t position);
+
+	template <template <typename...> typename ToContainerType>
+	void copy_to(agent_data_generic_storage<ToContainerType>& target);
 };
 
 template <template <typename...> typename ContainerType>
@@ -101,6 +104,24 @@ void agent_data_generic_storage<ContainerType>::remove_at(index_t position)
 	fraction_transferred_when_ingested.resize(agents_count * substrate_count);
 
 	volumes.resize(agents_count);
+}
+
+template <template <typename...> typename ContainerType>
+template <template <typename...> typename ToContainerType>
+void agent_data_generic_storage<ContainerType>::copy_to(agent_data_generic_storage<ToContainerType>& target)
+{
+	target.agents_count = agents_count;
+
+	target.secretion_rates = secretion_rates;
+	target.saturation_densities = saturation_densities;
+	target.uptake_rates = uptake_rates;
+	target.net_export_rates = net_export_rates;
+
+	target.internalized_substrates = internalized_substrates;
+	target.fraction_released_at_death = fraction_released_at_death;
+	target.fraction_transferred_when_ingested = fraction_transferred_when_ingested;
+
+	target.volumes = volumes;
 }
 
 } // namespace physicore::biofvm

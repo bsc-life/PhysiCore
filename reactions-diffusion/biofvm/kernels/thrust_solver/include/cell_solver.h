@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thrust/device_ptr.h>
+#include <thrust/device_vector.h>
 
 #include "../../../include/microenvironment.h"
 #include "diffusion_solver.h"
@@ -41,17 +42,17 @@ class cell_solver : private generic_agent_solver<device_agent>
 {
 	bool compute_internalized_substrates_;
 
-	device_vector<real_t> numerators_;
-	device_vector<real_t> denominators_;
-	device_vector<real_t> factors_;
+	thrust::device_vector<real_t> numerators_;
+	thrust::device_vector<real_t> denominators_;
+	thrust::device_vector<real_t> factors_;
 
-	device_vector<real_t> reduced_numerators_;
-	device_vector<real_t> reduced_denominators_;
-	device_vector<real_t> reduced_factors_;
+	thrust::device_vector<real_t> reduced_numerators_;
+	thrust::device_vector<real_t> reduced_denominators_;
+	thrust::device_vector<real_t> reduced_factors_;
 
-	device_vector<bool> is_conflict_;
+	thrust::device_ptr<bool> is_conflict_;
 
-	device_vector<index_t> ballots_;
+	thrust::device_ptr<index_t> ballots_;
 
 	void resize(const microenvironment& m);
 
@@ -63,6 +64,8 @@ public:
 	void simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, bool recompute);
 
 	void release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, index_t index);
+
+	~cell_solver();
 };
 
 } // namespace physicore::biofvm::kernels::thrust_solver
