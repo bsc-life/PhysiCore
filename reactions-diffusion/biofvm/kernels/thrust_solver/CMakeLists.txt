@@ -8,9 +8,13 @@ thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
 
 target_sources(
   physicore.reactions-diffusion.kernels.tbb_thrust_solver
-  PRIVATE src/bulk_solver.cpp src/dirichlet_solver.cpp src/cell_solver.cpp
-          src/diffusion_solver.cpp src/thrust_solver.cpp
-          src/register_solver.cpp)
+  PRIVATE src/bulk_solver.cpp
+          src/dirichlet_solver.cpp
+          src/cell_solver.cpp
+          src/diffusion_solver.cpp
+          src/thrust_solver.cpp
+          src/register_solver.cpp
+          src/data_manager.cpp)
 
 target_sources(
   physicore.reactions-diffusion.kernels.tbb_thrust_solver

@@ -78,24 +78,26 @@ void diffusion_solver::initialize(microenvironment& m, index_t substrate_factor)
 		});
 }
 
-void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& b, thrust::device_ptr<real_t>& c,
-										 thrust::device_ptr<real_t>& e, index_t shape, index_t dims, index_t n,
+void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& db, thrust::device_ptr<real_t>& dc,
+										 thrust::device_ptr<real_t>& de, index_t shape, index_t dims, index_t n,
 										 const microenvironment& m, index_t copies)
 {
 	if (n == 1) // special case
 	{
-		b = thrust::device_new<real_t>(m.substrates_count * copies);
+		auto b = std::make_unique<real_t[]>(m.substrates_count * copies);
 
 		for (index_t x = 0; x < copies; x++)
 			for (index_t s = 0; s < m.substrates_count; s++)
 				b[x * m.substrates_count + s] = 1 / (1 + m.decay_rates[s] * m.diffusion_timestep / dims);
 
+		db = thrust::device_new<real_t>(m.substrates_count * copies);
+		thrust::copy(b.get(), b.get() + m.substrates_count * copies, db);
 		return;
 	}
 
-	b = thrust::device_new<real_t>(n * m.substrates_count * copies);
-	e = thrust::device_new<real_t>((n - 1) * m.substrates_count * copies);
-	c = thrust::device_new<real_t>(m.substrates_count * copies);
+	auto b = std::make_unique<real_t[]>(n * m.substrates_count * copies);
+	auto e = std::make_unique<real_t[]>((n - 1) * m.substrates_count * copies);
+	auto c = std::make_unique<real_t[]>(m.substrates_count * copies);
 
 	auto layout = noarr::scalar<real_t>() ^ noarr::vector<'s'>() ^ noarr::vector<'x'>() ^ noarr::vector<'i'>()
 				  ^ noarr::set_length<'i'>(n) ^ noarr::set_length<'x'>(copies)
@@ -148,6 +150,14 @@ void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& b, thrust::
 						c[x * m.substrates_count + s] * b_diag.at<'i', 'x', 's'>(i - 1, x, s);
 				}
 	}
+
+	db = thrust::device_new<real_t>(n * m.substrates_count * copies);
+	de = thrust::device_new<real_t>((n - 1) * m.substrates_count * copies);
+	dc = thrust::device_new<real_t>(m.substrates_count * copies);
+
+	thrust::copy(b.get(), b.get() + n * m.substrates_count * copies, db);
+	thrust::copy(e.get(), e.get() + (n - 1) * m.substrates_count * copies, de);
+	thrust::copy(c.get(), c.get() + m.substrates_count * copies, dc);
 }
 
 template <char swipe_dim, typename density_layout_t, typename index_t>
@@ -180,7 +190,7 @@ static constexpr void solve_slice(real_t* _CCCL_RESTRICT densities, const real_t
 	}
 }
 
-real_t* diffusion_solver::get_substrates_pointer() { return substrate_densities_.get(); }
+thrust::device_ptr<real_t> diffusion_solver::get_substrates_pointer() { return substrate_densities_; }
 
 void diffusion_solver::solve()
 {

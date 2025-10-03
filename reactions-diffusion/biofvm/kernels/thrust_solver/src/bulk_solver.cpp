@@ -50,6 +50,6 @@ void solve_single(real_t* _CCCL_RESTRICT densities, func_t&& supply_rates, func_
 
 void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 {
-	solve_single(d_solver.get_substrates_pointer(), supply_rate_f_, uptake_rate_f_, supply_target_densities_f_,
+	solve_single(d_solver.get_substrates_pointer().get(), supply_rate_f_, uptake_rate_f_, supply_target_densities_f_,
 				 m.diffusion_timestep, d_solver.get_substrates_layout());
 }

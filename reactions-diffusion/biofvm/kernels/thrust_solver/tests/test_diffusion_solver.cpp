@@ -63,13 +63,16 @@ TEST(ThrustDiffusionSolverTest, Uniform1D)
 	auto m = default_microenv(mesh);
 
 	diffusion_solver s;
+	data_manager mgr;
 
 	s.initialize(*m, 1);
+	mgr.initialize(*m, s);
 
 	s.solve();
+	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<1>();
-	real_t* densities = s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	noarr::traverser(dens_l).for_dims<'x'>([&](auto s) {
 		auto l = dens_l ^ noarr::fix(s);
@@ -86,13 +89,16 @@ TEST(ThrustDiffusionSolverTest, Uniform2D)
 	auto m = default_microenv(mesh);
 
 	diffusion_solver s;
+	data_manager mgr;
 
 	s.initialize(*m, 1);
+	mgr.initialize(*m, s);
 
 	s.solve();
+	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<2>();
-	real_t* densities = s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	noarr::traverser(dens_l).for_dims<'x', 'y'>([&](auto s) {
 		auto l = dens_l ^ noarr::fix(s);
@@ -109,13 +115,16 @@ TEST(ThrustDiffusionSolverTest, Uniform3D)
 	auto m = default_microenv(mesh);
 
 	diffusion_solver s;
+	data_manager mgr;
 
 	s.initialize(*m, 1);
+	mgr.initialize(*m, s);
 
 	s.solve();
+	mgr.transfer_to_host();
 
-	auto dens_l = s.get_substrates_layout();
-	real_t* densities = s.get_substrates_pointer();
+	auto dens_l = s.get_substrates_layout<3>();
+	real_t* densities = mgr.substrate_densities;
 
 	noarr::traverser(dens_l).for_dims<'x', 'y', 'z'>([&](auto s) {
 		auto l = dens_l ^ noarr::fix(s);
@@ -132,11 +141,16 @@ TEST(ThrustDiffusionSolverTest, Random1D)
 	auto m = biorobots_microenv(mesh);
 
 	diffusion_solver s;
+	data_manager mgr;
 
 	s.initialize(*m, 1);
+	mgr.initialize(*m, s);
+
+	s.solve();
+	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<1>();
-	real_t* densities = s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	// fill with random values
 	for (index_t s = 0; s < m->substrates_count; ++s)
@@ -168,11 +182,16 @@ TEST(ThrustDiffusionSolverTest, Random2D)
 	auto m = biorobots_microenv(mesh);
 
 	diffusion_solver s;
+	data_manager mgr;
 
 	s.initialize(*m, 1);
+	mgr.initialize(*m, s);
+
+	s.solve();
+	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<2>();
-	real_t* densities = s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	// fill with random values
 	for (index_t s = 0; s < m->substrates_count; ++s)
@@ -207,11 +226,16 @@ TEST(ThrustDiffusionSolverTest, Random3D)
 	auto m = biorobots_microenv(mesh);
 
 	diffusion_solver s;
+	data_manager mgr;
 
 	s.initialize(*m, 1);
+	mgr.initialize(*m, s);
+
+	s.solve();
+	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<3>();
-	real_t* densities = s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	// fill with random values
 	for (index_t s = 0; s < m->substrates_count; ++s)

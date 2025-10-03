@@ -60,14 +60,17 @@ TEST(ThrustBulkSolverTest, SimulateBulkSource)
 
 	diffusion_solver d_s;
 	bulk_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 
 	s.solve(*m, d_s);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<3>();
-	real_t* densities = d_s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	for (index_t x = 0; x < (dens_l | noarr::get_length<'x'>()); x++)
 		for (index_t y = 0; y < (dens_l | noarr::get_length<'y'>()); y++)

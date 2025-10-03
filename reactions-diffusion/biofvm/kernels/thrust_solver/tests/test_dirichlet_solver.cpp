@@ -92,13 +92,16 @@ TEST(ThrustDirichletSolverTest, Interior1D)
 
 	diffusion_solver d_s;
 	dirichlet_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 	s.solve(*m, d_s);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<1>();
-	real_t* densities = d_s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	noarr::traverser(dens_l).for_dims<'x'>([&](auto t) {
 		auto s = t.state();
@@ -122,13 +125,16 @@ TEST(ThrustDirichletSolverTest, Interior2D)
 
 	diffusion_solver d_s;
 	dirichlet_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 	s.solve(*m, d_s);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<2>();
-	real_t* densities = d_s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	// second substrate should not change
 	noarr::traverser(dens_l).for_dims<'x', 'y'>([&](auto t) {
@@ -160,13 +166,16 @@ TEST(ThrustDirichletSolverTest, Interior3D)
 
 	diffusion_solver d_s;
 	dirichlet_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 	s.solve(*m, d_s);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<3>();
-	real_t* densities = d_s.get_substrates_pointer();
+	real_t* densities = mgr.substrate_densities;
 
 	// second substrate should not change
 	noarr::traverser(dens_l).for_dims<'x', 'y', 'z'>([&](auto t) {
@@ -204,13 +213,16 @@ TEST(ThrustDirichletSolverTest, Boundary1D)
 
 	diffusion_solver d_s;
 	dirichlet_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 	s.solve(*m, d_s);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<1>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 	{
@@ -238,13 +250,16 @@ TEST(ThrustDirichletSolverTest, Boundary2D)
 
 	diffusion_solver d_s;
 	dirichlet_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 	s.solve(*m, d_s);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<2>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		for (index_t y = 0; y < m->mesh.grid_shape[1]; y++)
@@ -294,13 +309,16 @@ TEST(ThrustDirichletSolverTest, Boundary3D)
 
 	diffusion_solver d_s;
 	dirichlet_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 	s.solve(*m, d_s);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<3>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	// with only interior z indices
 	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)

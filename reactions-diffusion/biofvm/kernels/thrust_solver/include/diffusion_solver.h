@@ -3,7 +3,7 @@
 #include <thrust/device_ptr.h>
 
 #include "../../../include/microenvironment.h"
-#include "device_manager.h"
+#include "data_manager.h"
 
 /*
 The diffusion is the problem of solving tridiagonal matrix system with these coeficients:
@@ -27,15 +27,6 @@ d_i'  == d_i - e_i*d_(i-1)                                    1 <  i <= n
 The backpropagation (2n multiplication + n subtractions):
 d_n'' == d_n'/b_n'
 d_i'' == (d_i' - c_i*d_(i+1)'')*b_i'                          n >  i >= 1
-
-Optimizations:
-- The memory accesses of all dimension slices are continuous for the least amount of cache misses. This is done by
-reordering the loops for the thomas solver of y and z axes.
-- Better vectorization for small enough number of substrates. Since compiler generated vectorization is done over the
-substrates, when we have 1 or 2 substrates, vector capability is not used to the full. We can make it better for y and z
-axes by merging loops over substrates (s) and x dimension. When we merge these loops, the vectorization can be done over
-the whole 'plane' s*x rather than just s. For it to work properly, helper vectors b, c, e had to be modified such that
-their data span over x*s, not only over s (so they got copied substrate_factor_ times in s dimension).
 */
 
 namespace physicore::biofvm::kernels::thrust_solver {
@@ -73,7 +64,7 @@ public:
 			return noarr::scalar<real_t>() ^ noarr::vectors<'s', 'x', 'y', 'z'>(ns_, nx_, ny_, nz_);
 	}
 
-	real_t* get_substrates_pointer();
+	thrust::device_ptr<real_t> get_substrates_pointer();
 
 	void initialize(microenvironment& m);
 	void initialize(microenvironment& m, index_t substrate_factor);

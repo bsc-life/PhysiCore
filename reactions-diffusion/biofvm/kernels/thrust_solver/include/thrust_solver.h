@@ -3,6 +3,7 @@
 #include "../../../include/solver.h"
 #include "bulk_solver.h"
 #include "cell_solver.h"
+#include "data_manager.h"
 #include "diffusion_solver.h"
 #include "dirichlet_solver.h"
 
@@ -16,6 +17,8 @@ class thrust_solver : public solver
 	cell_solver c_solver;
 	diffusion_solver d_solver;
 	dirichlet_solver dir_solver;
+
+	data_manager mgr;
 
 public:
 	void solve(microenvironment& m, index_t iterations) override;

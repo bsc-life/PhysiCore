@@ -4,7 +4,6 @@
 #include <thrust/iterator/counting_iterator.h>
 
 #include "cell_solver.h"
-#include "device_manager.h"
 #include "diffusion_solver.h"
 #include "generic_agent_container.h"
 #include "generic_agent_solver.h"
@@ -38,16 +37,11 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, b
 
 	m->compute_internalized_substrates = compute_interalized;
 
-	auto device_base_data = std::make_unique<device_base_agent::DataType>(mesh.dims);
-	auto device_data = std::make_unique<device_agent::DataType>(*device_base_data, substrates_count);
-	m->agents = std::make_unique<generic_agent_and_data_container<device_base_agent, device_agent>>(
-		std::move(device_base_data), std::move(device_data));
-
 	return m;
 }
 
 
-static void compute_expected_agent_internalized_1d(auto densities, microenvironment& m, device_agent_data& agent_data,
+static void compute_expected_agent_internalized_1d(auto&& densities, microenvironment& m, agent_data& agent_data,
 												   std::vector<real_t>& expected_internalized)
 {
 	for (index_t i = 0; i < agent_data.base_data.agents_count; i++)
@@ -74,7 +68,7 @@ static void compute_expected_agent_internalized_1d(auto densities, microenvironm
 }
 
 static std::vector<real_t> compute_expected_agent_densities_1d(auto densities, microenvironment& m,
-															   device_agent_data& agent_data)
+															   agent_data& agent_data)
 {
 	std::vector<real_t> expected_densities(m.mesh.voxel_count() * m.substrates_count, 0);
 
@@ -157,14 +151,18 @@ TEST_P(RecomputeTest, Simple1D)
 
 	diffusion_solver d_s;
 	cell_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 
-	s.simulate_secretion_and_uptake(*m, d_s, true);
+	mgr.transfer_to_device();
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<1>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	if (compute_internalized)
 	{
@@ -187,7 +185,8 @@ TEST_P(RecomputeTest, Simple1D)
 	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 0)), 366.963);
 	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 1)), 1.0015);
 
-	s.simulate_secretion_and_uptake(*m, d_s, recompute);
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
@@ -210,7 +209,8 @@ TEST_P(RecomputeTest, Simple1D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 0)), 475.39642);
 	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 1)), 1.003);
 
-	s.release_internalized_substrates(*m, d_s, 0);
+	s.release_internalized_substrates(*m, d_s, mgr, 0);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
@@ -240,14 +240,18 @@ TEST_P(RecomputeTest, Simple2D)
 
 	diffusion_solver d_s;
 	cell_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 
-	s.simulate_secretion_and_uptake(*m, d_s, true);
+	mgr.transfer_to_device();
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<2>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	if (compute_internalized)
 	{
@@ -270,7 +274,8 @@ TEST_P(RecomputeTest, Simple2D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 366.963);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.0015);
 
-	s.simulate_secretion_and_uptake(*m, d_s, recompute);
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
@@ -293,7 +298,8 @@ TEST_P(RecomputeTest, Simple2D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 475.39642);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.003);
 
-	s.release_internalized_substrates(*m, d_s, 0);
+	s.release_internalized_substrates(*m, d_s, mgr, 0);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
@@ -323,14 +329,18 @@ TEST_P(RecomputeTest, Simple3D)
 
 	diffusion_solver d_s;
 	cell_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
 
-	s.simulate_secretion_and_uptake(*m, d_s, true);
+	mgr.transfer_to_device();
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
 
 	auto dens_l = d_s.get_substrates_layout<3>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	if (compute_internalized)
 	{
@@ -353,7 +363,8 @@ TEST_P(RecomputeTest, Simple3D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 366.963);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.0015);
 
-	s.simulate_secretion_and_uptake(*m, d_s, recompute);
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
@@ -376,7 +387,8 @@ TEST_P(RecomputeTest, Simple3D)
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 475.39642);
 	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.003);
 
-	s.release_internalized_substrates(*m, d_s, 0);
+	s.release_internalized_substrates(*m, d_s, mgr, 0);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
@@ -387,7 +399,7 @@ TEST_P(RecomputeTest, Simple3D)
 	}
 }
 
-class agent_retriever : public generic_agent_solver<device_agent>
+class agent_retriever : public generic_agent_solver<agent>
 {};
 
 TEST_P(RecomputeTest, Conflict)
@@ -415,18 +427,22 @@ TEST_P(RecomputeTest, Conflict)
 
 	diffusion_solver d_s;
 	cell_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
+	mgr.transfer_to_device();
 
 	auto dens_l = d_s.get_substrates_layout<1>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	auto& agent_data = agent_retriever().retrieve_agent_data(*m->agents);
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
 
-	s.simulate_secretion_and_uptake(*m, d_s, true);
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
 
 	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
@@ -449,7 +465,8 @@ TEST_P(RecomputeTest, Conflict)
 		}
 	}
 
-	s.simulate_secretion_and_uptake(*m, d_s, recompute);
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
+	mgr.transfer_to_host();
 
 	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
@@ -472,8 +489,7 @@ TEST_P(RecomputeTest, Conflict)
 		}
 	}
 
-	thrust::for_each_n(thrust::host, thrust::make_counting_iterator(0), agents.size(),
-					   [&](std::size_t i) { s.release_internalized_substrates(*m, d_s, i); });
+	s.release_internalized_substrates(*m, d_s, mgr);
 
 	if (compute_internalized)
 	{
@@ -508,18 +524,22 @@ TEST_P(RecomputeTest, ConflictBig)
 
 	diffusion_solver d_s;
 	cell_solver s;
+	data_manager mgr;
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	mgr.initialize(*m, d_s);
+	mgr.transfer_to_device();
 
 	auto dens_l = d_s.get_substrates_layout<1>();
-	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
 	auto& agent_data = agent_retriever().retrieve_agent_data(*m->agents);
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
 
-	s.simulate_secretion_and_uptake(*m, d_s, true);
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
 
 	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
@@ -542,7 +562,8 @@ TEST_P(RecomputeTest, ConflictBig)
 		}
 	}
 
-	s.simulate_secretion_and_uptake(*m, d_s, recompute);
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
+	mgr.transfer_to_host();
 
 	compute_expected_agent_internalized_1d(densities, *m, agent_data, expected_internalized);
 
@@ -565,8 +586,7 @@ TEST_P(RecomputeTest, ConflictBig)
 		}
 	}
 
-	thrust::for_each_n(thrust::host, thrust::make_counting_iterator(0), agents.size(),
-					   [&](std::size_t i) { s.release_internalized_substrates(*m, d_s, i); });
+	s.release_internalized_substrates(*m, d_s, mgr);
 
 	if (compute_internalized)
 	{

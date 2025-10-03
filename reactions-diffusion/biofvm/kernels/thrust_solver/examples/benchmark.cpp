@@ -111,23 +111,20 @@ int main()
 		}
 	}
 
-	auto device_base_data = std::make_unique<device_base_agent::DataType>(mesh.dims);
-	auto device_data = std::make_unique<device_agent::DataType>(*device_base_data, substrates_count);
-	m.agents = std::make_unique<generic_agent_and_data_container<device_base_agent, device_agent>>(
-		std::move(device_base_data), std::move(device_data));
-
 	make_agents(m, 2'000'000, true);
 
 	bulk_solver b_solver;
 	cell_solver c_solver;
 	diffusion_solver d_solver;
 	dirichlet_solver dir_solver;
+	data_manager mgr;
 
 	b_solver.initialize(m);
 	c_solver.initialize(m);
 	d_solver.initialize(m, 1);
 	dir_solver.initialize(m);
-
+	mgr.initialize(m, d_solver);
+	mgr.transfer_to_device();
 
 	for (index_t i = 0; i < 100; ++i)
 	{
@@ -146,7 +143,7 @@ int main()
 			{
 				auto start = std::chrono::steady_clock::now();
 
-				c_solver.simulate_secretion_and_uptake(m, d_solver, i % 10 == 0);
+				c_solver.simulate_secretion_and_uptake(m, d_solver, mgr, i % 10 == 0);
 
 				auto end = std::chrono::steady_clock::now();
 

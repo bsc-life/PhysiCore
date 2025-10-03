@@ -5,7 +5,6 @@
 
 #include "../../../include/microenvironment.h"
 #include "diffusion_solver.h"
-#include "generic_agent_solver.h"
 
 /*
 Performs secretion and uptake of cells.
@@ -38,7 +37,7 @@ D = D + I*F/v
 
 namespace physicore::biofvm::kernels::thrust_solver {
 
-class cell_solver : private generic_agent_solver<device_agent>
+class cell_solver
 {
 	bool compute_internalized_substrates_;
 
@@ -56,14 +55,16 @@ class cell_solver : private generic_agent_solver<device_agent>
 
 	void resize(const microenvironment& m);
 
-	static void release_internalized_substrates(agent_data& data, index_t index);
-
 public:
 	void initialize(const microenvironment& m);
 
-	void simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, bool recompute);
+	void simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, data_manager& data,
+									   bool recompute);
 
-	void release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, index_t index);
+	void release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data,
+										 index_t agent_index);
+
+	void release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data);
 
 	~cell_solver();
 };

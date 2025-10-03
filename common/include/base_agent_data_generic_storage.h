@@ -51,14 +51,6 @@ struct base_agent_data_generic_storage
 		positions.resize(agents_count * dims);
 	}
 
-	template <template <typename...> typename ToContainerType>
-	void copy_to(base_agent_data_generic_storage<ToContainerType>& target)
-	{
-		agents_count = target.agents_count;
-
-		target.positions = positions;
-	}
-
 	template <typename T>
 	static void move_scalar(T* dst, const T* src)
 	{

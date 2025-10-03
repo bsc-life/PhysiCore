@@ -15,6 +15,8 @@ void thrust_solver::solve(biofvm::microenvironment& m, index_t iterations)
 
 		c_solver.initialize(m);
 
+		mgr.initialize(m, d_solver);
+
 		initialized = true;
 	}
 
@@ -26,6 +28,6 @@ void thrust_solver::solve(biofvm::microenvironment& m, index_t iterations)
 
 		b_solver.solve(m, d_solver);
 
-		c_solver.simulate_secretion_and_uptake(m, d_solver, it == 0);
+		c_solver.simulate_secretion_and_uptake(m, d_solver, mgr, it == 0);
 	}
 }

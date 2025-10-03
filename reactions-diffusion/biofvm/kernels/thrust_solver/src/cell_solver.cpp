@@ -228,11 +228,12 @@ static constexpr void compute_fused(real_t* _CCCL_RESTRICT substrate_densities,
 }
 
 template <index_t dims, typename density_layout_t, typename ballot_layout_t>
-static void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_l, device_agent_data& data,
-						   const cartesian_mesh& mesh, real_t* substrates, const real_t* reduced_numerators,
-						   const real_t* reduced_denominators, const real_t* reduced_factors, const real_t* numerators,
-						   const real_t* denominators, const real_t* factors, const index_t* ballots,
-						   bool with_internalized, bool is_conflict)
+static void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_l, const cartesian_mesh& mesh,
+						   real_t* substrates, const real_t* reduced_numerators, const real_t* reduced_denominators,
+						   const real_t* reduced_factors, const real_t* numerators, const real_t* denominators,
+						   const real_t* factors, const index_t* ballots, const real_t* positions,
+						   real_t* internalized_substrates, const index_t agents_count, bool with_internalized,
+						   bool is_conflict)
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
@@ -245,12 +246,9 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 	if (with_internalized && !is_conflict)
 	{
 		thrust::for_each(
-			thrust::device, thrust::make_counting_iterator<index_t>(0),
-			thrust::make_counting_iterator(data.base_data.agents_count),
-			[dens_l, internalized_substrates = data.internalized_substrates.data(),
-			 positions = data.base_data.positions.data(), bounding_box_mins, voxel_shape, substrates,
-			 reduced_numerators, reduced_denominators, reduced_factors,
-			 voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
+			thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(agents_count),
+			[dens_l, internalized_substrates, positions, bounding_box_mins, voxel_shape, substrates, reduced_numerators,
+			 reduced_denominators, reduced_factors, voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
 				const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 				auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
 
@@ -263,10 +261,9 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 	}
 
 	thrust::for_each(
-		thrust::device, thrust::make_counting_iterator<index_t>(0),
-		thrust::make_counting_iterator(data.base_data.agents_count),
+		thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(agents_count),
 		[dens_l, ballot_l, bounding_box_mins, voxel_shape, substrates, reduced_numerators, reduced_denominators,
-		 reduced_factors, positions = data.base_data.positions.data(), ballots] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
+		 reduced_factors, positions, ballots] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
 			const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 			auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
 
@@ -280,10 +277,8 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 	if (with_internalized)
 	{
 		thrust::for_each(
-			thrust::device, thrust::make_counting_iterator<index_t>(0),
-			thrust::make_counting_iterator(data.base_data.agents_count),
-			[dens_l, internalized_substrates = data.internalized_substrates.data(),
-			 positions = data.base_data.positions.data(), bounding_box_mins, voxel_shape, substrates, numerators,
+			thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(agents_count),
+			[dens_l, internalized_substrates, positions, bounding_box_mins, voxel_shape, substrates, numerators,
 			 denominators, factors, voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
 				const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 				auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
@@ -296,40 +291,42 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 }
 
 template <index_t dims>
-void simulate(const auto dens_l, const auto ballot_l, device_agent_data& data, microenvironment& m, real_t* substrates,
+void simulate(const auto dens_l, const auto ballot_l, data_manager& data, microenvironment& m, real_t* substrates,
 			  real_t* reduced_numerators, real_t* reduced_denominators, real_t* reduced_factors, real_t* numerators,
 			  real_t* denominators, real_t* factors, index_t* ballots, bool recompute, bool with_internalized,
 			  bool* _CCCL_RESTRICT is_conflict)
 {
+	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
+	const index_t agents_count = m.agents->size();
+
 	if (recompute)
 	{
-		compute_intermediates(numerators, denominators, factors, data.secretion_rates.data(), data.uptake_rates.data(),
-							  data.saturation_densities.data(), data.net_export_rates.data(), data.volumes.data(),
-							  (real_t)m.mesh.voxel_volume(), m.diffusion_timestep, data.base_data.agents_count,
-							  data.substrate_count);
+		compute_intermediates(numerators, denominators, factors, data.secretion_rates, data.uptake_rates,
+							  data.saturation_densities, data.net_export_rates, data.volumes,
+							  (real_t)m.mesh.voxel_volume(), m.diffusion_timestep, agents_count, substrates_count);
 
-		clear_ballots<dims>(ballot_l, data.base_data.positions.data(), ballots, reduced_numerators,
-							reduced_denominators, reduced_factors, data.base_data.agents_count, m.mesh,
-							data.substrate_count);
+		clear_ballots<dims>(ballot_l, data.positions, ballots, reduced_numerators, reduced_denominators,
+							reduced_factors, agents_count, m.mesh, substrates_count);
 
 		ballot_and_sum<dims>(ballot_l, reduced_numerators, reduced_denominators, reduced_factors, numerators,
-							 denominators, factors, data.base_data.positions.data(), ballots,
-							 data.base_data.agents_count, data.substrate_count, m.mesh, is_conflict);
+							 denominators, factors, data.positions, ballots, agents_count, substrates_count, m.mesh,
+							 is_conflict);
 	}
 
-	compute_result<dims>(dens_l, ballot_l, data, m.mesh, substrates, reduced_numerators, reduced_denominators,
-						 reduced_factors, numerators, denominators, factors, ballots, with_internalized,
-						 is_conflict[0]);
+	compute_result<dims>(dens_l, ballot_l, m.mesh, substrates, reduced_numerators, reduced_denominators,
+						 reduced_factors, numerators, denominators, factors, ballots, data.positions,
+						 data.internalized_substrates, agents_count, with_internalized, is_conflict[0]);
 }
 
-void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, bool recompute)
+void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, data_manager& data,
+												bool recompute)
 {
-	real_t* substrates = d_solver.get_substrates_pointer();
+	real_t* substrates = d_solver.get_substrates_pointer().get();
 
 	if (recompute)
 	{
 		resize(m);
-		is_conflict_[0] = false;
+		thrust::fill_n(is_conflict_, 1, false);
 	}
 
 	switch (m.mesh.dims)
@@ -338,11 +335,10 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 			const auto dens_l = d_solver.get_substrates_layout<1>();
 			const auto ballot_l = noarr::scalar<index_t>() ^ noarr::vectors<'x'>(m.mesh.grid_shape[0]);
 
-			simulate<1>(dens_l, ballot_l, retrieve_agent_data(*m.agents), m, substrates,
-						reduced_numerators_.data().get(), reduced_denominators_.data().get(),
-						reduced_factors_.data().get(), numerators_.data().get(), denominators_.data().get(),
-						factors_.data().get(), ballots_.get(), recompute, compute_internalized_substrates_,
-						is_conflict_.get());
+			simulate<1>(dens_l, ballot_l, data, m, substrates, reduced_numerators_.data().get(),
+						reduced_denominators_.data().get(), reduced_factors_.data().get(), numerators_.data().get(),
+						denominators_.data().get(), factors_.data().get(), ballots_.get(), recompute,
+						compute_internalized_substrates_, is_conflict_.get());
 			return;
 		}
 		case 2: {
@@ -350,11 +346,10 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 			const auto ballot_l =
 				noarr::scalar<index_t>() ^ noarr::vectors<'x', 'y'>(m.mesh.grid_shape[0], m.mesh.grid_shape[1]);
 
-			simulate<2>(dens_l, ballot_l, retrieve_agent_data(*m.agents), m, substrates,
-						reduced_numerators_.data().get(), reduced_denominators_.data().get(),
-						reduced_factors_.data().get(), numerators_.data().get(), denominators_.data().get(),
-						factors_.data().get(), ballots_.get(), recompute, compute_internalized_substrates_,
-						is_conflict_.get());
+			simulate<2>(dens_l, ballot_l, data, m, substrates, reduced_numerators_.data().get(),
+						reduced_denominators_.data().get(), reduced_factors_.data().get(), numerators_.data().get(),
+						denominators_.data().get(), factors_.data().get(), ballots_.get(), recompute,
+						compute_internalized_substrates_, is_conflict_.get());
 			return;
 		}
 		case 3: {
@@ -363,11 +358,10 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 				noarr::scalar<index_t>()
 				^ noarr::vectors<'x', 'y', 'z'>(m.mesh.grid_shape[0], m.mesh.grid_shape[1], m.mesh.grid_shape[2]);
 
-			simulate<3>(dens_l, ballot_l, retrieve_agent_data(*m.agents), m, substrates,
-						reduced_numerators_.data().get(), reduced_denominators_.data().get(),
-						reduced_factors_.data().get(), numerators_.data().get(), denominators_.data().get(),
-						factors_.data().get(), ballots_.get(), recompute, compute_internalized_substrates_,
-						is_conflict_.get());
+			simulate<3>(dens_l, ballot_l, data, m, substrates, reduced_numerators_.data().get(),
+						reduced_denominators_.data().get(), reduced_factors_.data().get(), numerators_.data().get(),
+						denominators_.data().get(), factors_.data().get(), ballots_.get(), recompute,
+						compute_internalized_substrates_, is_conflict_.get());
 			return;
 		}
 		default:
@@ -394,19 +388,31 @@ void release_internal(real_t* _CCCL_RESTRICT substrate_densities, real_t* _CCCL_
 }
 
 template <index_t dims>
-void release_dim(const auto dens_l, device_agent_data& data, const cartesian_mesh& mesh, real_t* substrates,
-				 index_t index)
+void release_dim(const auto dens_l, data_manager& data, const cartesian_mesh& mesh, real_t* substrates,
+				 index_t index_begin, index_t index_end)
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
+	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
-	release_internal(substrates, data.internalized_substrates.data() + index * data.substrate_count,
-					 data.fraction_released_at_death.data() + index * data.substrate_count, voxel_volume,
-					 dens_l
-						 ^ fix_dims<dims>(data.base_data.positions.data() + index * dims, mesh.bounding_box_mins.data(),
-										  mesh.voxel_shape.data()));
+	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
+																  mesh.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
+															mesh.voxel_shape[2] };
+
+	thrust::for_each(
+		thrust::device, thrust::make_counting_iterator(index_begin), thrust::make_counting_iterator(index_end),
+		[substrates, internalized_substrates = data.internalized_substrates, substrates_count,
+		 fraction_released_at_death = data.fraction_released_at_death, voxel_volume, dens_l, positions = data.positions,
+		 bounding_box_mins, voxel_shape] PHYSICORE_THRUST_DEVICE_FN(index_t index) {
+			release_internal(
+				substrates, internalized_substrates + index * substrates_count,
+				fraction_released_at_death + index * substrates_count, voxel_volume,
+				dens_l ^ fix_dims<dims>(positions + index * dims, bounding_box_mins.data(), voxel_shape.data()));
+		});
 }
 
-void cell_solver::release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, index_t index)
+void cell_solver::release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data,
+												  index_t agent_index)
 {
 	if (!compute_internalized_substrates_)
 		return;
@@ -414,16 +420,41 @@ void cell_solver::release_internalized_substrates(microenvironment& m, diffusion
 	switch (m.mesh.dims)
 	{
 		case 1:
-			release_dim<1>(d_solver.get_substrates_layout<1>(), retrieve_agent_data(*m.agents), m.mesh,
-						   d_solver.get_substrates_pointer(), index);
+			release_dim<1>(d_solver.get_substrates_layout<1>(), data, m.mesh, d_solver.get_substrates_pointer().get(),
+						   agent_index, agent_index + 1);
 			return;
 		case 2:
-			release_dim<2>(d_solver.get_substrates_layout<2>(), retrieve_agent_data(*m.agents), m.mesh,
-						   d_solver.get_substrates_pointer(), index);
+			release_dim<2>(d_solver.get_substrates_layout<2>(), data, m.mesh, d_solver.get_substrates_pointer().get(),
+						   agent_index, agent_index + 1);
 			return;
 		case 3:
-			release_dim<3>(d_solver.get_substrates_layout<3>(), retrieve_agent_data(*m.agents), m.mesh,
-						   d_solver.get_substrates_pointer(), index);
+			release_dim<3>(d_solver.get_substrates_layout<3>(), data, m.mesh, d_solver.get_substrates_pointer().get(),
+						   agent_index, agent_index + 1);
+			return;
+		default:
+			assert(false);
+			return;
+	}
+}
+
+void cell_solver::release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data)
+{
+	if (!compute_internalized_substrates_)
+		return;
+
+	switch (m.mesh.dims)
+	{
+		case 1:
+			release_dim<1>(d_solver.get_substrates_layout<1>(), data, m.mesh, d_solver.get_substrates_pointer().get(),
+						   0, m.agents->size());
+			return;
+		case 2:
+			release_dim<2>(d_solver.get_substrates_layout<2>(), data, m.mesh, d_solver.get_substrates_pointer().get(),
+						   0, m.agents->size());
+			return;
+		case 3:
+			release_dim<3>(d_solver.get_substrates_layout<3>(), data, m.mesh, d_solver.get_substrates_pointer().get(),
+						   0, m.agents->size());
 			return;
 		default:
 			assert(false);
