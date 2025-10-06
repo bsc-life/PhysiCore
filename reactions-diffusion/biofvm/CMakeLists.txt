@@ -16,7 +16,11 @@ target_link_libraries(physicore.reactions-diffusion.biofvm
                       PUBLIC physicore::common)
 
 add_subdirectory(kernels/openmp_solver)
-add_subdirectory(kernels/thrust_solver)
+
+# Thrust does not support AppleClang
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  add_subdirectory(kernels/thrust_solver)
+endif()
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm
