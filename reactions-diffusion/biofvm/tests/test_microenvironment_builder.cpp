@@ -212,3 +212,12 @@ TEST(MicroenvironmentBuilder, BuildThrows)
 	builder2.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 	EXPECT_THROW(builder2.build(), std::runtime_error);
 }
+
+TEST(MicroenvironmentBuilder, BuildThrowsSolver)
+{
+	microenvironment_builder builder;
+	builder.add_density("O2", "mmHg", 1.0, 0.01, 20.0);
+	builder.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
+	builder.select_solver("nonexistent");
+	EXPECT_THROW(builder.build(), std::runtime_error);
+}
