@@ -66,7 +66,7 @@ void diffusion_solver::initialize(microenvironment& m, index_t substrate_factor)
 	substrate_densities_ = thrust::device_new<real_t>((std::size_t)ns_ * nx_ * ny_ * nz_);
 
 	initial_conditions_ = thrust::device_new<real_t>(ns_);
-	thrust::copy(m.initial_conditions.get(), m.initial_conditions.get() + ns_, initial_conditions_.get());
+	thrust::copy(m.initial_conditions.get(), m.initial_conditions.get() + ns_, initial_conditions_);
 
 	thrust::for_each(
 		thrust::make_counting_iterator<std::size_t>(0),

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <thrust/device_new.h>
+
 #include "../../../include/microenvironment.h"
 #include "diffusion_solver.h"
 
@@ -16,16 +18,31 @@ where D is a voxel substrate density vector
 
 namespace physicore::biofvm::kernels::thrust_solver {
 
+struct bulk_functor
+{
+	PHYSICORE_THRUST_DEVICE_FN virtual real_t supply_rates(index_t s, index_t x, index_t y, index_t z) = 0;
+	PHYSICORE_THRUST_DEVICE_FN virtual real_t uptake_rates(index_t s, index_t x, index_t y, index_t z) = 0;
+	PHYSICORE_THRUST_DEVICE_FN virtual real_t supply_target_densities(index_t s, index_t x, index_t y, index_t z) = 0;
+	PHYSICORE_THRUST_DEVICE_FN virtual ~bulk_functor() {}
+};
+
 class bulk_solver
 {
-	physicore::biofvm::microenvironment::bulk_func_t supply_rate_f_;
-	physicore::biofvm::microenvironment::bulk_func_t uptake_rate_f_;
-	physicore::biofvm::microenvironment::bulk_func_t supply_target_densities_f_;
+	thrust::device_ptr<bulk_functor> func;
+
 
 public:
 	void initialize(const microenvironment& m);
 
+	template <typename FuncType>
+	void initialize()
+	{
+		func = thrust::device_new<FuncType>();
+	}
+
 	void solve(const microenvironment& m, diffusion_solver& d_solver);
+
+	~bulk_solver();
 };
 
 } // namespace physicore::biofvm::kernels::thrust_solver

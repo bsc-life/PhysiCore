@@ -41,11 +41,15 @@ if(${CUDAToolkit_FOUND})
 
   set_target_properties(
     physicore.reactions-diffusion.kernels.cuda_thrust_solver.tests
-    PROPERTIES CUDA_ARCHITECTURES native)
+    PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
 
   target_link_libraries(
     physicore.reactions-diffusion.kernels.cuda_thrust_solver.tests
     PRIVATE physicore::reactions-diffusion::kernels::cuda_thrust_solver
             ThrustCUDA physicore::reactions-diffusion::biofvm GTest::gtest
             GTest::gtest_main)
+
+  include(GoogleTest)
+  gtest_discover_tests(
+    physicore.reactions-diffusion.kernels.cuda_thrust_solver.tests)
 endif()

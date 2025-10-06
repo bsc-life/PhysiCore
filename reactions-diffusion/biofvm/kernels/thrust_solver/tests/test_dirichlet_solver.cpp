@@ -5,6 +5,12 @@
 #include "dirichlet_solver.h"
 #include "microenvironment.h"
 
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
+	#define PREPEND_TEST_NAME(name) cuda##name
+#else
+	#define PREPEND_TEST_NAME(name) tbb##name
+#endif
+
 using namespace physicore;
 using namespace physicore::biofvm;
 
@@ -82,7 +88,7 @@ static void add_boundary_dirichlet(microenvironment& m, index_t substrates_count
 }
 
 
-TEST(ThrustDirichletSolverTest, Interior1D)
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior1D)
 {
 	cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 0, 0 }, { 20, 0, 0 });
 
@@ -115,7 +121,7 @@ TEST(ThrustDirichletSolverTest, Interior1D)
 	});
 }
 
-TEST(ThrustDirichletSolverTest, Interior2D)
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior2D)
 {
 	cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 0 }, { 20, 20, 0 });
 
@@ -156,7 +162,7 @@ TEST(ThrustDirichletSolverTest, Interior2D)
 	});
 }
 
-TEST(ThrustDirichletSolverTest, Interior3D)
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior3D)
 {
 	cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
 
@@ -202,7 +208,7 @@ TEST(ThrustDirichletSolverTest, Interior3D)
 	});
 }
 
-TEST(ThrustDirichletSolverTest, Boundary1D)
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary1D)
 {
 	cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
@@ -237,7 +243,7 @@ TEST(ThrustDirichletSolverTest, Boundary1D)
 	}
 }
 
-TEST(ThrustDirichletSolverTest, Boundary2D)
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary2D)
 {
 	cartesian_mesh mesh(2, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
@@ -294,7 +300,7 @@ TEST(ThrustDirichletSolverTest, Boundary2D)
 		}
 }
 
-TEST(ThrustDirichletSolverTest, Boundary3D)
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary3D)
 {
 	cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 

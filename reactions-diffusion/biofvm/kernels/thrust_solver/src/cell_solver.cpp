@@ -294,7 +294,7 @@ template <index_t dims>
 void simulate(const auto dens_l, const auto ballot_l, data_manager& data, microenvironment& m, real_t* substrates,
 			  real_t* reduced_numerators, real_t* reduced_denominators, real_t* reduced_factors, real_t* numerators,
 			  real_t* denominators, real_t* factors, index_t* ballots, bool recompute, bool with_internalized,
-			  bool* _CCCL_RESTRICT is_conflict)
+			  thrust::device_ptr<bool> is_conflict)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 	const index_t agents_count = m.agents->size();
@@ -310,7 +310,7 @@ void simulate(const auto dens_l, const auto ballot_l, data_manager& data, microe
 
 		ballot_and_sum<dims>(ballot_l, reduced_numerators, reduced_denominators, reduced_factors, numerators,
 							 denominators, factors, data.positions, ballots, agents_count, substrates_count, m.mesh,
-							 is_conflict);
+							 is_conflict.get());
 	}
 
 	compute_result<dims>(dens_l, ballot_l, m.mesh, substrates, reduced_numerators, reduced_denominators,
@@ -338,7 +338,7 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 			simulate<1>(dens_l, ballot_l, data, m, substrates, reduced_numerators_.data().get(),
 						reduced_denominators_.data().get(), reduced_factors_.data().get(), numerators_.data().get(),
 						denominators_.data().get(), factors_.data().get(), ballots_.get(), recompute,
-						compute_internalized_substrates_, is_conflict_.get());
+						compute_internalized_substrates_, is_conflict_);
 			return;
 		}
 		case 2: {
@@ -349,7 +349,7 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 			simulate<2>(dens_l, ballot_l, data, m, substrates, reduced_numerators_.data().get(),
 						reduced_denominators_.data().get(), reduced_factors_.data().get(), numerators_.data().get(),
 						denominators_.data().get(), factors_.data().get(), ballots_.get(), recompute,
-						compute_internalized_substrates_, is_conflict_.get());
+						compute_internalized_substrates_, is_conflict_);
 			return;
 		}
 		case 3: {
@@ -361,7 +361,7 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 			simulate<3>(dens_l, ballot_l, data, m, substrates, reduced_numerators_.data().get(),
 						reduced_denominators_.data().get(), reduced_factors_.data().get(), numerators_.data().get(),
 						denominators_.data().get(), factors_.data().get(), ballots_.get(), recompute,
-						compute_internalized_substrates_, is_conflict_.get());
+						compute_internalized_substrates_, is_conflict_);
 			return;
 		}
 		default:
@@ -371,9 +371,10 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 }
 
 template <typename density_layout_t>
-void release_internal(real_t* _CCCL_RESTRICT substrate_densities, real_t* _CCCL_RESTRICT internalized_substrates,
-					  const real_t* _CCCL_RESTRICT fraction_released_at_death, real_t voxel_volume,
-					  density_layout_t dens_l)
+static constexpr void release_internal(real_t* _CCCL_RESTRICT substrate_densities,
+									   real_t* _CCCL_RESTRICT internalized_substrates,
+									   const real_t* _CCCL_RESTRICT fraction_released_at_death, real_t voxel_volume,
+									   density_layout_t dens_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
@@ -387,8 +388,8 @@ void release_internal(real_t* _CCCL_RESTRICT substrate_densities, real_t* _CCCL_
 	}
 }
 
-template <index_t dims>
-void release_dim(const auto dens_l, data_manager& data, const cartesian_mesh& mesh, real_t* substrates,
+template <index_t dims, typename density_layout_t>
+void release_dim(const density_layout_t dens_l, data_manager& data, const cartesian_mesh& mesh, real_t* substrates,
 				 index_t index_begin, index_t index_end)
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels

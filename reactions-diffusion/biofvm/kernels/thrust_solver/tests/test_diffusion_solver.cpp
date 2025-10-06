@@ -3,6 +3,12 @@
 #include "diffusion_solver.h"
 #include "microenvironment.h"
 
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
+	#define PREPEND_TEST_NAME(name) cuda##name
+#else
+	#define PREPEND_TEST_NAME(name) tbb##name
+#endif
+
 using namespace physicore;
 using namespace physicore::biofvm;
 
@@ -56,7 +62,7 @@ static std::unique_ptr<microenvironment> biorobots_microenv(cartesian_mesh mesh)
 	return m;
 }
 
-TEST(ThrustDiffusionSolverTest, Uniform1D)
+TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform1D)
 {
 	cartesian_mesh mesh(1, { 0, 0, 0 }, { 80, 0, 0 }, { 20, 0, 0 });
 
@@ -82,7 +88,7 @@ TEST(ThrustDiffusionSolverTest, Uniform1D)
 	});
 }
 
-TEST(ThrustDiffusionSolverTest, Uniform2D)
+TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform2D)
 {
 	cartesian_mesh mesh(2, { 0, 0, 0 }, { 800, 800, 0 }, { 20, 20, 0 });
 
@@ -108,7 +114,7 @@ TEST(ThrustDiffusionSolverTest, Uniform2D)
 	});
 }
 
-TEST(ThrustDiffusionSolverTest, Uniform3D)
+TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform3D)
 {
 	cartesian_mesh mesh(3, { 0, 0, 0 }, { 200, 200, 200 }, { 20, 20, 20 });
 
@@ -134,7 +140,7 @@ TEST(ThrustDiffusionSolverTest, Uniform3D)
 	});
 }
 
-TEST(ThrustDiffusionSolverTest, Random1D)
+TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random1D)
 {
 	cartesian_mesh mesh(1, { 0, 0, 0 }, { 60, 0, 0 }, { 20, 20, 20 });
 
@@ -145,9 +151,6 @@ TEST(ThrustDiffusionSolverTest, Random1D)
 
 	s.initialize(*m, 1);
 	mgr.initialize(*m, s);
-
-	s.solve();
-	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<1>();
 	real_t* densities = mgr.substrate_densities;
@@ -160,7 +163,9 @@ TEST(ThrustDiffusionSolverTest, Random1D)
 			(dens_l | noarr::get_at<'x', 's'>(densities, x, s)) = index;
 		}
 
+	mgr.transfer_to_device();
 	s.solve();
+	mgr.transfer_to_host();
 
 	std::vector<float> expected = {
 		0.0486842592, 1.0444132121, 1.9980019980, 2.9880478088, 3.9473197368, 4.9316824055
@@ -175,7 +180,7 @@ TEST(ThrustDiffusionSolverTest, Random1D)
 		}
 }
 
-TEST(ThrustDiffusionSolverTest, Random2D)
+TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random2D)
 {
 	cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 0 }, { 20, 20, 20 });
 
@@ -186,9 +191,6 @@ TEST(ThrustDiffusionSolverTest, Random2D)
 
 	s.initialize(*m, 1);
 	mgr.initialize(*m, s);
-
-	s.solve();
-	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<2>();
 	real_t* densities = mgr.substrate_densities;
@@ -202,7 +204,9 @@ TEST(ThrustDiffusionSolverTest, Random2D)
 				(dens_l | noarr::get_at<'x', 'y', 's'>(densities, x, y, s)) = index;
 			}
 
+	mgr.transfer_to_device();
 	s.solve();
+	mgr.transfer_to_host();
 
 	std::vector<float> expected = { 0.1948319355,  1.1899772978,  2.1441254507,	 3.1335099015,	4.0934189658,
 									5.0770425053,  6.0427124809,  7.0205751090,	 7.9920058,		8.9641077127,
@@ -219,7 +223,7 @@ TEST(ThrustDiffusionSolverTest, Random2D)
 			}
 }
 
-TEST(ThrustDiffusionSolverTest, Random3D)
+TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random3D)
 {
 	cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
 
@@ -230,9 +234,6 @@ TEST(ThrustDiffusionSolverTest, Random3D)
 
 	s.initialize(*m, 1);
 	mgr.initialize(*m, s);
-
-	s.solve();
-	mgr.transfer_to_host();
 
 	auto dens_l = s.get_substrates_layout<3>();
 	real_t* densities = mgr.substrate_densities;
@@ -248,7 +249,9 @@ TEST(ThrustDiffusionSolverTest, Random3D)
 					(dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)) = index;
 				}
 
+	mgr.transfer_to_device();
 	s.solve();
+	mgr.transfer_to_host();
 
 	std::vector<float> expected = {
 		0.6333066643,  1.6268066007,  2.5825920996,	 3.5703051208,	4.5318775349,  5.5138036408,  6.4811629703,

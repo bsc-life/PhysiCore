@@ -51,7 +51,8 @@ public:
 	std::array<std::unique_ptr<bool[]>, 3> dirichlet_min_boundary_conditions = { nullptr, nullptr, nullptr };
 	std::array<std::unique_ptr<bool[]>, 3> dirichlet_max_boundary_conditions = { nullptr, nullptr, nullptr };
 
-	using bulk_func_t = std::function<real_t(index_t s, index_t x, index_t y, index_t z)>;
+	typedef real_t (*bulk_func_t)(index_t s, index_t x, index_t y, index_t z);
+	// using bulk_func_t = std::function<real_t(index_t s, index_t x, index_t y, index_t z)>;
 	bulk_func_t supply_rate_func, uptake_rate_func, supply_target_densities_func;
 
 	bool compute_internalized_substrates;

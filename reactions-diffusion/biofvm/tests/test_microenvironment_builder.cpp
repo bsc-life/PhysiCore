@@ -180,13 +180,7 @@ TEST(MicroenvironmentBuilder, BulkFunctionsAndInternalizedSubstrates)
 	builder.add_density("O2", "mmHg", 1.0, 0.01, 20.0);
 	builder.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 
-	bool bulk_called = false;
-	builder.set_bulk_functions(
-		[&](index_t, index_t, index_t, index_t)  ->real_t{
-			bulk_called = true;
-			return 0;
-		},
-		nullptr, nullptr);
+	builder.set_bulk_functions([](index_t, index_t, index_t, index_t) -> real_t { return 42; }, nullptr, nullptr);
 	builder.do_compute_internalized_substrates();
 
 	auto env = builder.build();
@@ -194,8 +188,8 @@ TEST(MicroenvironmentBuilder, BulkFunctionsAndInternalizedSubstrates)
 	ASSERT_TRUE(env->supply_rate_func != nullptr);
 
 	// Call bulk function to check assignment
-	env->supply_rate_func(0, 0, 0, 0);
-	ASSERT_TRUE(bulk_called);
+	auto ret = env->supply_rate_func(0, 0, 0, 0);
+	ASSERT_EQ(ret, 42);
 }
 
 TEST(MicroenvironmentBuilder, BuildThrows)

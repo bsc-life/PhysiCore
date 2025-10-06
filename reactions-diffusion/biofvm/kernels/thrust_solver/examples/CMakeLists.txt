@@ -31,7 +31,7 @@ if(${CUDAToolkit_FOUND})
 
     set_target_properties(
       physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}
-      PROPERTIES CUDA_ARCHITECTURES native)
+      PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
 
     target_link_libraries(
       physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}

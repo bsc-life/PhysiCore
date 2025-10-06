@@ -2,8 +2,15 @@
 #include <noarr/structures/interop/bag.hpp>
 
 #include "bulk_solver.h"
+#include "data_manager.h"
 #include "diffusion_solver.h"
 #include "microenvironment.h"
+
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
+	#define PREPEND_TEST_NAME(name) cuda##name
+#else
+	#define PREPEND_TEST_NAME(name) tbb##name
+#endif
 
 using namespace physicore;
 using namespace physicore::biofvm;
@@ -34,29 +41,35 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 	return m;
 }
 
-TEST(ThrustBulkSolverTest, SimulateBulkSource)
+struct test_functor : bulk_functor
+{
+	PHYSICORE_THRUST_DEVICE_FN real_t supply_rates(index_t s, index_t x, index_t y, index_t z) override
+	{
+		if (x == 1 && y == 1 && z == 1 && s == 0)
+			return 5;
+		return 0;
+	}
+
+	PHYSICORE_THRUST_DEVICE_FN real_t supply_target_densities(index_t s, index_t x, index_t y, index_t z) override
+	{
+		if (x == 1 && y == 1 && z == 1 && s == 0)
+			return 6;
+		return 0;
+	}
+
+	PHYSICORE_THRUST_DEVICE_FN real_t uptake_rates(index_t s, index_t x, index_t y, index_t z) override
+	{
+		if (x == 1 && y == 1 && z == 1 && s == 0)
+			return 7;
+		return 0;
+	}
+};
+
+TEST(PREPEND_TEST_NAME(ThrustBulkSolverTest), SimulateBulkSource)
 {
 	cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
-
-	m->supply_rate_func = [](index_t s, index_t x, index_t y, index_t z) {
-		if (x == 1 && y == 1 && z == 1 && s == 0)
-			return 5;
-		return 0;
-	};
-
-	m->supply_target_densities_func = [](index_t s, index_t x, index_t y, index_t z) {
-		if (x == 1 && y == 1 && z == 1 && s == 0)
-			return 6;
-		return 0;
-	};
-
-	m->uptake_rate_func = [](index_t s, index_t x, index_t y, index_t z) {
-		if (x == 1 && y == 1 && z == 1 && s == 0)
-			return 7;
-		return 0;
-	};
 
 	diffusion_solver d_s;
 	bulk_solver s;
@@ -64,6 +77,7 @@ TEST(ThrustBulkSolverTest, SimulateBulkSource)
 
 	d_s.initialize(*m, 1);
 	s.initialize(*m);
+	s.initialize<test_functor>();
 	mgr.initialize(*m, d_s);
 
 	s.solve(*m, d_s);

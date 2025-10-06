@@ -54,14 +54,16 @@ if(${CUDAToolkit_FOUND})
   target_sources(physicore.reactions-diffusion.kernels.cuda_thrust_solver
                  PRIVATE ${CUDA_SOURCES})
 
-  set_target_properties(physicore.reactions-diffusion.kernels.cuda_thrust_solver
-                        PROPERTIES CUDA_ARCHITECTURES native)
+  set_target_properties(
+    physicore.reactions-diffusion.kernels.cuda_thrust_solver
+    PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
 
   thrust_create_target(ThrustCUDA HOST TBB DEVICE CUDA)
 
   target_compile_options(
     physicore.reactions-diffusion.kernels.cuda_thrust_solver
-    PRIVATE --extended-lambda --expt-relaxed-constexpr)
+    PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda
+           --expt-relaxed-constexpr>)
 
   target_sources(
     physicore.reactions-diffusion.kernels.cuda_thrust_solver

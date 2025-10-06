@@ -129,8 +129,14 @@ void set_default_agent_values(agent_interface* a, index_t rates_offset, index_t 
 class RecomputeTest : public testing::TestWithParam<std::tuple<bool, bool>>
 {};
 
-INSTANTIATE_TEST_SUITE_P(ThrustCellSolverTest, RecomputeTest,
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
+INSTANTIATE_TEST_SUITE_P(cudaThrustCellSolverTest, RecomputeTest,
 						 testing::Combine(testing::Values(true, false), testing::Values(true, false)));
+#else
+INSTANTIATE_TEST_SUITE_P(tbbThrustCellSolverTest, RecomputeTest,
+						 testing::Combine(testing::Values(true, false), testing::Values(true, false)));
+#endif
+
 
 TEST_P(RecomputeTest, Simple1D)
 {
@@ -490,6 +496,7 @@ TEST_P(RecomputeTest, Conflict)
 	}
 
 	s.release_internalized_substrates(*m, d_s, mgr);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
@@ -587,6 +594,7 @@ TEST_P(RecomputeTest, ConflictBig)
 	}
 
 	s.release_internalized_substrates(*m, d_s, mgr);
+	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{

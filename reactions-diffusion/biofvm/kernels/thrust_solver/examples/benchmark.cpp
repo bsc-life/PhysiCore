@@ -44,6 +44,25 @@ void make_agents(microenvironment& m, index_t count, bool conflict)
 	}
 }
 
+// --- bulk functors -------------------------------------------------
+struct bench_functor : bulk_functor
+{
+	PHYSICORE_THRUST_DEVICE_FN real_t supply_rates(index_t s, index_t, index_t, index_t) override
+	{
+		return 0.01 * (s + 1);
+	}
+
+	PHYSICORE_THRUST_DEVICE_FN real_t supply_target_densities(index_t s, index_t, index_t, index_t) override
+	{
+		return 0.01 * (s + 1);
+	}
+
+	PHYSICORE_THRUST_DEVICE_FN real_t uptake_rates(index_t s, index_t, index_t, index_t) override
+	{
+		return 0.01 * (s + 1);
+	}
+};
+
 /**
  * @brief Benchmark for reaction-diffusion solvers in a microenvironment.
  *
@@ -86,13 +105,6 @@ int main()
 		m.decay_rates[i] = 0.5;
 	}
 
-	// --- bulk functors -------------------------------------------------
-	m.supply_rate_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
-
-	m.uptake_rate_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
-
-	m.supply_target_densities_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
-
 	// --- dirichlet / boundary conditions -------------------------------
 	for (index_t dim = 0; dim < m.mesh.dims; ++dim)
 	{
@@ -119,7 +131,7 @@ int main()
 	dirichlet_solver dir_solver;
 	data_manager mgr;
 
-	b_solver.initialize(m);
+	b_solver.initialize<bench_functor>();
 	c_solver.initialize(m);
 	d_solver.initialize(m, 1);
 	dir_solver.initialize(m);
