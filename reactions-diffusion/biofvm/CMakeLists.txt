@@ -19,7 +19,6 @@ add_subdirectory(kernels/openmp_solver)
 
 # Thrust does not support AppleClang
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  message(${CMAKE_CXX_COMPILER_ID})
   add_subdirectory(kernels/thrust_solver)
 endif()
 
