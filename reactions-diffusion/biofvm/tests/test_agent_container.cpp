@@ -158,7 +158,6 @@ TEST(AgentContainerTest, GetAgentAt)
 	EXPECT_DOUBLE_EQ(retrieved2->secretion_rates()[0], 0.3);
 	EXPECT_EQ(retrieved2, agent2);
 
-	// Only run these checks in non-release (debug) builds
 #if NDEBUG or _DEBUG
 	// Test out of bounds access
 	EXPECT_EQ(container.get_agent_at(3), nullptr);
