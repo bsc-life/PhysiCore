@@ -10,7 +10,7 @@
 
 using namespace physicore;
 using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::cpu;
+using namespace physicore::biofvm::kernels::openmp_solver;
 
 void make_agents(microenvironment& m, index_t count, bool conflict)
 {

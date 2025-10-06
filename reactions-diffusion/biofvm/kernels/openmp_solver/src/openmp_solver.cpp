@@ -1,7 +1,7 @@
 #include "openmp_solver.h"
 
 using namespace physicore;
-using namespace physicore::biofvm::kernels::cpu;
+using namespace physicore::biofvm::kernels::openmp_solver;
 
 void openmp_solver::solve(biofvm::microenvironment& m, index_t iterations)
 {

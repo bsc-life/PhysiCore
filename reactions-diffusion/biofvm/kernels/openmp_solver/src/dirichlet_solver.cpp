@@ -5,7 +5,7 @@
 
 using namespace physicore;
 using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::cpu;
+using namespace physicore::biofvm::kernels::openmp_solver;
 
 static auto fix_dims(const index_t* voxel_index, index_t dims)
 {

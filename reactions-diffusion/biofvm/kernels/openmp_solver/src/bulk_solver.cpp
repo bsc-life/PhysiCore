@@ -4,7 +4,7 @@
 
 using namespace physicore;
 using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::cpu;
+using namespace physicore::biofvm::kernels::openmp_solver;
 
 void bulk_solver::initialize(microenvironment& m) { fnc = std::move(m.bulk_fnc); }
 

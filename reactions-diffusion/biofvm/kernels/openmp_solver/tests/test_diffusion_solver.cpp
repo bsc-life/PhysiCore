@@ -6,7 +6,7 @@
 using namespace physicore;
 using namespace physicore::biofvm;
 
-using namespace physicore::biofvm::kernels::cpu;
+using namespace physicore::biofvm::kernels::openmp_solver;
 
 static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {

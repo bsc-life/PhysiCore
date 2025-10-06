@@ -14,7 +14,7 @@ D = (D + dt*S*T)/(1 + dt*(U+S))
 where D is a voxel substrate density vector
 */
 
-namespace physicore::biofvm::kernels::cpu {
+namespace physicore::biofvm::kernels::openmp_solver {
 
 class bulk_solver
 {
@@ -26,4 +26,4 @@ public:
 	void solve(const microenvironment& m, diffusion_solver& d_solver);
 };
 
-} // namespace physicore::biofvm::kernels::cpu
+} // namespace physicore::biofvm::kernels::openmp_solver

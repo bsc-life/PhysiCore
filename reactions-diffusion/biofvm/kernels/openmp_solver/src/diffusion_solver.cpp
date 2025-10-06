@@ -8,7 +8,7 @@
 #include "types.h"
 
 using namespace physicore;
-using namespace physicore::biofvm::kernels::cpu;
+using namespace physicore::biofvm::kernels::openmp_solver;
 
 static auto get_diagonal_layout(const problem_t& problem, index_t n)
 {

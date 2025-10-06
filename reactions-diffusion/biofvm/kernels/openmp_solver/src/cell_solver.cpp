@@ -6,7 +6,7 @@
 
 using namespace physicore;
 using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::cpu;
+using namespace physicore::biofvm::kernels::openmp_solver;
 
 
 static constexpr index_t no_ballot = std::numeric_limits<index_t>::max();

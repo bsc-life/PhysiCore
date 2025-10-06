@@ -37,7 +37,7 @@ F = fraction released at death
 D = D + I*F/v
 */
 
-namespace physicore::biofvm::kernels::cpu {
+namespace physicore::biofvm::kernels::openmp_solver {
 
 class cell_solver : private generic_agent_solver<agent>
 {
@@ -67,4 +67,4 @@ public:
 	void release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver, index_t index);
 };
 
-} // namespace physicore::biofvm::kernels::cpu
+} // namespace physicore::biofvm::kernels::openmp_solver

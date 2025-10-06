@@ -39,7 +39,7 @@ Optimizations:
 y/z dimensions are solved alongside tiled xs dimension
 */
 
-namespace physicore::biofvm::kernels::cpu {
+namespace physicore::biofvm::kernels::openmp_solver {
 
 class diffusion_solver
 {
@@ -91,4 +91,4 @@ public:
 	void solve();
 };
 
-} // namespace physicore::biofvm::kernels::cpu
+} // namespace physicore::biofvm::kernels::openmp_solver
