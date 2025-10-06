@@ -197,5 +197,7 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 		throw std::runtime_error("Can not find solver for microenvironment: " + solver_name);
 	}
 
+	m->solver = std::move(solver);
+
 	return m;
 }
