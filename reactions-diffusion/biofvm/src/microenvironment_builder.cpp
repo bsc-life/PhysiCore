@@ -5,6 +5,7 @@
 
 #include "bulk_functor.h"
 #include "microenvironment.h"
+#include "solver_registry.h"
 #include "types.h"
 
 using namespace physicore::biofvm;
@@ -21,7 +22,7 @@ void microenvironment_builder::set_time_step(real_t time_step) { this->timestep 
 void microenvironment_builder::resize(index_t dims, std::array<index_t, 3> bounding_box_mins,
 									  std::array<index_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)
 {
-	mesh_ = cartesian_mesh(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
+	mesh = cartesian_mesh(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 }
 
 void microenvironment_builder::add_density(const std::string& name, const std::string& units,
@@ -60,16 +61,16 @@ void microenvironment_builder::add_dirichlet_node(std::array<index_t, 3> voxel_i
 	{
 		throw std::runtime_error("Dirichlet node conditions size does not match the number of densities");
 	}
-	if (!mesh_)
+	if (!mesh)
 	{
 		throw std::runtime_error("Dirichlet node cannot be added without a mesh");
 	}
 
-	if (mesh_->dims >= 1)
+	if (mesh->dims >= 1)
 		dirichlet_voxels.push_back(voxel_index[0]);
-	if (mesh_->dims >= 2)
+	if (mesh->dims >= 2)
 		dirichlet_voxels.push_back(voxel_index[1]);
-	if (mesh_->dims == 3)
+	if (mesh->dims == 3)
 		dirichlet_voxels.push_back(voxel_index[2]);
 
 	dirichlet_values.insert(dirichlet_values.end(), values.begin(), values.end());
@@ -141,9 +142,11 @@ void microenvironment_builder::fill_dirichlet_vectors(microenvironment& m)
 	}
 }
 
+void microenvironment_builder::select_solver(const std::string& name) { solver_name = name; }
+
 std::unique_ptr<microenvironment> microenvironment_builder::build()
 {
-	if (!mesh_)
+	if (!mesh)
 	{
 		throw std::runtime_error("Microenvironment cannot be built without a mesh");
 	}
@@ -153,7 +156,7 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 		throw std::runtime_error("Microenvironment cannot be built wit no densities");
 	}
 
-	auto m = std::make_unique<microenvironment>(*mesh_, substrates_names.size(), timestep);
+	auto m = std::make_unique<microenvironment>(*mesh, substrates_names.size(), timestep);
 
 	m->name = std::move(name);
 	m->time_units = std::move(time_units);
@@ -186,6 +189,13 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 	m->bulk_fnc = std::move(bulk_fnc);
 
 	m->compute_internalized_substrates = compute_internalized_substrates;
+
+	auto solver = solver_registry::instance().get(solver_name);
+
+	if (!solver)
+	{
+		throw std::runtime_error("Can not find solver for microenvironment: " + solver_name);
+	}
 
 	return m;
 }

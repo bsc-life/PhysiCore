@@ -14,7 +14,7 @@ class microenvironment_builder
 	std::string name, time_units, space_units;
 
 	real_t timestep = 0.01;
-	std::optional<cartesian_mesh> mesh_;
+	std::optional<cartesian_mesh> mesh;
 
 	std::vector<std::string> substrates_names;
 	std::vector<std::string> substrates_units;
@@ -33,6 +33,8 @@ class microenvironment_builder
 	std::vector<std::array<bool, 3>> boundary_dirichlet_maxs_conditions;
 
 	std::unique_ptr<bulk_functor> bulk_fnc;
+
+	std::string solver_name = "openmp_solver";
 
 	bool compute_internalized_substrates = false;
 
@@ -65,6 +67,8 @@ public:
 	void set_bulk_functions(std::unique_ptr<bulk_functor> bulk_fnc);
 
 	void do_compute_internalized_substrates();
+
+	void select_solver(const std::string& solver_name);
 
 	std::unique_ptr<microenvironment> build();
 };
