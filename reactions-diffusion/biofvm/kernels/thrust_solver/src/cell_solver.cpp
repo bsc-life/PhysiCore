@@ -233,15 +233,17 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 						   const real_t* reduced_factors, const real_t* numerators, const real_t* denominators,
 						   const real_t* factors, const index_t* ballots, const real_t* positions,
 						   real_t* internalized_substrates, const index_t agents_count, bool with_internalized,
-						   bool is_conflict)
+						   thrust::device_ptr<bool> is_conflict_ptr)
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
-
 
 	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
 																  mesh.bounding_box_mins[2] };
 	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
 															mesh.voxel_shape[2] };
+
+	bool is_conflict;
+	thrust::copy_n(is_conflict_ptr, 1, &is_conflict);
 
 	if (with_internalized && !is_conflict)
 	{
@@ -315,7 +317,7 @@ void simulate(const auto dens_l, const auto ballot_l, data_manager& data, microe
 
 	compute_result<dims>(dens_l, ballot_l, m.mesh, substrates, reduced_numerators, reduced_denominators,
 						 reduced_factors, numerators, denominators, factors, ballots, data.positions,
-						 data.internalized_substrates, agents_count, with_internalized, is_conflict[0]);
+						 data.internalized_substrates, agents_count, with_internalized, is_conflict);
 }
 
 void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, data_manager& data,

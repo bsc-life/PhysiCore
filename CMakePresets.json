@@ -10,6 +10,10 @@
                 "CMAKE_CXX_STANDARD": "20",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+            },
+            "environment": {
+                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt",
+                "ASAN_OPTIONS": "suppressions=${sourceDir}/asan-suppressions.txt"
             }
         },
         {
@@ -45,9 +49,6 @@
                 "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
                 "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
-            },
-            "environment": {
-                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
             }
         },
         {
@@ -62,9 +63,6 @@
                 "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
                 "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
-            },
-            "environment": {
-                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
             }
         },
         {
@@ -79,9 +77,6 @@
                 "CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
                 "CMAKE_C_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic",
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
-            },
-            "environment": {
-                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
             }
         },
         {
