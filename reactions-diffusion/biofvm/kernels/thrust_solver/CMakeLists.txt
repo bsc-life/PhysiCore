@@ -90,6 +90,9 @@ else()
     PRIVATE physicore::reactions-diffusion::kernels::tbb_thrust_solver)
 endif()
 
+target_compile_definitions(physicore.reactions-diffusion.biofvm
+                           PUBLIC PHYSICORE_HAS_THRUST)
+
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()

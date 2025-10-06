@@ -17,6 +17,10 @@ TEST(SolverRegistryTest, CheckPresentSolvers)
 	auto registry = solver_registry::instance();
 
 	EXPECT_NE(registry.get("openmp_solver"), nullptr);
+
+#ifdef PHYSICORE_HAS_THRUST
+	EXPECT_NE(registry.get("thrust_solver"), nullptr);
+#endif
 }
 
 TEST(SolverRegistryTest, GetAndSet)
