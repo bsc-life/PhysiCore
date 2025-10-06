@@ -27,12 +27,10 @@ public:
 		: base_agent_generic_storage(id, *std::get<0>(data))
 	{}
 
-	std::span<real_t> position()
+	std::span<real_t> position() override
 	{
 		return std::span<real_t>(&base_data.positions[index * base_data.dims], base_data.dims);
 	}
-
-	virtual ~base_agent_generic_storage() = default;
 };
 
 } // namespace physicore

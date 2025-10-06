@@ -37,18 +37,22 @@ class diffusion_solver
 	thrust::device_ptr<real_t> by_, cy_, ey_;
 	thrust::device_ptr<real_t> bz_, cz_, ez_;
 
-	index_t substrate_factor_;
+	index_t substrate_factor_ = 0;
 
-	index_t ns_;
-	index_t nx_;
-	index_t ny_;
-	index_t nz_;
+	index_t ns_ = 0;
+	index_t nx_ = 0;
+	index_t ny_ = 0;
+	index_t nz_ = 0;
 
 	thrust::device_ptr<real_t> substrate_densities_;
 
 	thrust::device_ptr<real_t> initial_conditions_;
 
 public:
+	diffusion_solver() = default;
+	diffusion_solver(const diffusion_solver&) = delete;
+	diffusion_solver& operator=(const diffusion_solver&) = delete;
+
 	static void precompute_values(thrust::device_ptr<real_t>& b, thrust::device_ptr<real_t>& c,
 								  thrust::device_ptr<real_t>& e, index_t shape, index_t dims, index_t n,
 								  const microenvironment& m, index_t copies);

@@ -28,43 +28,43 @@ public:
 		: agent_generic_storage(index, *std::get<std::unique_ptr<AgentDataType>>(datas))
 	{}
 
-	std::span<real_t> secretion_rates()
+	std::span<real_t> secretion_rates() override
 	{
 		return std::span<real_t>(&data.secretion_rates[index * data.substrate_count], data.substrate_count);
 	}
 
-	std::span<real_t> saturation_densities()
+	std::span<real_t> saturation_densities() override
 	{
 		return std::span<real_t>(&data.saturation_densities[index * data.substrate_count], data.substrate_count);
 	}
 
-	std::span<real_t> uptake_rates()
+	std::span<real_t> uptake_rates() override
 	{
 		return std::span<real_t>(&data.uptake_rates[index * data.substrate_count], data.substrate_count);
 	}
 
-	std::span<real_t> net_export_rates()
+	std::span<real_t> net_export_rates() override
 	{
 		return std::span<real_t>(&data.net_export_rates[index * data.substrate_count], data.substrate_count);
 	}
 
-	std::span<real_t> internalized_substrates()
+	std::span<real_t> internalized_substrates() override
 	{
 		return std::span<real_t>(&data.internalized_substrates[index * data.substrate_count], data.substrate_count);
 	}
 
-	std::span<real_t> fraction_released_at_death()
+	std::span<real_t> fraction_released_at_death() override
 	{
 		return std::span<real_t>(&data.fraction_released_at_death[index * data.substrate_count], data.substrate_count);
 	}
 
-	std::span<real_t> fraction_transferred_when_ingested()
+	std::span<real_t> fraction_transferred_when_ingested() override
 	{
 		return std::span<real_t>(&data.fraction_transferred_when_ingested[index * data.substrate_count],
 								 data.substrate_count);
 	}
 
-	real_t& volume() { return data.volumes[index]; }
+	real_t& volume() override { return data.volumes[index]; }
 };
 
 } // namespace physicore::biofvm

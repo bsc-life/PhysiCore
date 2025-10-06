@@ -64,7 +64,7 @@ public:
 
 	void simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, bool recompute);
 
-	void release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, index_t index);
+	void release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver, index_t index);
 };
 
 } // namespace physicore::biofvm::kernels::cpu

@@ -42,7 +42,7 @@ protected:
 	typename AgentType::DataType& data;
 
 public:
-	generic_agent_impl_container(AgentType::DataType& data) : data(data) {}
+	explicit generic_agent_impl_container(AgentType::DataType& data) : data(data) {}
 };
 
 template <derived_from_base_agent... AgentTypes>

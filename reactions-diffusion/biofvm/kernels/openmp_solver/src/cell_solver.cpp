@@ -326,7 +326,7 @@ void release_dim(const auto dens_l, agent_data& data, const cartesian_mesh& mesh
 					 dens_l ^ fix_dims<dims>(data.base_data.positions.data() + index * dims, mesh));
 }
 
-void cell_solver::release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, index_t index)
+void cell_solver::release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver, index_t index)
 {
 	if (!compute_internalized_substrates_)
 		return;

@@ -24,6 +24,10 @@ class bulk_solver
 	thrust::device_ptr<device_bulk_functor> func;
 
 public:
+	bulk_solver() = default;
+	bulk_solver(const bulk_solver&) = delete;
+	bulk_solver& operator=(const bulk_solver&) = delete;
+
 	void initialize(thrust::device_ptr<device_bulk_functor> func);
 
 	void solve(const microenvironment& m, diffusion_solver& d_solver);

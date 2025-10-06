@@ -414,8 +414,8 @@ void release_dim(const density_layout_t dens_l, data_manager& data, const cartes
 		});
 }
 
-void cell_solver::release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data,
-												  index_t agent_index)
+void cell_solver::release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver,
+												  data_manager& data, index_t agent_index)
 {
 	if (!compute_internalized_substrates_)
 		return;
@@ -440,7 +440,8 @@ void cell_solver::release_internalized_substrates(microenvironment& m, diffusion
 	}
 }
 
-void cell_solver::release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data)
+void cell_solver::release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver,
+												  data_manager& data)
 {
 	if (!compute_internalized_substrates_)
 		return;

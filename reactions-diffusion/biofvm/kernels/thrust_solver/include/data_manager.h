@@ -32,7 +32,7 @@ enum class data_residency
 // This class takes care of moving data between host and device memory.
 // As of now, substrate_densities default residency is device while agent_data default residency is host.
 // Therefore, the exposed public pointers to their residency conterparts. I.e., host densities and device agent_data.
-class data_manager : generic_agent_solver<agent>
+class data_manager : private generic_agent_solver<agent>
 {
 	data_residency residency;
 
@@ -53,7 +53,7 @@ class data_manager : generic_agent_solver<agent>
 	std::unique_ptr<real_t[]> h_substrate_densities;
 
 public:
-	void initialize(microenvironment& m, diffusion_solver& d_solver);
+	void initialize(const microenvironment& m, diffusion_solver& d_solver);
 
 	void transfer_to_host();
 	void transfer_to_device();

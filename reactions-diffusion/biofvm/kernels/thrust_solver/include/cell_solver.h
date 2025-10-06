@@ -56,15 +56,19 @@ class cell_solver
 	void resize(const microenvironment& m);
 
 public:
+	cell_solver() = default;
+	cell_solver(const cell_solver&) = delete;
+	cell_solver& operator=(const cell_solver&) = delete;
+
 	void initialize(const microenvironment& m);
 
 	void simulate_secretion_and_uptake(microenvironment& m, diffusion_solver& d_solver, data_manager& data,
 									   bool recompute);
 
-	void release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data,
+	void release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver, data_manager& data,
 										 index_t agent_index);
 
-	void release_internalized_substrates(microenvironment& m, diffusion_solver& d_solver, data_manager& data);
+	void release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver, data_manager& data);
 
 	~cell_solver();
 };

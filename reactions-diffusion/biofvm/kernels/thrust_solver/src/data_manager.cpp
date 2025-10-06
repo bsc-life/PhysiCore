@@ -7,7 +7,7 @@
 using namespace physicore;
 using namespace physicore::biofvm::kernels::thrust_solver;
 
-void data_manager::initialize(microenvironment& m, diffusion_solver& d_solver)
+void data_manager::initialize(const microenvironment& m, diffusion_solver& d_solver)
 {
 	h_agent_container = m.agents;
 
