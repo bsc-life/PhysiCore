@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
 
+#include "bulk_functor.h"
 #include "bulk_solver.h"
 #include "data_manager.h"
 #include "diffusion_solver.h"
@@ -41,7 +42,7 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 	return m;
 }
 
-struct test_functor : bulk_functor
+struct test_functor : device_bulk_functor
 {
 	PHYSICORE_THRUST_DEVICE_FN real_t supply_rates(index_t s, index_t x, index_t y, index_t z) override
 	{
@@ -76,8 +77,7 @@ TEST(PREPEND_TEST_NAME(ThrustBulkSolverTest), SimulateBulkSource)
 	data_manager mgr;
 
 	d_s.initialize(*m, 1);
-	s.initialize(*m);
-	s.initialize<test_functor>();
+	s.initialize(thrust::device_new<test_functor>());
 	mgr.initialize(*m, d_s);
 
 	s.solve(*m, d_s);

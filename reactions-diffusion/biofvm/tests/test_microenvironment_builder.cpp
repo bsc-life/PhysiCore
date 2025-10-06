@@ -6,6 +6,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "bulk_functor.h"
 #include "microenvironment.h"
 #include "microenvironment_builder.h"
 
@@ -174,21 +175,28 @@ TEST(MicroenvironmentBuilder, AddBoundaryDirichletConditionsThrows)
 		builder.add_boundary_dirichlet_conditions(0, mins_values, maxs_values, mins_conditions, maxs_conditions));
 }
 
+struct test_functor : bulk_functor
+{
+	virtual real_t supply_rates(index_t, index_t, index_t, index_t) { return 42; }
+	virtual real_t uptake_rates(index_t, index_t, index_t, index_t) { return 1; }
+	virtual real_t supply_target_densities(index_t, index_t, index_t, index_t) { return 2; }
+};
+
 TEST(MicroenvironmentBuilder, BulkFunctionsAndInternalizedSubstrates)
 {
 	microenvironment_builder builder;
 	builder.add_density("O2", "mmHg", 1.0, 0.01, 20.0);
 	builder.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 
-	builder.set_bulk_functions([](index_t, index_t, index_t, index_t) -> real_t { return 42; }, nullptr, nullptr);
+	builder.set_bulk_functions(std::make_unique<test_functor>());
 	builder.do_compute_internalized_substrates();
 
 	auto env = builder.build();
 	ASSERT_TRUE(env->compute_internalized_substrates);
-	ASSERT_TRUE(env->supply_rate_func != nullptr);
+	ASSERT_TRUE(env->bulk_fnc != nullptr);
 
 	// Call bulk function to check assignment
-	auto ret = env->supply_rate_func(0, 0, 0, 0);
+	auto ret = env->bulk_fnc->supply_rates(0, 0, 0, 0);
 	ASSERT_EQ(ret, 42);
 }
 

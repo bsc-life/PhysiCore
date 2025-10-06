@@ -18,12 +18,10 @@ namespace physicore::biofvm::kernels::cpu {
 
 class bulk_solver
 {
-	physicore::biofvm::microenvironment::bulk_func_t supply_rate_f_;
-	physicore::biofvm::microenvironment::bulk_func_t uptake_rate_f_;
-	physicore::biofvm::microenvironment::bulk_func_t supply_target_densities_f_;
+	std::unique_ptr<bulk_functor> fnc;
 
 public:
-	void initialize(const microenvironment& m);
+	void initialize(microenvironment& m);
 
 	void solve(const microenvironment& m, diffusion_solver& d_solver);
 };

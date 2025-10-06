@@ -34,29 +34,37 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 	return m;
 }
 
+struct test_functor : bulk_functor
+{
+	real_t supply_rates(index_t s, index_t x, index_t y, index_t z) override
+	{
+		if (x == 1 && y == 1 && z == 1 && s == 0)
+			return 5;
+		return 0;
+	}
+
+	real_t supply_target_densities(index_t s, index_t x, index_t y, index_t z) override
+	{
+		if (x == 1 && y == 1 && z == 1 && s == 0)
+			return 6;
+		return 0;
+	}
+
+	real_t uptake_rates(index_t s, index_t x, index_t y, index_t z) override
+	{
+		if (x == 1 && y == 1 && z == 1 && s == 0)
+			return 7;
+		return 0;
+	}
+};
+
 TEST(BulkSolverTest, SimulateBulkSource)
 {
 	cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
-	m->supply_rate_func = [](index_t s, index_t x, index_t y, index_t z) -> real_t {
-		if (x == 1 && y == 1 && z == 1 && s == 0)
-			return 5;
-		return 0;
-	};
-
-	m->supply_target_densities_func = [](index_t s, index_t x, index_t y, index_t z) -> real_t {
-		if (x == 1 && y == 1 && z == 1 && s == 0)
-			return 6;
-		return 0;
-	};
-
-	m->uptake_rate_func = [](index_t s, index_t x, index_t y, index_t z) -> real_t {
-		if (x == 1 && y == 1 && z == 1 && s == 0)
-			return 7;
-		return 0;
-	};
+	m->bulk_fnc = std::make_unique<test_functor>();
 
 	diffusion_solver d_s;
 	bulk_solver s;

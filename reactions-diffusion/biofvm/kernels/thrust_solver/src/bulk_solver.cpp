@@ -9,15 +9,11 @@
 using namespace physicore;
 using namespace physicore::biofvm::kernels::thrust_solver;
 
-void bulk_solver::initialize(const microenvironment&)
-{
-	// supply_rate_f_ = m.supply_rate_func;
-	// uptake_rate_f_ = m.uptake_rate_func;
-	// supply_target_densities_f_ = m.supply_target_densities_func;
-}
+void bulk_solver::initialize(thrust::device_ptr<device_bulk_functor> functor) { func = functor; }
 
 template <typename density_layout_t>
-void solve_single(real_t* _CCCL_RESTRICT densities, real_t time_step, bulk_functor* func, const density_layout_t dens_l)
+void solve_single(real_t* _CCCL_RESTRICT densities, real_t time_step, device_bulk_functor* func,
+				  const density_layout_t dens_l)
 {
 	std::size_t n = (std::size_t)(dens_l | noarr::get_length<'s'>()) * (dens_l | noarr::get_length<'x'>())
 					* (dens_l | noarr::get_length<'y'>()) * (dens_l | noarr::get_length<'z'>());
@@ -55,7 +51,7 @@ void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 }
 
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
-__global__ void delete_functor(bulk_functor* ptr) { delete ptr; }
+__global__ void delete_functor(device_bulk_functor* ptr) { delete ptr; }
 #endif
 
 bulk_solver::~bulk_solver()

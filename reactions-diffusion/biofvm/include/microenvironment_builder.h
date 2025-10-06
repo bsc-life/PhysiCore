@@ -2,6 +2,7 @@
 
 #include <optional>
 
+#include "bulk_functor.h"
 #include "mesh.h"
 #include "microenvironment.h"
 #include "types.h"
@@ -31,7 +32,7 @@ class microenvironment_builder
 	std::vector<std::array<bool, 3>> boundary_dirichlet_mins_conditions;
 	std::vector<std::array<bool, 3>> boundary_dirichlet_maxs_conditions;
 
-	microenvironment::bulk_func_t supply_rate_func, uptake_rate_func, supply_target_densities_func;
+	std::unique_ptr<bulk_functor> bulk_fnc;
 
 	bool compute_internalized_substrates = false;
 
@@ -61,9 +62,7 @@ public:
 										   std::array<bool, 3> mins_conditions = { true, true, true },
 										   std::array<bool, 3> maxs_conditions = { true, true, true });
 
-	void set_bulk_functions(microenvironment::bulk_func_t supply_rate_func,
-							microenvironment::bulk_func_t uptake_rate_func,
-							microenvironment::bulk_func_t supply_target_densities_func);
+	void set_bulk_functions(std::unique_ptr<bulk_functor> bulk_fnc);
 
 	void do_compute_internalized_substrates();
 

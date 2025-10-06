@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include "bulk_functor.h"
 #include "microenvironment.h"
 #include "types.h"
 
@@ -98,13 +99,9 @@ void microenvironment_builder::add_boundary_dirichlet_conditions(std::size_t den
 	boundary_dirichlet_maxs_conditions[density_index] = maxs_conditions;
 }
 
-void microenvironment_builder::set_bulk_functions(microenvironment::bulk_func_t supply_rate_func,
-												  microenvironment::bulk_func_t uptake_rate_func,
-												  microenvironment::bulk_func_t supply_target_densities_func)
+void microenvironment_builder::set_bulk_functions(std::unique_ptr<bulk_functor> functor)
 {
-	this->supply_rate_func = std::move(supply_rate_func);
-	this->uptake_rate_func = std::move(uptake_rate_func);
-	this->supply_target_densities_func = std::move(supply_target_densities_func);
+	bulk_fnc = std::move(functor);
 }
 
 void microenvironment_builder::do_compute_internalized_substrates() { compute_internalized_substrates = true; }
@@ -186,9 +183,7 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 
 	fill_dirichlet_vectors(*m);
 
-	m->supply_rate_func = std::move(supply_rate_func);
-	m->uptake_rate_func = std::move(uptake_rate_func);
-	m->supply_target_densities_func = std::move(supply_target_densities_func);
+	m->bulk_fnc = std::move(bulk_fnc);
 
 	m->compute_internalized_substrates = compute_internalized_substrates;
 

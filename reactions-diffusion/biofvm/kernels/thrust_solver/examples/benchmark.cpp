@@ -45,7 +45,7 @@ void make_agents(microenvironment& m, index_t count, bool conflict)
 }
 
 // --- bulk functors -------------------------------------------------
-struct bench_functor : bulk_functor
+struct bench_functor : device_bulk_functor
 {
 	PHYSICORE_THRUST_DEVICE_FN real_t supply_rates(index_t s, index_t, index_t, index_t) override
 	{
@@ -131,7 +131,7 @@ int main()
 	dirichlet_solver dir_solver;
 	data_manager mgr;
 
-	b_solver.initialize<bench_functor>();
+	b_solver.initialize(thrust::device_new<bench_functor>());
 	c_solver.initialize(m);
 	d_solver.initialize(m, 1);
 	dir_solver.initialize(m);

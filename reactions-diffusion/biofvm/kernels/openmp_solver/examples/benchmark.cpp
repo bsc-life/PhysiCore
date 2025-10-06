@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 
+#include "bulk_functor.h"
 #include "bulk_solver.h"
 #include "cell_solver.h"
 #include "diffusion_solver.h"
@@ -87,11 +88,15 @@ int main()
 	}
 
 	// --- bulk functors -------------------------------------------------
-	m.supply_rate_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
+	struct benchmark_bulk_functor : bulk_functor
+	{
+		real_t supply_rates(index_t s, index_t, index_t, index_t) override { return 0.01 * (s + 1); }
 
-	m.uptake_rate_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
+		real_t supply_target_densities(index_t s, index_t, index_t, index_t) override { return 0.01 * (s + 1); }
 
-	m.supply_target_densities_func = [](index_t s, index_t, index_t, index_t) { return 0.01 * (s + 1); };
+		real_t uptake_rates(index_t s, index_t, index_t, index_t) override { return 0.01 * (s + 1); }
+	};
+	m.bulk_fnc = std::make_unique<benchmark_bulk_functor>();
 
 	// --- dirichlet / boundary conditions -------------------------------
 	for (index_t dim = 0; dim < m.mesh.dims; ++dim)

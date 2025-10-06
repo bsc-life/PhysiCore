@@ -11,8 +11,6 @@ void thrust_solver::solve(biofvm::microenvironment& m, index_t iterations)
 
 		dir_solver.initialize(m);
 
-		b_solver.initialize(m);
-
 		c_solver.initialize(m);
 
 		mgr.initialize(m, d_solver);
