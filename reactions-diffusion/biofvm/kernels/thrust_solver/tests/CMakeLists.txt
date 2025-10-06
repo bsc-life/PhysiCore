@@ -9,7 +9,8 @@ target_sources(physicore.reactions-diffusion.kernels.tbb_thrust_solver.tests
 target_link_libraries(
   physicore.reactions-diffusion.kernels.tbb_thrust_solver.tests
   PRIVATE physicore::reactions-diffusion::kernels::tbb_thrust_solver ThrustTBB
-          physicore::reactions-diffusion::biofvm GTest::gtest GTest::gtest_main)
+          physicore::reactions-diffusion::biofvm_no_kernels GTest::gtest
+          GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(
@@ -46,8 +47,8 @@ if(${CUDAToolkit_FOUND})
   target_link_libraries(
     physicore.reactions-diffusion.kernels.cuda_thrust_solver.tests
     PRIVATE physicore::reactions-diffusion::kernels::cuda_thrust_solver
-            ThrustCUDA physicore::reactions-diffusion::biofvm GTest::gtest
-            GTest::gtest_main)
+            ThrustCUDA physicore::reactions-diffusion::biofvm_no_kernels
+            GTest::gtest GTest::gtest_main)
 
   include(GoogleTest)
   gtest_discover_tests(

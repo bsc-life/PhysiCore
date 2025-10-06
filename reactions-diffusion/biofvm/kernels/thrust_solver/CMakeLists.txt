@@ -73,6 +73,23 @@ if(${CUDAToolkit_FOUND})
                         PRIVATE physicore::common ThrustCUDA)
 endif()
 
+if(${CUDAToolkit_FOUND})
+  set_target_properties(
+    physicore.reactions-diffusion.biofvm
+    PROPERTIES LINKER_LANGUAGE CUDA
+               CUDA_ARCHITECTURES native
+               CUDA_SEPARABLE_COMPILATION ON
+               INTERFACE_HAS_CUDA TRUE)
+
+  target_link_libraries(
+    physicore.reactions-diffusion.biofvm
+    PRIVATE physicore::reactions-diffusion::kernels::cuda_thrust_solver)
+else()
+  target_link_libraries(
+    physicore.reactions-diffusion.biofvm
+    PRIVATE physicore::reactions-diffusion::kernels::tbb_thrust_solver)
+endif()
+
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()

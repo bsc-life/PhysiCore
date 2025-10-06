@@ -27,6 +27,10 @@ if(OpenMP_CXX_FOUND)
                         PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
+target_link_libraries(
+  physicore.reactions-diffusion.biofvm
+  PRIVATE physicore::reactions-diffusion::kernels::openmp_solver)
+
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()

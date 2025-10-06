@@ -9,7 +9,7 @@ foreach(example ${ALL_EXAMPLES})
   target_link_libraries(
     physicore.reactions-diffusion.kernels.tbb_thrust_solver.${example}
     PRIVATE physicore::reactions-diffusion::kernels::tbb_thrust_solver
-            ThrustTBB physicore::reactions-diffusion::biofvm)
+            ThrustTBB physicore::reactions-diffusion::biofvm_no_kernels)
 endforeach()
 
 if(${CUDAToolkit_FOUND})
@@ -36,6 +36,6 @@ if(${CUDAToolkit_FOUND})
     target_link_libraries(
       physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}
       PRIVATE physicore::reactions-diffusion::kernels::cuda_thrust_solver
-              ThrustCUDA physicore::reactions-diffusion::biofvm)
+              ThrustCUDA physicore::reactions-diffusion::biofvm_no_kernels)
   endforeach()
 endif()

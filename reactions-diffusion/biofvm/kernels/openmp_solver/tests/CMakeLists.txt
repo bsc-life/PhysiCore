@@ -9,7 +9,8 @@ target_sources(physicore.reactions-diffusion.kernels.openmp_solver.tests
 target_link_libraries(
   physicore.reactions-diffusion.kernels.openmp_solver.tests
   PRIVATE physicore::reactions-diffusion::kernels::openmp_solver
-          physicore::reactions-diffusion::biofvm GTest::gtest GTest::gtest_main)
+          physicore::reactions-diffusion::biofvm_no_kernels GTest::gtest
+          GTest::gtest_main)
 
 if(OpenMP_CXX_FOUND)
   target_link_libraries(
