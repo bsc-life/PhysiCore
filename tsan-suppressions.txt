@@ -3,3 +3,6 @@ race:libomp.so
 race:libgomp.so
 # Suppress any OpenMP runtime calls
 race:*openmp*
+
+# Suppress any TBB runtime calls
+race:*tbb*

@@ -1,29 +1,10 @@
 #pragma once
 
 #include "agent_data.h"
-#include "base_agent.h"
-#include "types.h"
+#include "agent_generic_storage.h"
 
 namespace physicore::biofvm {
 
-class agent : public physicore::base_agent
-{
-protected:
-	agent_data& data;
-
-public:
-	agent(index_t index, agent_data& data);
-
-	std::span<real_t> secretion_rates();
-	std::span<real_t> saturation_densities();
-	std::span<real_t> uptake_rates();
-	std::span<real_t> net_export_rates();
-
-	std::span<real_t> internalized_substrates();
-	std::span<real_t> fraction_released_at_death();
-	std::span<real_t> fraction_transferred_when_ingested();
-
-	real_t& volume();
-};
+using agent = agent_generic_storage<base_agent_data, agent_data>;
 
 } // namespace physicore::biofvm

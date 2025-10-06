@@ -1,12 +1,12 @@
 #pragma once
 
-#include <functional>
 #include <process.h>
 #include <string>
 #include <types.h>
 #include <vector>
 
 #include "agent_container.h"
+#include "bulk_functor.h"
 #include "mesh.h"
 #include "solver.h"
 
@@ -30,7 +30,7 @@ public:
 
 	cartesian_mesh mesh;
 
-	agent_container agents;
+	std::shared_ptr<agent_container_interface> agents;
 
 	solver_ptr solver;
 
@@ -51,8 +51,7 @@ public:
 	std::array<std::unique_ptr<bool[]>, 3> dirichlet_min_boundary_conditions = { nullptr, nullptr, nullptr };
 	std::array<std::unique_ptr<bool[]>, 3> dirichlet_max_boundary_conditions = { nullptr, nullptr, nullptr };
 
-	using bulk_func_t = std::function<real_t(index_t s, index_t x, index_t y, index_t z)>;
-	bulk_func_t supply_rate_func, uptake_rate_func, supply_target_densities_func;
+	std::unique_ptr<bulk_functor> bulk_fnc;
 
 	bool compute_internalized_substrates;
 };
