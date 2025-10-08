@@ -6,9 +6,6 @@ chmod +x ./llvm.sh
 sudo ./llvm.sh 20 all
 rm llvm.sh
 
-# Install vcpkg
-cd /usr/local
-sudo git clone https://github.com/microsoft/vcpkg.git
-sudo chown -R $USER /usr/local/vcpkg
+# Bootstrapping vcpkg
 cd vcpkg
 ./bootstrap-vcpkg.sh

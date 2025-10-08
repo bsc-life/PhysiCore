@@ -7,8 +7,8 @@
 		"source=/home/${localEnv:USER}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,readonly"
 	],
 	"remoteEnv": {
-		"VCPKG_ROOT": "/usr/local/vcpkg",
-		"PATH": "${containerEnv:PATH}:/usr/local/vcpkg:/usr/lib/llvm-20/bin"
+		"VCPKG_ROOT": "${containerWorkspaceFolder}/vcpkg",
+		"PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/vcpkg:/usr/lib/llvm-20/bin"
 	},
 	"onCreateCommand": ".devcontainer/configure.sh",
 	"features": {
