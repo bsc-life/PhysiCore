@@ -3,7 +3,8 @@
 	"image": "gcc:15.2.0",
 	"remoteUser": "${localEnv:USER}",
 	"mounts": [
-		"source=/home/${localEnv:USER}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly"
+		"source=/home/${localEnv:USER}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly",
+		"source=/home/${localEnv:USER}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,readonly"
 	],
 	"remoteEnv": {
 		"VCPKG_ROOT": "/usr/local/vcpkg",
