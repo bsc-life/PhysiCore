@@ -12,8 +12,10 @@ target_sources(
   physicore.reactions-diffusion.biofvm_core
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+find_package(VTK CONFIG REQUIRED)
+
 target_link_libraries(physicore.reactions-diffusion.biofvm_core
-                      PUBLIC physicore::common)
+                      PUBLIC physicore::common VTK::IOXML)
 
 # biofvm library with solver registering code but without the code that
 # explicitly registers each kernels suitable for linking against kernel test

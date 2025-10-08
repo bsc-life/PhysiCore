@@ -1,13 +1,7 @@
-vcpkg_from_github(
-  OUT_SOURCE_PATH
-  SOURCE_PATH
-  REPO
-  Kitware/VTK
-  REF
-  v9.5.2
-  SHA512
-  a65aeac33770d2249c7646b05f65c7b7dd19b7e7075fccfcc882d7fdd230f7a0d5a4a0ec36addc2b84c2b2b4841bb6d52716525c3434c69ff28dd67f3565bf0c
-)
+set(VTK_SHORT_VERSION 9.5)
+vcpkg_from_git(
+  OUT_SOURCE_PATH SOURCE_PATH URL https://github.com/Kitware/VTK.git REF
+  4043626a4c42c536cf4563dc50321579b99d424a)
 
 vcpkg_cmake_configure(
   SOURCE_PATH
@@ -15,7 +9,8 @@ vcpkg_cmake_configure(
   OPTIONS
   -DBUILD_SHARED_LIBS=OFF
   -DVTK_BUILD_ALL_MODULES=OFF
-  -DVTK_MODULE_ENABLE_VTK_IOXMLParser=YES
+  -DVTK_ENABLE_REMOTE_MODULES=OFF
+  -DVTK_MODULE_ENABLE_VTK_IOXML=YES
   -DVTK_GROUP_ENABLE_StandAlone=DONT_WANT
   -DVTK_GROUP_ENABLE_Rendering=NO
   -DVTK_GROUP_ENABLE_Web=NO
@@ -25,21 +20,27 @@ vcpkg_cmake_configure(
   -DVTK_GROUP_ENABLE_Qt=NO
   -DVTK_BUILD_TESTING=OFF
   -DVTK_BUILD_EXAMPLES=OFF
-  -DVTK_ENABLE_LOGGING=OFF)
+  -DVTK_ENABLE_LOGGING=OFF
+  -DVTK_ENABLE_WRAPPING=OFF)
 
 vcpkg_cmake_build()
 
 vcpkg_cmake_install()
 
-# Fix CMake package config
-vcpkg_cmake_config_fixup(CONFIG_PATH share/vtk)
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/vtk-${VTK_SHORT_VERSION})
 
-# Clean up unnecessary files file(REMOVE_RECURSE
-# "${CURRENT_PACKAGES_DIR}/debug/include") file(REMOVE_RECURSE
-# "${CURRENT_PACKAGES_DIR}/debug/share")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 
-# License
-file(
-  INSTALL "${SOURCE_PATH}/LICENSE"
-  DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}"
-  RENAME copyright)
+vcpkg_copy_tool_dependencies("${CURRENT_PACKAGES_DIR}/tools/vtk")
+
+file(RENAME "${CURRENT_PACKAGES_DIR}/share/licenses"
+     "${CURRENT_PACKAGES_DIR}/share/${PORT}/licenses")
+vcpkg_install_copyright(
+  FILE_LIST
+  "${SOURCE_PATH}/Copyright.txt"
+  COMMENT
+  [[
+This file presents the top-level Copyright.txt.
+Additional licenses and notes are located in the licenses directory.
+]])
