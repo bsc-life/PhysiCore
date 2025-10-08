@@ -1,9 +1,6 @@
 {
 	"name": "physicore-dev",
-	"dockerFile": "dockerfile",
-	"hostRequirements": {
-		"gpu":"optional"
-	},
+	"image": "gcc:15.2.0",
 	"remoteUser": "${localEnv:USER}",
 	"mounts": [
 		"source=/home/${localEnv:USER}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly"
@@ -30,8 +27,7 @@
 				"zip",
 				"unzip",
 				"tar",
-				"pkg-config",
-				"software-properties-common"
+				"pkg-config"
 			]
 		}
 	},

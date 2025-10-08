@@ -1,0 +1,56 @@
+{
+	"name": "physicore-cuda-dev",
+	"dockerFile": "dockerfile",
+	"hostRequirements": {
+		"gpu": "optional"
+	},
+	"remoteUser": "${localEnv:USER}",
+	"mounts": [
+		"source=/home/${localEnv:USER}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly"
+	],
+	"remoteEnv": {
+		"VCPKG_ROOT": "/usr/local/vcpkg",
+		"PATH": "${containerEnv:PATH}:/usr/local/vcpkg:/usr/lib/llvm-20/bin"
+	},
+	"onCreateCommand": ".devcontainer/configure.sh",
+	"features": {
+		"ghcr.io/devcontainers/features/python:1": {
+			"toolsToInstall": "cmakelang"
+		},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"configureZshAsDefaultShell": true
+		},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
+			"packages": [
+				"cmake",
+				"ninja-build",
+				"gdb",
+				"curl",
+				"zip",
+				"unzip",
+				"tar",
+				"pkg-config",
+				"software-properties-common"
+			]
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"llvm-vs-code-extensions.vscode-clangd",
+				"cheshirekow.cmake-format",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.cmake-tools",
+				"github.vscode-github-actions"
+			],
+			"settings": {
+				"editor.formatOnSave": true,
+				"files.trimTrailingWhitespace": true,
+				"files.insertFinalNewline": true,
+				"C_Cpp.intelliSenseEngine": "disabled",
+				"cmake.copyCompileCommands": "${containerWorkspaceFolder}/build/compile_commands.json"
+			}
+		}
+	}
+}
