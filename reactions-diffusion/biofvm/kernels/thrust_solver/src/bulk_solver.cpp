@@ -46,8 +46,9 @@ void solve_single(real_t* _CCCL_RESTRICT densities, real_t time_step, device_bul
 
 void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 {
-	solve_single(d_solver.get_substrates_pointer().get(), m.diffusion_timestep, func.get(),
-				 d_solver.get_substrates_layout());
+	if (func)
+		solve_single(d_solver.get_substrates_pointer().get(), m.diffusion_timestep, func.get(),
+					 d_solver.get_substrates_layout());
 }
 
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA

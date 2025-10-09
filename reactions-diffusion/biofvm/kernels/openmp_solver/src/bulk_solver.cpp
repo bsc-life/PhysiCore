@@ -41,5 +41,7 @@ void solve_single(real_t* HWY_RESTRICT densities, bulk_functor* fnc, real_t time
 
 void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 {
-	solve_single(d_solver.get_substrates_pointer(), fnc.get(), m.diffusion_timestep, d_solver.get_substrates_layout());
+	if (fnc)
+		solve_single(d_solver.get_substrates_pointer(), fnc.get(), m.diffusion_timestep,
+					 d_solver.get_substrates_layout());
 }

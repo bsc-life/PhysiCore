@@ -28,6 +28,7 @@ vtk_serializer::vtk_serializer(std::string_view output_dir, microenvironment& m)
 	image_data->SetSpacing(m.mesh.voxel_shape[0], m.mesh.voxel_shape[1], m.mesh.voxel_shape[2]);
 
 	data_arrays.reserve(m.substrates_count);
+	assert(m.substrates_names.size() == m.substrates_count);
 	for (index_t i = 0; i < m.substrates_count; ++i)
 	{
 		data_arrays.emplace_back(vtkSmartPointer<vtkRealArray>::New());

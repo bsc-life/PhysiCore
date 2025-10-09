@@ -9,7 +9,7 @@ target_link_libraries(
   physicore.reactions-diffusion.biofvm.tests
   PRIVATE physicore::reactions-diffusion::biofvm
           physicore::reactions-diffusion::kernels::openmp_solver GTest::gtest
-          GTest::gtest_main)
+          GTest::gtest_main VTK::IOXML)
 
 include(GoogleTest)
 gtest_discover_tests(physicore.reactions-diffusion.biofvm.tests)
