@@ -58,7 +58,7 @@ public:
 								  const microenvironment& m, index_t copies);
 
 	template <std::size_t dims = 3>
-	auto get_substrates_layout()
+	auto get_substrates_layout() const
 	{
 		if constexpr (dims == 1)
 			return noarr::scalar<real_t>() ^ noarr::vectors<'s', 'x'>(ns_, nx_);

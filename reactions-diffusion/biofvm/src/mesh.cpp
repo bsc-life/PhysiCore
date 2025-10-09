@@ -59,3 +59,8 @@ std::array<real_t, 3> cartesian_mesh::voxel_center(std::array<index_t, 3> positi
 			 position[1] * voxel_shape[1] + voxel_shape[1] / (real_t)2.0 + bounding_box_mins[1],
 			 position[2] * voxel_shape[2] + voxel_shape[2] / (real_t)2.0 + bounding_box_mins[2] };
 }
+
+std::size_t cartesian_mesh::linearize(index_t x, index_t y, index_t z) const
+{
+	return x + y * grid_shape[0] + z * grid_shape[0] * grid_shape[1];
+}

@@ -29,3 +29,11 @@ void thrust_solver::solve(biofvm::microenvironment& m, index_t iterations)
 		c_solver.simulate_secretion_and_uptake(m, d_solver, mgr, it == 0);
 	}
 }
+
+real_t thrust_solver::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
+{
+	auto dens_l = d_solver.get_substrates_layout<3>();
+	auto densities = mgr.substrate_densities;
+
+	return dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(densities, s, x, y, z);
+}

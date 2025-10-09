@@ -22,6 +22,8 @@ static auto get_diagonal_layout_c(const problem_t& problem, index_t n, index_t c
 
 real_t* diffusion_solver::get_substrates_pointer() { return substrates_.get(); }
 
+const real_t* diffusion_solver::get_substrates_pointer() const { return substrates_.get(); }
+
 void diffusion_solver::precompute_values(std::unique_ptr<real_t[]>& b, std::unique_ptr<real_t[]>& c,
 										 std::unique_ptr<real_t[]>& e, index_t shape, index_t dims, index_t n,
 										 index_t copies)

@@ -6,16 +6,19 @@ add_library(physicore::reactions-diffusion::biofvm_core ALIAS
 target_sources(
   physicore.reactions-diffusion.biofvm_core
   PRIVATE src/microenvironment.cpp src/microenvironment_builder.cpp
-          src/mesh.cpp)
+          src/mesh.cpp src/vtk_serializer.cpp src/vtk_serializer_base.cpp)
 
 target_sources(
   physicore.reactions-diffusion.biofvm_core
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+target_link_libraries(physicore.reactions-diffusion.biofvm_core
+                      PUBLIC physicore::common VTK::IOXML)
+
 find_package(VTK CONFIG REQUIRED)
 
 target_link_libraries(physicore.reactions-diffusion.biofvm_core
-                      PUBLIC physicore::common VTK::IOXML)
+                      PRIVATE VTK::IOXML)
 
 # biofvm library with solver registering code but without the code that
 # explicitly registers each kernels suitable for linking against kernel test

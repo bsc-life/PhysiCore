@@ -8,6 +8,7 @@
 #include "agent_container.h"
 #include "bulk_functor.h"
 #include "mesh.h"
+#include "serializer.h"
 #include "solver.h"
 
 namespace physicore::biofvm {
@@ -23,9 +24,13 @@ public:
 	microenvironment& operator=(microenvironment&&) = delete;
 
 	void run_single_timestep() override;
+	void serialize_state() override;
+
+	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const;
 
 	container_ptr agents;
 	solver_ptr solver;
+	serializer_ptr serializer;
 
 	// environment configuration parameters
 	std::string name, time_units, space_units;
