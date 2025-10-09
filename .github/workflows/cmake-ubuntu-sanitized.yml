@@ -53,4 +53,4 @@ jobs:
       run: |
           cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20 -DCMAKE_C_COMPILER=/usr/bin/clang-20 --preset ${{ matrix.workflow }}
           cmake --build --preset ${{ matrix.workflow }}
-          ctest --build-config ${{ matrix.workflow }}
+          ctest --preset ${{ matrix.workflow }}
