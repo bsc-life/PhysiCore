@@ -6,7 +6,7 @@
 using namespace physicore::biofvm;
 
 microenvironment::microenvironment(const cartesian_mesh& mesh, index_t substrates_count, real_t timestep)
-	: mesh(mesh), substrates_count(substrates_count), diffusion_timestep(timestep)
+	: diffusion_timestep(timestep), mesh(mesh), substrates_count(substrates_count)
 {
 	auto base_data = std::make_unique<base_agent_data>(mesh.dims);
 	auto data = std::make_unique<agent_data>(*base_data, substrates_count);
