@@ -55,7 +55,7 @@ jobs:
       uses: lukka/run-vcpkg@v11
 
     - name: Run CMake Workflow
-      run: cmake --workflow --preset ${{ matrix.workflow }}
-      env:
-        CXX: /usr/bin/clang++-20
-        CC: /usr/bin/clang-20
+      run: |
+          cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20 -DCMAKE_C_COMPILER=/usr/bin/clang-20 --preset ${{ matrix.workflow }}
+          cmake --build --preset ${{ matrix.workflow }}
+          ctest --preset ${{ matrix.workflow }}
