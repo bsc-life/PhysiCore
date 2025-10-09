@@ -279,11 +279,13 @@ TEST_F(VtkSerializerTest, ManySubstrates)
 		builder.add_density(name, "unit", 1.0, 0.01, 10.0 + i); // Different initial conditions
 
 		// Add boundary conditions for each substrate
-		builder.add_boundary_dirichlet_conditions(i,								// substrate index
-												  { 15.0 + i, 14.0 + i, 13.0 + i }, // min boundary values
-												  { 20.0 + i, 19.0 + i, 18.0 + i }, // max boundary values
-												  { true, true, true },				// min boundary conditions
-												  { true, true, true }				// max boundary conditions
+		builder.add_boundary_dirichlet_conditions(i, // substrate index
+												  { static_cast<real_t>(15.0 + i), static_cast<real_t>(14.0 + i),
+													static_cast<real_t>(13.0 + i) }, // min boundary values
+												  { static_cast<real_t>(20.0 + i), static_cast<real_t>(19.0 + i),
+													static_cast<real_t>(18.0 + i) }, // max boundary values
+												  { true, true, true },				 // min boundary conditions
+												  { true, true, true }				 // max boundary conditions
 		);
 	}
 
