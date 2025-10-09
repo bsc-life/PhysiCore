@@ -14,7 +14,7 @@ jobs:
       # Ensure a stable, known path for the vcpkg binary cache so the cache step has a valid directory
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
       # Allow read/write to the default binary sources; run-vcpkg will honor this
-      VCPKG_BINARY_SOURCES: default,rw
+      VCPKG_BINARY_SOURCES: default,readwrite
 
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
