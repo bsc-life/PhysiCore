@@ -6,7 +6,7 @@
 using namespace physicore::biofvm;
 
 vtk_serializer_base::vtk_serializer_base(std::string_view output_dir, std::string_view vtks_dir_name)
-	: iteration(0), output_dir(output_dir), vtks_dir(std::filesystem::path(this->output_dir) / vtks_dir_name.data())
+	: iteration(0), output_dir(output_dir), vtks_dir((std::filesystem::path(output_dir) / vtks_dir_name).string())
 {
 	std::filesystem::create_directories(vtks_dir);
 
