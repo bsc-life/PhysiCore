@@ -40,16 +40,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libomp-dev
 
+    - name: Set up vcpkg
+      uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
+      env:
+        VCPKG_BINARY_SOURCES: default,rw
+
     - name: Restore vcpkg binary cache
       uses: actions/cache/restore@v4
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
         key: ${{ runner.os }}-vcpkg-binary-cache
-
-    - name: Set up vcpkg
-      uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
-      env:
-        VCPKG_BINARY_SOURCES: default,rw
 
     - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
       uses: lukka/run-cmake@v10
