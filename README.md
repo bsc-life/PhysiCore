@@ -22,3 +22,75 @@ It introduces a cleaner, modular codebase that supports **interchangeable diffus
 ## Vision
 
 PhysiCore aims to be the go-to foundation for **next-generation, high-performance multicellular simulations**, enabling researchers to focus on science instead of wrestling with legacy code.
+
+---
+
+## Dependencies and vcpkg
+
+This project uses vcpkg in manifest mode. CMake presets automatically point to the vcpkg toolchain via the environment variable `VCPKG_ROOT`.
+
+- If you already have vcpkg installed, ensure `VCPKG_ROOT` points to it.
+- If not, you can use the repo-local copy under `./vcpkg` (recommended for reproducibility).
+
+Set up on Linux/macOS (zsh):
+
+```sh
+# Option A: use the repo-local vcpkg
+export VCPKG_ROOT="$PWD/vcpkg"
+"$VCPKG_ROOT"/bootstrap-vcpkg.sh
+
+# Option B: point to your existing vcpkg install
+export VCPKG_ROOT="/path/to/your/vcpkg"
+```
+
+Set up on Windows (PowerShell):
+
+```powershell
+# Option A: repo-local vcpkg
+$env:VCPKG_ROOT = "$PWD/vcpkg"
+& "$env:VCPKG_ROOT/bootstrap-vcpkg.bat"
+
+# Option B: existing vcpkg install
+$env:VCPKG_ROOT = "C:\\path\\to\\vcpkg"
+```
+
+Manifest dependencies (from `vcpkg.json`):
+
+- `cccl` - NVIDIA Thrust library for TBB and CUDA backends
+- `gtest` - Testing framework
+- `highway` - Vendor-agnostic vectorization library
+- `noarr-structures` - memory layouts library
+- `tbb` - Intel OneAPI Threading Building Blocks
+- `vtk-ioxml` - VTK IO for BioFVM serializer
+
+Notes
+- The repo ships `vcpkg-configuration.json` with a pinned baseline and `ports-overlays/` for custom/overlay ports.
+- On first configure, vcpkg will build and install dependencies for your preset under `build/<preset>/vcpkg_installed/`.
+
+
+## Build
+
+Prerequisites
+- CMake with presets support, a C++20 compiler (GCC/Clang/MSVC), and Ninja (presets use the Ninja generator).
+- vcpkg available via `VCPKG_ROOT` as described above.
+
+Common flows (Linux/macOS, zsh):
+
+```sh
+# Configure + build (GCC debug)
+cmake --preset=gcc-debug
+cmake --build --preset=gcc-debug
+
+# Run tests
+ctest --preset gcc-debug --output-on-failure
+
+# Full configure+build+test workflow in one step
+cmake --workflow=gcc-debug
+```
+
+Other useful presets (see `CMakePresets.json`):
+- `llvm-{debug,release}` for clang compilation
+- `gcc-{debug,release}` for gcc compilation
+- `appleclang-{debug,release}` for AppleClang compilation
+- `msvc-{debug,release}` for Microsoft cl compilation
+
