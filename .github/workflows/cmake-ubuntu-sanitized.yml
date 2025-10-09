@@ -10,12 +10,6 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
-    env:
-      # Ensure a stable, known path for the vcpkg binary cache so the cache step has a valid directory
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
-      # Allow read/write to the default binary sources; run-vcpkg will honor this
-      VCPKG_BINARY_SOURCES: default,readwrite
-
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
@@ -36,15 +30,6 @@ jobs:
         submodules: recursive
         fetch-depth: 0
 
-    - name: Set up binary cache
-      uses: actions/cache@v4
-      with:
-        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        # Invalidate cache when vcpkg manifests or overlay ports change
-        key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
-        restore-keys: |
-          ${{ runner.os }}-vcpkg-binary-cache-
-
     - name: Install dependencies
       run: |
           wget https://apt.llvm.org/llvm.sh
@@ -53,9 +38,23 @@ jobs:
 
     - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11
+      env:
+        VCPKG_BINARY_SOURCES: default,readwrite
+
+    - name: Restore vcpkg binary cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ runner.os }}-vcpkg-binary-cache
 
     - name: Run CMake Workflow
       run: |
           cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20 -DCMAKE_C_COMPILER=/usr/bin/clang-20 --preset ${{ matrix.workflow }}
           cmake --build --preset ${{ matrix.workflow }}
           ctest --preset ${{ matrix.workflow }}
+
+    - name: Save vcpkg binary cache
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ runner.os }}-vcpkg-binary-cache
