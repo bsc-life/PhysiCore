@@ -9,6 +9,8 @@ class serializer
 {
 public:
 	virtual void serialize(const microenvironment& m) = 0;
+
+	virtual ~serializer() = default;
 };
 
 using serializer_ptr = std::unique_ptr<serializer>;

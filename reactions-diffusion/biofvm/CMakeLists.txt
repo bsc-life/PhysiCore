@@ -13,7 +13,7 @@ target_sources(
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(physicore.reactions-diffusion.biofvm_core
-                      PUBLIC physicore::common VTK::IOXML)
+                      PUBLIC physicore::common)
 
 find_package(VTK CONFIG REQUIRED)
 
