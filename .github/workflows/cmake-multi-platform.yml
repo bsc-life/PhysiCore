@@ -50,6 +50,7 @@ jobs:
         VCPKG_BINARY_SOURCES: default,readwrite
 
     - name: Restore vcpkg binary cache
+      id: restore-vcpkg-cache
       uses: actions/cache/restore@v4
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
@@ -64,4 +65,4 @@ jobs:
       uses: actions/cache/save@v4
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ runner.os }}-vcpkg-binary-cache2
+        key: ${{ steps.restore-vcpkg-cache.outputs.cache-primary-key }}
