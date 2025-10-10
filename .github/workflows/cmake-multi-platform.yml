@@ -12,6 +12,10 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
+    env:
+      # This is just a placeholder, vcpkg step will set it up
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
@@ -41,9 +45,9 @@ jobs:
         sudo apt-get install -y libomp-dev
 
     - name: Set up vcpkg
-      uses: lukka/run-vcpkg@5e0cab206a5ea620130caf672fce3e4a6b5666a1 # v11.5
+      uses: lukka/run-vcpkg@v11
       env:
-        VCPKG_BINARY_SOURCES: default,rw
+        VCPKG_BINARY_SOURCES: default,readwrite
 
     - name: Restore vcpkg binary cache
       uses: actions/cache/restore@v4

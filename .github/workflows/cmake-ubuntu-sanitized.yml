@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
+    env:
+      # This is just a placeholder, vcpkg step will set it up
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
