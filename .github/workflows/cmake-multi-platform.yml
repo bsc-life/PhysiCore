@@ -49,20 +49,16 @@ jobs:
       env:
         VCPKG_BINARY_SOURCES: default,readwrite
 
-    - name: Restore vcpkg binary cache
-      id: restore-vcpkg-cache
-      uses: actions/cache/restore@v4
+    - name: Set up binary cache
+      uses: actions/cache@v4
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ runner.os }}-vcpkg-binary-cache2
+        # Invalidate cache when vcpkg manifests or overlay ports change
+        key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-binary-cache-
 
     - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
       uses: lukka/run-cmake@v10
       with:
         workflowPreset: ${{ matrix.preset }}
-
-    - name: Save vcpkg binary cache
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ steps.restore-vcpkg-cache.outputs.cache-primary-key }}

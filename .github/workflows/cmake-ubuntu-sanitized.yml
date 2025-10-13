@@ -45,20 +45,17 @@ jobs:
       env:
         VCPKG_BINARY_SOURCES: default,readwrite
 
-    - name: Restore vcpkg binary cache
-      uses: actions/cache/restore@v4
+    - name: Set up binary cache
+      uses: actions/cache@v4
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ runner.os }}-vcpkg-binary-cache
+        # Invalidate cache when vcpkg manifests or overlay ports change
+        key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-binary-cache-
 
     - name: Run CMake Workflow
       run: |
           cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20 -DCMAKE_C_COMPILER=/usr/bin/clang-20 --preset ${{ matrix.workflow }}
           cmake --build --preset ${{ matrix.workflow }}
           ctest --preset ${{ matrix.workflow }}
-
-    - name: Save vcpkg binary cache
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        key: ${{ runner.os }}-vcpkg-binary-cache
