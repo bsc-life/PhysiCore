@@ -13,7 +13,7 @@ using namespace physicore::biofvm::kernels::thrust_solver;
 
 void make_agents(microenvironment& m, index_t count, bool conflict)
 {
-	index_t x = 0, y = 0, z = 0;
+	sindex_t x = 0, y = 0, z = 0;
 
 	for (index_t i = 0; i < count; i++)
 	{

@@ -24,7 +24,7 @@ using namespace physicore::biofvm::kernels::thrust_solver;
 static constexpr index_t no_ballot = std::numeric_limits<index_t>::max();
 
 template <index_t dims>
-static constexpr auto fix_dims(const real_t* cell_position, const index_t* bounding_box_mins,
+static constexpr auto fix_dims(const real_t* cell_position, const sindex_t* bounding_box_mins,
 							   const index_t* voxel_shape)
 {
 	index_t voxel_index[3];
@@ -55,8 +55,8 @@ static void clear_ballots(const ballot_layout_t ballot_l, const real_t* _CCCL_RE
 						  real_t* _CCCL_RESTRICT reduced_denominators, real_t* _CCCL_RESTRICT reduced_factors,
 						  index_t n, const cartesian_mesh& m, index_t substrate_densities)
 {
-	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
-																  m.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
+																   m.bounding_box_mins[2] };
 	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1], m.voxel_shape[2] };
 
 
@@ -119,8 +119,8 @@ static void ballot_and_sum(const ballot_layout_t ballot_l, real_t* _CCCL_RESTRIC
 						   index_t* _CCCL_RESTRICT ballots, index_t n, index_t substrates_count,
 						   const cartesian_mesh& m, bool* _CCCL_RESTRICT is_conflict)
 {
-	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
-																  m.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
+																   m.bounding_box_mins[2] };
 	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1], m.voxel_shape[2] };
 
 	thrust::for_each(
@@ -237,8 +237,8 @@ static void compute_result(const density_layout_t dens_l, const ballot_layout_t 
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
-	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
-																  mesh.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
+																   mesh.bounding_box_mins[2] };
 	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
 															mesh.voxel_shape[2] };
 
@@ -397,8 +397,8 @@ void release_dim(const density_layout_t dens_l, data_manager& data, const cartes
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
-	PHYSICORE_THRUST_STD::array<index_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
-																  mesh.bounding_box_mins[2] };
+	PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
+																   mesh.bounding_box_mins[2] };
 	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
 															mesh.voxel_shape[2] };
 

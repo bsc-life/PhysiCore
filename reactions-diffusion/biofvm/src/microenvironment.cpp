@@ -16,7 +16,7 @@ microenvironment::microenvironment(const cartesian_mesh& mesh, index_t substrate
 
 void microenvironment::run_single_timestep() { solver->solve(*this, 1); }
 
-void microenvironment::serialize_state() {}
+void microenvironment::serialize_state() { serializer->serialize(*this); }
 
 real_t microenvironment::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
 {

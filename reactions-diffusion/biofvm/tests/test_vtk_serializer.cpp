@@ -55,9 +55,10 @@ protected:
 		builder.set_space_units("um");
 		builder.set_time_step(0.01);
 
-		std::array<index_t, 3> bounding_box_mins = { 0, 0, 0 };
-		std::array<index_t, 3> bounding_box_maxs = { grid_shape[0] * voxel_shape[0], grid_shape[1] * voxel_shape[1],
-													 grid_shape[2] * voxel_shape[2] };
+		std::array<sindex_t, 3> bounding_box_mins = { 0, 0, 0 };
+		std::array<sindex_t, 3> bounding_box_maxs = { (sindex_t)grid_shape[0] * (sindex_t)voxel_shape[0],
+													  (sindex_t)grid_shape[1] * (sindex_t)voxel_shape[1],
+													  (sindex_t)grid_shape[2] * (sindex_t)voxel_shape[2] };
 
 		builder.resize(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 

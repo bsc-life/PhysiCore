@@ -5,8 +5,8 @@
 using namespace physicore;
 using namespace physicore::biofvm;
 
-cartesian_mesh::cartesian_mesh(index_t dims, std::array<index_t, 3> bounding_box_mins,
-							   std::array<index_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)
+cartesian_mesh::cartesian_mesh(index_t dims, std::array<sindex_t, 3> bounding_box_mins,
+							   std::array<sindex_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)
 	: dims(dims), bounding_box_mins(bounding_box_mins), bounding_box_maxs(bounding_box_maxs), voxel_shape(voxel_shape)
 {
 	grid_shape = { 1, 1, 1 };
