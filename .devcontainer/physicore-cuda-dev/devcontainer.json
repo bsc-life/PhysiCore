@@ -6,15 +6,14 @@
 	},
 	"remoteUser": "${localEnv:USER}",
 	"mounts": [
-		"source=/home/${localEnv:USER}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly",
-		"source=/home/${localEnv:USER}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,readonly",
-		"source=/home/${localEnv:USER}/.cache/vcpkg,target=/home/${localEnv:USER}/.cache/vcpkg,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.ssh,target=${localEnv:HOME}/.ssh,type=bind,readonly",
+		"source=${localEnv:HOME}/.cache/vcpkg,target=${localEnv:HOME}/.cache/vcpkg,type=bind,consistency=cached"
 	],
 	"remoteEnv": {
 		"VCPKG_ROOT": "${containerWorkspaceFolder}/vcpkg",
 		"PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/vcpkg:/usr/lib/llvm-20/bin"
 	},
-	"initializeCommand": "mkdir -p /home/${localEnv:USER}/.cache/vcpkg",
+	"initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/vcpkg",
 	"onCreateCommand": ".devcontainer/configure.sh",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {
