@@ -59,7 +59,7 @@ Manifest dependencies (from `vcpkg.json`):
 - `cccl` - NVIDIA Thrust library for TBB and CUDA backends
 - `gtest` - Testing framework
 - `highway` - Vendor-agnostic vectorization library
-- `noarr-structures` - memory layouts library
+- `noarr-structures` - Memory layouts library
 - `tbb` - Intel OneAPI Threading Building Blocks
 - `vtk-ioxml` - VTK IO for BioFVM serializer
 
@@ -77,15 +77,15 @@ Prerequisites
 Common flows (Linux/macOS, zsh):
 
 ```sh
-# Configure + build (GCC debug)
-cmake --preset=gcc-debug
-cmake --build --preset=gcc-debug
+# Configure + build (GCC release)
+cmake --preset=gcc-release
+cmake --build --preset=gcc-release
 
 # Run tests
-ctest --preset gcc-debug --output-on-failure
+ctest --preset gcc-release --output-on-failure
 
 # Full configure+build+test workflow in one step
-cmake --workflow=gcc-debug
+cmake --workflow --preset=gcc-release
 ```
 
 Other useful presets (see `CMakePresets.json`):
@@ -94,3 +94,19 @@ Other useful presets (see `CMakePresets.json`):
 - `appleclang-{debug,release}` for AppleClang compilation
 - `msvc-{debug,release}` for Microsoft cl compilation
 
+## Example Projects
+
+The repository provides several example projects under `examples/` to demonstrate PhysiCore's capabilities:
+
+### Diffussion
+
+A simple example showcasing diffusion of a single substrate in a 3D domain with static cells acting as sources and sinks. It runs a 30m simulation and outputs VTK-compatible file.
+To build and run:
+
+```sh
+cmake --preset=gcc-release
+cmake --build --preset=gcc-release --target physicore.reactions-diffusion.biofvm.diffuse
+build/gcc-release/reactions-diffusion/biofvm/examples/physicore.reactions-diffusion.biofvm.diffuse
+```
+
+The run generates `output/` with VTK files for visualization.
