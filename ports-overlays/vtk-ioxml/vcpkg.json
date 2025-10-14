@@ -1,0 +1,11 @@
+{
+    "name": "vtk-ioxml",
+    "version": "9.5.0",
+    "description": "VTK subset containing only the IOXML module and its minimal dependencies.",
+    "homepage": "https://vtk.org",
+    "license": "BSD-3-Clause",
+    "dependencies": [
+        "vcpkg-cmake",
+        "vcpkg-cmake-config"
+    ]
+}

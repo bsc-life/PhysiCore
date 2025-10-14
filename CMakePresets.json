@@ -47,7 +47,7 @@
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
             },
             "environment": {
-                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
+                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan.supp"
             }
         },
         {
@@ -64,8 +64,9 @@
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
             },
             "environment": {
-                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt",
-                "ASAN_OPTIONS": "suppressions=${sourceDir}/asan-suppressions.txt"
+                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan.supp",
+                "ASAN_OPTIONS": "suppressions=${sourceDir}/asan.supp",
+                "LSAN_OPTIONS": "suppressions=${sourceDir}/lsan.supp"
             }
         },
         {
@@ -82,7 +83,7 @@
                 "CMAKE_CXX_FLAGS_RELEASE_INIT": "-Wall -Wextra -Wpedantic"
             },
             "environment": {
-                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan-suppressions.txt"
+                "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan.supp"
             }
         },
         {

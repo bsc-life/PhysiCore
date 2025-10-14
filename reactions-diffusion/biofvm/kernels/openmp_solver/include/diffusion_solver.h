@@ -62,7 +62,7 @@ private:
 
 public:
 	template <std::size_t dims = 3>
-	auto get_substrates_layout()
+	auto get_substrates_layout() const
 	{
 		std::size_t xs_size = problem.nx * problem.substrates_count * sizeof(real_t);
 		std::size_t xs_size_padded = (xs_size + alignment_size_ - 1) / alignment_size_ * alignment_size_;
@@ -83,6 +83,7 @@ public:
 	}
 
 	real_t* get_substrates_pointer();
+	const real_t* get_substrates_pointer() const;
 
 	void prepare(const microenvironment& m, index_t iterations);
 

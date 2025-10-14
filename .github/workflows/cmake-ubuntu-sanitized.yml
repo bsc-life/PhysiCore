@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
+    env:
+      # This is just a placeholder, vcpkg step will set it up
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
@@ -36,10 +40,22 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh 20 all
 
-    - name: Setup vcpkg
+    - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11
+      env:
+        VCPKG_BINARY_SOURCES: default,readwrite
+
+    - name: Set up binary cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        # Invalidate cache when vcpkg manifests or overlay ports change
+        key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+        restore-keys: |
+          ${{ runner.os }}-vcpkg-binary-cache-
 
     - name: Run CMake Workflow
       run: |
           cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20 -DCMAKE_C_COMPILER=/usr/bin/clang-20 --preset ${{ matrix.workflow }}
           cmake --build --preset ${{ matrix.workflow }}
+          ctest --preset ${{ matrix.workflow }}

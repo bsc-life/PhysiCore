@@ -1,0 +1,54 @@
+{
+	"name": "physicore-dev",
+	"image": "gcc:15.2.0",
+	"remoteUser": "${localEnv:USER}",
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=${localEnv:HOME}/.ssh,type=bind,readonly",
+		"source=${localEnv:HOME}/.cache/vcpkg,target=${localEnv:HOME}/.cache/vcpkg,type=bind,consistency=cached"
+	],
+	"remoteEnv": {
+		"VCPKG_ROOT": "${containerWorkspaceFolder}/vcpkg",
+		"PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/vcpkg:/usr/lib/llvm-20/bin"
+	},
+	"initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/vcpkg",
+	"onCreateCommand": ".devcontainer/configure.sh",
+	"features": {
+		"ghcr.io/devcontainers/features/python:1": {
+			"toolsToInstall": "cmakelang"
+		},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"configureZshAsDefaultShell": true
+		},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
+			"packages": [
+				"cmake",
+				"ninja-build",
+				"gdb",
+				"curl",
+				"zip",
+				"unzip",
+				"tar",
+				"pkg-config"
+			]
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"llvm-vs-code-extensions.vscode-clangd",
+				"cheshirekow.cmake-format",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.cmake-tools",
+				"github.vscode-github-actions"
+			],
+			"settings": {
+				"editor.formatOnSave": true,
+				"files.trimTrailingWhitespace": true,
+				"files.insertFinalNewline": true,
+				"C_Cpp.intelliSenseEngine": "disabled",
+				"cmake.copyCompileCommands": "${containerWorkspaceFolder}/build/compile_commands.json"
+			}
+		}
+	}
+}

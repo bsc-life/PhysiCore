@@ -13,6 +13,8 @@ public:
 	explicit environment(real_t timestep) : timestep(timestep) {}
 
 	void run_single_timestep() override;
+
+	void serialize_state(real_t current_time) override;
 };
 
 } // namespace physicore::micromechanics

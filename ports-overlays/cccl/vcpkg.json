@@ -1,6 +1,6 @@
 {
     "name": "cccl",
-    "version-string": "3.0.2",
+    "version-string": "3.0.3",
     "description": "CUDA Core Compute Libraries",
     "dependencies": [
         "vcpkg-cmake",

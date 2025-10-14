@@ -48,7 +48,7 @@ public:
 	void set_time_step(real_t time_step);
 
 	// mesh functions
-	void resize(index_t dims, std::array<index_t, 3> bounding_box_mins, std::array<index_t, 3> bounding_box_maxs,
+	void resize(index_t dims, std::array<sindex_t, 3> bounding_box_mins, std::array<sindex_t, 3> bounding_box_maxs,
 				std::array<index_t, 3> voxel_shape);
 
 	// density functions

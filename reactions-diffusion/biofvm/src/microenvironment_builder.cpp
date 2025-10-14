@@ -7,6 +7,7 @@
 #include "microenvironment.h"
 #include "solver_registry.h"
 #include "types.h"
+#include "vtk_serializer.h"
 
 using namespace physicore::biofvm;
 using namespace physicore;
@@ -19,8 +20,8 @@ void microenvironment_builder::set_space_units(std::string_view space_units) { t
 
 void microenvironment_builder::set_time_step(real_t time_step) { this->timestep = time_step; }
 
-void microenvironment_builder::resize(index_t dims, std::array<index_t, 3> bounding_box_mins,
-									  std::array<index_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)
+void microenvironment_builder::resize(index_t dims, std::array<sindex_t, 3> bounding_box_mins,
+									  std::array<sindex_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)
 {
 	mesh = cartesian_mesh(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 }
@@ -198,6 +199,8 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 	}
 
 	m->solver = std::move(solver);
+
+	m->serializer = std::make_unique<vtk_serializer>("output", *m);
 
 	return m;
 }

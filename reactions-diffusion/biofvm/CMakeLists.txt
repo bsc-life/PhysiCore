@@ -6,7 +6,7 @@ add_library(physicore::reactions-diffusion::biofvm_core ALIAS
 target_sources(
   physicore.reactions-diffusion.biofvm_core
   PRIVATE src/microenvironment.cpp src/microenvironment_builder.cpp
-          src/mesh.cpp)
+          src/mesh.cpp src/vtk_serializer.cpp src/vtk_serializer_base.cpp)
 
 target_sources(
   physicore.reactions-diffusion.biofvm_core
@@ -14,6 +14,11 @@ target_sources(
 
 target_link_libraries(physicore.reactions-diffusion.biofvm_core
                       PUBLIC physicore::common)
+
+find_package(VTK CONFIG REQUIRED)
+
+target_link_libraries(physicore.reactions-diffusion.biofvm_core
+                      PRIVATE VTK::IOXML)
 
 # biofvm library with solver registering code but without the code that
 # explicitly registers each kernels suitable for linking against kernel test
@@ -53,19 +58,9 @@ if(HAS_CUDA)
 endif()
 
 if(PHYSICORE_BUILD_TESTS)
-  find_package(GTest REQUIRED)
-  add_executable(physicore.reactions-diffusion.biofvm.tests)
+  add_subdirectory(tests)
+endif()
 
-  file(GLOB TEST_SOURCES tests/*.cpp)
-  target_sources(physicore.reactions-diffusion.biofvm.tests
-                 PRIVATE ${TEST_SOURCES})
-
-  target_link_libraries(
-    physicore.reactions-diffusion.biofvm.tests
-    PRIVATE physicore::reactions-diffusion::biofvm
-            physicore::reactions-diffusion::kernels::openmp_solver GTest::gtest
-            GTest::gtest_main)
-
-  include(GoogleTest)
-  gtest_discover_tests(physicore.reactions-diffusion.biofvm.tests)
+if(PHYSICORE_BUILD_EXAMPLES)
+  add_subdirectory(examples)
 endif()

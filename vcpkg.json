@@ -1,9 +1,10 @@
 {
   "dependencies": [
+    "cccl",
     "gtest",
     "highway",
-    "tbb",
     "noarr-structures",
-    "cccl"
+    "tbb",
+    "vtk-ioxml"
   ]
 }

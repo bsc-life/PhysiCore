@@ -1,0 +1,4 @@
+# OpenMP runtime (libomp) may intentionally keep small allocations alive until
+# process teardown. LSAN reports these as leaks. Suppress them to keep CI green
+# while still catching real leaks in our code.
+leak:libomp.so

@@ -29,3 +29,11 @@ void openmp_solver::solve(biofvm::microenvironment& m, index_t iterations)
 		c_solver.simulate_secretion_and_uptake(m, d_solver, it == 0);
 	}
 }
+
+real_t openmp_solver::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
+{
+	auto dens_l = d_solver.get_substrates_layout<3>();
+	auto densities = d_solver.get_substrates_pointer();
+
+	return dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(densities, s, x, y, z);
+}

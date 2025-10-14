@@ -22,6 +22,10 @@ target_link_libraries(physicore.reactions-diffusion.kernels.openmp_solver
 target_link_libraries(physicore.reactions-diffusion.kernels.openmp_solver
                       PRIVATE hwy::hwy)
 
+find_path(NOARR_STRUCTURES_INCLUDE_DIRS "noarr/introspection.hpp")
+target_include_directories(physicore.reactions-diffusion.kernels.openmp_solver
+                           PRIVATE ${NOARR_STRUCTURES_INCLUDE_DIRS})
+
 if(OpenMP_CXX_FOUND)
   target_link_libraries(physicore.reactions-diffusion.kernels.openmp_solver
                         PRIVATE OpenMP::OpenMP_CXX)
