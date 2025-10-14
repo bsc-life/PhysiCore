@@ -15,17 +15,25 @@ vtk_serializer::vtk_serializer(std::string_view output_dir, microenvironment& m)
 	  writer(vtkSmartPointer<vtkXMLImageDataWriter>::New()),
 	  image_data(vtkSmartPointer<vtkImageData>::New())
 {
-	auto x_extent_start = m.mesh.bounding_box_mins[0] / m.mesh.voxel_shape[0];
-	auto x_extent_end = x_extent_start + m.mesh.grid_shape[0];
+	auto x_extent_start = m.mesh.bounding_box_mins[0] / (sindex_t)m.mesh.voxel_shape[0];
+	auto x_extent_end = x_extent_start + (sindex_t)m.mesh.grid_shape[0];
 
-	auto y_extent_start = m.mesh.bounding_box_mins[1] / m.mesh.voxel_shape[1];
-	auto y_extent_end = y_extent_start + m.mesh.grid_shape[1];
+	auto y_extent_start = m.mesh.bounding_box_mins[1] / (sindex_t)m.mesh.voxel_shape[1];
+	auto y_extent_end = y_extent_start + (sindex_t)m.mesh.grid_shape[1];
 
-	auto z_extent_start = m.mesh.bounding_box_mins[2] / m.mesh.voxel_shape[2];
-	auto z_extent_end = z_extent_start + m.mesh.grid_shape[2];
+	auto z_extent_start = m.mesh.bounding_box_mins[2] / (sindex_t)m.mesh.voxel_shape[2];
+	auto z_extent_end = z_extent_start + (sindex_t)m.mesh.grid_shape[2];
 
-	image_data->SetExtent(x_extent_start, x_extent_end, y_extent_start, y_extent_end, z_extent_start, z_extent_end);
-	image_data->SetSpacing(m.mesh.voxel_shape[0], m.mesh.voxel_shape[1], m.mesh.voxel_shape[2]);
+	if (m.mesh.dims == 3)
+	{
+		image_data->SetExtent(x_extent_start, x_extent_end, y_extent_start, y_extent_end, z_extent_start, z_extent_end);
+		image_data->SetSpacing(m.mesh.voxel_shape[0], m.mesh.voxel_shape[1], m.mesh.voxel_shape[2]);
+	}
+	else
+	{
+		image_data->SetExtent(x_extent_start, x_extent_end, y_extent_start, y_extent_end, 0, 0);
+		image_data->SetSpacing(m.mesh.voxel_shape[0], m.mesh.voxel_shape[1], 0);
+	}
 
 	data_arrays.reserve(m.substrates_count);
 	assert(m.substrates_names.size() == m.substrates_count);
@@ -39,10 +47,10 @@ vtk_serializer::vtk_serializer(std::string_view output_dir, microenvironment& m)
 	}
 
 	writer->SetInputData(image_data);
-	writer->SetCompressorTypeToLZ4();
+	writer->SetCompressorTypeToNone();
 }
 
-void vtk_serializer::serialize(const microenvironment& m)
+void vtk_serializer::serialize(const microenvironment& m, real_t current_time)
 {
 	for (index_t z_idx = 0; z_idx < m.mesh.grid_shape[2]; ++z_idx)
 		for (index_t y_idx = 0; y_idx < m.mesh.grid_shape[1]; ++y_idx)
@@ -63,7 +71,7 @@ void vtk_serializer::serialize(const microenvironment& m)
 	writer->SetFileName(file_path.string().c_str());
 	writer->Write();
 
-	append_to_pvd(file_name);
+	append_to_pvd(file_name, current_time);
 
 	iteration++;
 }

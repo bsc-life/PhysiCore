@@ -16,11 +16,11 @@ vtk_serializer_base::vtk_serializer_base(std::string_view output_dir, std::strin
 )";
 }
 
-void vtk_serializer_base::append_to_pvd(std::string_view vtk_file_name)
+void vtk_serializer_base::append_to_pvd(std::string_view vtk_file_name, real_t current_time)
 {
 	auto file_path = std::filesystem::path(vtks_dir) / vtk_file_name;
 
-	pvd_contents += R"(    <DataSet timestep=")" + std::to_string(iteration) + R"(" group="" part="0" file=")"
+	pvd_contents += R"(    <DataSet timestep=")" + std::to_string(current_time) + R"(" group="" part="0" file=")"
 					+ std::filesystem::relative(file_path, output_dir).string() + R"(" />
 )";
 

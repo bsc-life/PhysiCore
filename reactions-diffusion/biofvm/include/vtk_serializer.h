@@ -25,7 +25,7 @@ class vtk_serializer : public vtk_serializer_base, public serializer
 public:
 	vtk_serializer(std::string_view output_dir, microenvironment& m);
 
-	void serialize(const microenvironment& m) override;
+	void serialize(const microenvironment& m, real_t current_time) override;
 };
 
 } // namespace physicore::biofvm

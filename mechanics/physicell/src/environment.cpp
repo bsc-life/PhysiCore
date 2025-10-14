@@ -9,4 +9,4 @@ void environment::run_single_timestep()
 	(void)timestep;
 }
 
-void environment::serialize_state() {}
+void environment::serialize_state(real_t current_time) { (void)current_time; }

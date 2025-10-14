@@ -95,7 +95,7 @@ TEST_F(VtkSerializerTest, SerializeCreatesFiles)
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
 	// Serialize once
-	EXPECT_NO_THROW(serializer.serialize(*m));
+	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
 	// Check that VTK file is created
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -115,7 +115,7 @@ TEST_F(VtkSerializerTest, SerializeMultipleTimes)
 	// Serialize multiple times
 	for (int i = 0; i < 3; ++i)
 	{
-		EXPECT_NO_THROW(serializer.serialize(*m));
+		EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 	}
 
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -132,8 +132,8 @@ TEST_F(VtkSerializerTest, PvdFileContainsCorrectEntries)
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
 	// Serialize twice
-	serializer.serialize(*m);
-	serializer.serialize(*m);
+	serializer.serialize(*m, 0.1);
+	serializer.serialize(*m, 0.2);
 
 	// Read PVD file content
 	auto pvd_file = test_output_dir / "microenvironment.pvd";
@@ -150,8 +150,9 @@ TEST_F(VtkSerializerTest, PvdFileContainsCorrectEntries)
 	EXPECT_TRUE(content.find("</VTKFile>") != std::string::npos);
 
 	// Check timestep entries
-	EXPECT_TRUE(content.find("timestep=\"0\"") != std::string::npos);
-	EXPECT_TRUE(content.find("timestep=\"1\"") != std::string::npos);
+	std::cout << content << std::endl;
+	EXPECT_TRUE(content.find("timestep=\"0.1") != std::string::npos);
+	EXPECT_TRUE(content.find("timestep=\"0.2") != std::string::npos);
 
 	// Check file references
 	EXPECT_TRUE(content.find("microenvironment_000000.vti") != std::string::npos);
@@ -163,7 +164,7 @@ TEST_F(VtkSerializerTest, VtkFileStructure)
 	auto m = create_test_microenvironment();
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
-	serializer.serialize(*m);
+	serializer.serialize(*m, 0.0);
 
 	// Read and validate VTK file structure using VTK reader
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -214,7 +215,7 @@ TEST_F(VtkSerializerTest, HandleDifferentMeshDimensions)
 		auto m1d = create_test_microenvironment(1, { 5, 1, 1 }, { 10, 1, 1 });
 		EXPECT_NO_THROW({
 			vtk_serializer serializer(test_output_dir.string(), *m1d);
-			serializer.serialize(*m1d);
+			serializer.serialize(*m1d, 0.0);
 		});
 	}
 
@@ -223,7 +224,7 @@ TEST_F(VtkSerializerTest, HandleDifferentMeshDimensions)
 		auto m2d = create_test_microenvironment(2, { 4, 4, 1 }, { 15, 15, 1 });
 		EXPECT_NO_THROW({
 			vtk_serializer serializer(test_output_dir.string(), *m2d);
-			serializer.serialize(*m2d);
+			serializer.serialize(*m2d, 0.0);
 		});
 	}
 }
@@ -248,7 +249,7 @@ TEST_F(VtkSerializerTest, SingleSubstrate)
 
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
-	EXPECT_NO_THROW(serializer.serialize(*m));
+	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
 	// Verify single substrate array
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -295,7 +296,7 @@ TEST_F(VtkSerializerTest, ManySubstrates)
 
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
-	EXPECT_NO_THROW(serializer.serialize(*m));
+	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
 	// Verify all substrate arrays
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -336,7 +337,7 @@ TEST_F(VtkSerializerTest, NonZeroBoundingBoxMins)
 
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
-	EXPECT_NO_THROW(serializer.serialize(*m));
+	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
 	// Verify extent calculation with non-zero bounding box mins
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -365,7 +366,7 @@ TEST_F(VtkSerializerTest, VtkRealArrayTypeConsistency)
 	auto m = create_test_microenvironment();
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
-	serializer.serialize(*m);
+	serializer.serialize(*m, 0.0);
 
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
 	auto vti_file = vtk_dir / "microenvironment_000000.vti";
@@ -407,7 +408,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 	m->solver->solve(*m, 1);
 
 	vtk_serializer serializer(test_output_dir.string(), *m);
-	EXPECT_NO_THROW(serializer.serialize(*m));
+	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
 	// Verify files exist
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -449,7 +450,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 			}
 
 	m->solver->solve(*m, 1);
-	serializer.serialize(*m);
+	serializer.serialize(*m, 0.1);
 
 	auto vti_file2 = vtk_dir / "microenvironment_000001.vti";
 	EXPECT_TRUE(std::filesystem::exists(vti_file2));

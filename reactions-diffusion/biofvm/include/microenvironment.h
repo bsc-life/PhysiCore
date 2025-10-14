@@ -24,7 +24,7 @@ public:
 	microenvironment& operator=(microenvironment&&) = delete;
 
 	void run_single_timestep() override;
-	void serialize_state() override;
+	void serialize_state(real_t current_time) override;
 
 	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const;
 

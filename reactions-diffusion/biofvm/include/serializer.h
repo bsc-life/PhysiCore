@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 
+#include "types.h"
+
 namespace physicore::biofvm {
 
 class microenvironment;
@@ -8,7 +10,7 @@ class microenvironment;
 class serializer
 {
 public:
-	virtual void serialize(const microenvironment& m) = 0;
+	virtual void serialize(const microenvironment& m, real_t current_time) = 0;
 
 	virtual ~serializer() = default;
 };

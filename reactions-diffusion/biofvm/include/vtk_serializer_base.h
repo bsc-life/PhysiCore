@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 
+#include "types.h"
+
 namespace physicore::biofvm {
 
 class vtk_serializer_base
@@ -14,7 +16,7 @@ protected:
 
 	std::string pvd_contents;
 
-	void append_to_pvd(std::string_view vtk_file_name);
+	void append_to_pvd(std::string_view vtk_file_name, real_t current_time);
 
 public:
 	vtk_serializer_base(std::string_view output_dir, std::string_view vtks_dir_name);
