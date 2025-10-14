@@ -18,8 +18,8 @@ using vtkRealArray = std::conditional_t<std::is_same_v<real_t, float>, vtkFloatA
 
 class vtk_serializer : public vtk_serializer_base, public serializer
 {
-	vtkSmartPointer<vtkXMLImageDataWriter> writer;
-	vtkSmartPointer<vtkImageData> image_data;
+	vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
+	vtkSmartPointer<vtkImageData> image_data = vtkSmartPointer<vtkImageData>::New();
 	std::vector<vtkSmartPointer<vtkRealArray>> data_arrays;
 
 public:

@@ -10,7 +10,7 @@ namespace physicore::biofvm {
 class vtk_serializer_base
 {
 protected:
-	std::size_t iteration;
+	std::size_t iteration = 0;
 	std::string output_dir;
 	std::string vtks_dir;
 
