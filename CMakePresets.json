@@ -65,7 +65,6 @@
             },
             "environment": {
                 "TSAN_OPTIONS": "suppressions=${sourceDir}/tsan.supp",
-                "ASAN_OPTIONS": "suppressions=${sourceDir}/asan.supp",
                 "LSAN_OPTIONS": "suppressions=${sourceDir}/lsan.supp"
             }
         },
