@@ -25,6 +25,39 @@ PhysiCore aims to be the go-to foundation for **next-generation, high-performanc
 
 ---
 
+## Code Structure
+
+```
+PhysiCore/
+|-- common/                  (Core interfaces; the timestep contract lives in process.h)
+|   \-- include/
+|       \-- process.h
+|-- reactions-diffusion/     (Diffusion and reaction solvers with pluggable backends)
+|   \-- biofvm/
+|       |-- include/
+|       |-- src/
+|       |-- examples/
+|       \-- kernels/         (Solver backends that self-register)
+|-- mechanics/               (Mechanics engines and force models)
+|   \-- physicell/
+|       |-- include/
+|       |-- src/
+|       \-- tests/
+|-- phenotype/               (Phenotype models and wiring into executables)
+|   \-- physicore/
+|       |-- src/
+|       \-- CMakeLists.txt
+|-- ports-overlays/          (vcpkg overlays for pinned third-party ports)
+\-- build/                   (Preset-specific build trees with vcpkg_installed/)
+```
+
+### Typical Subproject Layout
+
+- `include/` – Public headers exported via CMake `FILE_SET` entries so downstream targets can consume stable interfaces.
+- `src/` – Library implementation files; often link against `physicore::common` and register concrete components.
+- `examples/` – Optional sample applications demonstrating how to integrate the library pieces in isolation.
+- `kernels/` – Solver backends or hardware-specific implementations that self-register through the subsystem's registry entry points.
+
 ## Dependencies and vcpkg
 
 This project uses vcpkg in manifest mode. CMake presets automatically point to the vcpkg toolchain via the environment variable `VCPKG_ROOT`.
