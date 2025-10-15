@@ -490,6 +490,9 @@ void cell_solver::initialize(const microenvironment& m)
 
 cell_solver::~cell_solver()
 {
+	if (!is_conflict_)
+		return;
+
 	thrust::device_delete(is_conflict_);
 	thrust::device_delete(ballots_);
 }

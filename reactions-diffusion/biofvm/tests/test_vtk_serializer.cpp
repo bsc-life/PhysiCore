@@ -150,7 +150,6 @@ TEST_F(VtkSerializerTest, PvdFileContainsCorrectEntries)
 	EXPECT_TRUE(content.find("</VTKFile>") != std::string::npos);
 
 	// Check timestep entries
-	std::cout << content << std::endl;
 	EXPECT_TRUE(content.find("timestep=\"0.1") != std::string::npos);
 	EXPECT_TRUE(content.find("timestep=\"0.2") != std::string::npos);
 

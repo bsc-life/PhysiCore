@@ -51,15 +51,8 @@ void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 					 d_solver.get_substrates_layout());
 }
 
-#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
-__global__ void delete_functor(device_bulk_functor* ptr) { delete ptr; }
-#endif
-
 bulk_solver::~bulk_solver()
 {
-#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
-	delete_functor<<<1, 1>>>(func.get());
-#else
-	delete func.get();
-#endif
+	if (func)
+		thrust::device_delete(func);
 }

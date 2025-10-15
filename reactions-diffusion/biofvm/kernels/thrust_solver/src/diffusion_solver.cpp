@@ -259,20 +259,32 @@ void diffusion_solver::solve()
 
 void diffusion_solver::deinitialize()
 {
-	thrust::device_delete(bx_);
-	thrust::device_delete(cx_);
-	thrust::device_delete(ex_);
+	if (bx_)
+	{
+		thrust::device_delete(bx_);
+		thrust::device_delete(cx_);
+		thrust::device_delete(ex_);
+	}
 
-	thrust::device_delete(by_);
-	thrust::device_delete(cy_);
-	thrust::device_delete(ey_);
+	if (by_)
+	{
+		thrust::device_delete(by_);
+		thrust::device_delete(cy_);
+		thrust::device_delete(ey_);
+	}
 
-	thrust::device_delete(bz_);
-	thrust::device_delete(cz_);
-	thrust::device_delete(ez_);
+	if (bz_)
+	{
+		thrust::device_delete(bz_);
+		thrust::device_delete(cz_);
+		thrust::device_delete(ez_);
+	}
 
-	thrust::device_delete(substrate_densities_);
-	thrust::device_delete(initial_conditions_);
+	if (substrate_densities_)
+	{
+		thrust::device_delete(substrate_densities_);
+		thrust::device_delete(initial_conditions_);
+	}
 }
 
 diffusion_solver::~diffusion_solver() { deinitialize(); }

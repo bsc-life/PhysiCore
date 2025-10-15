@@ -1,12 +1,12 @@
 vcpkg_from_git(
   OUT_SOURCE_PATH SOURCE_PATH URL https://github.com/NVIDIA/cccl.git REF
-  8c04b6539859932f5602e86d38314e4d87f96420)
+  c859e948453f41076cf9727958cc709799c21ffb)
 
 vcpkg_cmake_configure(
   SOURCE_PATH
   ${SOURCE_PATH}
   OPTIONS
-  -DCMAKE_CUDA_ARCHITECTURES=all-major-cccl
+  -DCMAKE_CUDA_ARCHITECTURES=all-major
   -DCCCL_ENABLE_UNSTABLE=OFF
   -DCCCL_ENABLE_LIBCUDACXX=OFF
   -DCCCL_ENABLE_CUB=OFF
@@ -44,5 +44,6 @@ vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/libcudacxx PACKAGE_NAME
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/lib")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/cub/detail/ptx-json")
 
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
