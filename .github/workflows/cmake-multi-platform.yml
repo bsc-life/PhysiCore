@@ -46,10 +46,9 @@ jobs:
 
     - name: Install CUDA Toolkit
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
-      uses: Jimver/cuda-toolkit@v0.2.28
+      uses: N-Storm/cuda-toolkit@v0.2.28
       with:
         method: 'network'
-        use-github-cache: false
 
     - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11
