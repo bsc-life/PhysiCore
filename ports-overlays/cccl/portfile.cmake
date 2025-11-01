@@ -20,6 +20,16 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
+# Relocate headers under a single cccl/ prefix: include/cccl/{thrust,cub,cuda}
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/include/cccl")
+set(_cccl_header_dirs cub thrust cuda)
+foreach(_dir IN LISTS _cccl_header_dirs)
+  if(EXISTS "${CURRENT_PACKAGES_DIR}/include/${_dir}")
+    file(COPY "${CURRENT_PACKAGES_DIR}/include/${_dir}" DESTINATION "${CURRENT_PACKAGES_DIR}/include/cccl")
+    file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/${_dir}")
+  endif()
+endforeach()
+
 file(GLOB_RECURSE HEADER_SEARCH_FILES
      "${CURRENT_PACKAGES_DIR}/lib/cmake/*/*-header-search.cmake")
 
@@ -44,6 +54,6 @@ vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/libcudacxx PACKAGE_NAME
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/lib")
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/cub/detail/ptx-json")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/cccl/cub/detail/ptx-json")
 
 vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
