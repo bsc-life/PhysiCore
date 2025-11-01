@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <gtest/gtest.h>
 
 #include "agent.h"
@@ -158,7 +160,7 @@ TEST(AgentContainerTest, GetAgentAt)
 	EXPECT_DOUBLE_EQ(retrieved2->secretion_rates()[0], 0.3);
 	EXPECT_EQ(retrieved2, agent2);
 
-#if NDEBUG or _DEBUG
+#ifdef NDEBUG
 	// Test out of bounds access
 	EXPECT_EQ(container.get_agent_at(3), nullptr);
 	EXPECT_EQ(container.get_agent_at(-1), nullptr);

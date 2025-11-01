@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <gtest/gtest.h>
 
 #include "solver.h"
@@ -42,7 +44,7 @@ TEST(SolverRegistryTest, GetAndSet)
 
 	// Test non-existing
 	{
-#if NDEBUG or _DEBUG
+#ifdef NDEBUG
 		EXPECT_EQ(registry.get("solver_y"), nullptr);
 #endif
 	}

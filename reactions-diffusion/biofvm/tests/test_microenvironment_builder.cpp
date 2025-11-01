@@ -1,4 +1,5 @@
 #include <array>
+#include <assert.h>
 #include <memory>
 #include <string>
 #include <vector>
@@ -212,7 +213,7 @@ TEST(MicroenvironmentBuilder, BuildThrows)
 	builder2.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 	EXPECT_THROW(builder2.build(), std::runtime_error);
 
-#if NDEBUG or _DEBUG
+#ifdef NDEBUG
 	microenvironment_builder builder3;
 	builder3.add_density("O2", "mmHg", 1.0, 0.01, 20.0);
 	builder3.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
