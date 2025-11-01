@@ -11,7 +11,7 @@ Summary
 - Stable core API in `common/include` with minimal interfaces; numerical engines live as independent libraries and are wired into an example executable.
 
 Architecture essentials (what talks to what)
-- Core timestep API: `common/include/process.h` defines `class timestep_executor { run_single_timestep(); serialize_state(); }`.
+- Core timestep API: `common/include/timestep_executor.h` defines `class timestep_executor { run_single_timestep(); serialize_state(); }`.
 - Mechanics implements the timestep executor: `mechanics/physicell/include/environment.h` with `environment::run_single_timestep()` and `serialize_state()` in `src/environment.cpp`.
 - Microenvironment (BioFVM) provides diffusion, serializers, and solver plug-ins:
   - Serializer API: `reactions-diffusion/biofvm/include/serializer.h`; VTK serializer in `include/vtk_serializer*.h` + `src/vtk_serializer*.cpp`. It writes `.vti` files and a collection `.pvd` under the chosen output dir (tests use `vtk_microenvironment/`).

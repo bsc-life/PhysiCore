@@ -29,9 +29,9 @@ PhysiCore aims to be the go-to foundation for **next-generation, high-performanc
 
 ```
 PhysiCore/
-|-- common/                  (Core interfaces; the timestep contract lives in process.h)
+|-- common/                  (Core interfaces; the timestep contract lives in timestep_executor.h)
 |   \-- include/
-|       \-- process.h
+|       \-- timestep_executor.h
 |-- reactions-diffusion/     (Diffusion and reaction solvers with pluggable backends)
 |   \-- biofvm/
 |       |-- include/
