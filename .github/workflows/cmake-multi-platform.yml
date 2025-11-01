@@ -23,13 +23,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            preset: gcc-release
+            preset: gcc-release-no-cuda
           - os: ubuntu-latest
-            preset: llvm-release
+            preset: llvm-release-no-cuda
           - os: macos-latest
             preset: appleclang-release
           - os: windows-latest
-            preset: msvc-release
+            preset: msvc-release-no-cuda
 
     steps:
     - name: Checkout
