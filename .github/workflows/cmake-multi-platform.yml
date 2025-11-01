@@ -47,6 +47,8 @@ jobs:
     - name: Install CUDA Toolkit
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
       uses: Jimver/cuda-toolkit@v0.2.28
+      with:
+        method: 'network'
 
     - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11
