@@ -18,12 +18,13 @@ static constexpr auto fix_dims(const index_t* voxel_index, index_t dims)
 	return noarr::fix<'x', 'y', 'z'>(0, 0, 0);
 }
 
-template <typename density_layout_t>
-static void solve_interior(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities,
-						   const index_t* _CCCL_RESTRICT dirichlet_voxels,
-						   const real_t* _CCCL_RESTRICT dirichlet_values,
-						   const bool* _CCCL_RESTRICT dirichlet_conditions, index_t substrates_count,
-						   index_t dirichlet_voxels_count, index_t dims)
+namespace {
+
+	template <typename density_layout_t>
+void solve_interior(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities,
+					const index_t* _CCCL_RESTRICT dirichlet_voxels, const real_t* _CCCL_RESTRICT dirichlet_values,
+					const bool* _CCCL_RESTRICT dirichlet_conditions, index_t substrates_count,
+					index_t dirichlet_voxels_count, index_t dims)
 {
 	if (dirichlet_voxels_count == 0)
 		return;
@@ -44,12 +45,11 @@ static void solve_interior(const density_layout_t dens_l, real_t* _CCCL_RESTRICT
 }
 
 template <typename density_layout_t>
-static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities,
-							 microenvironment& m,
-							 std::array<thrust::device_vector<real_t>, 3>& dirichlet_min_boundary_values,
-							 std::array<thrust::device_vector<real_t>, 3>& dirichlet_max_boundary_values,
-							 std::array<thrust::device_vector<bool>, 3>& dirichlet_min_boundary_conditions,
-							 std::array<thrust::device_vector<bool>, 3>& dirichlet_max_boundary_conditions)
+void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities, microenvironment& m,
+					  std::array<thrust::device_vector<real_t>, 3>& dirichlet_min_boundary_values,
+					  std::array<thrust::device_vector<real_t>, 3>& dirichlet_max_boundary_values,
+					  std::array<thrust::device_vector<bool>, 3>& dirichlet_min_boundary_conditions,
+					  std::array<thrust::device_vector<bool>, 3>& dirichlet_max_boundary_conditions)
 {
 	index_t s_len = m.substrates_count;
 	index_t x_len = m.mesh.grid_shape[0];
@@ -182,6 +182,8 @@ static void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRI
 				});
 	}
 }
+
+} // namespace
 
 void dirichlet_solver::initialize(microenvironment& m)
 {
