@@ -46,7 +46,7 @@ jobs:
 
     - name: Install CUDA Toolkit
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
-      uses: Jimver/cuda-toolkit@v0.2.28
+      uses: Jimver/cuda-toolkit@v0.2.24
       with:
         method: 'network'
 
