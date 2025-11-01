@@ -1,5 +1,4 @@
 #include <array>
-#include <assert.h>
 #include <memory>
 #include <string>
 #include <vector>

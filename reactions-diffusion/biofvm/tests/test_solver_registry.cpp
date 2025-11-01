@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include <gtest/gtest.h>
 
 #include "solver.h"
