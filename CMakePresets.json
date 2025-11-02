@@ -91,10 +91,12 @@
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cl.exe",
                 "CMAKE_CXX_COMPILER": "cl.exe",
-                "CMAKE_C_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Zi",
-                "CMAKE_CXX_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Zi",
-                "CMAKE_C_FLAGS_RELEASE_INIT": "/W4",
-                "CMAKE_CXX_FLAGS_RELEASE_INIT": "/W4"
+                "CMAKE_C_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Od /Zi /Zc:preprocessor /EHsc",
+                "CMAKE_CXX_FLAGS_DEBUG_INIT": "/W4 /fsanitize=address /Od /Zi /Zc:preprocessor /EHsc",
+                "CMAKE_C_FLAGS_RELEASE_INIT": "/W4 /O2 /Zc:preprocessor /EHsc",
+                "CMAKE_CXX_FLAGS_RELEASE_INIT": "/W4 /O2 /Zc:preprocessor /EHsc",
+                "CMAKE_CUDA_FLAGS_DEBUG_INIT": "-Xcompiler=/Zc:preprocessor -Xcompiler=/fsanitize=address",
+                "CMAKE_CUDA_FLAGS_RELEASE_INIT": "-Xcompiler=/Zc:preprocessor"
             }
         },
         {
@@ -313,6 +315,16 @@
             }
         },
         {
+            "name": "_test_base_no_cuda",
+            "hidden": true,
+            "inherits": "_test_base",
+            "filter": {
+                "exclude": {
+                    "name": "^cuda"
+                }
+            }
+        },
+        {
             "name": "gcc-debug",
             "inherits": "_test_base",
             "configurePreset": "gcc-debug"
@@ -328,6 +340,11 @@
             "configurePreset": "gcc-release"
         },
         {
+            "name": "gcc-release-no-cuda",
+            "inherits": "_test_base_no_cuda",
+            "configurePreset": "gcc-release"
+        },
+        {
             "name": "llvm-debug",
             "inherits": "_test_base",
             "configurePreset": "llvm-debug"
@@ -340,6 +357,11 @@
         {
             "name": "llvm-release",
             "inherits": "_test_base",
+            "configurePreset": "llvm-release"
+        },
+        {
+            "name": "llvm-release-no-cuda",
+            "inherits": "_test_base_no_cuda",
             "configurePreset": "llvm-release"
         },
         {
@@ -365,6 +387,11 @@
         {
             "name": "msvc-release",
             "inherits": "_test_base",
+            "configurePreset": "msvc-release"
+        },
+        {
+            "name": "msvc-release-no-cuda",
+            "inherits": "_test_base_no_cuda",
             "configurePreset": "msvc-release"
         }
     ],
@@ -424,6 +451,24 @@
             ]
         },
         {
+            "name": "gcc-release-no-cuda",
+            "displayName": "GCC Release Build and non-CUDA Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "gcc-release"
+                },
+                {
+                    "type": "build",
+                    "name": "gcc-release"
+                },
+                {
+                    "type": "test",
+                    "name": "gcc-release-no-cuda"
+                }
+            ]
+        },
+        {
             "name": "llvm-debug",
             "displayName": "LLVM Debug MaxSan Build and Test",
             "steps": [
@@ -474,6 +519,24 @@
                 {
                     "type": "test",
                     "name": "llvm-release"
+                }
+            ]
+        },
+        {
+            "name": "llvm-release-no-cuda",
+            "displayName": "LLVM Release Build and non-CUDA Test",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "llvm-release"
+                },
+                {
+                    "type": "build",
+                    "name": "llvm-release"
+                },
+                {
+                    "type": "test",
+                    "name": "llvm-release-no-cuda"
                 }
             ]
         },
@@ -542,6 +605,23 @@
                 {
                     "type": "test",
                     "name": "msvc-release"
+                }
+            ]
+        },
+        {
+            "name": "msvc-release-no-cuda",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "msvc-release"
+                },
+                {
+                    "type": "build",
+                    "name": "msvc-release"
+                },
+                {
+                    "type": "test",
+                    "name": "msvc-release-no-cuda"
                 }
             ]
         }

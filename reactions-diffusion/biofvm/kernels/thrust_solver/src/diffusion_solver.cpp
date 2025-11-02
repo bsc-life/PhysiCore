@@ -160,10 +160,12 @@ void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& db, thrust:
 	thrust::copy(c.get(), c.get() + m.substrates_count * copies, dc);
 }
 
+namespace {
+
 template <char swipe_dim, typename density_layout_t, typename index_t>
-static constexpr void solve_slice(real_t* _CCCL_RESTRICT densities, const real_t* _CCCL_RESTRICT b,
-								  const real_t* _CCCL_RESTRICT c, const real_t* _CCCL_RESTRICT e,
-								  const density_layout_t dens_l, index_t s)
+constexpr void solve_slice(real_t* _CCCL_RESTRICT densities, const real_t* _CCCL_RESTRICT b,
+						   const real_t* _CCCL_RESTRICT c, const real_t* _CCCL_RESTRICT e,
+						   const density_layout_t dens_l, index_t s)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 	const index_t n = dens_l | noarr::get_length<swipe_dim>();
@@ -189,6 +191,7 @@ static constexpr void solve_slice(real_t* _CCCL_RESTRICT densities, const real_t
 			* (diag_l | noarr::get_at<'i', 's'>(b, i, s));
 	}
 }
+} // namespace
 
 thrust::device_ptr<real_t> diffusion_solver::get_substrates_pointer() { return substrate_densities_; }
 

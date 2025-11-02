@@ -23,13 +23,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            preset: gcc-release
+            preset: gcc-release-no-cuda
           - os: ubuntu-latest
-            preset: llvm-release
+            preset: llvm-release-no-cuda
           - os: macos-latest
             preset: appleclang-release
           - os: windows-latest
-            preset: msvc-release
+            preset: msvc-release-no-cuda
 
     steps:
     - name: Checkout
@@ -38,11 +38,17 @@ jobs:
         submodules: recursive
         fetch-depth: 0
 
-    - name: Install dependencies (Linux)
-      if: runner.os == 'Linux'
+    - name: Install libomp
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y libomp-dev
+
+    - name: Install CUDA Toolkit
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
+      uses: N-Storm/cuda-toolkit@v0.2.28
+      with:
+        method: 'network'
 
     - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11

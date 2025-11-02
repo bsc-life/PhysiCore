@@ -32,7 +32,7 @@ Start by creating a feature branch from the default branch and keep each change 
 - Follow the existing style of the subsystem you are touching (this project favors clear, modern C++20 with standard library facilities over custom utilities).
 - Keep public interfaces stable: headers under `*/include/` constitute the exported API. Coordinate interface changes with maintainers.
 - Maintain subsystem boundaries:
-  - `common/` exposes core concepts and the timestep contract in `process.h`.
+  - `common/` exposes core concepts and the timestep contract in `timestep_executor.h`.
   - `reactions-diffusion/biofvm/` owns diffusion kernels, serializers, and registry wiring.
   - `mechanics/physicell/` implements mechanics-specific timestep executors and environment logic.
   - `phenotype/physicore/` links the pieces into runnable examples or apps.

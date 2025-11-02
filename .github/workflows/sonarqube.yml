@@ -35,7 +35,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vcpkg-binary-cache-
       - name: Install Build Wrapper
-        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v4
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
       - name: Run Build Wrapper
         run: |
           cmake --preset llvm-cov-debug
@@ -54,14 +54,14 @@ jobs:
         run: |
           llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/llvm-cov-debug/common/physicore.common.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/tests/physicore.reactions-diffusion.biofvm.tests -object build/llvm-cov-debug/mechanics/physicell/physicore.mechanics.physicell.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/openmp_solver/tests/physicore.reactions-diffusion.kernels.openmp_solver.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/thrust_solver/tests/physicore.reactions-diffusion.kernels.tbb_thrust_solver.tests > coverage.txt
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
         with:
           args: >
             --define sonar.projectKey=bsc-life_PhysiCore
             --define sonar.organization=bsc-life
-            --define sonar.cfamily.compile-commands="${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json"
+            --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json
             --define sonar.cfamily.llvm-cov.reportPath=coverage.txt
             --define sonar.sources=phenotype/physicore/src,common/include,reactions-diffusion/biofvm/src,reactions-diffusion/biofvm/include,mechanics/physicell/src,mechanics/physicell/include,reactions-diffusion/biofvm/kernels/openmp_solver/src,reactions-diffusion/biofvm/kernels/openmp_solver/examples,reactions-diffusion/biofvm/kernels/openmp_solver/include,reactions-diffusion/biofvm/kernels/thrust_solver/src,reactions-diffusion/biofvm/kernels/thrust_solver/examples,reactions-diffusion/biofvm/kernels/thrust_solver/include
             --define sonar.tests=common/tests,reactions-diffusion/biofvm/tests,mechanics/physicell/tests,reactions-diffusion/biofvm/kernels/openmp_solver/tests,reactions-diffusion/biofvm/kernels/thrust_solver/tests
