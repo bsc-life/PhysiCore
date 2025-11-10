@@ -2,7 +2,7 @@
 
 #include "environment.h"
 
-using namespace physicore::micromechanics;
+using namespace physicore::mechanics::micromechanics;
 
 TEST(EnvironmentTest, RunSingleTimestep)
 {
