@@ -3,7 +3,7 @@
 #include "timestep_executor.h"
 #include "types.h"
 
-namespace physicore::mechanics::physicell {
+namespace physicore::mechanics::micromechanics {
 
 class environment : public timestep_executor
 {
