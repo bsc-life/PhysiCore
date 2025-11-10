@@ -1,6 +1,6 @@
 #include "environment.h"
 
-using namespace physicore::micromechanics;
+using namespace physicore::mechanics::micromechanics;
 
 void environment::run_single_timestep()
 {

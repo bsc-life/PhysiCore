@@ -3,7 +3,7 @@
 #include <common/timestep_executor.h>
 #include <common/types.h>
 
-namespace physicore::micromechanics {
+namespace physicore::mechanics::micromechanics {
 
 class environment : public timestep_executor
 {
@@ -17,4 +17,4 @@ public:
 	void serialize_state(real_t current_time) override;
 };
 
-} // namespace physicore::micromechanics
+} // namespace physicore::mechanics::micromechanics

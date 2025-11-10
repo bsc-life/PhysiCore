@@ -40,5 +40,5 @@ include(CTest)
 
 add_subdirectory(common)
 add_subdirectory(reactions-diffusion/biofvm)
-add_subdirectory(mechanics/physicell)
+add_subdirectory(mechanics/micromechanics)
 add_subdirectory(phenotype/physicore)
