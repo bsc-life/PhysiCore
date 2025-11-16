@@ -20,7 +20,7 @@ static constexpr auto fix_dims(const index_t* voxel_index, index_t dims)
 
 namespace {
 
-	template <typename density_layout_t>
+template <typename density_layout_t>
 void solve_interior(const density_layout_t dens_l, real_t* _CCCL_RESTRICT substrate_densities,
 					const index_t* _CCCL_RESTRICT dirichlet_voxels, const real_t* _CCCL_RESTRICT dirichlet_values,
 					const bool* _CCCL_RESTRICT dirichlet_conditions, index_t substrates_count,
