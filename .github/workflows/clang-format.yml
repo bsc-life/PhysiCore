@@ -1,0 +1,54 @@
+name: Clang-Format
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ '**' ]
+
+permissions:
+  contents: read
+
+jobs:
+  clang-format:
+    name: Check C/C++ formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-format-18
+          sudo ln -sf /usr/bin/clang-format-18 /usr/bin/clang-format
+
+      - name: Show clang-format version
+        run: clang-format --version
+
+      - name: Validate formatting
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Collect tracked C/C++ source files only (excludes submodules & build artifacts)
+          mapfile -d '' files < <(git ls-files -z -- '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.cu')
+          if (( ${#files[@]} == 0 )); then
+            echo "No tracked C/C++ files found. Skipping."
+            exit 0
+          fi
+
+          echo "Found ${#files[@]} C/C++ files to check."
+
+          echo "Running clang-format dry-run with Werror..."
+          if ! clang-format -style=file --dry-run --Werror "${files[@]}"; then
+            echo "Formatting check failed. To fix locally, run:"
+            echo "  git ls-files -z -- '*.h' '*.hpp' '*.hh' '*.hxx' '*.c' '*.cc' '*.cpp' '*.cxx' '*.cu' | xargs -0 -n1 clang-format -i -style=file"
+            exit 1
+          fi
+
+          echo "All files are properly formatted."
