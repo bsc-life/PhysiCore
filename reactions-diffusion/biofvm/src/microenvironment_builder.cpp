@@ -7,6 +7,7 @@
 #include "microenvironment.h"
 #include "solver_registry.h"
 #include "types.h"
+#include "vtk_agents_serializer.h"
 #include "vtk_serializer.h"
 
 using namespace physicore::biofvm;
@@ -201,6 +202,7 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 	m->solver = std::move(solver);
 
 	m->serializer = std::make_unique<vtk_serializer>("output", *m);
+	m->agents_serializer = std::make_unique<vtk_agents_serializer>("output", *m);
 
 	return m;
 }
