@@ -1,6 +1,7 @@
 #include "vtk_serializer.h"
 
 #include <filesystem>
+#include <iomanip>
 #include <sstream>
 #include <vtkCellData.h>
 #include <vtkImageData.h>

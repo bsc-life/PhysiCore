@@ -349,3 +349,52 @@ TEST_F(VtkAgentsSerializerTest, AllSubstrateArraysPresent)
 	// Also check volume array
 	EXPECT_NE(point_data->GetArray("volume"), nullptr);
 }
+
+TEST_F(VtkAgentsSerializerTest, IntegrationWithMicroenvironment)
+{
+	auto m = create_test_microenvironment();
+
+	// Create agents
+	const int num_agents = 3;
+	for (int i = 0; i < num_agents; ++i)
+	{
+		m->agents->create();
+	}
+
+	auto container = std::dynamic_pointer_cast<agent_container>(m->agents);
+	auto& base_data = std::get<0>(container->agent_datas);
+	auto& biofvm_data = std::get<1>(container->agent_datas);
+
+	// Set some agent data
+	for (int i = 0; i < num_agents; ++i)
+	{
+		base_data->positions[i * 3 + 0] = 10.0 + i * 5.0;
+		base_data->positions[i * 3 + 1] = 20.0 + i * 5.0;
+		base_data->positions[i * 3 + 2] = 30.0 + i * 5.0;
+		biofvm_data->volumes[i] = 100.0 * (i + 1);
+	}
+
+	// Serialize through microenvironment's serialize_state method
+	EXPECT_NO_THROW(m->serialize_state(0.0));
+
+	// Verify both microenvironment and agent files are created
+	auto microenv_pvd = test_output_dir / "microenvironment.pvd";
+	auto agents_pvd = test_output_dir / "agents.pvd";
+
+	EXPECT_TRUE(std::filesystem::exists(microenv_pvd));
+	EXPECT_TRUE(std::filesystem::exists(agents_pvd));
+
+	// Verify agent VTU file
+	auto vtk_dir = test_output_dir / "vtk_agents";
+	auto vtu_file = vtk_dir / "agents_000000.vtu";
+	EXPECT_TRUE(std::filesystem::exists(vtu_file));
+
+	// Read and verify the file
+	auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+	reader->SetFileName(vtu_file.string().c_str());
+	reader->Update();
+
+	auto unstructured_grid = reader->GetOutput();
+	ASSERT_NE(unstructured_grid, nullptr);
+	EXPECT_EQ(unstructured_grid->GetNumberOfPoints(), num_agents);
+}

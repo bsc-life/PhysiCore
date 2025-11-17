@@ -1,6 +1,7 @@
 #include "vtk_agents_serializer.h"
 
 #include <filesystem>
+#include <iomanip>
 #include <sstream>
 #include <vtkCellArray.h>
 #include <vtkIdTypeArray.h>
