@@ -11,7 +11,7 @@
 using namespace physicore::biofvm;
 
 vtk_serializer::vtk_serializer(std::string_view output_dir, microenvironment& m)
-	: vtk_serializer_base(output_dir, "vtk_microenvironment")
+	: vtk_serializer_base(output_dir, "vtk_microenvironment", "microenvironment.pvd")
 {
 	auto x_extent_start = m.mesh.bounding_box_mins[0] / (sindex_t)m.mesh.voxel_shape[0];
 	auto x_extent_end = x_extent_start + (sindex_t)m.mesh.grid_shape[0];
