@@ -93,6 +93,7 @@ Manifest dependencies (from `vcpkg.json`):
 - `gtest` - Testing framework
 - `highway` - Vendor-agnostic vectorization library
 - `noarr-structures` - Memory layouts library
+- `pugixml` - Lightweight XML parsing library for configuration files
 - `tbb` - Intel OneAPI Threading Building Blocks
 - `vtk-ioxml` - VTK IO for BioFVM serializer
 
