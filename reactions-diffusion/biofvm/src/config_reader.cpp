@@ -12,9 +12,10 @@ namespace {
 pugi::xml_node get_required_child(const pugi::xml_node& parent, const char* name)
 {
 	pugi::xml_node child = parent.child(name);
-	if (!child) {
-		throw std::runtime_error(std::string("Required XML tag <") + name + "> not found under <" +
-		                         parent.name() + ">");
+	if (!child)
+	{
+		throw std::runtime_error(std::string("Required XML tag <") + name + "> not found under <" + parent.name()
+								 + ">");
 	}
 	return child;
 }
@@ -84,13 +85,16 @@ dirichlet_boundary_config parse_dirichlet_options(const pugi::xml_node& variable
 	config.maxs_conditions.fill(false);
 
 	pugi::xml_node options_node = variable_node.child("Dirichlet_options");
-	if (!options_node) {
+	if (!options_node)
+	{
 		// If no Dirichlet_options, check for legacy Dirichlet_boundary_condition
 		pugi::xml_node boundary_node = variable_node.child("Dirichlet_boundary_condition");
-		if (boundary_node) {
+		if (boundary_node)
+		{
 			bool enabled = boundary_node.attribute("enabled").as_bool();
 			real_t value = static_cast<real_t>(boundary_node.text().as_double());
-			if (enabled) {
+			if (enabled)
+			{
 				// Apply to all boundaries
 				config.mins_values.fill(value);
 				config.maxs_values.fill(value);
@@ -103,18 +107,23 @@ dirichlet_boundary_config parse_dirichlet_options(const pugi::xml_node& variable
 
 	// Parse individual boundary values
 	const char* boundary_ids[] = { "xmin", "xmax", "ymin", "ymax", "zmin", "zmax" };
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 6; ++i)
+	{
 		pugi::xml_node boundary_value = options_node.find_child_by_attribute("boundary_value", "ID", boundary_ids[i]);
-		if (boundary_value) {
+		if (boundary_value)
+		{
 			real_t value = static_cast<real_t>(boundary_value.text().as_double());
 			bool enabled = boundary_value.attribute("enabled").as_bool();
 
-			if (i % 2 == 0) {
+			if (i % 2 == 0)
+			{
 				// mins: xmin=0, ymin=2, zmin=4
 				int axis = i / 2;
 				config.mins_values[axis] = value;
 				config.mins_conditions[axis] = enabled;
-			} else {
+			}
+			else
+			{
 				// maxs: xmax=1, ymax=3, zmax=5
 				int axis = i / 2;
 				config.maxs_values[axis] = value;
@@ -157,23 +166,28 @@ microenvironment_config parse_microenvironment(const pugi::xml_node& microenv_no
 
 	// Parse all variables
 	for (pugi::xml_node variable_node = microenv_node.child("variable"); variable_node;
-	     variable_node = variable_node.next_sibling("variable")) {
+		 variable_node = variable_node.next_sibling("variable"))
+	{
 		config.variables.push_back(parse_variable(variable_node));
 	}
 
-	if (config.variables.empty()) {
+	if (config.variables.empty())
+	{
 		throw std::runtime_error("No <variable> tags found in <microenvironment_setup>");
 	}
 
 	// Parse options
 	pugi::xml_node options_node = microenv_node.child("options");
-	if (options_node) {
+	if (options_node)
+	{
 		pugi::xml_node grad_node = options_node.child("calculate_gradients");
 		config.calculate_gradients = grad_node ? grad_node.text().as_bool() : false;
 
 		pugi::xml_node track_node = options_node.child("track_internalized_substrates_in_each_agent");
 		config.track_internalized_substrates = track_node ? track_node.text().as_bool() : false;
-	} else {
+	}
+	else
+	{
 		config.calculate_gradients = false;
 		config.track_internalized_substrates = false;
 	}
@@ -186,7 +200,8 @@ microenvironment_config parse_microenvironment(const pugi::xml_node& microenv_no
 physicell_config parse_physicell_config(const std::filesystem::path& config_file)
 {
 	// Check file exists
-	if (!std::filesystem::exists(config_file)) {
+	if (!std::filesystem::exists(config_file))
+	{
 		throw std::runtime_error("Configuration file not found: " + config_file.string());
 	}
 
@@ -194,14 +209,15 @@ physicell_config parse_physicell_config(const std::filesystem::path& config_file
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(config_file.string().c_str());
 
-	if (!result) {
-		throw std::runtime_error("Failed to parse XML file: " + config_file.string() + " - " +
-		                         result.description());
+	if (!result)
+	{
+		throw std::runtime_error("Failed to parse XML file: " + config_file.string() + " - " + result.description());
 	}
 
 	// Get root node
 	pugi::xml_node root = doc.child("PhysiCell_settings");
-	if (!root) {
+	if (!root)
+	{
 		throw std::runtime_error("Root <PhysiCell_settings> tag not found in " + config_file.string());
 	}
 
