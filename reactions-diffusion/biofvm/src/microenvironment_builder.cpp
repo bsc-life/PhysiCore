@@ -165,6 +165,8 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 	m->time_units = std::move(time_units);
 	m->space_units = std::move(space_units);
 
+	m->simulation_time = simulation_time;
+
 	m->substrates_names = std::move(substrates_names);
 	m->substrates_units = std::move(substrates_units);
 
