@@ -1,45 +1,42 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <random>
 #include <vector>
 
+#include "config_reader.h"
 #include "microenvironment.h"
-#include "microenvironment_builder.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;
 
 int main()
 {
-	real_t diffusion_timestep = 0.01;
-	real_t simulation_time = 30.0;
 	real_t output_interval = 0.1;
-	index_t dims = 2;
 	index_t oxygen_idx = 0;
 	index_t glucose_idx = 1;
 
 	// Create microenvironment
 	std::unique_ptr<microenvironment> m;
 	{
-		microenvironment_builder builder;
-		builder.resize(dims, { -1000, -1000, -1000 }, { 1000, 1000, 1000 }, { 20, 20, 20 });
-		builder.set_time_step(diffusion_timestep);
-		builder.add_density("oxygen", "mmHg", 100'000, 0.1, 38.0);
-		builder.add_density("glucose", "mM", 600, 0.1, 15.0);
+		std::filesystem::path config_file = "settings.xml";
 
-		oxygen_idx = builder.get_density_index("oxygen");
-		glucose_idx = builder.get_density_index("glucose");
-
-		builder.add_boundary_dirichlet_conditions(oxygen_idx, { 70.0, 60.0, 55.0 }, { 25.0, 20.0, 18.0 },
-												  { true, true, true }, { true, true, true });
-		builder.add_boundary_dirichlet_conditions(glucose_idx, { 9.0, 8.0, 7.5 }, { 3.0, 2.5, 2.0 },
-												  { true, true, true }, { true, true, true });
-
-		m = builder.build();
+		try
+		{
+			std::cout << "[diffuse] Loading configuration from: " << config_file << std::endl;
+			m = microenvironment::create_from_config(config_file);
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "[diffuse] Error: " << e.what() << std::endl;
+			return 1;
+		}
 	}
+
+	m->print_info(std::cout);
 
 	std::mt19937 rng(42);
 	std::uniform_real_distribution<real_t> offset(-1.0, 1.0);
@@ -109,9 +106,11 @@ int main()
 
 	// m->serialize_state();
 
-	while (current_time < simulation_time - 1e-12)
+	std::cout << "\n[diffuse] Running simulation for " << m->simulation_time << " time units..." << std::endl;
+
+	while (current_time < m->simulation_time - 1e-12)
 	{
-		current_time += diffusion_timestep;
+		current_time += m->diffusion_timestep;
 
 		auto run_start = std::chrono::steady_clock::now();
 		m->run_single_timestep();
@@ -131,6 +130,8 @@ int main()
 			diffusion_runtime = std::chrono::duration<double> { 0.0 };
 		}
 	}
+
+	std::cout << "\n[diffuse] Simulation completed successfully!" << std::endl;
 
 	return 0;
 }

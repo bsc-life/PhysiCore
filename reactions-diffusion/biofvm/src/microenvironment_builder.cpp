@@ -20,6 +20,8 @@ void microenvironment_builder::set_space_units(std::string_view space_units) { t
 
 void microenvironment_builder::set_time_step(real_t time_step) { this->timestep = time_step; }
 
+void microenvironment_builder::set_simulation_time(real_t sim_time) { this->simulation_time = sim_time; }
+
 void microenvironment_builder::resize(index_t dims, std::array<sindex_t, 3> bounding_box_mins,
 									  std::array<sindex_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)
 {
@@ -162,6 +164,8 @@ std::unique_ptr<microenvironment> microenvironment_builder::build()
 	m->name = std::move(name);
 	m->time_units = std::move(time_units);
 	m->space_units = std::move(space_units);
+
+	m->simulation_time = simulation_time;
 
 	m->substrates_names = std::move(substrates_names);
 	m->substrates_units = std::move(substrates_units);

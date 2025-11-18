@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+#include <memory>
 #include <string>
 #include <timestep_executor.h>
 #include <types.h>
@@ -23,10 +25,14 @@ public:
 	microenvironment& operator=(const microenvironment&) = delete;
 	microenvironment& operator=(microenvironment&&) = delete;
 
+	static std::unique_ptr<microenvironment> create_from_config(const std::filesystem::path& config_file);
+
 	void run_single_timestep() override;
 	void serialize_state(real_t current_time) override;
 
 	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const;
+
+	void print_info(std::ostream& os) const;
 
 	container_ptr agents;
 	solver_ptr solver;
@@ -35,6 +41,7 @@ public:
 	// environment configuration parameters
 	std::string name, time_units, space_units;
 	real_t diffusion_timestep;
+	real_t simulation_time = 0.0;
 	cartesian_mesh mesh;
 
 	// diffusion-decay configuration parameters

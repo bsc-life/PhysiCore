@@ -14,6 +14,7 @@ class microenvironment_builder
 	std::string name, time_units, space_units;
 
 	real_t timestep = 0.01;
+	real_t simulation_time = 0.0;
 	std::optional<cartesian_mesh> mesh;
 
 	std::vector<std::string> substrates_names;
@@ -46,6 +47,7 @@ public:
 	void set_space_units(std::string_view units);
 
 	void set_time_step(real_t time_step);
+	void set_simulation_time(real_t sim_time);
 
 	// mesh functions
 	void resize(index_t dims, std::array<sindex_t, 3> bounding_box_mins, std::array<sindex_t, 3> bounding_box_maxs,
