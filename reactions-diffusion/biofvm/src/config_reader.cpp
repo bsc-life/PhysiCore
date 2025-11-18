@@ -31,9 +31,7 @@ real_t parse_real(const pugi::xml_node& node, const char* tag_name)
 bool parse_bool(const pugi::xml_node& node, const char* tag_name)
 {
 	pugi::xml_node child = get_required_child(node, tag_name);
-	std::string text = child.text().as_string();
-	// Handle various boolean representations
-	return (text == "true" || text == "True" || text == "TRUE" || text == "1");
+	return child.text().as_bool();
 }
 
 // Helper function to parse text content as string
@@ -84,10 +82,8 @@ dirichlet_boundary_config parse_dirichlet_options(const pugi::xml_node& variable
 	config.mins_conditions.fill(false);
 	config.maxs_conditions.fill(false);
 
-	pugi::xml_node options_node = variable_node.child("Dirichlet_options");
-	if (!options_node)
 	{
-		// If no Dirichlet_options, check for legacy Dirichlet_boundary_condition
+		// Check for legacy Dirichlet_boundary_condition
 		pugi::xml_node boundary_node = variable_node.child("Dirichlet_boundary_condition");
 		if (boundary_node)
 		{
@@ -102,6 +98,11 @@ dirichlet_boundary_config parse_dirichlet_options(const pugi::xml_node& variable
 				config.maxs_conditions.fill(true);
 			}
 		}
+	}
+
+	pugi::xml_node options_node = variable_node.child("Dirichlet_options");
+	if (!options_node)
+	{
 		return config;
 	}
 
@@ -195,7 +196,7 @@ microenvironment_config parse_microenvironment(const pugi::xml_node& microenv_no
 	return config;
 }
 
-} // anonymous namespace
+} // namespace
 
 physicell_config parse_physicell_config(const std::filesystem::path& config_file)
 {
