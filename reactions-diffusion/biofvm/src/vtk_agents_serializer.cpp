@@ -138,8 +138,8 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 			net_export_rates_arrays[s]->SetValue(i, biofvm_data->net_export_rates[idx]);
 			internalized_substrates_arrays[s]->SetValue(i, biofvm_data->internalized_substrates[idx]);
 			fraction_released_at_death_arrays[s]->SetValue(i, biofvm_data->fraction_released_at_death[idx]);
-			fraction_transferred_when_ingested_arrays[s]->SetValue(i,
-																	biofvm_data->fraction_transferred_when_ingested[idx]);
+			fraction_transferred_when_ingested_arrays[s]->SetValue(
+				i, biofvm_data->fraction_transferred_when_ingested[idx]);
 		}
 	}
 

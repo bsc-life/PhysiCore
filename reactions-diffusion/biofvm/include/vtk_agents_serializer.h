@@ -20,7 +20,7 @@ class vtk_agents_serializer : public vtk_serializer_base, public serializer
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
-	
+
 	vtkSmartPointer<vtkRealArray> volumes_array;
 	std::vector<vtkSmartPointer<vtkRealArray>> secretion_rates_arrays;
 	std::vector<vtkSmartPointer<vtkRealArray>> saturation_densities_arrays;
