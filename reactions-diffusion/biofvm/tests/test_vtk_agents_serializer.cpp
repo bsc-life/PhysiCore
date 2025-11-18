@@ -144,8 +144,8 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithSingleAgent)
 	EXPECT_EQ(unstructured_grid->GetNumberOfPoints(), 1);
 
 	// Check point position
-	double pos[3];
-	unstructured_grid->GetPoint(0, pos);
+	std::array<double, 3> pos;
+	unstructured_grid->GetPoint(0, pos.data());
 	EXPECT_DOUBLE_EQ(pos[0], 10.0);
 	EXPECT_DOUBLE_EQ(pos[1], 20.0);
 	EXPECT_DOUBLE_EQ(pos[2], 30.0);

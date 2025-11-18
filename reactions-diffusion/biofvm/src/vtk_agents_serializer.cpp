@@ -75,8 +75,8 @@ vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir, const 
 
 void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_time)
 {
-	auto& biofvm_data = retrieve_agent_data(*m.agents);
-	auto& base_data = biofvm_data.base_data;
+	const auto& biofvm_data = retrieve_agent_data(*m.agents);
+	const auto& base_data = biofvm_data.base_data;
 
 	const index_t agent_count = biofvm_data.agents_count;
 
