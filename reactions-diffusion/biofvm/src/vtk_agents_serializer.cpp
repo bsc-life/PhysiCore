@@ -75,16 +75,10 @@ vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir, const 
 
 void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_time)
 {
-	// Get agent container and data
-	auto container = std::dynamic_pointer_cast<agent_container>(m.agents);
-	if (!container)
-		return;
+	auto& biofvm_data = retrieve_agent_data(*m.agents);
+	auto& base_data = biofvm_data.base_data;
 
-	auto& agent_data_tuple = container->agent_datas;
-	auto& base_data = std::get<0>(agent_data_tuple);
-	auto& biofvm_data = std::get<1>(agent_data_tuple);
-
-	const index_t agent_count = biofvm_data->agents_count;
+	const index_t agent_count = biofvm_data.agents_count;
 
 	// Create points for agent positions
 	auto points = vtkSmartPointer<vtkPoints>::New();
@@ -94,9 +88,9 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 	for (index_t i = 0; i < agent_count; ++i)
 	{
 		double pos[3] = { 0.0, 0.0, 0.0 };
-		for (index_t d = 0; d < base_data->dims && d < 3; ++d)
+		for (index_t d = 0; d < base_data.dims && d < 3; ++d)
 		{
-			pos[d] = base_data->positions[i * base_data->dims + d];
+			pos[d] = base_data.positions[i * base_data.dims + d];
 		}
 		points->SetPoint(i, pos);
 	}
@@ -127,19 +121,19 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 	// Fill in the data
 	for (index_t i = 0; i < agent_count; ++i)
 	{
-		volumes_array->SetValue(i, biofvm_data->volumes[i]);
+		volumes_array->SetValue(i, biofvm_data.volumes[i]);
 
 		for (index_t s = 0; s < substrate_count; ++s)
 		{
 			index_t idx = i * substrate_count + s;
-			secretion_rates_arrays[s]->SetValue(i, biofvm_data->secretion_rates[idx]);
-			saturation_densities_arrays[s]->SetValue(i, biofvm_data->saturation_densities[idx]);
-			uptake_rates_arrays[s]->SetValue(i, biofvm_data->uptake_rates[idx]);
-			net_export_rates_arrays[s]->SetValue(i, biofvm_data->net_export_rates[idx]);
-			internalized_substrates_arrays[s]->SetValue(i, biofvm_data->internalized_substrates[idx]);
-			fraction_released_at_death_arrays[s]->SetValue(i, biofvm_data->fraction_released_at_death[idx]);
-			fraction_transferred_when_ingested_arrays[s]->SetValue(
-				i, biofvm_data->fraction_transferred_when_ingested[idx]);
+			secretion_rates_arrays[s]->SetValue(i, biofvm_data.secretion_rates[idx]);
+			saturation_densities_arrays[s]->SetValue(i, biofvm_data.saturation_densities[idx]);
+			uptake_rates_arrays[s]->SetValue(i, biofvm_data.uptake_rates[idx]);
+			net_export_rates_arrays[s]->SetValue(i, biofvm_data.net_export_rates[idx]);
+			internalized_substrates_arrays[s]->SetValue(i, biofvm_data.internalized_substrates[idx]);
+			fraction_released_at_death_arrays[s]->SetValue(i, biofvm_data.fraction_released_at_death[idx]);
+			fraction_transferred_when_ingested_arrays[s]->SetValue(i,
+																   biofvm_data.fraction_transferred_when_ingested[idx]);
 		}
 	}
 
