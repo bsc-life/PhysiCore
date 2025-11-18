@@ -105,7 +105,7 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithSingleAgent)
 	auto m = create_test_microenvironment();
 
 	// Create an agent
-	auto agent = m->agents->create();
+	m->agents->create();
 	auto container = std::dynamic_pointer_cast<agent_container>(m->agents);
 	ASSERT_NE(container, nullptr);
 
@@ -121,8 +121,8 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithSingleAgent)
 	biofvm_data->volumes[0] = 100.0;
 
 	// Set agent substrate data
-	biofvm_data->secretion_rates[0] = 1.0;	  // O2
-	biofvm_data->secretion_rates[1] = 2.0;	  // Glucose
+	biofvm_data->secretion_rates[0] = 1.0; // O2
+	biofvm_data->secretion_rates[1] = 2.0; // Glucose
 	biofvm_data->saturation_densities[0] = 3.0;
 	biofvm_data->saturation_densities[1] = 4.0;
 
@@ -186,7 +186,7 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 	const int num_agents = 5;
 	for (int i = 0; i < num_agents; ++i)
 	{
-		auto agent = m->agents->create();
+		m->agents->create();
 	}
 
 	auto container = std::dynamic_pointer_cast<agent_container>(m->agents);
@@ -341,8 +341,7 @@ TEST_F(VtkAgentsSerializerTest, AllSubstrateArraysPresent)
 		for (const auto& suffix : array_suffixes)
 		{
 			std::string array_name = substrate + suffix;
-			EXPECT_NE(point_data->GetArray(array_name.c_str()), nullptr)
-				<< "Missing array: " << array_name;
+			EXPECT_NE(point_data->GetArray(array_name.c_str()), nullptr) << "Missing array: " << array_name;
 		}
 	}
 
@@ -374,18 +373,21 @@ TEST_F(VtkAgentsSerializerTest, IntegrationWithMicroenvironment)
 		biofvm_data->volumes[i] = 100.0 * (i + 1);
 	}
 
+	// Initialize densities
+	m->solver->solve(*m, 1);
+
 	// Serialize through microenvironment's serialize_state method
 	EXPECT_NO_THROW(m->serialize_state(0.0));
 
 	// Verify both microenvironment and agent files are created
-	auto microenv_pvd = test_output_dir / "microenvironment.pvd";
-	auto agents_pvd = test_output_dir / "agents.pvd";
+	auto microenv_pvd = std::filesystem::path("output") / "microenvironment.pvd";
+	auto agents_pvd = std::filesystem::path("output") / "agents.pvd";
 
 	EXPECT_TRUE(std::filesystem::exists(microenv_pvd));
 	EXPECT_TRUE(std::filesystem::exists(agents_pvd));
 
 	// Verify agent VTU file
-	auto vtk_dir = test_output_dir / "vtk_agents";
+	auto vtk_dir = std::filesystem::path("output") / "vtk_agents";
 	auto vtu_file = vtk_dir / "agents_000000.vtu";
 	EXPECT_TRUE(std::filesystem::exists(vtu_file));
 
