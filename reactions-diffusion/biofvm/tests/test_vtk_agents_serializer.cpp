@@ -247,6 +247,42 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 		auto point_data = unstructured_grid->GetPointData();
 		auto volume_array = point_data->GetArray("volume");
 		EXPECT_DOUBLE_EQ(volume_array->GetTuple1(i), (i + 1) * 100.0);
+
+		// Check substrate-related data for each agent
+		for (index_t s = 0; s < m->substrates_count; ++s)
+		{
+			std::string substrate_name = m->substrates_names[s];
+
+			auto secretion_array = point_data->GetArray((substrate_name + "_secretion_rate").c_str());
+			ASSERT_NE(secretion_array, nullptr);
+			EXPECT_DOUBLE_EQ(secretion_array->GetTuple1(i), i + s + 1.0);
+
+			auto saturation_array = point_data->GetArray((substrate_name + "_saturation_density").c_str());
+			ASSERT_NE(saturation_array, nullptr);
+			EXPECT_DOUBLE_EQ(saturation_array->GetTuple1(i), (i + 1) * (s + 1) * 10.0);
+
+			auto uptake_array = point_data->GetArray((substrate_name + "_uptake_rate").c_str());
+			ASSERT_NE(uptake_array, nullptr);
+			EXPECT_DOUBLE_EQ(uptake_array->GetTuple1(i), (i + 1) * 0.5);
+
+			auto net_export_array = point_data->GetArray((substrate_name + "_net_export_rate").c_str());
+			ASSERT_NE(net_export_array, nullptr);
+			EXPECT_DOUBLE_EQ(net_export_array->GetTuple1(i), (i + 1) * 0.1);
+
+			auto internalized_array = point_data->GetArray((substrate_name + "_internalized_substrate").c_str());
+			ASSERT_NE(internalized_array, nullptr);
+			EXPECT_DOUBLE_EQ(internalized_array->GetTuple1(i), i * 5.0);
+
+			auto fraction_released_array =
+				point_data->GetArray((substrate_name + "_fraction_released_at_death").c_str());
+			ASSERT_NE(fraction_released_array, nullptr);
+			EXPECT_DOUBLE_EQ(fraction_released_array->GetTuple1(i), 0.5 + i * 0.1);
+
+			auto fraction_transferred_array =
+				point_data->GetArray((substrate_name + "_fraction_transferred_when_ingested").c_str());
+			ASSERT_NE(fraction_transferred_array, nullptr);
+			EXPECT_DOUBLE_EQ(fraction_transferred_array->GetTuple1(i), 0.3 + i * 0.05);
+		}
 	}
 }
 
@@ -287,6 +323,11 @@ TEST_F(VtkAgentsSerializerTest, PvdFileContainsCorrectEntries)
 	// Read PVD file content
 	auto pvd_file = test_output_dir / "agents.pvd";
 	ASSERT_TRUE(std::filesystem::exists(pvd_file));
+
+	// Check that .vtu files exist
+	auto vtk_dir = test_output_dir / "vtk_agents";
+	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "agents_000000.vtu"));
+	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "agents_000001.vtu"));
 
 	std::ifstream file(pvd_file);
 	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());

@@ -1,9 +1,6 @@
 #pragma once
 
 #include <string_view>
-#include <type_traits>
-#include <vtkDoubleArray.h>
-#include <vtkFloatArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
@@ -15,8 +12,6 @@
 #include "vtk_serializer_base.h"
 
 namespace physicore::biofvm {
-
-using vtkRealArray = std::conditional_t<std::is_same_v<real_t, float>, vtkFloatArray, vtkDoubleArray>;
 
 class vtk_agents_serializer : public vtk_serializer_base, public serializer, private generic_agent_solver<agent>
 {

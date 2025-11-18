@@ -2,10 +2,15 @@
 
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 
 #include "types.h"
 
 namespace physicore::biofvm {
+
+using vtkRealArray = std::conditional_t<std::is_same_v<real_t, float>, vtkFloatArray, vtkDoubleArray>;
 
 class vtk_serializer_base
 {
