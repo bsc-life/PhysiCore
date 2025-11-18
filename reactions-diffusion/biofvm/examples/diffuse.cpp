@@ -15,7 +15,6 @@ using namespace physicore::biofvm;
 
 int main()
 {
-	real_t simulation_time = 30.0;
 	real_t output_interval = 0.1;
 	index_t oxygen_idx = 0;
 	index_t glucose_idx = 1;
@@ -29,9 +28,6 @@ int main()
 		{
 			std::cout << "[diffuse] Loading configuration from: " << config_file << std::endl;
 			m = microenvironment::create_from_config(config_file);
-
-			physicell_config config = parse_physicell_config(config_file);
-			simulation_time = config.overall.max_time;
 		}
 		catch (const std::exception& e)
 		{
@@ -110,9 +106,9 @@ int main()
 
 	// m->serialize_state();
 
-	std::cout << "\n[diffuse] Running simulation for " << simulation_time << " time units..." << std::endl;
+	std::cout << "\n[diffuse] Running simulation for " << m->simulation_time << " time units..." << std::endl;
 
-	while (current_time < simulation_time - 1e-12)
+	while (current_time < m->simulation_time - 1e-12)
 	{
 		current_time += m->diffusion_timestep;
 

@@ -29,6 +29,7 @@ std::unique_ptr<microenvironment> microenvironment::create_from_config(const std
 	builder.set_time_units(config.overall.time_units);
 	builder.set_space_units(config.overall.space_units);
 	builder.set_time_step(config.overall.dt_diffusion);
+	builder.set_simulation_time(config.overall.max_time);
 
 	// Configure mesh from <domain>
 	const auto& domain = config.domain;
@@ -42,9 +43,13 @@ std::unique_ptr<microenvironment> microenvironment::create_from_config(const std
 												  static_cast<sindex_t>(domain.y_max),
 												  static_cast<sindex_t>(domain.z_max) };
 
-	std::array<index_t, 3> voxel_shape = { static_cast<index_t>(std::abs(domain.dx)),
-										   static_cast<index_t>(std::abs(domain.dy)),
-										   static_cast<index_t>(std::abs(domain.dz)) };
+	if (domain.dx <= 0 || domain.dy <= 0 || (!domain.use_2D && domain.dz <= 0))
+	{
+		throw std::runtime_error("Voxel dimensions must be positive");
+	}
+
+	std::array<index_t, 3> voxel_shape = { static_cast<index_t>(domain.dx), static_cast<index_t>(domain.dy),
+										   static_cast<index_t>(domain.dz) };
 
 	builder.resize(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 

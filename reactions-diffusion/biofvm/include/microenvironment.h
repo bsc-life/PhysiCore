@@ -41,6 +41,7 @@ public:
 	// environment configuration parameters
 	std::string name, time_units, space_units;
 	real_t diffusion_timestep;
+	real_t simulation_time = 0.0;
 	cartesian_mesh mesh;
 
 	// diffusion-decay configuration parameters
