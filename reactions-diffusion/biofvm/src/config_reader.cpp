@@ -107,7 +107,7 @@ dirichlet_boundary_config parse_dirichlet_options(const pugi::xml_node& variable
 	}
 
 	// Parse individual boundary values
-	const char* boundary_ids[] = { "xmin", "xmax", "ymin", "ymax", "zmin", "zmax" };
+	std::array<const char*, 6> boundary_ids = { "xmin", "xmax", "ymin", "ymax", "zmin", "zmax" };
 	for (int i = 0; i < 6; ++i)
 	{
 		pugi::xml_node boundary_value = options_node.find_child_by_attribute("boundary_value", "ID", boundary_ids[i]);
@@ -178,8 +178,7 @@ microenvironment_config parse_microenvironment(const pugi::xml_node& microenv_no
 	}
 
 	// Parse options
-	pugi::xml_node options_node = microenv_node.child("options");
-	if (options_node)
+	if (pugi::xml_node options_node = microenv_node.child("options"); options_node)
 	{
 		pugi::xml_node grad_node = options_node.child("calculate_gradients");
 		config.calculate_gradients = grad_node ? grad_node.text().as_bool() : false;
@@ -208,9 +207,8 @@ physicell_config parse_physicell_config(const std::filesystem::path& config_file
 
 	// Load XML document
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(config_file.string().c_str());
 
-	if (!result)
+	if (pugi::xml_parse_result result = doc.load_file(config_file.string().c_str()); !result)
 	{
 		throw std::runtime_error("Failed to parse XML file: " + config_file.string() + " - " + result.description());
 	}
