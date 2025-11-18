@@ -7,7 +7,7 @@ target_sources(
   physicore.reactions-diffusion.biofvm_core
   PRIVATE src/microenvironment.cpp src/microenvironment_builder.cpp
           src/mesh.cpp src/vtk_serializer.cpp src/vtk_serializer_base.cpp
-          src/vtk_agents_serializer.cpp)
+          src/config_reader.cpp src/vtk_agents_serializer.cpp)
 
 target_sources(
   physicore.reactions-diffusion.biofvm_core
@@ -17,9 +17,10 @@ target_link_libraries(physicore.reactions-diffusion.biofvm_core
                       PUBLIC physicore::common)
 
 find_package(VTK CONFIG REQUIRED)
+find_package(pugixml CONFIG REQUIRED)
 
 target_link_libraries(physicore.reactions-diffusion.biofvm_core
-                      PRIVATE VTK::IOXML)
+                      PRIVATE VTK::IOXML pugixml::pugixml)
 
 # biofvm library with solver registering code but without the code that
 # explicitly registers each kernels suitable for linking against kernel test

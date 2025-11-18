@@ -4,6 +4,7 @@
     "gtest",
     "highway",
     "noarr-structures",
+    "pugixml",
     "tbb",
     "vtk-ioxml"
   ]
