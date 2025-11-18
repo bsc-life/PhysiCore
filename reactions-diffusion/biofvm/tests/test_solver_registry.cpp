@@ -9,6 +9,7 @@ using namespace physicore::biofvm;
 class mock_solver : public solver
 {
 public:
+	void initialize(microenvironment&) override {}
 	void solve(microenvironment&, index_t) override {}
 	real_t get_substrate_density(index_t, index_t, index_t, index_t) const override { return 0; }
 };

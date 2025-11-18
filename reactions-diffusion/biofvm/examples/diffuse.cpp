@@ -7,7 +7,6 @@
 #include <random>
 #include <vector>
 
-#include "config_reader.h"
 #include "microenvironment.h"
 
 using namespace physicore;
@@ -104,7 +103,8 @@ int main()
 	std::chrono::duration<double> diffusion_runtime { 0.0 };
 	std::chrono::duration<double> serialize_runtime { 0.0 };
 
-	// m->serialize_state();
+	m->solver->initialize(*m);
+	m->serialize_state(current_time);
 
 	std::cout << "\n[diffuse] Running simulation for " << m->simulation_time << " time units..." << std::endl;
 
