@@ -271,3 +271,262 @@ TEST_F(ConfigReaderTest, CreateMicroenvironmentFromConfig)
 	EXPECT_TRUE(microenv->dirichlet_min_boundary_conditions[0][0]); // xmin enabled
 	EXPECT_TRUE(microenv->dirichlet_max_boundary_conditions[0][0]); // xmax enabled
 }
+
+TEST(ConfigReaderErrorTest, MissingRootNodeThrowsException)
+{
+	// Create XML without PhysiCell_settings root
+	std::filesystem::path temp_file = "missing_root_test.xml";
+	std::ofstream ofs(temp_file);
+	ofs << R"(<?xml version="1.0"?>
+<Settings>
+	<domain>
+		<x_min>0</x_min>
+		<x_max>100</x_max>
+	</domain>
+</Settings>
+)";
+	ofs.close();
+
+	EXPECT_THROW(parse_physicell_config(temp_file), std::runtime_error);
+
+	std::filesystem::remove(temp_file);
+}
+
+TEST(ConfigReaderErrorTest, MissingOptionsNodeUsesDefaults)
+{
+	// Create XML with microenvironment but no options
+	std::filesystem::path temp_file = "missing_options_test.xml";
+	std::ofstream ofs(temp_file);
+	ofs << R"(<?xml version="1.0"?>
+<PhysiCell_settings>
+	<domain>
+		<x_min>0</x_min>
+		<x_max>100</x_max>
+		<y_min>0</y_min>
+		<y_max>100</y_max>
+		<z_min>0</z_min>
+		<z_max>100</z_max>
+		<dx>10</dx>
+		<dy>10</dy>
+		<dz>10</dz>
+		<use_2D>false</use_2D>
+	</domain>
+
+	<overall>
+		<max_time units="min">100</max_time>
+		<time_units>min</time_units>
+		<space_units>micron</space_units>
+		<dt_diffusion units="min">0.01</dt_diffusion>
+		<dt_mechanics units="min">0.1</dt_mechanics>
+		<dt_phenotype units="min">6</dt_phenotype>
+	</overall>
+
+	<microenvironment_setup>
+		<variable name="test" units="dimensionless" ID="0">
+			<physical_parameter_set>
+				<diffusion_coefficient units="micron^2/min">100.0</diffusion_coefficient>
+				<decay_rate units="1/min">0.1</decay_rate>
+			</physical_parameter_set>
+			<initial_condition units="mmHg">1.0</initial_condition>
+		</variable>
+	</microenvironment_setup>
+</PhysiCell_settings>
+)";
+	ofs.close();
+
+	physicell_config config = parse_physicell_config(temp_file);
+
+	// Options should default to false
+	EXPECT_FALSE(config.microenvironment.calculate_gradients);
+	EXPECT_FALSE(config.microenvironment.track_internalized_substrates);
+
+	std::filesystem::remove(temp_file);
+}
+
+TEST(ConfigReaderErrorTest, NoSubstratesThrowsException)
+{
+	// Create XML with microenvironment_setup but no variables
+	std::filesystem::path temp_file = "no_substrates_test.xml";
+	std::ofstream ofs(temp_file);
+	ofs << R"(<?xml version="1.0"?>
+<PhysiCell_settings>
+	<domain>
+		<x_min>0</x_min>
+		<x_max>100</x_max>
+		<y_min>0</y_min>
+		<y_max>100</y_max>
+		<z_min>0</z_min>
+		<z_max>100</z_max>
+		<dx>10</dx>
+		<dy>10</dy>
+		<dz>10</dz>
+		<use_2D>false</use_2D>
+	</domain>
+
+	<overall>
+		<max_time units="min">100</max_time>
+		<time_units>min</time_units>
+		<space_units>micron</space_units>
+		<dt_diffusion units="min">0.01</dt_diffusion>
+		<dt_mechanics units="min">0.1</dt_mechanics>
+		<dt_phenotype units="min">6</dt_phenotype>
+	</overall>
+
+	<microenvironment_setup>
+		<options>
+			<calculate_gradients>false</calculate_gradients>
+			<track_internalized_substrates_in_each_agent>false</track_internalized_substrates_in_each_agent>
+		</options>
+	</microenvironment_setup>
+</PhysiCell_settings>
+)";
+	ofs.close();
+
+	EXPECT_THROW(parse_physicell_config(temp_file), std::runtime_error);
+
+	std::filesystem::remove(temp_file);
+}
+
+TEST(ConfigReaderErrorTest, LegacyDirichletBoundaryCondition)
+{
+	// Create XML using legacy Dirichlet_boundary_condition instead of Dirichlet_options
+	std::filesystem::path temp_file = "legacy_dirichlet_test.xml";
+	std::ofstream ofs(temp_file);
+	ofs << R"(<?xml version="1.0"?>
+<PhysiCell_settings>
+	<domain>
+		<x_min>-100</x_min>
+		<x_max>100</x_max>
+		<y_min>-100</y_min>
+		<y_max>100</y_max>
+		<z_min>-100</z_min>
+		<z_max>100</z_max>
+		<dx>10</dx>
+		<dy>10</dy>
+		<dz>10</dz>
+		<use_2D>false</use_2D>
+	</domain>
+
+	<overall>
+		<max_time units="min">100</max_time>
+		<time_units>min</time_units>
+		<space_units>micron</space_units>
+		<dt_diffusion units="min">0.01</dt_diffusion>
+		<dt_mechanics units="min">0.1</dt_mechanics>
+		<dt_phenotype units="min">6</dt_phenotype>
+	</overall>
+
+	<microenvironment_setup>
+		<variable name="oxygen" units="mmHg" ID="0">
+			<physical_parameter_set>
+				<diffusion_coefficient units="micron^2/min">100000.0</diffusion_coefficient>
+				<decay_rate units="1/min">0.1</decay_rate>
+			</physical_parameter_set>
+			<initial_condition units="mmHg">38.0</initial_condition>
+			<Dirichlet_boundary_condition units="mmHg" enabled="True">21.0</Dirichlet_boundary_condition>
+		</variable>
+		<options>
+			<calculate_gradients>false</calculate_gradients>
+			<track_internalized_substrates_in_each_agent>false</track_internalized_substrates_in_each_agent>
+		</options>
+	</microenvironment_setup>
+</PhysiCell_settings>
+)";
+	ofs.close();
+
+	physicell_config config = parse_physicell_config(temp_file);
+
+	// Verify substrate parsed correctly
+	ASSERT_EQ(config.microenvironment.variables.size(), 1);
+	const auto& oxygen = config.microenvironment.variables[0];
+	EXPECT_EQ(oxygen.name, "oxygen");
+	EXPECT_EQ(oxygen.diffusion_coefficient, 100000.0);
+
+	// Legacy Dirichlet should apply same value to all boundaries with all enabled
+	EXPECT_EQ(oxygen.boundary_conditions.mins_values[0], 21.0);
+	EXPECT_EQ(oxygen.boundary_conditions.mins_values[1], 21.0);
+	EXPECT_EQ(oxygen.boundary_conditions.mins_values[2], 21.0);
+	EXPECT_EQ(oxygen.boundary_conditions.maxs_values[0], 21.0);
+	EXPECT_EQ(oxygen.boundary_conditions.maxs_values[1], 21.0);
+	EXPECT_EQ(oxygen.boundary_conditions.maxs_values[2], 21.0);
+
+	EXPECT_TRUE(oxygen.boundary_conditions.mins_conditions[0]);
+	EXPECT_TRUE(oxygen.boundary_conditions.mins_conditions[1]);
+	EXPECT_TRUE(oxygen.boundary_conditions.mins_conditions[2]);
+	EXPECT_TRUE(oxygen.boundary_conditions.maxs_conditions[0]);
+	EXPECT_TRUE(oxygen.boundary_conditions.maxs_conditions[1]);
+	EXPECT_TRUE(oxygen.boundary_conditions.maxs_conditions[2]);
+
+	std::filesystem::remove(temp_file);
+}
+
+TEST(ConfigReaderErrorTest, NoDirichletOptionsUsesDefaults)
+{
+	// Create XML with no Dirichlet options at all
+	std::filesystem::path temp_file = "no_dirichlet_test.xml";
+	std::ofstream ofs(temp_file);
+	ofs << R"(<?xml version="1.0"?>
+<PhysiCell_settings>
+	<domain>
+		<x_min>-100</x_min>
+		<x_max>100</x_max>
+		<y_min>-100</y_min>
+		<y_max>100</y_max>
+		<z_min>-100</z_min>
+		<z_max>100</z_max>
+		<dx>10</dx>
+		<dy>10</dy>
+		<dz>10</dz>
+		<use_2D>false</use_2D>
+	</domain>
+
+	<overall>
+		<max_time units="min">100</max_time>
+		<time_units>min</time_units>
+		<space_units>micron</space_units>
+		<dt_diffusion units="min">0.01</dt_diffusion>
+		<dt_mechanics units="min">0.1</dt_mechanics>
+		<dt_phenotype units="min">6</dt_phenotype>
+	</overall>
+
+	<microenvironment_setup>
+		<variable name="glucose" units="mM" ID="0">
+			<physical_parameter_set>
+				<diffusion_coefficient units="micron^2/min">600.0</diffusion_coefficient>
+				<decay_rate units="1/min">0.05</decay_rate>
+			</physical_parameter_set>
+			<initial_condition units="mM">5.0</initial_condition>
+		</variable>
+		<options>
+			<calculate_gradients>true</calculate_gradients>
+			<track_internalized_substrates_in_each_agent>true</track_internalized_substrates_in_each_agent>
+		</options>
+	</microenvironment_setup>
+</PhysiCell_settings>
+)";
+	ofs.close();
+
+	physicell_config config = parse_physicell_config(temp_file);
+
+	// Verify substrate parsed correctly
+	ASSERT_EQ(config.microenvironment.variables.size(), 1);
+	const auto& glucose = config.microenvironment.variables[0];
+	EXPECT_EQ(glucose.name, "glucose");
+
+	// Should have default values (all zeros and disabled)
+	EXPECT_EQ(glucose.boundary_conditions.mins_values[0], 0.0);
+	EXPECT_EQ(glucose.boundary_conditions.mins_values[1], 0.0);
+	EXPECT_EQ(glucose.boundary_conditions.mins_values[2], 0.0);
+	EXPECT_EQ(glucose.boundary_conditions.maxs_values[0], 0.0);
+	EXPECT_EQ(glucose.boundary_conditions.maxs_values[1], 0.0);
+	EXPECT_EQ(glucose.boundary_conditions.maxs_values[2], 0.0);
+
+	EXPECT_FALSE(glucose.boundary_conditions.mins_conditions[0]);
+	EXPECT_FALSE(glucose.boundary_conditions.mins_conditions[1]);
+	EXPECT_FALSE(glucose.boundary_conditions.mins_conditions[2]);
+	EXPECT_FALSE(glucose.boundary_conditions.maxs_conditions[0]);
+	EXPECT_FALSE(glucose.boundary_conditions.maxs_conditions[1]);
+	EXPECT_FALSE(glucose.boundary_conditions.maxs_conditions[2]);
+
+	std::filesystem::remove(temp_file);
+}
