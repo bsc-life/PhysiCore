@@ -7,7 +7,7 @@ target_sources(
   physicore.reactions-diffusion.biofvm_core
   PRIVATE src/microenvironment.cpp src/microenvironment_builder.cpp
           src/mesh.cpp src/vtk_serializer.cpp src/vtk_serializer_base.cpp
-          src/config_reader.cpp)
+          src/config_reader.cpp src/vtk_agents_serializer.cpp)
 
 target_sources(
   physicore.reactions-diffusion.biofvm_core

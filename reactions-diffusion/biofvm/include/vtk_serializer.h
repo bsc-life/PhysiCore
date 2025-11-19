@@ -1,9 +1,6 @@
 #pragma once
 
 #include <string_view>
-#include <type_traits>
-#include <vtkDoubleArray.h>
-#include <vtkFloatArray.h>
 #include <vtkImageData.h>
 #include <vtkSmartPointer.h>
 #include <vtkXMLImageDataWriter.h>
@@ -13,8 +10,6 @@
 #include "vtk_serializer_base.h"
 
 namespace physicore::biofvm {
-
-using vtkRealArray = std::conditional_t<std::is_same_v<real_t, float>, vtkFloatArray, vtkDoubleArray>;
 
 class vtk_serializer : public vtk_serializer_base, public serializer
 {

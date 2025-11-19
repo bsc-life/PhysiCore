@@ -37,6 +37,7 @@ public:
 	container_ptr agents;
 	solver_ptr solver;
 	serializer_ptr serializer;
+	serializer_ptr agents_serializer;
 
 	// environment configuration parameters
 	std::string name, time_units, space_units;
