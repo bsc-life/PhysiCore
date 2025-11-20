@@ -6,7 +6,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkFloatArray.h>
 
-#include "types.h"
+#include <common/types.h>
 
 namespace physicore::biofvm {
 

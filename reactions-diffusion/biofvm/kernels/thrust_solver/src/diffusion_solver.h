@@ -1,8 +1,8 @@
 #pragma once
 
+#include <biofvm/microenvironment.h>
 #include <thrust/device_ptr.h>
 
-#include "../../../include/microenvironment.h"
 #include "data_manager.h"
 
 /*

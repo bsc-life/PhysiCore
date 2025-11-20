@@ -1,8 +1,9 @@
 #pragma once
 
+#include <common/base_agent.h>
+#include <common/generic_agent_container.h>
+
 #include "agent.h"
-#include "base_agent.h"
-#include "generic_agent_container.h"
 
 namespace physicore::biofvm {
 

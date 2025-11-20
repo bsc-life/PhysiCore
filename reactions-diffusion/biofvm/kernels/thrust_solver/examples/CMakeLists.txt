@@ -2,14 +2,14 @@ set(ALL_EXAMPLES benchmark)
 
 foreach(example ${ALL_EXAMPLES})
   add_executable(
-    physicore.reactions-diffusion.kernels.tbb_thrust_solver.${example})
-  target_sources(
-    physicore.reactions-diffusion.kernels.tbb_thrust_solver.${example}
-    PRIVATE ${example}.cpp)
+    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.${example}
+    ${example}.cpp)
   target_link_libraries(
-    physicore.reactions-diffusion.kernels.tbb_thrust_solver.${example}
-    PRIVATE physicore::reactions-diffusion::kernels::tbb_thrust_solver
-            ThrustTBB physicore::reactions-diffusion::biofvm_no_kernels)
+    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.${example}
+    PRIVATE
+      physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
+      physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
+      physicore.reactions-diffusion.biofvm_no_kernels)
 endforeach()
 
 if(${CUDAToolkit_FOUND})
@@ -23,19 +23,22 @@ if(${CUDAToolkit_FOUND})
       DEPENDS ${example}.cpp)
 
     add_executable(
-      physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example})
+      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.${example}
+    )
 
     target_sources(
-      physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}
+      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.${example}
       PRIVATE ${cuda_example})
 
     set_target_properties(
-      physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}
+      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.${example}
       PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
 
     target_link_libraries(
-      physicore.reactions-diffusion.kernels.cuda_thrust_solver.${example}
-      PRIVATE physicore::reactions-diffusion::kernels::cuda_thrust_solver
-              ThrustCUDA physicore::reactions-diffusion::biofvm_no_kernels)
+      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.${example}
+      PRIVATE
+        physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver
+        physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
+        physicore.reactions-diffusion.biofvm_no_kernels)
   endforeach()
 endif()

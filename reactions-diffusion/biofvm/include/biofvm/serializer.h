@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#include "types.h"
+#include <common/types.h>
 
 namespace physicore::biofvm {
 

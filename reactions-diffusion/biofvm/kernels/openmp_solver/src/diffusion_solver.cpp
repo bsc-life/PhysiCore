@@ -1,11 +1,11 @@
 #include "diffusion_solver.h"
 
+#include <common/types.h>
 #include <hwy/aligned_allocator.h>
 #include <hwy/base.h>
 #include <noarr/structures/interop/bag.hpp>
 
 #include "solver_utils.h"
-#include "types.h"
 
 using namespace physicore;
 using namespace physicore::biofvm::kernels::openmp_solver;

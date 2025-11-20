@@ -7,7 +7,7 @@
 #include <random>
 #include <vector>
 
-#include "microenvironment.h"
+#include <biofvm/microenvironment.h>
 
 using namespace physicore;
 using namespace physicore::biofvm;

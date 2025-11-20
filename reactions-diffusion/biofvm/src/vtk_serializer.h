@@ -5,8 +5,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkXMLImageDataWriter.h>
 
+#include <common/types.h>
+
 #include "serializer.h"
-#include "types.h"
 #include "vtk_serializer_base.h"
 
 namespace physicore::biofvm {

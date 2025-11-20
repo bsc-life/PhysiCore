@@ -1,8 +1,9 @@
 #pragma once
 
+#include <common/base_agent_generic_storage.h>
+#include <common/types.h>
+
 #include "agent_interface.h"
-#include "base_agent_generic_storage.h"
-#include "types.h"
 
 namespace physicore::biofvm {
 

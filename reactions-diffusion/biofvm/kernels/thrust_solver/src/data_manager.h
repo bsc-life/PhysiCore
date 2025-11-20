@@ -1,15 +1,13 @@
 #pragma once
 
-#include <types.h>
-
+#include <biofvm/agent.h>
+#include <biofvm/agent_container.h>
+#include <biofvm/microenvironment.h>
+#include <common/generic_agent_container.h>
+#include <common/generic_agent_solver.h>
+#include <common/types.h>
 #include <noarr/structures_extended.hpp>
 #include <thrust/device_vector.h>
-
-#include "../../../include/agent.h"
-#include "../../../include/agent_container.h"
-#include "../../../include/microenvironment.h"
-#include "generic_agent_container.h"
-#include "generic_agent_solver.h"
 
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
 	#define PHYSICORE_THRUST_DEVICE_FN __device__

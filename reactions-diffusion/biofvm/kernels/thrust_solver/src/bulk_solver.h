@@ -1,8 +1,8 @@
 #pragma once
 
+#include <biofvm/microenvironment.h>
 #include <thrust/device_new.h>
 
-#include "../../../include/microenvironment.h"
 #include "bulk_functor.h"
 #include "diffusion_solver.h"
 
