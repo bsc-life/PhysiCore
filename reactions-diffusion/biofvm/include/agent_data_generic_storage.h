@@ -1,9 +1,9 @@
 #pragma once
 
-#include <base_agent_data.h>
 #include <vector>
 
-#include "types.h"
+#include <common/base_agent_data.h>
+#include <common/types.h>
 
 namespace physicore::biofvm {
 

@@ -3,10 +3,11 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include <common/types.h>
+
 #include "bulk_functor.h"
 #include "microenvironment.h"
 #include "solver_registry.h"
-#include "types.h"
 #include "vtk_agents_serializer.h"
 #include "vtk_serializer.h"
 

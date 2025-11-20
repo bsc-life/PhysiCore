@@ -1,13 +1,12 @@
 #include "diffusion_solver.h"
 
+#include <common/types.h>
 #include <noarr/structures/extra/traverser.hpp>
 #include <noarr/structures/interop/bag.hpp>
 #include <noarr/structures_extended.hpp>
 #include <thrust/device_delete.h>
 #include <thrust/device_new.h>
 #include <thrust/execution_policy.h>
-
-#include "types.h"
 
 using namespace physicore;
 using namespace physicore::biofvm::kernels::thrust_solver;

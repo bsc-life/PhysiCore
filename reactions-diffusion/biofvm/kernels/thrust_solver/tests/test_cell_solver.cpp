@@ -1,3 +1,5 @@
+#include <common/generic_agent_container.h>
+#include <common/generic_agent_solver.h>
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
 #include <thrust/execution_policy.h>
@@ -5,8 +7,6 @@
 
 #include "cell_solver.h"
 #include "diffusion_solver.h"
-#include "generic_agent_container.h"
-#include "generic_agent_solver.h"
 #include "microenvironment.h"
 
 using namespace physicore;

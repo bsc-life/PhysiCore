@@ -2,11 +2,11 @@
 
 #include <memory>
 
+#include <common/types.h>
 #include <hwy/aligned_allocator.h>
 #include <noarr/structures_extended.hpp>
 
 #include "problem.h"
-#include "types.h"
 
 /*
 The diffusion is the problem of solving tridiagonal matrix system with these coeficients:

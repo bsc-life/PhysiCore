@@ -1,7 +1,8 @@
 #include "microenvironment.h"
 
+#include <common/base_agent_data.h>
+
 #include "agent_container.h"
-#include "base_agent_data.h"
 #include "config_reader.h"
 #include "microenvironment_builder.h"
 

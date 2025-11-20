@@ -3,7 +3,7 @@
 #include <array>
 #include <span>
 
-#include "types.h"
+#include <common/types.h>
 
 namespace physicore::biofvm {
 

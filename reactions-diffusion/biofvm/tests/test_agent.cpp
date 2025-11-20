@@ -1,8 +1,8 @@
+#include <common/base_agent_data.h>
 #include <gtest/gtest.h>
 
 #include "agent.h"
 #include "agent_data.h"
-#include "base_agent_data.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;

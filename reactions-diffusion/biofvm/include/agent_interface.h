@@ -1,7 +1,7 @@
 #pragma once
 
-#include "base_agent_interface.h"
-#include "types.h"
+#include <common/base_agent_interface.h>
+#include <common/types.h>
 
 namespace physicore::biofvm {
 

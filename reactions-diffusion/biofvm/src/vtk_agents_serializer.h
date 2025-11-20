@@ -5,10 +5,11 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
+#include <common/generic_agent_solver.h>
+#include <common/types.h>
+
 #include "agent.h"
-#include "generic_agent_solver.h"
 #include "serializer.h"
-#include "types.h"
 #include "vtk_serializer_base.h"
 
 namespace physicore::biofvm {

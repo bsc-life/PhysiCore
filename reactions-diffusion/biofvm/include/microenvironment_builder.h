@@ -2,10 +2,11 @@
 
 #include <optional>
 
+#include <common/types.h>
+
 #include "bulk_functor.h"
 #include "mesh.h"
 #include "microenvironment.h"
-#include "types.h"
 
 namespace physicore::biofvm {
 
