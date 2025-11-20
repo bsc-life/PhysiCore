@@ -8,11 +8,12 @@
 #include "cell_solver.h"
 #include "diffusion_solver.h"
 #include "microenvironment.h"
+#include "namespace_config.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;
 
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, bool compute_interalized)
 {

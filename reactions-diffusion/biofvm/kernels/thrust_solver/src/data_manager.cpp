@@ -3,9 +3,10 @@
 #include <memory>
 
 #include "diffusion_solver.h"
+#include "namespace_config.h"
 
 using namespace physicore;
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 void data_manager::initialize(const microenvironment& m, diffusion_solver& d_solver)
 {

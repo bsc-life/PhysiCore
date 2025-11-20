@@ -1,8 +1,9 @@
 #pragma once
 
 #include "data_manager.h"
+#include "namespace_config.h"
 
-namespace physicore::biofvm::kernels::thrust_solver {
+namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 struct device_bulk_functor
 {
@@ -12,4 +13,4 @@ struct device_bulk_functor
 	PHYSICORE_THRUST_DEVICE_FN virtual ~device_bulk_functor() = default;
 };
 
-} // namespace physicore::biofvm::kernels::thrust_solver
+} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

@@ -9,6 +9,8 @@
 #include <noarr/structures_extended.hpp>
 #include <thrust/device_vector.h>
 
+#include "namespace_config.h"
+
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
 	#define PHYSICORE_THRUST_DEVICE_FN __device__
 	#define PHYSICORE_THRUST_STD cuda::std
@@ -17,7 +19,7 @@
 	#define PHYSICORE_THRUST_STD std
 #endif
 
-namespace physicore::biofvm::kernels::thrust_solver {
+namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class diffusion_solver;
 
@@ -70,4 +72,4 @@ public:
 };
 
 
-} // namespace physicore::biofvm::kernels::thrust_solver
+} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

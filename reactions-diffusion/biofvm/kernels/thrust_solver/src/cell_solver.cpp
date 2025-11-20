@@ -10,6 +10,8 @@
 #include <thrust/for_each.h>
 #include <thrust/iterator/counting_iterator.h>
 
+#include "namespace_config.h"
+
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
 	#include <cuda/std/array>
 	#include <cuda/std/atomic>
@@ -19,7 +21,7 @@
 
 using namespace physicore;
 using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 
 static constexpr index_t no_ballot = std::numeric_limits<index_t>::max();

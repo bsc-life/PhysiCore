@@ -13,7 +13,8 @@ struct attachment_point
 	{
 		kernels::openmp_solver::attach_to_registry();
 #ifdef PHYSICORE_HAS_THRUST
-		kernels::thrust_solver::attach_to_registry();
+		kernels::tbb_thrust_solver::attach_to_registry();
+		kernels::cuda_thrust_solver::attach_to_registry();
 #endif
 	}
 };

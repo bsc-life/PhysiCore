@@ -8,8 +8,12 @@
 #include <thrust/device_new.h>
 #include <thrust/execution_policy.h>
 
+#include "namespace_config.h"
+
 using namespace physicore;
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
+
+namespace {
 
 index_t lcm(index_t a, index_t b)
 {
@@ -24,6 +28,7 @@ index_t lcm(index_t a, index_t b)
 	return ret;
 }
 
+} // anonymous namespace
 
 void diffusion_solver::initialize(microenvironment& m)
 {
