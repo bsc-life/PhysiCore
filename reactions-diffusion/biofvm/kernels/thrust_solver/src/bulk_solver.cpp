@@ -6,8 +6,10 @@
 #include <thrust/for_each.h>
 #include <thrust/iterator/counting_iterator.h>
 
+#include "namespace_config.h"
+
 using namespace physicore;
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 void bulk_solver::initialize(thrust::device_ptr<device_bulk_functor> functor) { func = functor; }
 

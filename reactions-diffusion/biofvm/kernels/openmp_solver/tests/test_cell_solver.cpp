@@ -1,11 +1,11 @@
+#include <biofvm/agent_data.h>
+#include <biofvm/microenvironment.h>
 #include <common/generic_agent_solver.h>
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
 
-#include "agent_data.h"
 #include "cell_solver.h"
 #include "diffusion_solver.h"
-#include "microenvironment.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;

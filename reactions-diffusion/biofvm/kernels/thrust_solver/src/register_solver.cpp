@@ -2,9 +2,10 @@
 
 #include <biofvm/solver_registry.h>
 
+#include "namespace_config.h"
 #include "thrust_solver.h"
 
-void physicore::biofvm::kernels::thrust_solver::attach_to_registry()
+void physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE::attach_to_registry()
 {
-	static physicore::biofvm::registry_adder<thrust_solver> openmp_solver_adder("thrust_solver");
+	static physicore::biofvm::registry_adder<thrust_solver> thrust_solver_adder(PHYSICORE_THRUST_SOLVER_REGISTRY_NAME);
 }

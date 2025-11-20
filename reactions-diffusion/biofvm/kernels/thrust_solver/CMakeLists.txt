@@ -7,6 +7,12 @@ find_package(Thrust REQUIRED CONFIG)
 
 thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
 
+# Configure namespace header for TBB backend
+set(THRUST_SOLVER_NAMESPACE "tbb_thrust_solver")
+set(THRUST_SOLVER_REGISTRY_NAME "tbb_thrust_solver")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/namespace_config.h.in"
+               "${CMAKE_CURRENT_BINARY_DIR}/tbb/namespace_config.h" @ONLY)
+
 target_sources(
   physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
   PRIVATE src/bulk_solver.cpp
@@ -26,6 +32,10 @@ target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
   INTERFACE physicore.reactions-diffusion.biofvm_iface physicore::common
             ThrustTBB)
+
+target_include_directories(
+  physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
+  BEFORE INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/tbb")
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
@@ -62,6 +72,12 @@ if(${CUDAToolkit_FOUND})
     list(APPEND CUDA_SOURCES ${dst})
   endforeach()
 
+  # Configure namespace header for CUDA backend
+  set(THRUST_SOLVER_NAMESPACE "cuda_thrust_solver")
+  set(THRUST_SOLVER_REGISTRY_NAME "cuda_thrust_solver")
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/namespace_config.h.in"
+                 "${CMAKE_CURRENT_BINARY_DIR}/cuda/namespace_config.h" @ONLY)
+
   target_sources(
     physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver
     PRIVATE ${CUDA_SOURCES}
@@ -83,6 +99,11 @@ if(${CUDAToolkit_FOUND})
     INTERFACE physicore.reactions-diffusion.biofvm_iface physicore::common
               ThrustCUDA)
 
+  target_include_directories(
+    physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
+    BEFORE
+    INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/cuda")
+
   set_target_properties(
     physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver
     PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
@@ -93,6 +114,15 @@ if(${CUDAToolkit_FOUND})
       physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
   )
 endif()
+
+target_link_libraries(
+  physicore.reactions-diffusion.biofvm
+  PRIVATE
+    $<BUILD_INTERFACE:physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver>
+)
+
+target_compile_definitions(physicore.reactions-diffusion.biofvm
+                           PRIVATE PHYSICORE_HAS_TBB_THRUST)
 
 if(${CUDAToolkit_FOUND})
   set_target_properties(
@@ -107,16 +137,10 @@ if(${CUDAToolkit_FOUND})
     PRIVATE
       $<BUILD_INTERFACE:physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver>
   )
-else()
-  target_link_libraries(
-    physicore.reactions-diffusion.biofvm
-    PRIVATE
-      $<BUILD_INTERFACE:physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver>
-  )
-endif()
 
-target_compile_definitions(physicore.reactions-diffusion.biofvm
-                           PUBLIC PHYSICORE_HAS_THRUST)
+  target_compile_definitions(physicore.reactions-diffusion.biofvm
+                             PRIVATE PHYSICORE_HAS_CUDA_THRUST)
+endif()
 
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)

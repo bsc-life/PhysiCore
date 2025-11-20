@@ -5,6 +5,7 @@
 
 #include "bulk_functor.h"
 #include "diffusion_solver.h"
+#include "namespace_config.h"
 
 /*
 Performs bulk supply and uptake of substrates.
@@ -17,7 +18,7 @@ D = (D + dt*S*T)/(1 + dt*(U+S))
 where D is a voxel substrate density vector
 */
 
-namespace physicore::biofvm::kernels::thrust_solver {
+namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class bulk_solver
 {
@@ -35,4 +36,4 @@ public:
 	~bulk_solver();
 };
 
-} // namespace physicore::biofvm::kernels::thrust_solver
+} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

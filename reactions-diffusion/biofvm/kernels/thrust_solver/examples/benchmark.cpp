@@ -1,15 +1,17 @@
 #include <chrono>
 #include <iostream>
 
+#include <biofvm/microenvironment.h>
+
 #include "bulk_solver.h"
 #include "cell_solver.h"
 #include "diffusion_solver.h"
 #include "dirichlet_solver.h"
-#include "microenvironment.h"
+#include "namespace_config.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 void make_agents(microenvironment& m, index_t count, bool conflict)
 {

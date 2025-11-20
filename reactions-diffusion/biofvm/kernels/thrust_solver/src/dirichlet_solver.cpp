@@ -3,9 +3,11 @@
 #include <thrust/execution_policy.h>
 #include <thrust/for_each.h>
 
+#include "namespace_config.h"
+
 using namespace physicore;
 using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 static constexpr auto fix_dims(const index_t* voxel_index, index_t dims)
 {

@@ -5,6 +5,7 @@
 #include <thrust/device_vector.h>
 
 #include "diffusion_solver.h"
+#include "namespace_config.h"
 
 /*
 Performs secretion and uptake of cells.
@@ -35,7 +36,7 @@ F = fraction released at death
 D = D + I*F/v
 */
 
-namespace physicore::biofvm::kernels::thrust_solver {
+namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class cell_solver
 {
@@ -73,4 +74,4 @@ public:
 	~cell_solver();
 };
 
-} // namespace physicore::biofvm::kernels::thrust_solver
+} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

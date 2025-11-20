@@ -1,7 +1,8 @@
 #include "thrust_solver.h"
 
+#include "namespace_config.h"
 using namespace physicore;
-using namespace physicore::biofvm::kernels::thrust_solver;
+using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 void thrust_solver::initialize(biofvm::microenvironment& m)
 {

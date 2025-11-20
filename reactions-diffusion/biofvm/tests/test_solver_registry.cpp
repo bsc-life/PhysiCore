@@ -20,8 +20,11 @@ TEST(SolverRegistryTest, CheckPresentSolvers)
 
 	EXPECT_NE(registry.get("openmp_solver"), nullptr);
 
-#ifdef PHYSICORE_HAS_THRUST
-	EXPECT_NE(registry.get("thrust_solver"), nullptr);
+#ifdef PHYSICORE_HAS_TBB_THRUST
+	EXPECT_NE(registry.get("tbb_thrust_solver"), nullptr);
+#endif
+#ifdef PHYSICORE_HAS_CUDA_THRUST
+	EXPECT_NE(registry.get("cuda_thrust_solver"), nullptr);
 #endif
 }
 

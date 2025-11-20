@@ -1,6 +1,6 @@
 #include <cassert>
 
-#ifdef PHYSICORE_HAS_THRUST
+#if defined(PHYSICORE_HAS_TBB_THRUST) or defined(PHYSICORE_HAS_CUDA_THRUST)
 	#include "thrust_solver/register_solver.h"
 #endif
 
@@ -12,8 +12,11 @@ struct attachment_point
 	attachment_point()
 	{
 		kernels::openmp_solver::attach_to_registry();
-#ifdef PHYSICORE_HAS_THRUST
-		kernels::thrust_solver::attach_to_registry();
+#ifdef PHYSICORE_HAS_TBB_THRUST
+		kernels::tbb_thrust_solver::attach_to_registry();
+#endif
+#ifdef PHYSICORE_HAS_CUDA_THRUST
+		kernels::cuda_thrust_solver::attach_to_registry();
 #endif
 	}
 };
