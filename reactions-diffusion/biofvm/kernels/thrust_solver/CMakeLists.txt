@@ -121,6 +121,9 @@ target_link_libraries(
     $<BUILD_INTERFACE:physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver>
 )
 
+target_compile_definitions(physicore.reactions-diffusion.biofvm
+                           PRIVATE PHYSICORE_HAS_TBB_THRUST)
+
 if(${CUDAToolkit_FOUND})
   set_target_properties(
     physicore.reactions-diffusion.biofvm
@@ -134,10 +137,10 @@ if(${CUDAToolkit_FOUND})
     PRIVATE
       $<BUILD_INTERFACE:physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver>
   )
-endif()
 
-target_compile_definitions(physicore.reactions-diffusion.biofvm
-                           PUBLIC PHYSICORE_HAS_THRUST)
+  target_compile_definitions(physicore.reactions-diffusion.biofvm
+                             PRIVATE PHYSICORE_HAS_CUDA_THRUST)
+endif()
 
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)
