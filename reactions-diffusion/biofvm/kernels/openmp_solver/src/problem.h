@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../../../include/microenvironment.h"
+#include <biofvm/microenvironment.h>
 
 namespace physicore::biofvm::kernels::openmp_solver {
 

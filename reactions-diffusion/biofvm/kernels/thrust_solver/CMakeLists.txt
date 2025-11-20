@@ -24,7 +24,8 @@ target_sources(
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
-  INTERFACE physicore::common ThrustTBB)
+  INTERFACE physicore.reactions-diffusion.biofvm_iface physicore::common
+            ThrustTBB)
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
@@ -79,7 +80,8 @@ if(${CUDAToolkit_FOUND})
 
   target_link_libraries(
     physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
-    INTERFACE physicore::common ThrustCUDA)
+    INTERFACE physicore.reactions-diffusion.biofvm_iface physicore::common
+              ThrustCUDA)
 
   set_target_properties(
     physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver

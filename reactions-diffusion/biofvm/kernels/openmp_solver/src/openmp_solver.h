@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../include/solver.h"
+#include <biofvm/solver.h>
 #include "bulk_solver.h"
 #include "cell_solver.h"
 #include "diffusion_solver.h"

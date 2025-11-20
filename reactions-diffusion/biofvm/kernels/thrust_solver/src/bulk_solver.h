@@ -2,7 +2,7 @@
 
 #include <thrust/device_new.h>
 
-#include "../../../include/microenvironment.h"
+#include <biofvm/microenvironment.h>
 #include "bulk_functor.h"
 #include "diffusion_solver.h"
 

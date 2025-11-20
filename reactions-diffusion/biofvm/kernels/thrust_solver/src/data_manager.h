@@ -6,9 +6,9 @@
 #include <noarr/structures_extended.hpp>
 #include <thrust/device_vector.h>
 
-#include "../../../include/agent.h"
-#include "../../../include/agent_container.h"
-#include "../../../include/microenvironment.h"
+#include <biofvm/agent.h>
+#include <biofvm/agent_container.h>
+#include <biofvm/microenvironment.h>
 
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
 	#define PHYSICORE_THRUST_DEVICE_FN __device__

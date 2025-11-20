@@ -1,6 +1,6 @@
 #include "openmp_solver/register_solver.h"
 
-#include "../../../include/solver_registry.h"
+#include <biofvm/solver_registry.h>
 #include "openmp_solver.h"
 
 void physicore::biofvm::kernels::openmp_solver::attach_to_registry()

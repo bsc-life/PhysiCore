@@ -18,7 +18,8 @@ target_sources(
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.openmp_solver_internal_iface
-  INTERFACE physicore::common hwy::hwy)
+  INTERFACE physicore.reactions-diffusion.biofvm_iface physicore::common
+            hwy::hwy)
 
 find_path(NOARR_STRUCTURES_INCLUDE_DIRS "noarr/introspection.hpp")
 target_include_directories(

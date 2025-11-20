@@ -3,7 +3,7 @@
 #include <thrust/device_ptr.h>
 #include <thrust/device_vector.h>
 
-#include "../../../include/microenvironment.h"
+#include <biofvm/microenvironment.h>
 #include "diffusion_solver.h"
 
 /*

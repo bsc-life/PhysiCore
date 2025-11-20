@@ -9,6 +9,7 @@ add_library(physicore.reactions-diffusion.biofvm)
 add_library(physicore::reactions-diffusion::biofvm ALIAS
             physicore.reactions-diffusion.biofvm)
 add_library(physicore.reactions-diffusion.biofvm_internal_iface INTERFACE)
+add_library(physicore.reactions-diffusion.biofvm_iface INTERFACE)
 
 target_sources(
   physicore.reactions-diffusion.biofvm_core
@@ -22,8 +23,13 @@ target_sources(
 
 target_sources(
   physicore.reactions-diffusion.biofvm_internal_iface
-  INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  INTERFACE FILE_SET HEADERS BASE_DIRS
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/biofvm"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+target_sources(
+  physicore.reactions-diffusion.biofvm_iface
+  INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(physicore.reactions-diffusion.biofvm_internal_iface
                       INTERFACE physicore::common)
@@ -50,7 +56,7 @@ target_link_libraries(
           $<BUILD_INTERFACE:physicore.reactions-diffusion.biofvm_internal_iface>
   PUBLIC physicore::common)
 
-file(GLOB PUBLIC_INC "include/*.h")
+file(GLOB PUBLIC_INC "include/biofvm/*.h")
 target_sources(
   physicore.reactions-diffusion.biofvm
   PRIVATE src/solver_registry_attach.cpp
