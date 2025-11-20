@@ -8,8 +8,10 @@ add_executable(
 target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests
   PRIVATE
-    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal
-    physicore.reactions-diffusion.biofvm_no_kernels GTest::gtest
+    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
+    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
+    physicore.reactions-diffusion.biofvm_no_kernels
+    GTest::gtest
     GTest::gtest_main)
 
 include(GoogleTest)
@@ -49,8 +51,10 @@ if(${CUDAToolkit_FOUND})
   target_link_libraries(
     physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
     PRIVATE
-      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal
-      physicore.reactions-diffusion.biofvm_no_kernels GTest::gtest
+      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver
+      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
+      physicore.reactions-diffusion.biofvm_no_kernels
+      GTest::gtest
       GTest::gtest_main)
 
   include(GoogleTest)
