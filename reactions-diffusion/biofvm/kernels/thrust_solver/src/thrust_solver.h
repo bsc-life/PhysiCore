@@ -1,6 +1,7 @@
 #pragma once
 
 #include <biofvm/solver.h>
+
 #include "bulk_solver.h"
 #include "cell_solver.h"
 #include "data_manager.h"

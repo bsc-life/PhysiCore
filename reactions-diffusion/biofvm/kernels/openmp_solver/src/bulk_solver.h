@@ -1,6 +1,7 @@
 #pragma once
 
 #include <biofvm/microenvironment.h>
+
 #include "diffusion_solver.h"
 
 /*

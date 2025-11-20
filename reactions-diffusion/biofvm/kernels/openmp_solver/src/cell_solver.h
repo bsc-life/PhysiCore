@@ -4,9 +4,9 @@
 #include <memory>
 #include <vector>
 
+#include <biofvm/microenvironment.h>
 #include <common/generic_agent_solver.h>
 
-#include <biofvm/microenvironment.h>
 #include "diffusion_solver.h"
 
 /*

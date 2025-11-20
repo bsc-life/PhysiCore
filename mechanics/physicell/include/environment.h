@@ -1,7 +1,7 @@
 #pragma once
 
-#include <common/types.h>
 #include <common/timestep_executor.h>
+#include <common/types.h>
 
 namespace physicore::micromechanics {
 
