@@ -244,7 +244,7 @@ TEST_F(VtkSerializerTest, SingleSubstrate)
 	);
 
 	auto m = builder.build();
-	m->solver->solve(*m, 1); // Initialize densities
+	m->solver->initialize(*m); // Initialize densities
 
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
@@ -291,7 +291,7 @@ TEST_F(VtkSerializerTest, ManySubstrates)
 	}
 
 	auto m = builder.build();
-	m->solver->solve(*m, 1); // Initialize densities
+	m->solver->initialize(*m); // Initialize densities
 
 	vtk_serializer serializer(test_output_dir.string(), *m);
 
@@ -332,7 +332,7 @@ TEST_F(VtkSerializerTest, NonZeroBoundingBoxMins)
 	);
 
 	auto m = builder.build();
-	m->solver->solve(*m, 1); // Initialize densities
+	m->solver->initialize(*m); // Initialize densities
 
 	vtk_serializer serializer(test_output_dir.string(), *m);
 

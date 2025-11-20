@@ -3,19 +3,24 @@
 using namespace physicore;
 using namespace physicore::biofvm::kernels::openmp_solver;
 
+void openmp_solver::initialize(biofvm::microenvironment& m)
+{
+	if (initialized)
+		return;
+
+	d_solver.prepare(m, 1);
+	d_solver.initialize();
+
+	b_solver.initialize(m);
+
+	c_solver.initialize(m);
+
+	initialized = true;
+}
+
 void openmp_solver::solve(biofvm::microenvironment& m, index_t iterations)
 {
-	if (!initialized)
-	{
-		d_solver.prepare(m, 1);
-		d_solver.initialize();
-
-		b_solver.initialize(m);
-
-		c_solver.initialize(m);
-
-		initialized = true;
-	}
+	initialize(m);
 
 #pragma omp parallel
 	for (index_t it = 0; it < iterations; it++)
