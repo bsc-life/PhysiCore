@@ -1,12 +1,13 @@
 #include <chrono>
 #include <iostream>
 
-#include "bulk_functor.h"
+#include <biofvm/bulk_functor.h>
+#include <biofvm/microenvironment.h>
+
 #include "bulk_solver.h"
 #include "cell_solver.h"
 #include "diffusion_solver.h"
 #include "dirichlet_solver.h"
-#include "microenvironment.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;

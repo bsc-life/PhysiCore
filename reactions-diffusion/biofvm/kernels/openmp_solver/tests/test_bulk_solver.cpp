@@ -1,9 +1,9 @@
+#include <biofvm/microenvironment.h>
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
 
 #include "bulk_solver.h"
 #include "diffusion_solver.h"
-#include "microenvironment.h"
 
 using namespace physicore;
 using namespace physicore::biofvm;

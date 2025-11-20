@@ -1,9 +1,9 @@
+#include <biofvm/microenvironment.h>
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
 
 #include "diffusion_solver.h"
 #include "dirichlet_solver.h"
-#include "microenvironment.h"
 #include "namespace_config.h"
 
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA

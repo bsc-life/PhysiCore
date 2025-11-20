@@ -9,5 +9,5 @@ foreach(example ${ALL_EXAMPLES})
     PRIVATE
       physicore.reactions-diffusion.biofvm.kernels.openmp_solver
       physicore.reactions-diffusion.biofvm.kernels.openmp_solver_internal_iface
-      physicore.reactions-diffusion.biofvm_no_kernels)
+      physicore.reactions-diffusion.biofvm)
 endforeach()
