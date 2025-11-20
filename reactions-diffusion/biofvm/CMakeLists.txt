@@ -70,25 +70,6 @@ if(HAS_CUDA)
   enable_language(CUDA)
 endif()
 
-install(
-  TARGETS physicore.reactions-diffusion.biofvm
-  EXPORT MyLibTargets
-  FILE_SET HEADERS)
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/MyLibConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion)
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/MyLibConfig.cmake"
-              "${CMAKE_CURRENT_BINARY_DIR}/MyLibConfigVersion.cmake"
-        DESTINATION lib/cmake/MyLib)
-install(
-  EXPORT MyLibTargets
-  NAMESPACE MyLib::
-  FILE MyLibTargets.cmake
-  DESTINATION lib/cmake/MyLib)
-
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
@@ -96,3 +77,24 @@ endif()
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
+
+install(
+  TARGETS physicore.reactions-diffusion.biofvm
+  EXPORT BioFVMTargets
+  FILE_SET HEADERS)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/BioFVMConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/BioFVMConfig.cmake"
+              "${CMAKE_CURRENT_BINARY_DIR}/BioFVMConfigVersion.cmake"
+        DESTINATION lib/cmake/BioFVM)
+
+install(
+  EXPORT BioFVMTargets
+  NAMESPACE BioFVM::
+  FILE BioFVMTargets.cmake
+  DESTINATION lib/cmake/BioFVM)
