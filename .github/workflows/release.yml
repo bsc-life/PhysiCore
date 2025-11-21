@@ -56,13 +56,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            preset: gcc-release
+            preset: gcc-release-artifacts
             artifact_name: physicore-linux-x64
           - os: macos-latest
-            preset: appleclang-release
+            preset: appleclang-release-artifacts
             artifact_name: physicore-macos-arm64
           - os: windows-latest
-            preset: msvc-release
+            preset: msvc-release-artifacts
             artifact_name: physicore-windows-x64
 
     env:

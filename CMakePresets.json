@@ -127,6 +127,19 @@
             ]
         },
         {
+            "name": "gcc-release-artifacts",
+            "displayName": "GCC Release Artifacts Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_gcc-base"
+            ],
+            "cacheVariables": {
+                "PHYSICORE_BUILD_TESTS": "OFF",
+                "PHYSICORE_BUILD_EXAMPLES": "OFF"
+            }
+        },
+        {
             "name": "llvm-debug",
             "displayName": "LLVM Debug Build",
             "inherits": [
@@ -194,6 +207,19 @@
             ]
         },
         {
+            "name": "appleclang-release-artifacts",
+            "displayName": "AppleClang Release Artifacts Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_appleclang-base"
+            ],
+            "cacheVariables": {
+                "PHYSICORE_BUILD_TESTS": "OFF",
+                "PHYSICORE_BUILD_EXAMPLES": "OFF"
+            }
+        },
+        {
             "name": "msvc-debug",
             "displayName": "MSVC Debug Build",
             "inherits": [
@@ -210,6 +236,19 @@
                 "_release-base",
                 "_msvc-base"
             ]
+        },
+        {
+            "name": "msvc-release-artifacts",
+            "displayName": "MSVC Release Artifacts Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_msvc-base"
+            ],
+            "cacheVariables": {
+                "PHYSICORE_BUILD_TESTS": "OFF",
+                "PHYSICORE_BUILD_EXAMPLES": "OFF"
+            }
         }
     ],
     "buildPresets": [
@@ -234,6 +273,13 @@
         {
             "name": "gcc-release",
             "configurePreset": "gcc-release",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "gcc-release-artifacts",
+            "configurePreset": "gcc-release-artifacts",
             "inherits": [
                 "_root-build"
             ]
@@ -274,6 +320,13 @@
             ]
         },
         {
+            "name": "appleclang-relwithdebinfo",
+            "configurePreset": "appleclang-relwithdebinfo",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
             "name": "appleclang-release",
             "configurePreset": "appleclang-release",
             "inherits": [
@@ -281,8 +334,8 @@
             ]
         },
         {
-            "name": "appleclang-relwithdebinfo",
-            "configurePreset": "appleclang-relwithdebinfo",
+            "name": "appleclang-release-artifacts",
+            "configurePreset": "appleclang-release-artifacts",
             "inherits": [
                 "_root-build"
             ]
@@ -297,6 +350,13 @@
         {
             "name": "msvc-release",
             "configurePreset": "msvc-release",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "msvc-release-artifacts",
+            "configurePreset": "msvc-release-artifacts",
             "inherits": [
                 "_root-build"
             ]
@@ -469,6 +529,20 @@
             ]
         },
         {
+            "name": "gcc-release-artifacts",
+            "displayName": "GCC Release Artifacts Build",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "gcc-release-artifacts"
+                },
+                {
+                    "type": "build",
+                    "name": "gcc-release-artifacts"
+                }
+            ]
+        },
+        {
             "name": "llvm-debug",
             "displayName": "LLVM Debug MaxSan Build and Test",
             "steps": [
@@ -575,6 +649,20 @@
             ]
         },
         {
+            "name": "appleclang-release-artifacts",
+            "displayName": "AppleClang Release Artifacts Build",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "appleclang-release-artifacts"
+                },
+                {
+                    "type": "build",
+                    "name": "appleclang-release-artifacts"
+                }
+            ]
+        },
+        {
             "name": "msvc-debug",
             "steps": [
                 {
@@ -622,6 +710,20 @@
                 {
                     "type": "test",
                     "name": "msvc-release-no-cuda"
+                }
+            ]
+        },
+        {
+            "name": "msvc-release-artifacts",
+            "displayName": "MSVC Release Artifacts Build",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "msvc-release-artifacts"
+                },
+                {
+                    "type": "build",
+                    "name": "msvc-release-artifacts"
                 }
             ]
         }
