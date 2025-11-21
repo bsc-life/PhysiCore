@@ -1,0 +1,156 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release-dry-run:
+    name: Semantic Release (Dry Run)
+    runs-on: ubuntu-latest
+    outputs:
+      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
+      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: |
+          npm install -g \
+            semantic-release \
+            @semantic-release/github \
+            conventional-changelog-conventionalcommits
+
+      - name: Run Semantic Release
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release --dry-run
+
+  build-artifacts:
+    name: Build Release Artifacts
+    needs: release-dry-run
+    if: needs.release-dry-run.outputs.new_release_published == 'true'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            preset: gcc-release
+            artifact_name: physicore-linux-x64
+          - os: macos-latest
+            preset: appleclang-release
+            artifact_name: physicore-macos-arm64
+          - os: windows-latest
+            preset: msvc-release
+            artifact_name: physicore-windows-x64
+
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        env:
+          VCPKG_BINARY_SOURCES: default,readwrite
+
+      - name: Set up binary cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-binary-cache-
+
+      - name: Build with CMake
+        uses: lukka/run-cmake@v10
+        with:
+          workflowPreset: ${{ matrix.preset }}
+
+      - name: Install to staging directory
+        run: |
+          cmake --install build/${{ matrix.preset }} --prefix build/install/${{ matrix.artifact_name }}
+
+      - name: Create tarball (Unix)
+        if: runner.os != 'Windows'
+        working-directory: build/install
+        run: |
+          mkdir -p ../release-artifacts
+          tar -czf ../release-artifacts/${{ matrix.artifact_name }}-v${{ needs.release-dry-run.outputs.new_release_version }}.tar.gz ${{ matrix.artifact_name }}
+
+      - name: Create zip (Windows)
+        if: runner.os == 'Windows'
+        working-directory: build/install
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path ../release-artifacts
+          Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ../release-artifacts/${{ matrix.artifact_name }}-v${{ needs.release-dry-run.outputs.new_release_version }}.zip
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: build/release-artifacts/*
+          overwrite: true
+          retention-days: 1
+
+  release:
+    name: Semantic Release
+    needs: build-artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: |
+          npm install -g \
+            semantic-release \
+            @semantic-release/github \
+            conventional-changelog-conventionalcommits
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: build/release-artifacts
+
+      - name: Run Semantic Release
+        id: semantic
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
