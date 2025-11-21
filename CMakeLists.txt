@@ -1,9 +1,25 @@
 # Top-level CMakeLists.txt
 cmake_minimum_required(VERSION 3.24)
+
+# Get version from git tag
+find_package(Git QUIET)
+if(GIT_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+
+  if(GIT_TAG)
+    # Remove 'v' prefix if present
+    string(REGEX REPLACE "^v" "" PROJECT_VERSION_FROM_GIT "${GIT_TAG}")
+  endif()
+endif()
+
 project(
   PhysiCore
   LANGUAGES CXX
-  VERSION 0.1.0)
+  VERSION ${PROJECT_VERSION_FROM_GIT})
 
 option(
   PHYSICORE_BUILD_TESTS
