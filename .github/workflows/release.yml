@@ -16,8 +16,8 @@ jobs:
     name: Semantic Release (Dry Run)
     runs-on: ubuntu-latest
     outputs:
-      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
-      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+      new-release-published: ${{ steps.semantic.outputs.new-release-published }}
+      new-release-version: ${{ steps.semantic.outputs.new-release-version }}
 
     steps:
       - name: Checkout
@@ -48,7 +48,7 @@ jobs:
   build-artifacts:
     name: Build Release Artifacts
     needs: release-dry-run
-    if: needs.release-dry-run.outputs.new_release_published == 'true'
+    if: needs.release-dry-run.outputs.new-release-published == 'true'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -103,7 +103,7 @@ jobs:
         working-directory: build/install
         run: |
           mkdir -p ../release-artifacts
-          tar -czf ../release-artifacts/${{ matrix.artifact_name }}-v${{ needs.release-dry-run.outputs.new_release_version }}.tar.gz ${{ matrix.artifact_name }}
+          tar -czf ../release-artifacts/${{ matrix.artifact_name }}-v${{ needs.release-dry-run.outputs.new-release-version }}.tar.gz ${{ matrix.artifact_name }}
 
       - name: Create zip (Windows)
         if: runner.os == 'Windows'
@@ -111,7 +111,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path ../release-artifacts
-          Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ../release-artifacts/${{ matrix.artifact_name }}-v${{ needs.release-dry-run.outputs.new_release_version }}.zip
+          Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath ../release-artifacts/${{ matrix.artifact_name }}-v${{ needs.release-dry-run.outputs.new-release-version }}.zip
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
