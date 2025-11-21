@@ -119,15 +119,18 @@
             {
                 "assets": [
                     {
-                        "path": "build/release-artifacts/physicore-linux-x64-v${nextRelease.version}.tar.gz",
+                        "path": "build/release-artifacts",
+                        "name": "physicore-linux-x64-v${nextRelease.version}.tar.gz",
                         "label": "Linux x64 (GCC)"
                     },
                     {
-                        "path": "build/release-artifacts/physicore-macos-arm64-v${nextRelease.version}.tar.gz",
+                        "path": "build/release-artifacts",
+                        "name": "physicore-macos-arm64-v${nextRelease.version}.tar.gz",
                         "label": "macOS ARM64 (Apple Clang)"
                     },
                     {
-                        "path": "build/release-artifacts/physicore-windows-x64-v${nextRelease.version}.zip",
+                        "path": "build/release-artifacts",
+                        "name": "physicore-windows-x64-v${nextRelease.version}.zip",
                         "label": "Windows x64 (MSVC)"
                     }
                 ]
