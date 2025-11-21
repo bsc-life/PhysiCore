@@ -105,7 +105,6 @@ jobs:
         run: |
           npm install -g \
             semantic-release \
-            @semantic-release/github \
             conventional-changelog-conventionalcommits
 
       - name: Download build artifacts
