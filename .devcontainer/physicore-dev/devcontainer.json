@@ -1,6 +1,6 @@
 {
 	"name": "physicore-dev",
-	"image": "gcc:15.2.0",
+	"dockerFile": "dockerfile",
 	"remoteUser": "${localEnv:USER}",
 	"mounts": [
 		"source=${localEnv:HOME}/.ssh,target=${localEnv:HOME}/.ssh,type=bind,readonly",
