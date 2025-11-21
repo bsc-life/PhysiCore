@@ -128,7 +128,7 @@
                         "label": "MacOS Package"
                     },
                     {
-                        "path": "release-artifacts/physicore-windows-x64/physicore-windows-x64.tar.gz",
+                        "path": "release-artifacts/physicore-windows-x64/physicore-windows-x64.zip",
                         "name": "physicore-windows-x64-v${nextRelease.version}.zip",
                         "label": "Windows Package"
                     }
