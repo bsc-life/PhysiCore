@@ -36,6 +36,7 @@ jobs:
           npm install -g \
             semantic-release \
             @semantic-release/github \
+            semantic-release-export-data \
             conventional-changelog-conventionalcommits
 
       - name: Run Semantic Release
@@ -142,6 +143,7 @@ jobs:
           npm install -g \
             semantic-release \
             @semantic-release/github \
+            semantic-release-export-data \
             conventional-changelog-conventionalcommits
 
       - name: Download build artifacts
