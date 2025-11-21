@@ -152,7 +152,16 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          path: build/release-artifacts
+          path: build/release-artifacts-download
+
+      - name: Flatten artifacts directory
+        run: |
+          mkdir -p build/release-artifacts
+          # Move all files from subdirectories to release-artifacts root
+          find build/release-artifacts-download -type f -exec mv {} build/release-artifacts/ \;
+          # List files for verification
+          echo "Available artifacts:"
+          ls -lh build/release-artifacts/
 
       - name: Run Semantic Release
         id: semantic
