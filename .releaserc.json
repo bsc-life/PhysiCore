@@ -121,17 +121,17 @@
                     {
                         "path": "build/release-artifacts",
                         "name": "physicore-linux-x64-v${nextRelease.version}.tar.gz",
-                        "label": "Linux x64 (GCC)"
+                        "label": "Linux Libraries"
                     },
                     {
                         "path": "build/release-artifacts",
                         "name": "physicore-macos-arm64-v${nextRelease.version}.tar.gz",
-                        "label": "macOS ARM64 (Apple Clang)"
+                        "label": "MacOS Libraries"
                     },
                     {
                         "path": "build/release-artifacts",
                         "name": "physicore-windows-x64-v${nextRelease.version}.zip",
-                        "label": "Windows x64 (MSVC)"
+                        "label": "Windows Libraries"
                     }
                 ]
             }
