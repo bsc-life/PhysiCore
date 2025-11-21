@@ -3,7 +3,6 @@
         "main"
     ],
     "plugins": [
-        "semantic-release-export-data",
         [
             "@semantic-release/commit-analyzer",
             {
@@ -119,19 +118,19 @@
             {
                 "assets": [
                     {
-                        "path": "build/release-artifacts",
+                        "path": "release-artifacts/physicore-linux-x64/physicore-linux-x64.tar.gz",
                         "name": "physicore-linux-x64-v${nextRelease.version}.tar.gz",
-                        "label": "Linux Libraries"
+                        "label": "Linux Package"
                     },
                     {
-                        "path": "build/release-artifacts",
+                        "path": "release-artifacts/physicore-macos-arm64/physicore-macos-arm64.tar.gz",
                         "name": "physicore-macos-arm64-v${nextRelease.version}.tar.gz",
-                        "label": "MacOS Libraries"
+                        "label": "MacOS Package"
                     },
                     {
-                        "path": "build/release-artifacts",
+                        "path": "release-artifacts/physicore-windows-x64/physicore-windows-x64.tar.gz",
                         "name": "physicore-windows-x64-v${nextRelease.version}.zip",
-                        "label": "Windows Libraries"
+                        "label": "Windows Package"
                     }
                 ]
             }
