@@ -1,6 +1,8 @@
 [![CMake Build on Ubuntu, Windows, and MacOS](https://github.com/bsc-life/PhysiCore/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/bsc-life/PhysiCore/actions/workflows/cmake-multi-platform.yml)
 [![ASAN, LSAN, UBSAN, TSAN Build on Ubuntu](https://github.com/bsc-life/PhysiCore/actions/workflows/cmake-ubuntu-sanitized.yml/badge.svg)](https://github.com/bsc-life/PhysiCore/actions/workflows/cmake-ubuntu-sanitized.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bsc-life_PhysiCore&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bsc-life_PhysiCore)
+[![Release](https://img.shields.io/github/v/release/bsc-life/PhysiCore)](https://github.com/bsc-life/PhysiCore/releases/latest)
+[![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
 # PhysiCore
 
@@ -39,14 +41,9 @@ PhysiCore/
 |       |-- examples/
 |       \-- kernels/         (Solver backends that self-register)
 |-- mechanics/               (Mechanics engines and force models)
-|   \-- physicell/
-|       |-- include/
-|       |-- src/
-|       \-- tests/
+|   \-- ...
 |-- phenotype/               (Phenotype models and wiring into executables)
-|   \-- physicore/
-|       |-- src/
-|       \-- CMakeLists.txt
+|   \-- ...
 |-- ports-overlays/          (vcpkg overlays for pinned third-party ports)
 \-- build/                   (Preset-specific build trees with vcpkg_installed/)
 ```
@@ -69,6 +66,7 @@ Set up on Linux/macOS (zsh):
 
 ```sh
 # Option A: use the repo-local vcpkg
+git submodule update --init
 export VCPKG_ROOT="$PWD/vcpkg"
 "$VCPKG_ROOT"/bootstrap-vcpkg.sh
 
@@ -80,6 +78,7 @@ Set up on Windows (PowerShell):
 
 ```powershell
 # Option A: repo-local vcpkg
+git submodule update --init
 $env:VCPKG_ROOT = "$PWD/vcpkg"
 & "$env:VCPKG_ROOT/bootstrap-vcpkg.bat"
 
