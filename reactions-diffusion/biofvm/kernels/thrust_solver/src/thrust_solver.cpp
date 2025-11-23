@@ -43,3 +43,7 @@ real_t thrust_solver::get_substrate_density(index_t s, index_t x, index_t y, ind
 
 	return dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(densities, s, x, y, z);
 }
+
+void thrust_solver::transfer_to_device(microenvironment&) { mgr.transfer_to_device(); }
+
+void thrust_solver::transfer_to_host(microenvironment&) { mgr.transfer_to_host(); }

@@ -20,6 +20,10 @@ public:
 	// Get the substrate density at a given voxel
 	virtual real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const = 0;
 
+	// Transfer data to/from device (if applicable)
+	virtual void transfer_to_device(microenvironment&) {}
+	virtual void transfer_to_host(microenvironment&) {}
+
 	virtual ~solver() = default;
 };
 

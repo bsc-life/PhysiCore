@@ -113,7 +113,9 @@ int main()
 		current_time += m->diffusion_timestep;
 
 		auto run_start = std::chrono::steady_clock::now();
+		m->solver->transfer_to_device(*m);
 		m->run_single_timestep();
+		m->solver->transfer_to_host(*m);
 		diffusion_runtime += std::chrono::steady_clock::now() - run_start;
 
 		if (current_time + 1e-12 >= next_output_time)

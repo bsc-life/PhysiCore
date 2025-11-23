@@ -195,6 +195,14 @@ microenvironment_config parse_microenvironment(const pugi::xml_node& microenv_no
 	return config;
 }
 
+// Parse <solver> tag
+solver_config parse_solver(const pugi::xml_node& solver_node)
+{
+	solver_config config;
+	config.name = parse_string(solver_node, "name");
+	return config;
+}
+
 } // namespace
 
 physicell_config parse_physicell_config(const std::filesystem::path& config_file)
@@ -231,6 +239,17 @@ physicell_config parse_physicell_config(const std::filesystem::path& config_file
 
 	pugi::xml_node microenv_node = get_required_child(root, "microenvironment_setup");
 	config.microenvironment = parse_microenvironment(microenv_node);
+
+	// Parse optional solver section
+	if (pugi::xml_node solver_node = root.child("solver"); solver_node)
+	{
+		config.solver = parse_solver(solver_node);
+	}
+	else
+	{
+		// Default to empty solver name if not specified
+		config.solver.name = "";
+	}
 
 	return config;
 }

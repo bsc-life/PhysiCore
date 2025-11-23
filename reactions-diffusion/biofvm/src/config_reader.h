@@ -52,6 +52,11 @@ struct variable_config
 	dirichlet_boundary_config boundary_conditions;
 };
 
+struct solver_config
+{
+	std::string name;
+};
+
 struct microenvironment_config
 {
 	std::vector<variable_config> variables;
@@ -64,6 +69,7 @@ struct physicell_config
 	domain_config domain;
 	overall_config overall;
 	microenvironment_config microenvironment;
+	solver_config solver;
 };
 
 /**

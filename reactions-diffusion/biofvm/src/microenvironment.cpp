@@ -73,6 +73,11 @@ std::unique_ptr<microenvironment> microenvironment::create_from_config(const std
 		builder.do_compute_internalized_substrates();
 	}
 
+	if (!config.solver.name.empty())
+	{
+		builder.select_solver(config.solver.name);
+	}
+
 	// Build and return
 	return builder.build();
 }

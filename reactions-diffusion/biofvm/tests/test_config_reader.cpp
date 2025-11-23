@@ -530,3 +530,115 @@ TEST(ConfigReaderErrorTest, NoDirichletOptionsUsesDefaults)
 
 	std::filesystem::remove(temp_file);
 }
+
+TEST(ConfigReaderSolverTest, SolverConfigParsed)
+{
+	// Create XML with solver section
+	std::filesystem::path temp_file = "solver_test.xml";
+	std::ofstream ofs(temp_file);
+	ofs << R"(<?xml version="1.0"?>
+<PhysiCell_settings>
+	<domain>
+		<x_min>-100</x_min>
+		<x_max>100</x_max>
+		<y_min>-100</y_min>
+		<y_max>100</y_max>
+		<z_min>-100</z_min>
+		<z_max>100</z_max>
+		<dx>10</dx>
+		<dy>10</dy>
+		<dz>10</dz>
+		<use_2D>false</use_2D>
+	</domain>
+
+	<overall>
+		<max_time units="min">100</max_time>
+		<time_units>min</time_units>
+		<space_units>micron</space_units>
+		<dt_diffusion units="min">0.01</dt_diffusion>
+		<dt_mechanics units="min">0.1</dt_mechanics>
+		<dt_phenotype units="min">6</dt_phenotype>
+	</overall>
+
+	<microenvironment_setup>
+		<variable name="oxygen" units="mmHg" ID="0">
+			<physical_parameter_set>
+				<diffusion_coefficient units="micron^2/min">100000.0</diffusion_coefficient>
+				<decay_rate units="1/min">0.1</decay_rate>
+			</physical_parameter_set>
+			<initial_condition units="mmHg">38.0</initial_condition>
+		</variable>
+		<options>
+			<calculate_gradients>false</calculate_gradients>
+			<track_internalized_substrates_in_each_agent>false</track_internalized_substrates_in_each_agent>
+		</options>
+	</microenvironment_setup>
+
+	<solver>
+		<name>openmp</name>
+	</solver>
+</PhysiCell_settings>
+)";
+	ofs.close();
+
+	physicell_config config = parse_physicell_config(temp_file);
+
+	// Verify solver parsed correctly
+	EXPECT_EQ(config.solver.name, "openmp");
+
+	std::filesystem::remove(temp_file);
+}
+
+TEST(ConfigReaderSolverTest, MissingSolverUsesDefault)
+{
+	// Create XML without solver section
+	std::filesystem::path temp_file = "no_solver_test.xml";
+	std::ofstream ofs(temp_file);
+	ofs << R"(<?xml version="1.0"?>
+<PhysiCell_settings>
+	<domain>
+		<x_min>-100</x_min>
+		<x_max>100</x_max>
+		<y_min>-100</y_min>
+		<y_max>100</y_max>
+		<z_min>-100</z_min>
+		<z_max>100</z_max>
+		<dx>10</dx>
+		<dy>10</dy>
+		<dz>10</dz>
+		<use_2D>false</use_2D>
+	</domain>
+
+	<overall>
+		<max_time units="min">100</max_time>
+		<time_units>min</time_units>
+		<space_units>micron</space_units>
+		<dt_diffusion units="min">0.01</dt_diffusion>
+		<dt_mechanics units="min">0.1</dt_mechanics>
+		<dt_phenotype units="min">6</dt_phenotype>
+	</overall>
+
+	<microenvironment_setup>
+		<variable name="oxygen" units="mmHg" ID="0">
+			<physical_parameter_set>
+				<diffusion_coefficient units="micron^2/min">100000.0</diffusion_coefficient>
+				<decay_rate units="1/min">0.1</decay_rate>
+			</physical_parameter_set>
+			<initial_condition units="mmHg">38.0</initial_condition>
+		</variable>
+		<options>
+			<calculate_gradients>false</calculate_gradients>
+			<track_internalized_substrates_in_each_agent>false</track_internalized_substrates_in_each_agent>
+		</options>
+	</microenvironment_setup>
+</PhysiCell_settings>
+)";
+	ofs.close();
+
+	physicell_config config = parse_physicell_config(temp_file);
+
+	// Should default to empty string
+	EXPECT_EQ(config.solver.name, "");
+
+	std::filesystem::remove(temp_file);
+}

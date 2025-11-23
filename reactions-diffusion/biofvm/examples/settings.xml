@@ -60,4 +60,8 @@
         </options>
     </microenvironment_setup>
 
+    <solver>
+        <name>openmp_solver</name>
+    </solver>
+
 </PhysiCell_settings>
