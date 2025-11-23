@@ -14,6 +14,11 @@ if(GIT_FOUND)
     # Remove 'v' prefix if present
     string(REGEX REPLACE "^v" "" PROJECT_VERSION_FROM_GIT "${GIT_TAG}")
   endif()
+
+  # Fallback version if git tag not found
+  if(NOT PROJECT_VERSION_FROM_GIT)
+    set(PROJECT_VERSION_FROM_GIT "9.9.9")
+  endif()
 endif()
 
 project(
