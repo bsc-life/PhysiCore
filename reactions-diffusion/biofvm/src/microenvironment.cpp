@@ -208,10 +208,10 @@ void microenvironment::update_dirichlet_interior_voxel(std::array<index_t, 3> vo
 }
 
 namespace {
-void update_boundary(microenvironment& m, char dimension, index_t substrate_idx, real_t value, bool condition,
+void update_boundary(const microenvironment& m, char dimension, index_t substrate_idx, real_t value, bool condition,
 					 auto& boundary_values, auto& boundary_conditions)
 {
-	index_t dim_idx = static_cast<index_t>(dimension - 'x');
+	auto dim_idx = static_cast<index_t>(dimension - 'x');
 
 	if (dim_idx >= m.mesh.dims)
 	{
