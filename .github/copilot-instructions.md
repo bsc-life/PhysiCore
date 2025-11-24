@@ -1,53 +1,64 @@
-<!--
-These instructions are read by AI coding assistants to help them be productive in the
-PhysiCore repository. Keep this file short and strictly actionable. Do not add
-policy text or generic advice.
--->
+# PhysiCore AI Agent Instructions
 
-# Copilot / AI assistant guidance — PhysiCore
+PhysiCore is a modular C++20 framework for agent-based multicellular simulations, re-architecting PhysiCell with pluggable diffusion solvers and mechanics engines.
 
-Summary
-- Modular C++20 simulation core. Top-level `CMakeLists.txt` adds: `common/`, `reactions-diffusion/biofvm/`, `mechanics/physicell/`, `phenotype/physicore/`.
-- Stable core API in `common/include` with minimal interfaces; numerical engines live as independent libraries and are wired into an example executable.
+## Architecture Overview
 
-Architecture essentials (what talks to what)
-- Core timestep API: `common/include/timestep_executor.h` defines `class timestep_executor { run_single_timestep(); serialize_state(); }`.
-- Mechanics implements the timestep executor: `mechanics/physicell/include/environment.h` with `environment::run_single_timestep()` and `serialize_state()` in `src/environment.cpp`.
-- Microenvironment (BioFVM) provides diffusion, serializers, and solver plug-ins:
-  - Serializer API: `reactions-diffusion/biofvm/include/serializer.h`; VTK serializer in `include/vtk_serializer*.h` + `src/vtk_serializer*.cpp`. It writes `.vti` files and a collection `.pvd` under the chosen output dir (tests use `vtk_microenvironment/`).
-  - Solver registry for pluggable backends: `include/solver_registry.h` with `registry_adder` pattern. Kernels register via `kernels/*/src/register_solver.cpp`; all kernels attached in `src/solver_registry_attach.cpp` (gated by `PHYSICORE_HAS_THRUST`).
-- Wiring: the example app `phenotype/physicore` links `physicore::mechanics::physicell` and `physicore::reactions-diffusion::biofvm`.
+**Modular Design**: The codebase is divided into time-scale-based subsystems, each a separate library with stable public interfaces via CMake `FILE_SET HEADERS`:
 
-Build, test, debug (use presets exactly like CI)
-- Configure + build (GCC debug):
-  - cmake --preset=gcc-debug
-  - cmake --build --preset=gcc-debug
-- Full cycle: cmake --workflow=gcc-debug
-- Run tests: ctest --preset gcc-debug --output-on-failure
-- Other presets: llvm-{debug,release,relwithdebinfo}, gcc-{release,relwithdebinfo}, appleclang-*, msvc-* (see `CMakePresets.json`). Sanitizers and TSAN suppressions come from repo root (`asan-suppressions.txt`, `tsan-suppressions.txt`).
-- vcpkg: CMake uses `$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake` and the manifest `vcpkg.json` (includes VTK IOXML).
+- `common/` - Core abstractions (`timestep_executor`, agent interfaces, types)
+- `reactions-diffusion/biofvm/` - Diffusion/reaction solvers with self-registering backends
+- `mechanics/physicell/` - Mechanics engines and force models
+- `phenotype/physicore/` - Phenotype models and executable wiring
 
-Project conventions
-- Public headers live in `*/include/` and are exported via CMake `FILE_SET HEADERS`; link against aliases like `physicore::mechanics::physicell` or `physicore::reactions-diffusion::biofvm`.
-- Tests are on by default for top-level builds via `PHYSICORE_BUILD_TESTS`; per-subproject tests live under `*/tests/` and use GoogleTest with discovered `*.tests` executables.
-- Kernels live in `*/kernels/<backend>/` and expose an `attach_to_registry()` entrypoint; `src/solver_registry_attach.cpp` ensures they self-register at link/load.
+**Public vs Internal APIs**: Headers in `*/include/` are public stable APIs. Implementation details in `*/src/` are private. All libraries provide namespace aliases (e.g., `physicore::common`, `physicore::reactions-diffusion::biofvm`).
 
-Concrete pointers and examples
-- Implementing the timestep hook: see `mechanics/physicell/include/environment.h` and `src/environment.cpp` for `run_single_timestep()`.
-- Adding a solver backend: follow `reactions-diffusion/biofvm/kernels/openmp_solver/src/register_solver.cpp` and the `registry_adder` usage in `include/solver_registry.h`.
-- Writing VTK output: `reactions-diffusion/biofvm/include/vtk_serializer.h` + `src/vtk_serializer.cpp`; base class handles `.pvd` aggregation in `src/vtk_serializer_base.cpp`.
-- Wiring an app: `phenotype/physicore/CMakeLists.txt` links mechanics and RD libraries; `src/main.cpp` is the integration point.
+**Pluggable Solver Pattern**: The `solver_registry` enables runtime selection of diffusion backends:
+- Backends self-register via `registry_adder<SolverT>` template in their registration units
+- See `reactions-diffusion/biofvm/kernels/{openmp_solver,thrust_solver}/src/register_solver.cpp`
+- Registration happens at static initialization in `solver_registry_attach.cpp`
+- Use `solver_registry::instance().get("solver_name")` to instantiate solvers
 
-Quick checklist to add a subsystem/library
-1) Create `your_subsystem/{include,src}` and add `add_library(physicore.your_subsystem)`.
-2) Export headers via `FILE_SET HEADERS`; add alias `physicore::your_subsystem`.
-3) Link to `physicore::common` and add `tests/` with a `*.tests` target using GTest.
-4) If runtime-pluggable, mirror the registry pattern shown in BioFVM.
+**Key Abstraction**: `timestep_executor` (in `common/timestep_executor.h`) defines the simulation loop contract:
+```cpp
+virtual void run_single_timestep() = 0;
+virtual void serialize_state(real_t current_time) = 0;
+```
 
-Files to skim first
-- `README.md`, `CMakePresets.json`, top-level `CMakeLists.txt`, `common/include/*`, `phenotype/physicore/src/main.cpp`.
+## Build System (CMake + vcpkg)
 
-If something is ambiguous
-- Provide the preset and exact build/test logs (e.g., `cmake --workflow=gcc-debug`); most wiring lives in the files listed above.
+**Presets-First Workflow**: Use CMake presets exclusively (defined in `CMakePresets.json`):
+```sh
+cmake --preset=gcc-debug          # Configure
+cmake --build --preset=gcc-debug  # Build
+ctest --preset gcc-debug          # Test
+cmake --workflow --preset=gcc-debug  # All-in-one
+```
 
-End — please suggest any missing conventions or workflows you rely on so we can capture them here.
+Available presets: `{gcc,llvm,appleclang,msvc}-{debug,release,relwithdebinfo}`
+
+**vcpkg Integration**: Dependencies managed via `vcpkg.json` manifest mode. The `VCPKG_ROOT` environment variable must point to vcpkg (repo includes it as submodule at `./vcpkg`). First configure automatically installs dependencies under `build/<preset>/vcpkg_installed/`.
+
+**Adding Libraries**: Follow the CMake pattern in existing subsystems:
+1. `add_library(physicore.subsystem.name)` + `add_library(physicore::subsystem::name ALIAS ...)`
+2. Export public headers via `FILE_SET HEADERS BASE_DIRS include/`
+3. Link `physicore::common` and other dependencies
+4. Tests go in `subsystem/tests/` with GoogleTest
+
+**Sanitizer Builds**: Debug presets include ASAN/LSAN/UBSAN; RelWithDebInfo includes TSAN. Suppressions in `lsan.supp`/`tsan.supp`.
+
+## Development Workflows
+
+**Testing**: Use GoogleTest with `TEST()` or `TEST_F()` macros. Run via `ctest --preset <preset> --output-on-failure`. Tests live alongside implementation in `*/tests/`.
+
+**Commit Messages**: Strictly follow Conventional Commits (`<type>(scope): summary`). Examples: `feat(biofvm): add CUDA kernel`, `fix(physicell): boundary force bug`. This drives semantic-release versioning.
+
+## Code Conventions
+
+**C++20 Modern Style**:
+- Use `std::span`, `std::ranges`, `<chrono>`, `constexpr` over macros
+- RAII for resources (smart pointers, value types) - no raw `new`/`delete`
+- `enum class` over plain `enum`
+- Namespaces: `physicore` for common, `physicore::biofvm` for reactions-diffusion, nested `::kernels::` for backends
+
+**Agent Data Pattern**: Agents use structure-of-arrays (SoA) via `base_agent_data` and proxy objects (`base_agent`) for element access. See `common/include/common/base_agent.h` and tests for usage.
