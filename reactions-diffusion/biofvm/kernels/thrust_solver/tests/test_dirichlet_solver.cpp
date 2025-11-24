@@ -1,4 +1,5 @@
 #include <biofvm/microenvironment.h>
+#include <biofvm/microenvironment_builder.h>
 #include <gtest/gtest.h>
 #include <noarr/structures/interop/bag.hpp>
 
@@ -368,4 +369,157 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary3D)
 			EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, 0, 0)), 8);
 			EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, m->mesh.grid_shape[2] - 1, 0)), 9);
 		}
+}
+
+
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), DynamicBoundaryModification)
+{
+	// Build a 3D microenvironment with oxygen substrate
+	microenvironment_builder builder;
+	builder.add_density("O2", "mmHg", 100.0, 0.01, 38.0);
+	builder.resize(3, { 0, 0, 0 }, { 100, 100, 100 }, { 10, 10, 10 });
+
+	// Start with atmospheric oxygen at x-min boundary
+	builder.add_boundary_dirichlet_conditions(0, // O2
+											  { 160.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, { true, false, false },
+											  { false, false, false });
+
+	auto env = builder.build();
+
+	// Initialize the solver
+	env->solver->initialize(*env);
+
+	// Run a few timesteps
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	// Simulate a change in boundary conditions (e.g., hypoxic conditions)
+	env->update_dirichlet_boundary_min('x', 0, 20.0, true); // Reduce oxygen at x-min boundary
+
+	// Update the solver with new boundary conditions
+	env->update_dirichlet_conditions();
+
+	// Continue simulation with new boundary conditions
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	// Verify the boundary value was updated
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(0, 0, 1, 1), 20.0);
+}
+
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), DynamicInteriorVoxelModification)
+{
+	microenvironment_builder builder;
+	builder.add_density("O2", "mmHg", 100.0, 0.01, 38.0);
+	builder.add_density("Glucose", "mM", 50.0, 0.02, 5.0);
+	builder.resize(3, { 0, 0, 0 }, { 100, 100, 100 }, { 10, 10, 10 });
+
+	// Add a constant source at the center
+	builder.add_dirichlet_node({ 5, 5, 5 }, { 160.0, 50.0 }, { true, true });
+
+	auto env = builder.build();
+	env->solver->initialize(*env);
+
+	// Run initial simulation
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	// Simulate depletion of the source (e.g., a nutrient reservoir running out)
+	env->update_dirichlet_interior_voxel({ 5, 5, 5 }, 1, 0.0, true); // Deplete glucose at source
+
+	env->update_dirichlet_conditions();
+
+	// Continue simulation with depleted source
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(1, 5, 5, 5), 0.0);
+}
+
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), DisableDirichletConditionsDynamically)
+{
+	microenvironment_builder builder;
+	builder.add_density("O2", "mmHg", 100.0, 0.01, 38.0);
+	builder.resize(3, { 0, 0, 0 }, { 100, 100, 100 }, { 10, 10, 10 });
+
+	// Start with boundary conditions
+	builder.add_boundary_dirichlet_conditions(0, { 160.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, { true, false, false },
+											  { false, false, false });
+
+	auto env = builder.build();
+	env->solver->initialize(*env);
+
+	// Run with boundary conditions
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	// Disable the boundary condition (e.g., removing a barrier)
+	env->update_dirichlet_boundary_min('x', 0, 160.0, false);
+	env->update_dirichlet_conditions();
+
+	// Continue simulation without boundary condition
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	// Verify condition was disabled
+	EXPECT_NE(env->get_substrate_density(1, 0, 1, 1), 160.0);
+}
+
+TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), MultipleSubstrateModification)
+{
+	microenvironment_builder builder;
+	builder.add_density("O2", "mmHg", 100.0, 0.01, 38.0);
+	builder.add_density("Glucose", "mM", 50.0, 0.02, 5.0);
+	builder.add_density("Lactate", "mM", 30.0, 0.015, 2.0);
+	builder.resize(3, { 0, 0, 0 }, { 100, 100, 100 }, { 10, 10, 10 });
+
+	// Add interior source with all three substrates
+	builder.add_dirichlet_node({ 5, 5, 5 }, { 160.0, 50.0, 10.0 }, { true, true, true });
+
+	auto env = builder.build();
+	env->solver->initialize(*env);
+
+	EXPECT_EQ(env->dirichlet_interior_voxels_count, 1);
+
+	// Run initial simulation
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	env->update_dirichlet_interior_voxel({ 5, 5, 5 }, 0, 80.0, true);  // O2: reduce
+	env->update_dirichlet_interior_voxel({ 5, 5, 5 }, 1, 100.0, true); // Glucose: increase
+	env->update_dirichlet_interior_voxel({ 5, 5, 5 }, 2, 0.0, true);   // Lactate: deplete
+
+	env->update_dirichlet_interior_voxel({ 2, 2, 2 }, 0, 200.0, true); // O2: increase
+	env->update_dirichlet_interior_voxel({ 2, 2, 2 }, 1, 60.0, true);  // Glucose: increase
+	env->update_dirichlet_interior_voxel({ 2, 2, 2 }, 2, 15.0, true);  // Lactate: increase
+
+	env->update_dirichlet_conditions();
+
+	// Continue simulation with modified voxels
+	for (int i = 0; i < 5; ++i)
+	{
+		env->run_single_timestep();
+	}
+
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(0, 5, 5, 5), 80.0);
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(1, 5, 5, 5), 100.0);
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(2, 5, 5, 5), 0.0);
+
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(0, 2, 2, 2), 200.0);
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(1, 2, 2, 2), 60.0);
+	EXPECT_DOUBLE_EQ(env->get_substrate_density(2, 2, 2, 2), 15.0);
 }

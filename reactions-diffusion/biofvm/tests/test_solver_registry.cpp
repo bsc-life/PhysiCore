@@ -17,6 +17,7 @@ public:
 		static real_t dummy = 0;
 		return dummy;
 	}
+	void reinitialize_dirichlet(microenvironment&) override {}
 };
 
 TEST(SolverRegistryTest, CheckPresentSolvers)

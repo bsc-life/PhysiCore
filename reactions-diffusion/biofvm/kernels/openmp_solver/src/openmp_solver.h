@@ -23,6 +23,7 @@ public:
 	void solve(microenvironment& m, index_t iterations) override;
 	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const override;
 	real_t& get_substrate_density(index_t s, index_t x, index_t y, index_t z) override;
+	void reinitialize_dirichlet(microenvironment& m) override;
 };
 
 } // namespace physicore::biofvm::kernels::openmp_solver

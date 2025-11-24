@@ -1,5 +1,7 @@
 #include "microenvironment.h"
 
+#include <algorithm>
+
 #include <common/base_agent_data.h>
 
 #include "agent_container.h"
@@ -136,3 +138,122 @@ void microenvironment::print_info(std::ostream& os) const
 		   << ", I=" << initial_conditions[i] << ")" << std::endl;
 	}
 }
+
+void microenvironment::update_dirichlet_interior_voxel(std::array<index_t, 3> voxel, index_t substrate_idx,
+													   real_t value, bool condition)
+{
+	if (substrate_idx >= substrates_count)
+	{
+		throw std::runtime_error("Substrate index out of bounds");
+	}
+
+	// Try to find the voxel in the dirichlet_interior_voxels array
+	for (index_t i = 0; i < dirichlet_interior_voxels_count; ++i)
+	{
+		auto interior_voxel_idx = &dirichlet_interior_voxels[i * mesh.dims];
+		if (mesh.dims >= 1 && voxel[0] != interior_voxel_idx[0])
+			continue;
+		if (mesh.dims >= 2 && voxel[1] != interior_voxel_idx[1])
+			continue;
+		if (mesh.dims >= 3 && voxel[2] != interior_voxel_idx[2])
+			continue;
+
+		// Found the voxel, update value and condition
+		index_t offset = i * substrates_count + substrate_idx;
+		dirichlet_interior_values[offset] = value;
+		dirichlet_interior_conditions[offset] = condition;
+
+		return;
+	}
+
+	// Voxel not found, need to add a new entry
+	index_t new_count = dirichlet_interior_voxels_count + 1;
+	auto new_voxels = std::make_unique<index_t[]>(new_count * mesh.dims);
+	auto new_values = std::make_unique<real_t[]>(new_count * substrates_count);
+	auto new_conditions = std::make_unique<bool[]>(new_count * substrates_count);
+
+	// Copy old data
+	std::copy(dirichlet_interior_voxels.get(),
+			  dirichlet_interior_voxels.get() + dirichlet_interior_voxels_count * mesh.dims, new_voxels.get());
+	std::copy(dirichlet_interior_values.get(),
+			  dirichlet_interior_values.get() + dirichlet_interior_voxels_count * substrates_count, new_values.get());
+	std::copy(dirichlet_interior_conditions.get(),
+			  dirichlet_interior_conditions.get() + dirichlet_interior_voxels_count * substrates_count,
+			  new_conditions.get());
+
+	// Add new voxel
+	std::copy(voxel.begin(), voxel.begin() + mesh.dims, &new_voxels[dirichlet_interior_voxels_count * mesh.dims]);
+
+	// Initialize new values and conditions
+	for (index_t s = 0; s < substrates_count; ++s)
+	{
+		index_t offset = dirichlet_interior_voxels_count * substrates_count + s;
+		if (s == substrate_idx)
+		{
+			new_values[offset] = value;
+			new_conditions[offset] = condition;
+		}
+		else
+		{
+			new_values[offset] = 0.0;
+			new_conditions[offset] = false;
+		}
+	}
+
+	// Update pointers and count
+	dirichlet_interior_voxels = std::move(new_voxels);
+	dirichlet_interior_values = std::move(new_values);
+	dirichlet_interior_conditions = std::move(new_conditions);
+	dirichlet_interior_voxels_count = new_count;
+}
+
+namespace {
+void update_boundary(microenvironment& m, char dimension, index_t substrate_idx, real_t value, bool condition,
+					 auto& boundary_values, auto& boundary_conditions)
+{
+	index_t dim_idx = static_cast<index_t>(dimension - 'x');
+
+	if (dim_idx >= m.mesh.dims)
+	{
+		throw std::runtime_error("Dimension index out of bounds");
+	}
+
+	if (substrate_idx >= m.substrates_count)
+	{
+		throw std::runtime_error("Substrate index out of bounds");
+	}
+
+	if (!boundary_values[dim_idx])
+	{
+		// Allocate arrays
+		boundary_values[dim_idx] = std::make_unique<real_t[]>(m.substrates_count);
+		boundary_conditions[dim_idx] = std::make_unique<bool[]>(m.substrates_count);
+
+		// Initialize to defaults
+		for (index_t s = 0; s < m.substrates_count; ++s)
+		{
+			boundary_values[dim_idx][s] = 0.0;
+			boundary_conditions[dim_idx][s] = false;
+		}
+	}
+
+	boundary_values[dim_idx][substrate_idx] = value;
+	boundary_conditions[dim_idx][substrate_idx] = condition;
+}
+} // namespace
+
+void microenvironment::update_dirichlet_boundary_min(char dimension, index_t substrate_idx, real_t value,
+													 bool condition)
+{
+	update_boundary(*this, dimension, substrate_idx, value, condition, dirichlet_min_boundary_values,
+					dirichlet_min_boundary_conditions);
+}
+
+void microenvironment::update_dirichlet_boundary_max(char dimension, index_t substrate_idx, real_t value,
+													 bool condition)
+{
+	update_boundary(*this, dimension, substrate_idx, value, condition, dirichlet_max_boundary_values,
+					dirichlet_max_boundary_conditions);
+}
+
+void microenvironment::update_dirichlet_conditions() { solver->reinitialize_dirichlet(*this); }

@@ -55,3 +55,5 @@ real_t& thrust_solver::get_substrate_density(index_t s, index_t x, index_t y, in
 void thrust_solver::transfer_to_device(microenvironment&) { mgr.transfer_to_device(); }
 
 void thrust_solver::transfer_to_host(microenvironment&) { mgr.transfer_to_host(); }
+
+void thrust_solver::reinitialize_dirichlet(microenvironment& m) { dir_solver.initialize(m); }
