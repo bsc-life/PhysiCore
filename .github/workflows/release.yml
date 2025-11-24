@@ -87,7 +87,7 @@ jobs:
   release:
     name: Semantic Release
     needs: build-artifacts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Checkout
