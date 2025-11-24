@@ -22,8 +22,11 @@ public:
 	virtual real_t& get_substrate_density(index_t s, index_t x, index_t y, index_t z) = 0;
 
 	// Transfer data to/from device (if applicable)
-	virtual void transfer_to_device(microenvironment&) {}
-	virtual void transfer_to_host(microenvironment&) {}
+	virtual void transfer_to_device([[maybe_unused]] microenvironment& m) {}
+	virtual void transfer_to_host([[maybe_unused]] microenvironment& m) {}
+
+	// Reinitialize Dirichlet conditions (e.g., after modifying boundary or interior conditions)
+	virtual void reinitialize_dirichlet(microenvironment& m) = 0;
 
 	virtual ~solver() = default;
 };

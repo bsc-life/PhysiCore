@@ -50,3 +50,9 @@ real_t& openmp_solver::get_substrate_density(index_t s, index_t x, index_t y, in
 
 	return dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(densities, s, x, y, z);
 }
+
+void openmp_solver::reinitialize_dirichlet([[maybe_unused]] microenvironment& m)
+{
+	// OpenMP solver doesn't need to reinitialize Dirichlet conditions
+	// since it accesses the microenvironment data directly
+}

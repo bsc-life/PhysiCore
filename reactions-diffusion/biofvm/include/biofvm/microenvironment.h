@@ -36,6 +36,13 @@ public:
 
 	void print_info(std::ostream& os) const;
 
+	// Dirichlet condition modification methods
+	void update_dirichlet_interior_voxel(std::array<index_t, 3> voxel, index_t substrate_idx, real_t value,
+										 bool condition);
+	void update_dirichlet_boundary_min(char dimension, index_t substrate_idx, real_t value, bool condition);
+	void update_dirichlet_boundary_max(char dimension, index_t substrate_idx, real_t value, bool condition);
+	void update_dirichlet_conditions();
+
 	container_ptr agents;
 	solver_ptr solver;
 	serializer_ptr serializer;
