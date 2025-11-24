@@ -12,6 +12,11 @@ public:
 	void initialize(microenvironment&) override {}
 	void solve(microenvironment&, index_t) override {}
 	real_t get_substrate_density(index_t, index_t, index_t, index_t) const override { return 0; }
+	real_t& get_substrate_density(index_t, index_t, index_t, index_t) override
+	{
+		static real_t dummy = 0;
+		return dummy;
+	}
 };
 
 TEST(SolverRegistryTest, CheckPresentSolvers)

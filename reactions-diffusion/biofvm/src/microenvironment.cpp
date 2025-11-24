@@ -97,6 +97,11 @@ real_t microenvironment::get_substrate_density(index_t s, index_t x, index_t y, 
 	return solver->get_substrate_density(s, x, y, z);
 }
 
+real_t& microenvironment::get_substrate_density(index_t s, index_t x, index_t y, index_t z)
+{
+	return solver->get_substrate_density(s, x, y, z);
+}
+
 void microenvironment::print_info(std::ostream& os) const
 {
 	os << "Microenvironment config:" << std::endl;
