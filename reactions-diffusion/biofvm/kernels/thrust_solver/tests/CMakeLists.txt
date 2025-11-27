@@ -8,7 +8,6 @@ add_executable(
 target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests
   PRIVATE
-    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
     physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
     physicore.reactions-diffusion.biofvm
     GTest::gtest
@@ -51,7 +50,6 @@ if(${CUDAToolkit_FOUND})
   target_link_libraries(
     physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
     PRIVATE
-      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver
       physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
       physicore.reactions-diffusion.biofvm
       GTest::gtest

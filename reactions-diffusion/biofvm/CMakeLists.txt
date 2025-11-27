@@ -18,11 +18,10 @@ target_sources(
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
          ${PUBLIC_INC})
 
-target_sources(
+target_include_directories(
   physicore.reactions-diffusion.biofvm_internal_iface
-  INTERFACE FILE_SET HEADERS BASE_DIRS
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/biofvm"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/biofvm>)
 
 target_sources(
   physicore.reactions-diffusion.biofvm_iface
@@ -39,7 +38,7 @@ target_link_libraries(physicore.reactions-diffusion.biofvm_internal_iface
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm
-  PRIVATE $<BUILD_INTERFACE:physicore.reactions-diffusion.biofvm_internal_iface>
+  PRIVATE physicore.reactions-diffusion.biofvm_internal_iface
   PUBLIC physicore::common)
 
 # Thrust does not support AppleClang
@@ -65,6 +64,7 @@ endif()
 
 install(
   TARGETS physicore.reactions-diffusion.biofvm
+          physicore.reactions-diffusion.biofvm_internal_iface
   EXPORT BioFVMTargets
   FILE_SET HEADERS)
 
@@ -74,7 +74,11 @@ write_basic_package_version_file(
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion)
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/BioFVMConfig.cmake"
+configure_package_config_file(
+  cmake/BioFVMConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/BioFVMConfig.cmake"
+  INSTALL_DESTINATION lib/cmake/BioFVM)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/BioFVMConfig.cmake"
               "${CMAKE_CURRENT_BINARY_DIR}/BioFVMConfigVersion.cmake"
         DESTINATION lib/cmake/BioFVM)
 
