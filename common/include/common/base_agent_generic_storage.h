@@ -11,13 +11,13 @@ namespace physicore {
 template <typename AgentDataType>
 class base_agent_generic_storage : public virtual base_agent_interface
 {
+protected:
+	AgentDataType& base_data;
+
 public:
 	using DataType = AgentDataType;
 	using InterfaceType = base_agent_interface;
 
-	AgentDataType& base_data;
-
-public:
 	base_agent_generic_storage(index_t id, AgentDataType& data) : base_agent_interface(id), base_data(data)
 	{
 		assert(index < base_data.agents_count);
