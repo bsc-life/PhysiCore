@@ -44,7 +44,7 @@ jobs:
         run: |
           LLVM_PROFILE_FILE="common.profraw" build/llvm-cov-debug/common/tests/physicore.common.tests
           LLVM_PROFILE_FILE="biofvm.profraw" build/llvm-cov-debug/reactions-diffusion/biofvm/tests/physicore.reactions-diffusion.biofvm.tests
-          LLVM_PROFILE_FILE="micromechanics.profraw" build/llvm-cov-debug/mechanics/physicell/physicore.mechanics.physicell.tests
+          LLVM_PROFILE_FILE="micromechanics.profraw" build/llvm-cov-debug/mechanics/micromechanics/tests/physicore.mechanics.micromechanics.tests
           LLVM_PROFILE_FILE="biofvm.openmp_solver.profraw" build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/openmp_solver/tests/physicore.reactions-diffusion.biofvm.kernels.openmp_solver.tests
           LLVM_PROFILE_FILE="biofvm.thrust_solver.profraw" build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/thrust_solver/tests/physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests
       - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
@@ -52,7 +52,7 @@ jobs:
           llvm-profdata-18 merge -o merged.profdata common.profraw biofvm.profraw micromechanics.profraw biofvm.openmp_solver.profraw biofvm.thrust_solver.profraw
       - name: Collect the coverage
         run: |
-          llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/llvm-cov-debug/common/tests/physicore.common.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/tests/physicore.reactions-diffusion.biofvm.tests -object build/llvm-cov-debug/mechanics/physicell/physicore.mechanics.physicell.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/openmp_solver/tests/physicore.reactions-diffusion.biofvm.kernels.openmp_solver.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/thrust_solver/tests/physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests > coverage.txt
+          llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/llvm-cov-debug/common/tests/physicore.common.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/tests/physicore.reactions-diffusion.biofvm.tests -object build/llvm-cov-debug/mechanics/micromechanics/tests/physicore.mechanics.micromechanics.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/openmp_solver/tests/physicore.reactions-diffusion.biofvm.kernels.openmp_solver.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/thrust_solver/tests/physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests > coverage.txt
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
