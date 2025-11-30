@@ -118,7 +118,7 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior1D)
 
 		if (noarr::get_index<'x'>(s) == 2)
 		{
-			EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 41);
+			EXPECT_DOUBLE_EQ(l | noarr::get_at<'s'>(densities, 0), 41);
 		}
 	});
 }
@@ -154,12 +154,12 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior2D)
 
 		if (x == 1 && y == 1)
 		{
-			EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 10);
+			EXPECT_DOUBLE_EQ(l | noarr::get_at<'s'>(densities, 0), 10);
 		}
 
 		if (x == 2 && y == 0)
 		{
-			EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 11);
+			EXPECT_DOUBLE_EQ(l | noarr::get_at<'s'>(densities, 0), 11);
 		}
 	});
 }
@@ -195,17 +195,17 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior3D)
 
 		if (x == 1 && y == 1 && z == 1)
 		{
-			EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 1000);
+			EXPECT_DOUBLE_EQ(l | noarr::get_at<'s'>(densities, 0), 1000);
 		}
 
 		if (x == 1 && y == 0 && z == 2)
 		{
-			EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 1001);
+			EXPECT_DOUBLE_EQ(l | noarr::get_at<'s'>(densities, 0), 1001);
 		}
 
 		if (x == 0 && y == 1 && z == 2)
 		{
-			EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 1002);
+			EXPECT_DOUBLE_EQ(l | noarr::get_at<'s'>(densities, 0), 1002);
 		}
 	});
 }
@@ -235,13 +235,13 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary1D)
 	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 	{
 		if (x == 0)
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 4);
+			EXPECT_DOUBLE_EQ((densities.at<'x', 's'>(x, 0)), 4);
 		else if (x == m->mesh.grid_shape[0] - 1)
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 5);
+			EXPECT_DOUBLE_EQ((densities.at<'x', 's'>(x, 0)), 5);
 		else
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 1);
+			EXPECT_DOUBLE_EQ((densities.at<'x', 's'>(x, 0)), 1);
 
-		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), 1);
+		EXPECT_DOUBLE_EQ((densities.at<'x', 's'>(x, 1)), 1);
 	}
 }
 
@@ -274,31 +274,31 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary2D)
 		{
 			// y boundary overwrites x boundary
 			if (x == 0 && y == 0)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 6);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 6);
 			else if (x == 0 && y == m->mesh.grid_shape[1] - 1)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 7);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 7);
 			else if (x == m->mesh.grid_shape[0] - 1 && y == 0)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 6);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 6);
 			else if (x == m->mesh.grid_shape[0] - 1 && y == m->mesh.grid_shape[1] - 1)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 7);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 7);
 
 			// x boundary
 			else if (x == 0)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 4);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 4);
 			else if (x == m->mesh.grid_shape[0] - 1)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 5);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 5);
 
 			// y boundary
 			else if (y == 0)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 6);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 6);
 			else if (y == m->mesh.grid_shape[1] - 1)
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 7);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 7);
 
 			// interior
 			else
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 1);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 0)), 1);
 
-			EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(x, y, 1)), 1);
+			EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(x, y, 1)), 1);
 		}
 }
 
@@ -335,39 +335,39 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary3D)
 			{
 				// y boundary overwrites x boundary
 				if (x == 0 && y == 0)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 6);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 6);
 				else if (x == 0 && y == m->mesh.grid_shape[1] - 1)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 7);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 7);
 				else if (x == m->mesh.grid_shape[0] - 1 && y == 0)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 6);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 6);
 				else if (x == m->mesh.grid_shape[0] - 1 && y == m->mesh.grid_shape[1] - 1)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 7);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 7);
 
 				// x boundary
 				else if (x == 0)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 4);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 4);
 				else if (x == m->mesh.grid_shape[0] - 1)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 5);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 5);
 
 				// y boundary
 				else if (y == 0)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 6);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 6);
 				else if (y == m->mesh.grid_shape[1] - 1)
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 7);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 7);
 
 				// interior
 				else
-					EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 1);
+					EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 0)), 1);
 
-				EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 1)), 1);
+				EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, z, 1)), 1);
 			}
 
 	// with exterior z indices
 	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		for (index_t y = 0; y < m->mesh.grid_shape[1]; y++)
 		{
-			EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, 0, 0)), 8);
-			EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, m->mesh.grid_shape[2] - 1, 0)), 9);
+			EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, 0, 0)), 8);
+			EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(x, y, m->mesh.grid_shape[2] - 1, 0)), 9);
 		}
 }
 

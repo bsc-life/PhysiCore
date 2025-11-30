@@ -95,10 +95,10 @@ TEST(PREPEND_TEST_NAME(ThrustBulkSolverTest), SimulateBulkSource)
 					auto idx = noarr::idx<'s', 'x', 'y', 'z'>(s, x, y, z);
 
 					if (x == 1 && y == 1 && z == 1 && s == 0)
-						EXPECT_FLOAT_EQ(dens_l | noarr::get_at(densities, idx), 9.19643);
+						EXPECT_NEAR(dens_l | noarr::get_at(densities, idx), 9.19643, 1e-4);
 					else if (s == 1)
-						EXPECT_FLOAT_EQ(dens_l | noarr::get_at(densities, idx), 1);
+						EXPECT_DOUBLE_EQ(dens_l | noarr::get_at(densities, idx), 1);
 					else
-						EXPECT_FLOAT_EQ(dens_l | noarr::get_at(densities, idx), 10);
+						EXPECT_DOUBLE_EQ(dens_l | noarr::get_at(densities, idx), 10);
 				}
 }

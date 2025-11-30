@@ -161,6 +161,6 @@ TEST(AgentContainerTest, GetAgentAt)
 #ifdef NDEBUG
 	// Test out of bounds access
 	EXPECT_EQ(container.get_agent_at(3), nullptr);
-	EXPECT_EQ(container.get_agent_at(-1), nullptr);
+	EXPECT_EQ(container.get_agent_at(std::numeric_limits<index_t>::max()), nullptr);
 #endif
 }

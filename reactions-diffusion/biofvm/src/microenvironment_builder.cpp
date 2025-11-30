@@ -1,8 +1,5 @@
 #include "microenvironment_builder.h"
 
-#include <algorithm>
-#include <stdexcept>
-
 #include <common/types.h>
 
 #include "bulk_functor.h"
@@ -14,11 +11,11 @@
 using namespace physicore::biofvm;
 using namespace physicore;
 
-void microenvironment_builder::set_name(std::string_view name) { this->name = name; }
+void microenvironment_builder::set_name(std::string_view name_) { this->name = name_; }
 
-void microenvironment_builder::set_time_units(std::string_view time_units) { this->time_units = time_units; }
+void microenvironment_builder::set_time_units(std::string_view time_units_) { this->time_units = time_units_; }
 
-void microenvironment_builder::set_space_units(std::string_view space_units) { this->space_units = space_units; }
+void microenvironment_builder::set_space_units(std::string_view space_units_) { this->space_units = space_units_; }
 
 void microenvironment_builder::set_time_step(real_t time_step) { this->timestep = time_step; }
 
@@ -30,10 +27,10 @@ void microenvironment_builder::resize(index_t dims, std::array<sindex_t, 3> boun
 	mesh = cartesian_mesh(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 }
 
-void microenvironment_builder::add_density(const std::string& name, const std::string& units,
+void microenvironment_builder::add_density(const std::string& name_, const std::string& units,
 										   real_t diffusion_coefficient, real_t decay_rate, real_t initial_condition)
 {
-	substrates_names.push_back(name);
+	substrates_names.push_back(name_);
 	substrates_units.push_back(units);
 	diffusion_coefficients.push_back(diffusion_coefficient);
 	decay_rates.push_back(decay_rate);
@@ -45,12 +42,12 @@ void microenvironment_builder::add_density(const std::string& name, const std::s
 	boundary_dirichlet_maxs_conditions.push_back({ false, false, false });
 }
 
-std::size_t microenvironment_builder::get_density_index(const std::string& name) const
+std::size_t microenvironment_builder::get_density_index(const std::string& name_) const
 {
-	auto it = std::ranges::find(substrates_names, name);
+	auto it = std::ranges::find(substrates_names, name_);
 	if (it == substrates_names.end())
 	{
-		throw std::runtime_error("Density " + name + " not found");
+		throw std::runtime_error("Density " + name_ + " not found");
 	}
 	return std::distance(substrates_names.begin(), it);
 }
@@ -147,7 +144,7 @@ void microenvironment_builder::fill_dirichlet_vectors(microenvironment& m)
 	}
 }
 
-void microenvironment_builder::select_solver(const std::string& name) { solver_name = name; }
+void microenvironment_builder::select_solver(const std::string& name_) { solver_name = name_; }
 
 std::unique_ptr<microenvironment> microenvironment_builder::build()
 {

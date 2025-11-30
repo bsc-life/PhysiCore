@@ -20,9 +20,9 @@ void make_agents(microenvironment& m, index_t count, bool conflict)
 	for (index_t i = 0; i < count; i++)
 	{
 		auto a = m.agents->create();
-		a->position()[0] = x;
-		a->position()[1] = y;
-		a->position()[2] = z;
+		a->position()[0] = static_cast<real_t>(x);
+		a->position()[1] = static_cast<real_t>(y);
+		a->position()[2] = static_cast<real_t>(z);
 
 		x += 20;
 		if (x >= m.mesh.bounding_box_maxs[0])
