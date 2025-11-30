@@ -84,8 +84,8 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform1D)
 	noarr::traverser(dens_l).for_dims<'x'>([&](auto s) {
 		auto l = dens_l ^ noarr::fix(s);
 
-		EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 0.03846154);
-		EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 1), 0.0625);
+		EXPECT_NEAR(l | noarr::get_at<'s'>(densities, 0), 0.03846154, 1e-6);
+		EXPECT_NEAR(l | noarr::get_at<'s'>(densities, 1), 0.0625, 1e-6);
 	});
 }
 
@@ -110,8 +110,8 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform2D)
 	noarr::traverser(dens_l).for_dims<'x', 'y'>([&](auto s) {
 		auto l = dens_l ^ noarr::fix(s);
 
-		EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 0.0054869675);
-		EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 1), 0.013840831);
+		EXPECT_NEAR(l | noarr::get_at<'s'>(densities, 0), 0.0054869675, 1e-6);
+		EXPECT_NEAR(l | noarr::get_at<'s'>(densities, 1), 0.013840831, 1e-6);
 	});
 }
 
@@ -136,8 +136,8 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform3D)
 	noarr::traverser(dens_l).for_dims<'x', 'y', 'z'>([&](auto s) {
 		auto l = dens_l ^ noarr::fix(s);
 
-		EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 0), 0.0012299563);
-		EXPECT_FLOAT_EQ(l | noarr::get_at<'s'>(densities, 1), 0.0046296306);
+		EXPECT_NEAR(l | noarr::get_at<'s'>(densities, 0), 0.0012299563, 1e-6);
+		EXPECT_NEAR(l | noarr::get_at<'s'>(densities, 1), 0.0046296306, 1e-6);
 	});
 }
 
@@ -161,14 +161,14 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random1D)
 		for (index_t x = 0; x < mesh.grid_shape[0]; ++x)
 		{
 			index_t index = s + x * m->substrates_count;
-			(dens_l | noarr::get_at<'x', 's'>(densities, x, s)) = index;
+			(dens_l | noarr::get_at<'x', 's'>(densities, x, s)) = static_cast<real_t>(index);
 		}
 
 	mgr.transfer_to_device();
 	s.solve();
 	mgr.transfer_to_host();
 
-	std::vector<float> expected = {
+	std::vector<double> expected = {
 		0.0486842592, 1.0444132121, 1.9980019980, 2.9880478088, 3.9473197368, 4.9316824055
 	};
 
@@ -177,7 +177,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random1D)
 		{
 			index_t index = s + x * m->substrates_count;
 
-			EXPECT_FLOAT_EQ((dens_l | noarr::get_at<'x', 's'>(densities, x, s)), expected[index]);
+			EXPECT_NEAR((dens_l | noarr::get_at<'x', 's'>(densities, x, s)), expected[index], 1e-6);
 		}
 }
 
@@ -202,14 +202,14 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random2D)
 			for (index_t y = 0; y < mesh.grid_shape[1]; ++y)
 			{
 				index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0];
-				(dens_l | noarr::get_at<'x', 'y', 's'>(densities, x, y, s)) = index;
+				(dens_l | noarr::get_at<'x', 'y', 's'>(densities, x, y, s)) = static_cast<real_t>(index);
 			}
 
 	mgr.transfer_to_device();
 	s.solve();
 	mgr.transfer_to_host();
 
-	std::vector<float> expected = { 0.1948319355,  1.1899772978,  2.1441254507,	 3.1335099015,	4.0934189658,
+	std::vector<double> expected = { 0.1948319355,  1.1899772978,  2.1441254507,	 3.1335099015,	4.0934189658,
 									5.0770425053,  6.0427124809,  7.0205751090,	 7.9920058,		8.9641077127,
 									9.9412995111,  10.9076403164, 11.8905930262, 12.8511729202, 13.8398865413,
 									14.7947055239, 15.7891800565, 16.7382381276 };
@@ -220,7 +220,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random2D)
 			{
 				index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0];
 
-				EXPECT_FLOAT_EQ((dens_l | noarr::get_at<'x', 'y', 's'>(densities, x, y, s)), expected[index]);
+				EXPECT_NEAR((dens_l | noarr::get_at<'x', 'y', 's'>(densities, x, y, s)), expected[index], 1e-6);
 			}
 }
 
@@ -247,14 +247,14 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random3D)
 				{
 					index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0]
 									+ z * m->substrates_count * mesh.grid_shape[0] * mesh.grid_shape[1];
-					(dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)) = index;
+					(dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)) = static_cast<real_t>(index);
 				}
 
 	mgr.transfer_to_device();
 	s.solve();
 	mgr.transfer_to_host();
 
-	std::vector<float> expected = {
+	std::vector<double> expected = {
 		0.6333066643,  1.6268066007,  2.5825920996,	 3.5703051208,	4.5318775349,  5.5138036408,  6.4811629703,
 		7.4573021609,  8.4304484056,  9.4008006809,	 10.3797338410, 11.3442992010, 12.3290192763, 13.2877977210,
 		14.2783047117, 15.2312962410, 16.2275901470, 17.1747947611, 18.1768755823, 19.1182932811, 20.1261610177,
@@ -273,7 +273,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random3D)
 					index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0]
 									+ z * m->substrates_count * mesh.grid_shape[0] * mesh.grid_shape[1];
 
-					EXPECT_FLOAT_EQ((dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)),
-									expected[index]);
+					EXPECT_NEAR((dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)),
+								expected[index], 1e-6);
 				}
 }

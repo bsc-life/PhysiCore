@@ -106,22 +106,22 @@ static std::vector<real_t> compute_expected_agent_densities_1d(auto densities, m
 void set_default_agent_values(agent_interface* a, index_t rates_offset, index_t volume, std::array<real_t, 3> position,
 							  index_t dims)
 {
-	a->secretion_rates()[0] = rates_offset + 100;
+	a->secretion_rates()[0] = static_cast<real_t>(rates_offset + 100);
 	a->secretion_rates()[1] = 0;
 
-	a->uptake_rates()[0] = rates_offset + 200;
+	a->uptake_rates()[0] = static_cast<real_t>(rates_offset + 200);
 	a->uptake_rates()[1] = 0;
 
-	a->saturation_densities()[0] = rates_offset + 300;
+	a->saturation_densities()[0] = static_cast<real_t>(rates_offset + 300);
 	a->saturation_densities()[1] = 0;
 
 	a->net_export_rates()[0] = 0;
-	a->net_export_rates()[1] = rates_offset + 400;
+	a->net_export_rates()[1] = static_cast<real_t>(rates_offset + 400);
 
 	a->fraction_released_at_death()[0] = 1;
 	a->fraction_released_at_death()[1] = 1;
 
-	a->volume() = volume;
+	a->volume() = static_cast<real_t>(volume);
 
 	for (index_t i = 0; i < dims; ++i)
 		a->position()[i] = position[i];
@@ -173,58 +173,58 @@ TEST_P(RecomputeTest, Simple1D)
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216000.000000);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -4);
+		EXPECT_NEAR(a1->internalized_substrates()[0], -216000.000000, 1e-6);
+		EXPECT_NEAR(a1->internalized_substrates()[1], -4, 1e-6);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469052.6);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -8);
+		EXPECT_NEAR(a2->internalized_substrates()[0], -1469052.6, 0.1);
+		EXPECT_NEAR(a2->internalized_substrates()[1], -8, 1e-6);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927703.8);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -12);
+		EXPECT_NEAR(a3->internalized_substrates()[0], -2927703.8, 0.1);
+		EXPECT_NEAR(a3->internalized_substrates()[1], -12, 1e-6);
 	}
 
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(0, 0)), 28);
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(0, 1)), 1.0005);
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 0)), 28, 1e-6);
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 1)), 1.0005, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(1, 0)), 184.63158);
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(1, 1)), 1.001);
+	EXPECT_NEAR((densities.template at<'x', 's'>(1, 0)), 184.63158, 1e-5);
+	EXPECT_NEAR((densities.template at<'x', 's'>(1, 1)), 1.001, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 0)), 366.963);
-	EXPECT_FLOAT_EQ((densities.template at<'x', 's'>(2, 1)), 1.0015);
+	EXPECT_NEAR((densities.template at<'x', 's'>(2, 0)), 366.963, 1e-3);
+	EXPECT_NEAR((densities.template at<'x', 's'>(2, 1)), 1.0015, 1e-6);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
 	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -373091);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -8);
+		EXPECT_NEAR(a1->internalized_substrates()[0], -373091, 0.1);
+		EXPECT_NEAR(a1->internalized_substrates()[1], -8, 1e-6);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -2087601.1);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -16);
+		EXPECT_NEAR(a2->internalized_substrates()[0], -2087601.1, 0.1);
+		EXPECT_NEAR(a2->internalized_substrates()[1], -16, 1e-6);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -3795171.5);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -24);
+		EXPECT_NEAR(a3->internalized_substrates()[0], -3795171.5, 0.1);
+		EXPECT_NEAR(a3->internalized_substrates()[1], -24, 1e-6);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 0)), 47.636364);
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 1)), 1.001);
+	EXPECT_NEAR((densities.at<'x', 's'>(0, 0)), 47.636364, 1e-4);
+	EXPECT_NEAR((densities.at<'x', 's'>(0, 1)), 1.001, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(1, 0)), 261.95);
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(1, 1)), 1.002);
+	EXPECT_NEAR((densities.at<'x', 's'>(1, 0)), 261.95, 1e-2);
+	EXPECT_NEAR((densities.at<'x', 's'>(1, 1)), 1.002, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 0)), 475.39642);
-	EXPECT_FLOAT_EQ((densities.at<'x', 's'>(2, 1)), 1.003);
+	EXPECT_NEAR((densities.at<'x', 's'>(2, 0)), 475.39642, 1e-4);
+	EXPECT_NEAR((densities.at<'x', 's'>(2, 1)), 1.003, 1e-6);
 
 	s.release_internalized_substrates(*m, d_s, mgr, 0);
 	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 0)), 1);
-		EXPECT_FLOAT_EQ((densities.at<'x', 's'>(0, 1)), 1);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_DOUBLE_EQ((densities.at<'x', 's'>(0, 0)), 1);
+		EXPECT_DOUBLE_EQ((densities.at<'x', 's'>(0, 1)), 1);
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -262,58 +262,58 @@ TEST_P(RecomputeTest, Simple2D)
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216000.000000);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -4);
+		EXPECT_NEAR(a1->internalized_substrates()[0], -216000.000000, 1e-6);
+		EXPECT_NEAR(a1->internalized_substrates()[1], -4, 1e-6);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469052.6);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -8);
+		EXPECT_NEAR(a2->internalized_substrates()[0], -1469052.6, 0.1);
+		EXPECT_NEAR(a2->internalized_substrates()[1], -8, 1e-6);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927703.8);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -12);
+		EXPECT_NEAR(a3->internalized_substrates()[0], -2927703.8, 0.1);
+		EXPECT_NEAR(a3->internalized_substrates()[1], -12, 1e-6);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 28);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1.0005);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(0, 0, 0)), 28, 1e-6);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(0, 0, 1)), 1.0005, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 0)), 184.63158);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 1)), 1.001);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(1, 1, 0)), 184.63158, 1e-5);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(1, 1, 1)), 1.001, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 366.963);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.0015);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(2, 2, 0)), 366.963, 1e-3);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.0015, 1e-6);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
 	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -373091);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -8);
+		EXPECT_NEAR(a1->internalized_substrates()[0], -373091, 0.1);
+		EXPECT_NEAR(a1->internalized_substrates()[1], -8, 1e-6);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -2087601.1);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -16);
+		EXPECT_NEAR(a2->internalized_substrates()[0], -2087601.1, 0.1);
+		EXPECT_NEAR(a2->internalized_substrates()[1], -16, 1e-6);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -3795171.5);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -24);
+		EXPECT_NEAR(a3->internalized_substrates()[0], -3795171.5, 0.1);
+		EXPECT_NEAR(a3->internalized_substrates()[1], -24, 1e-6);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 47.636364);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1.001);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(0, 0, 0)), 47.636364, 1e-6);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(0, 0, 1)), 1.001, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 0)), 261.95);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(1, 1, 1)), 1.002);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(1, 1, 0)), 261.95, 1e-2);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(1, 1, 1)), 1.002, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 0)), 475.39642);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.003);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(2, 2, 0)), 475.39642, 1e-4);
+	EXPECT_NEAR((densities.at<'x', 'y', 's'>(2, 2, 1)), 1.003, 1e-6);
 
 	s.release_internalized_substrates(*m, d_s, mgr, 0);
 	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 1);
-		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(0, 0, 0)), 1);
+		EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 's'>(0, 0, 1)), 1);
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -351,58 +351,58 @@ TEST_P(RecomputeTest, Simple3D)
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -216000.000000);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -4);
+		EXPECT_NEAR(a1->internalized_substrates()[0], -216000.000000, 1e-6);
+		EXPECT_NEAR(a1->internalized_substrates()[1], -4, 1e-6);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -1469052.6);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -8);
+		EXPECT_NEAR(a2->internalized_substrates()[0], -1469052.6, 0.1);
+		EXPECT_NEAR(a2->internalized_substrates()[1], -8, 1e-6);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -2927703.8);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -12);
+		EXPECT_NEAR(a3->internalized_substrates()[0], -2927703.8, 0.1);
+		EXPECT_NEAR(a3->internalized_substrates()[1], -12, 1e-6);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 28);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1.0005);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 28, 1e-6);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1.0005, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 184.63158);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1.001);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 184.63158, 1e-5);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1.001, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 366.963);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.0015);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 366.963, 1e-3);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.0015, 1e-6);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
 	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], -373091);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], -8);
+		EXPECT_NEAR(a1->internalized_substrates()[0], -373091, 0.1);
+		EXPECT_NEAR(a1->internalized_substrates()[1], -8, 1e-6);
 
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[0], -2087601.1);
-		EXPECT_FLOAT_EQ(a2->internalized_substrates()[1], -16);
+		EXPECT_NEAR(a2->internalized_substrates()[0], -2087601.1, 0.1);
+		EXPECT_NEAR(a2->internalized_substrates()[1], -16, 1e-6);
 
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[0], -3795171.5);
-		EXPECT_FLOAT_EQ(a3->internalized_substrates()[1], -24);
+		EXPECT_NEAR(a3->internalized_substrates()[0], -3795171.5, 0.1);
+		EXPECT_NEAR(a3->internalized_substrates()[1], -24, 1e-6);
 	}
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 47.636364);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1.001);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 47.636364, 1e-6);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1.001, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 261.95);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1.002);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 0)), 261.95, 1e-2);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(1, 1, 1, 1)), 1.002, 1e-6);
 
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 475.39642);
-	EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.003);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 0)), 475.39642, 1e-4);
+	EXPECT_NEAR((densities.at<'x', 'y', 'z', 's'>(2, 2, 2, 1)), 1.003, 1e-6);
 
 	s.release_internalized_substrates(*m, d_s, mgr, 0);
 	mgr.transfer_to_host();
 
 	if (compute_internalized)
 	{
-		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 1);
-		EXPECT_FLOAT_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[0], 0);
-		EXPECT_FLOAT_EQ(a1->internalized_substrates()[1], 0);
+		EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 0)), 1);
+		EXPECT_DOUBLE_EQ((densities.at<'x', 'y', 'z', 's'>(0, 0, 0, 1)), 1);
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[0], 0);
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[1], 0);
 	}
 }
 
@@ -457,8 +457,8 @@ TEST_P(RecomputeTest, Conflict)
 	{
 		for (std::size_t i = 0; i < agents.size(); i++)
 		{
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[0], expected_internalized[2 * i]);
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1]);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[0], expected_internalized[2 * i], 1e-6);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1], 1e-6);
 		}
 	}
 
@@ -467,8 +467,8 @@ TEST_P(RecomputeTest, Conflict)
 
 		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		{
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), expected[2 * x]);
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
 		}
 	}
 
@@ -481,8 +481,8 @@ TEST_P(RecomputeTest, Conflict)
 	{
 		for (std::size_t i = 0; i < agents.size(); i++)
 		{
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[0], expected_internalized[2 * i]);
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1]);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[0], expected_internalized[2 * i], 1e-6);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1], 1e-6);
 		}
 	}
 
@@ -491,8 +491,8 @@ TEST_P(RecomputeTest, Conflict)
 
 		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		{
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), expected[2 * x]);
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
 		}
 	}
 
@@ -503,8 +503,8 @@ TEST_P(RecomputeTest, Conflict)
 	{
 		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		{
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 1);
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), 1);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), 1, 1e-6);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), 1, 1e-6);
 		}
 	}
 }
@@ -555,8 +555,8 @@ TEST_P(RecomputeTest, ConflictBig)
 	{
 		for (std::size_t i = 0; i < agents.size(); i++)
 		{
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[0], expected_internalized[2 * i]);
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1]);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[0], expected_internalized[2 * i], 1e-6);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1], 1e-6);
 		}
 	}
 
@@ -565,8 +565,8 @@ TEST_P(RecomputeTest, ConflictBig)
 
 		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		{
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), expected[2 * x]);
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
 		}
 	}
 
@@ -579,8 +579,8 @@ TEST_P(RecomputeTest, ConflictBig)
 	{
 		for (std::size_t i = 0; i < agents.size(); i++)
 		{
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[0], expected_internalized[2 * i]);
-			EXPECT_FLOAT_EQ(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1]);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[0], expected_internalized[2 * i], 1e-6);
+			EXPECT_NEAR(agents[i]->internalized_substrates()[1], expected_internalized[2 * i + 1], 1e-6);
 		}
 	}
 
@@ -589,8 +589,8 @@ TEST_P(RecomputeTest, ConflictBig)
 
 		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		{
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), expected[2 * x]);
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1]);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
 		}
 	}
 
@@ -601,8 +601,8 @@ TEST_P(RecomputeTest, ConflictBig)
 	{
 		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 		{
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 0)), 1);
-			EXPECT_FLOAT_EQ((densities.at<'x', 's'>(x, 1)), 1);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), 1, 1e-6);
+			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), 1, 1e-6);
 		}
 	}
 }

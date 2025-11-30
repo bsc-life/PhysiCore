@@ -7,6 +7,11 @@
 
 namespace physicore::biofvm {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable : 4250) // inherits via dominance (intentional design)
+#endif
+
 template <typename BaseAgentDataType, typename AgentDataType>
 class agent_generic_storage : public physicore::base_agent_generic_storage<BaseAgentDataType>,
 							  public virtual agent_interface
@@ -67,5 +72,9 @@ public:
 
 	real_t& volume() override { return data.volumes[index]; }
 };
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 } // namespace physicore::biofvm

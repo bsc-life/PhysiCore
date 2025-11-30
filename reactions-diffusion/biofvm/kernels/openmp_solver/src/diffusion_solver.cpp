@@ -65,9 +65,9 @@ void diffusion_solver::precompute_values(std::unique_ptr<real_t[]>& b, std::uniq
 
 	// compute b_i' and e_i
 	{
-		for (index_t c = 0; c < copies; c++)
+		for (index_t copy_idx = 0; copy_idx < copies; copy_idx++)
 			for (index_t s = 0; s < problem.substrates_count; s++)
-				b_diag.template at<'i', 'c', 's'>(0, c, s) = 1 / b_diag.template at<'i', 'c', 's'>(0, c, s);
+				b_diag.template at<'i', 'c', 's'>(0, copy_idx, s) = 1 / b_diag.template at<'i', 'c', 's'>(0, copy_idx, s);
 
 		for (index_t i = 1; i < n; i++)
 			for (index_t x = 0; x < copies; x++)

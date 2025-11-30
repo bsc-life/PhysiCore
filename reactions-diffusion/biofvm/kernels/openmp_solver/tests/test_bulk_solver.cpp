@@ -67,14 +67,14 @@ TEST(BulkSolverTest, SimulateBulkSource)
 	m->bulk_fnc = std::make_unique<test_functor>();
 
 	diffusion_solver d_s;
-	bulk_solver s;
+	bulk_solver solver;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
-	s.initialize(*m);
+	solver.initialize(*m);
 
 #pragma omp parallel
-	s.solve(*m, d_s);
+	solver.solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<3>();
 	real_t* densities = d_s.get_substrates_pointer();
@@ -87,10 +87,10 @@ TEST(BulkSolverTest, SimulateBulkSource)
 					auto idx = noarr::idx<'s', 'x', 'y', 'z'>(s, x, y, z);
 
 					if (x == 1 && y == 1 && z == 1 && s == 0)
-						EXPECT_FLOAT_EQ(dens_l | noarr::get_at(densities, idx), 9.19643);
+						EXPECT_NEAR(dens_l | noarr::get_at(densities, idx), 9.19643, 1e-4);
 					else if (s == 1)
-						EXPECT_FLOAT_EQ(dens_l | noarr::get_at(densities, idx), 1);
+						EXPECT_DOUBLE_EQ(dens_l | noarr::get_at(densities, idx), 1);
 					else
-						EXPECT_FLOAT_EQ(dens_l | noarr::get_at(densities, idx), 10);
+						EXPECT_DOUBLE_EQ(dens_l | noarr::get_at(densities, idx), 10);
 				}
 }
