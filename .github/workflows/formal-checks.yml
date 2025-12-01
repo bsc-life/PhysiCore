@@ -26,10 +26,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-format-18 clang-tidy-18
-          sudo ln -sf /usr/bin/clang-format-18 /usr/bin/clang-format
-          sudo ln -sf /usr/bin/clang-tidy-18 /usr/bin/clang-tidy
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 20 all
 
       - name: Show versions
         run: |
