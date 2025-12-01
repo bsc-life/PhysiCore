@@ -14,8 +14,8 @@ using namespace physicore::biofvm::kernels::openmp_solver;
 namespace {
 std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
-	real_t timestep = 5;
-	index_t substrates_count = 2;
+	const real_t timestep = 5;
+	const index_t substrates_count = 2;
 
 	auto diff_coefs = std::make_unique<real_t[]>(2);
 	diff_coefs[0] = 4;
@@ -85,7 +85,7 @@ void add_boundary_dirichlet(microenvironment& m, index_t substrates_count, index
 
 TEST(DirichletSolverTest, Interior1D)
 {
-	cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 0, 0 }, { 20, 0, 0 });
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 0, 0 }, { 20, 0, 0 });
 
 	auto m = default_microenv(mesh);
 
@@ -116,7 +116,7 @@ TEST(DirichletSolverTest, Interior1D)
 
 TEST(DirichletSolverTest, Interior2D)
 {
-	cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 0 }, { 20, 20, 0 });
+	const cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 0 }, { 20, 20, 0 });
 
 	auto m = default_microenv(mesh);
 
@@ -155,7 +155,7 @@ TEST(DirichletSolverTest, Interior2D)
 
 TEST(DirichletSolverTest, Interior3D)
 {
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
@@ -199,7 +199,7 @@ TEST(DirichletSolverTest, Interior3D)
 
 TEST(DirichletSolverTest, Boundary1D)
 {
-	cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
@@ -232,7 +232,7 @@ TEST(DirichletSolverTest, Boundary1D)
 
 TEST(DirichletSolverTest, Boundary2D)
 {
-	cartesian_mesh mesh(2, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(2, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
@@ -287,7 +287,7 @@ TEST(DirichletSolverTest, Boundary2D)
 
 TEST(DirichletSolverTest, Boundary3D)
 {
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 

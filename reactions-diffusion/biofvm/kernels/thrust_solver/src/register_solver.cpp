@@ -7,5 +7,6 @@
 
 void physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE::attach_to_registry()
 {
-	static physicore::biofvm::registry_adder<thrust_solver> thrust_solver_adder(PHYSICORE_THRUST_SOLVER_REGISTRY_NAME);
+	static const physicore::biofvm::registry_adder<thrust_solver> thrust_solver_adder(
+		PHYSICORE_THRUST_SOLVER_REGISTRY_NAME);
 }

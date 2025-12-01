@@ -18,8 +18,8 @@ using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 namespace {
 std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
-	real_t timestep = 5;
-	index_t substrates_count = 2;
+	const real_t timestep = 5;
+	const index_t substrates_count = 2;
 
 	auto diff_coefs = std::make_unique<real_t[]>(2);
 	diff_coefs[0] = 4;
@@ -42,8 +42,8 @@ std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 
 std::unique_ptr<microenvironment> biorobots_microenv(cartesian_mesh mesh)
 {
-	real_t timestep = 0.01;
-	index_t substrates_count = 2;
+	const real_t timestep = 0.01;
+	const index_t substrates_count = 2;
 
 	auto diff_coefs = std::make_unique<real_t[]>(2);
 	diff_coefs[0] = 1000;
@@ -67,7 +67,7 @@ std::unique_ptr<microenvironment> biorobots_microenv(cartesian_mesh mesh)
 
 TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform1D)
 {
-	cartesian_mesh mesh(1, { 0, 0, 0 }, { 80, 0, 0 }, { 20, 0, 0 });
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 80, 0, 0 }, { 20, 0, 0 });
 
 	auto m = default_microenv(mesh);
 
@@ -93,7 +93,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform1D)
 
 TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform2D)
 {
-	cartesian_mesh mesh(2, { 0, 0, 0 }, { 800, 800, 0 }, { 20, 20, 0 });
+	const cartesian_mesh mesh(2, { 0, 0, 0 }, { 800, 800, 0 }, { 20, 20, 0 });
 
 	auto m = default_microenv(mesh);
 
@@ -119,7 +119,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform2D)
 
 TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Uniform3D)
 {
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 200, 200, 200 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 200, 200, 200 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
@@ -162,7 +162,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random1D)
 	for (index_t s = 0; s < m->substrates_count; ++s)
 		for (index_t x = 0; x < mesh.grid_shape[0]; ++x)
 		{
-			index_t index = s + x * m->substrates_count;
+			const index_t index = s + x * m->substrates_count;
 			(dens_l | noarr::get_at<'x', 's'>(densities, x, s)) = static_cast<real_t>(index);
 		}
 
@@ -177,7 +177,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random1D)
 	for (index_t s = 0; s < m->substrates_count; ++s)
 		for (index_t x = 0; x < mesh.grid_shape[0]; ++x)
 		{
-			index_t index = s + x * m->substrates_count;
+			const index_t index = s + x * m->substrates_count;
 
 			EXPECT_NEAR((dens_l | noarr::get_at<'x', 's'>(densities, x, s)), expected[index], 1e-6);
 		}
@@ -203,7 +203,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random2D)
 		for (index_t x = 0; x < mesh.grid_shape[0]; ++x)
 			for (index_t y = 0; y < mesh.grid_shape[1]; ++y)
 			{
-				index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0];
+				const index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0];
 				(dens_l | noarr::get_at<'x', 'y', 's'>(densities, x, y, s)) = static_cast<real_t>(index);
 			}
 
@@ -220,7 +220,7 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random2D)
 		for (index_t x = 0; x < mesh.grid_shape[0]; ++x)
 			for (index_t y = 0; y < mesh.grid_shape[1]; ++y)
 			{
-				index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0];
+				const index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0];
 
 				EXPECT_NEAR((dens_l | noarr::get_at<'x', 'y', 's'>(densities, x, y, s)), expected[index], 1e-6);
 			}
@@ -247,8 +247,8 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random3D)
 			for (index_t y = 0; y < mesh.grid_shape[1]; ++y)
 				for (index_t z = 0; z < mesh.grid_shape[2]; ++z)
 				{
-					index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0]
-									+ z * m->substrates_count * mesh.grid_shape[0] * mesh.grid_shape[1];
+					const index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0]
+										  + z * m->substrates_count * mesh.grid_shape[0] * mesh.grid_shape[1];
 					(dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)) = static_cast<real_t>(index);
 				}
 
@@ -272,8 +272,8 @@ TEST(PREPEND_TEST_NAME(ThrustDiffusionSolverTest), Random3D)
 			for (index_t y = 0; y < mesh.grid_shape[1]; ++y)
 				for (index_t z = 0; z < mesh.grid_shape[2]; ++z)
 				{
-					index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0]
-									+ z * m->substrates_count * mesh.grid_shape[0] * mesh.grid_shape[1];
+					const index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0]
+										  + z * m->substrates_count * mesh.grid_shape[0] * mesh.grid_shape[1];
 
 					EXPECT_NEAR((dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)), expected[index],
 								1e-6);

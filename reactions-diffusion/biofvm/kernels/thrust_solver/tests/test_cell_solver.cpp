@@ -18,8 +18,8 @@ using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 namespace {
 std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, bool compute_interalized)
 {
-	real_t timestep = 0.01;
-	index_t substrates_count = 2;
+	const real_t timestep = 0.01;
+	const index_t substrates_count = 2;
 
 	auto diff_coefs = std::make_unique<real_t[]>(2);
 	diff_coefs[0] = 4;
@@ -143,10 +143,10 @@ INSTANTIATE_TEST_SUITE_P(tbbThrustCellSolverTest, RecomputeTest,
 
 TEST_P(RecomputeTest, Simple1D)
 {
-	bool compute_internalized = std::get<0>(GetParam());
-	bool recompute = std::get<1>(GetParam());
+	const bool compute_internalized = std::get<0>(GetParam());
+	const bool recompute = std::get<1>(GetParam());
 
-	cartesian_mesh mesh(1, { 0, 0, 0 }, { 60, 20, 20 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 60, 20, 20 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh, compute_internalized);
 
@@ -232,10 +232,10 @@ TEST_P(RecomputeTest, Simple1D)
 
 TEST_P(RecomputeTest, Simple2D)
 {
-	bool compute_internalized = std::get<0>(GetParam());
-	bool recompute = std::get<1>(GetParam());
+	const bool compute_internalized = std::get<0>(GetParam());
+	const bool recompute = std::get<1>(GetParam());
 
-	cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 20 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 20 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh, compute_internalized);
 
@@ -321,10 +321,10 @@ TEST_P(RecomputeTest, Simple2D)
 
 TEST_P(RecomputeTest, Simple3D)
 {
-	bool compute_internalized = std::get<0>(GetParam());
-	bool recompute = std::get<1>(GetParam());
+	const bool compute_internalized = std::get<0>(GetParam());
+	const bool recompute = std::get<1>(GetParam());
 
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh, compute_internalized);
 
@@ -413,10 +413,10 @@ class agent_retriever : public generic_agent_solver<agent>
 
 TEST_P(RecomputeTest, Conflict)
 {
-	bool compute_internalized = std::get<0>(GetParam());
-	bool recompute = std::get<1>(GetParam());
+	const bool compute_internalized = std::get<0>(GetParam());
+	const bool recompute = std::get<1>(GetParam());
 
-	cartesian_mesh mesh(1, { 0, 0, 0 }, { 60, 20, 20 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 60, 20, 20 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh, compute_internalized);
 
@@ -514,9 +514,9 @@ TEST_P(RecomputeTest, Conflict)
 
 TEST_P(RecomputeTest, ConflictBig)
 {
-	bool compute_internalized = std::get<0>(GetParam());
-	bool recompute = std::get<1>(GetParam());
-	index_t conflict_in_each_voxel = 50;
+	const bool compute_internalized = std::get<0>(GetParam());
+	const bool recompute = std::get<1>(GetParam());
+	const index_t conflict_in_each_voxel = 50;
 
 	cartesian_mesh mesh(1, { 0, 0, 0 }, { 2000, 20, 20 }, { 20, 20, 20 });
 

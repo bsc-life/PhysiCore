@@ -14,14 +14,14 @@ using namespace physicore::biofvm;
 
 int main()
 {
-	real_t output_interval = 0.1;
-	index_t oxygen_idx = 0;
-	index_t glucose_idx = 1;
+	const real_t output_interval = 0.1;
+	const index_t oxygen_idx = 0;
+	const index_t glucose_idx = 1;
 
 	// Create microenvironment
 	std::unique_ptr<microenvironment> m;
 	{
-		std::filesystem::path config_file = "settings.xml";
+		const std::filesystem::path config_file = "settings.xml";
 
 		try
 		{
@@ -81,7 +81,7 @@ int main()
 			auto position = a->position();
 			for (std::size_t dim = 0; dim < position.size(); ++dim)
 			{
-				real_t displacement = offset(rng) * group.radius;
+				const real_t displacement = offset(rng) * group.radius;
 				position[dim] = group.center[dim] + displacement;
 			}
 

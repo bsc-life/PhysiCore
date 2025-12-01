@@ -16,7 +16,6 @@ Checks: >
   concurrency-*,
 
   misc-*,
-  -misc-const-correctness,
   -misc-include-cleaner,
   -misc-non-private-member-variables-in-classes,
 

@@ -96,19 +96,19 @@ TEST(MicroenvironmentBuilder, AddDirichletNodeThrows)
 	builder.add_density("O2", "mmHg", 1.0, 0.01, 20.0);
 
 	// No mesh set
-	std::vector<real_t> values = { 1.0 };
-	std::vector<bool> conditions = { true };
+	const std::vector<real_t> values = { 1.0 };
+	const std::vector<bool> conditions = { true };
 	EXPECT_THROW(builder.add_dirichlet_node({ 0, 0, 0 }, values, conditions), std::runtime_error);
 
 	// Set mesh
 	builder.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 
 	// Wrong values size
-	std::vector<real_t> bad_values = { 1.0, 2.0 };
+	const std::vector<real_t> bad_values = { 1.0, 2.0 };
 	EXPECT_THROW(builder.add_dirichlet_node({ 0, 0, 0 }, bad_values, conditions), std::runtime_error);
 
 	// Wrong conditions size
-	std::vector<bool> bad_conditions = { true, false };
+	const std::vector<bool> bad_conditions = { true, false };
 	EXPECT_THROW(builder.add_dirichlet_node({ 0, 0, 0 }, values, bad_conditions), std::runtime_error);
 }
 
@@ -120,18 +120,18 @@ TEST(MicroenvironmentBuilder, AddBoundaryDirichletConditions)
 
 	builder.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 
-	std::array<real_t, 3> mins_values_o2 = { 0.0, 1.0, 2.0 };
-	std::array<real_t, 3> maxs_values_o2 = { 1.0, 2.0, 3.0 };
-	std::array<bool, 3> mins_conditions_o2 = { true, false, false };
-	std::array<bool, 3> maxs_conditions_02 = { false, true, false };
+	const std::array<real_t, 3> mins_values_o2 = { 0.0, 1.0, 2.0 };
+	const std::array<real_t, 3> maxs_values_o2 = { 1.0, 2.0, 3.0 };
+	const std::array<bool, 3> mins_conditions_o2 = { true, false, false };
+	const std::array<bool, 3> maxs_conditions_02 = { false, true, false };
 
 	builder.add_boundary_dirichlet_conditions(0, mins_values_o2, maxs_values_o2, mins_conditions_o2,
 											  maxs_conditions_02);
 
-	std::array<real_t, 3> mins_values_gl = { 10.0, 10.0, 10.0 };
-	std::array<real_t, 3> maxs_values_gl = { 11.0, 11.0, 11.0 };
-	std::array<bool, 3> mins_conditions_gl = { false, false, false };
-	std::array<bool, 3> maxs_conditions_gl = { false, true, true };
+	const std::array<real_t, 3> mins_values_gl = { 10.0, 10.0, 10.0 };
+	const std::array<real_t, 3> maxs_values_gl = { 11.0, 11.0, 11.0 };
+	const std::array<bool, 3> mins_conditions_gl = { false, false, false };
+	const std::array<bool, 3> maxs_conditions_gl = { false, true, true };
 
 	builder.add_boundary_dirichlet_conditions(1, mins_values_gl, maxs_values_gl, mins_conditions_gl,
 											  maxs_conditions_gl);
@@ -160,10 +160,10 @@ TEST(MicroenvironmentBuilder, AddBoundaryDirichletConditionsThrows)
 	microenvironment_builder builder;
 	builder.add_density("O2", "mmHg", 1.0, 0.01, 20.0);
 
-	std::array<real_t, 3> mins_values = { 0.0, 0.0, 0.0 };
-	std::array<real_t, 3> maxs_values = { 1.0, 1.0, 1.0 };
-	std::array<bool, 3> mins_conditions = { true, false, false };
-	std::array<bool, 3> maxs_conditions = { false, true, false };
+	const std::array<real_t, 3> mins_values = { 0.0, 0.0, 0.0 };
+	const std::array<real_t, 3> maxs_values = { 1.0, 1.0, 1.0 };
+	const std::array<bool, 3> mins_conditions = { true, false, false };
+	const std::array<bool, 3> maxs_conditions = { false, true, false };
 
 	// Out of bounds index
 	EXPECT_THROW(

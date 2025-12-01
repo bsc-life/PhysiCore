@@ -54,9 +54,9 @@ protected:
 		builder.set_space_units("um");
 		builder.set_time_step(0.01);
 
-		std::array<sindex_t, 3> bounding_box_mins = { 0, 0, 0 };
-		std::array<sindex_t, 3> bounding_box_maxs = { 60, 60, 60 };
-		std::array<index_t, 3> voxel_shape = { 20, 20, 20 };
+		const std::array<sindex_t, 3> bounding_box_mins = { 0, 0, 0 };
+		const std::array<sindex_t, 3> bounding_box_maxs = { 60, 60, 60 };
+		const std::array<index_t, 3> voxel_shape = { 20, 20, 20 };
 
 		builder.resize(3, bounding_box_mins, bounding_box_maxs, voxel_shape);
 
@@ -207,7 +207,7 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 		// Set substrate data for each agent
 		for (index_t s = 0; s < m->substrates_count; ++s)
 		{
-			index_t idx = i * m->substrates_count + s;
+			const index_t idx = i * m->substrates_count + s;
 			biofvm_data->secretion_rates[idx] = i + s + 1.0;
 			biofvm_data->saturation_densities[idx] = (i + 1) * (s + 1) * 10.0;
 			biofvm_data->uptake_rates[idx] = (i + 1) * 0.5;
@@ -251,7 +251,7 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 		// Check substrate-related data for each agent
 		for (index_t s = 0; s < m->substrates_count; ++s)
 		{
-			std::string substrate_name = m->substrates_names[s];
+			const std::string substrate_name = m->substrates_names[s];
 
 			auto* secretion_array = point_data->GetArray((substrate_name + "_secretion_rate").c_str());
 			ASSERT_NE(secretion_array, nullptr);
@@ -330,7 +330,7 @@ TEST_F(VtkAgentsSerializerTest, PvdFileContainsCorrectEntries)
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "agents_000001.vtu"));
 
 	std::ifstream file(pvd_file);
-	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
 	// Check XML structure
 	EXPECT_TRUE(content.find("<?xml version=\"1.0\"?>") != std::string::npos);
@@ -368,20 +368,20 @@ TEST_F(VtkAgentsSerializerTest, AllSubstrateArraysPresent)
 	auto* point_data = unstructured_grid->GetPointData();
 
 	// Check that all expected arrays are present for each substrate
-	std::vector<std::string> substrates = { "O2", "Glucose" };
-	std::vector<std::string> array_suffixes = { "_secretion_rate",
-												"_saturation_density",
-												"_uptake_rate",
-												"_net_export_rate",
-												"_internalized_substrate",
-												"_fraction_released_at_death",
-												"_fraction_transferred_when_ingested" };
+	const std::vector<std::string> substrates = { "O2", "Glucose" };
+	const std::vector<std::string> array_suffixes = { "_secretion_rate",
+													  "_saturation_density",
+													  "_uptake_rate",
+													  "_net_export_rate",
+													  "_internalized_substrate",
+													  "_fraction_released_at_death",
+													  "_fraction_transferred_when_ingested" };
 
 	for (const auto& substrate : substrates)
 	{
 		for (const auto& suffix : array_suffixes)
 		{
-			std::string array_name = substrate + suffix;
+			const std::string array_name = substrate + suffix;
 			EXPECT_NE(point_data->GetArray(array_name.c_str()), nullptr) << "Missing array: " << array_name;
 		}
 	}

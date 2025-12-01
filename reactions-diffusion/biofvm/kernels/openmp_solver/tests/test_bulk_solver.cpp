@@ -13,8 +13,8 @@ using namespace physicore::biofvm::kernels::openmp_solver;
 namespace {
 std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
-	real_t timestep = 0.01;
-	index_t substrates_count = 2;
+	const real_t timestep = 0.01;
+	const index_t substrates_count = 2;
 
 	auto diff_coefs = std::make_unique<real_t[]>(2);
 	diff_coefs[0] = 4;
@@ -62,7 +62,7 @@ struct test_functor : bulk_functor
 
 TEST(BulkSolverTest, SimulateBulkSource)
 {
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 

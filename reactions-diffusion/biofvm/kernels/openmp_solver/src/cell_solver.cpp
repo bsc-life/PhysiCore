@@ -84,7 +84,8 @@ void ballot_and_sum(const auto ballot_l, std::atomic<real_t>* HWY_RESTRICT reduc
 		auto& b = b_l | noarr::get_at(ballots);
 
 		auto expected = no_ballot;
-		bool success = b.compare_exchange_strong(expected, i, std::memory_order_acq_rel, std::memory_order_acquire);
+		const bool success =
+			b.compare_exchange_strong(expected, i, std::memory_order_acq_rel, std::memory_order_acquire);
 
 		if (success)
 		{

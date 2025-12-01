@@ -22,7 +22,7 @@ microenvironment::microenvironment(const cartesian_mesh& mesh, index_t substrate
 std::unique_ptr<microenvironment> microenvironment::create_from_config(const std::filesystem::path& config_file)
 {
 	// Parse the XML configuration file
-	physicell_config config = parse_physicell_config(config_file);
+	const physicell_config config = parse_physicell_config(config_file);
 
 	// Create builder
 	microenvironment_builder builder;
@@ -36,23 +36,23 @@ std::unique_ptr<microenvironment> microenvironment::create_from_config(const std
 
 	// Configure mesh from <domain>
 	const auto& domain = config.domain;
-	index_t dims = domain.use_2D ? 2 : 3;
+	const index_t dims = domain.use_2D ? 2 : 3;
 
-	std::array<sindex_t, 3> bounding_box_mins = { static_cast<sindex_t>(domain.x_min),
-												  static_cast<sindex_t>(domain.y_min),
-												  static_cast<sindex_t>(domain.z_min) };
+	const std::array<sindex_t, 3> bounding_box_mins = { static_cast<sindex_t>(domain.x_min),
+														static_cast<sindex_t>(domain.y_min),
+														static_cast<sindex_t>(domain.z_min) };
 
-	std::array<sindex_t, 3> bounding_box_maxs = { static_cast<sindex_t>(domain.x_max),
-												  static_cast<sindex_t>(domain.y_max),
-												  static_cast<sindex_t>(domain.z_max) };
+	const std::array<sindex_t, 3> bounding_box_maxs = { static_cast<sindex_t>(domain.x_max),
+														static_cast<sindex_t>(domain.y_max),
+														static_cast<sindex_t>(domain.z_max) };
 
 	if (domain.dx <= 0 || domain.dy <= 0 || (!domain.use_2D && domain.dz <= 0))
 	{
 		throw std::runtime_error("Voxel dimensions must be positive");
 	}
 
-	std::array<index_t, 3> voxel_shape = { static_cast<index_t>(domain.dx), static_cast<index_t>(domain.dy),
-										   static_cast<index_t>(domain.dz) };
+	const std::array<index_t, 3> voxel_shape = { static_cast<index_t>(domain.dx), static_cast<index_t>(domain.dy),
+												 static_cast<index_t>(domain.dz) };
 
 	builder.resize(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 
@@ -63,7 +63,7 @@ std::unique_ptr<microenvironment> microenvironment::create_from_config(const std
 							variable.initial_condition);
 
 		// Add boundary Dirichlet conditions for this substrate
-		std::size_t density_index = builder.get_density_index(variable.name);
+		const std::size_t density_index = builder.get_density_index(variable.name);
 		builder.add_boundary_dirichlet_conditions(
 			density_index, variable.boundary_conditions.mins_values, variable.boundary_conditions.maxs_values,
 			variable.boundary_conditions.mins_conditions, variable.boundary_conditions.maxs_conditions);
@@ -155,7 +155,7 @@ void microenvironment::update_dirichlet_interior_voxel(std::array<index_t, 3> vo
 			continue;
 
 		// Found the voxel, update value and condition
-		index_t offset = i * substrates_count + substrate_idx;
+		const index_t offset = i * substrates_count + substrate_idx;
 		dirichlet_interior_values[offset] = value;
 		dirichlet_interior_conditions[offset] = condition;
 
@@ -163,7 +163,7 @@ void microenvironment::update_dirichlet_interior_voxel(std::array<index_t, 3> vo
 	}
 
 	// Voxel not found, need to add a new entry
-	index_t new_count = dirichlet_interior_voxels_count + 1;
+	const index_t new_count = dirichlet_interior_voxels_count + 1;
 	auto new_voxels = std::make_unique<index_t[]>(new_count * mesh.dims);
 	auto new_values = std::make_unique<real_t[]>(new_count * substrates_count);
 	auto new_conditions = std::make_unique<bool[]>(new_count * substrates_count);
@@ -183,7 +183,7 @@ void microenvironment::update_dirichlet_interior_voxel(std::array<index_t, 3> vo
 	// Initialize new values and conditions
 	for (index_t s = 0; s < substrates_count; ++s)
 	{
-		index_t offset = dirichlet_interior_voxels_count * substrates_count + s;
+		const index_t offset = dirichlet_interior_voxels_count * substrates_count + s;
 		if (s == substrate_idx)
 		{
 			new_values[offset] = value;

@@ -55,10 +55,10 @@ protected:
 		builder.set_space_units("um");
 		builder.set_time_step(0.01);
 
-		std::array<sindex_t, 3> bounding_box_mins = { 0, 0, 0 };
-		std::array<sindex_t, 3> bounding_box_maxs = { (sindex_t)grid_shape[0] * (sindex_t)voxel_shape[0],
-													  (sindex_t)grid_shape[1] * (sindex_t)voxel_shape[1],
-													  (sindex_t)grid_shape[2] * (sindex_t)voxel_shape[2] };
+		const std::array<sindex_t, 3> bounding_box_mins = { 0, 0, 0 };
+		const std::array<sindex_t, 3> bounding_box_maxs = { (sindex_t)grid_shape[0] * (sindex_t)voxel_shape[0],
+															(sindex_t)grid_shape[1] * (sindex_t)voxel_shape[1],
+															(sindex_t)grid_shape[2] * (sindex_t)voxel_shape[2] };
 
 		builder.resize(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 
@@ -140,7 +140,7 @@ TEST_F(VtkSerializerTest, PvdFileContainsCorrectEntries)
 	ASSERT_TRUE(std::filesystem::exists(pvd_file));
 
 	std::ifstream file(pvd_file);
-	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
 	// Check XML structure
 	EXPECT_TRUE(content.find("<?xml version=\"1.0\"?>") != std::string::npos);
@@ -434,8 +434,8 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 		for (index_t y = 0; y < m->mesh.grid_shape[1]; ++y)
 			for (index_t x = 0; x < m->mesh.grid_shape[0]; ++x)
 			{
-				std::size_t voxel_idx = m->mesh.linearize(x, y, z);
-				real_t value = o2_array->GetTuple1(voxel_idx);
+				const std::size_t voxel_idx = m->mesh.linearize(x, y, z);
+				const real_t value = o2_array->GetTuple1(voxel_idx);
 
 				if (x == 0)
 					EXPECT_EQ(value, 100.0); // High boundary
@@ -444,7 +444,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 				else
 					EXPECT_EQ(value, 20.0);
 
-				real_t value2 = cell_data->GetArray("Glucose")->GetTuple1(voxel_idx);
+				const real_t value2 = cell_data->GetArray("Glucose")->GetTuple1(voxel_idx);
 				EXPECT_EQ(value2, m->get_substrate_density(1, x, y, z));
 			}
 
@@ -474,8 +474,8 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 		for (index_t y = 0; y < m->mesh.grid_shape[1]; ++y)
 			for (index_t x = 0; x < m->mesh.grid_shape[0]; ++x)
 			{
-				std::size_t voxel_idx = m->mesh.linearize(x, y, z);
-				real_t value = glucose_array->GetTuple1(voxel_idx);
+				const std::size_t voxel_idx = m->mesh.linearize(x, y, z);
+				const real_t value = glucose_array->GetTuple1(voxel_idx);
 				EXPECT_EQ(value, m->get_substrate_density(1, x, y, z));
 			}
 }

@@ -93,10 +93,10 @@ struct bench_functor : device_bulk_functor
  */
 int main()
 {
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 5000, 5000, 5000 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 5000, 5000, 5000 }, { 20, 20, 20 });
 
-	real_t diffusion_timestep = 0.01;
-	index_t substrates_count = 4;
+	const real_t diffusion_timestep = 0.01;
+	const index_t substrates_count = 4;
 
 	microenvironment m(mesh, substrates_count, diffusion_timestep);
 	m.compute_internalized_substrates = true;

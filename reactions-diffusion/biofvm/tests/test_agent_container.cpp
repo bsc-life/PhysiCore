@@ -72,8 +72,8 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent2->fraction_transferred_when_ingested()[0] = 2.7;
 	agent2->position()[0] = 2.8;
 
-	int remove_idx = std::get<0>(GetParam());
-	bool remove_via_pointer = std::get<1>(GetParam());
+	const int remove_idx = std::get<0>(GetParam());
+	const bool remove_via_pointer = std::get<1>(GetParam());
 
 	if (remove_via_pointer)
 		container.remove_agent(container.get_agent_at(remove_idx));
