@@ -87,12 +87,12 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 	// Set point positions from agent data
 	for (index_t i = 0; i < agent_count; ++i)
 	{
-		double pos[3] = { 0.0, 0.0, 0.0 };
+		std::array<double, 3> pos = { 0.0, 0.0, 0.0 };
 		for (index_t d = 0; d < base_data.dims && d < 3; ++d)
 		{
 			pos[d] = base_data.positions[i * base_data.dims + d];
 		}
-		points->SetPoint(i, pos);
+		points->SetPoint(i, pos.data());
 	}
 	unstructured_grid->SetPoints(points);
 

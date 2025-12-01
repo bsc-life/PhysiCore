@@ -18,7 +18,8 @@ using namespace physicore::biofvm;
 
 using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
-static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
+namespace {
+std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
 	real_t timestep = 5;
 	index_t substrates_count = 2;
@@ -42,8 +43,8 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 	return m;
 }
 
-static void add_dirichlet_at(microenvironment& m, index_t substrates_count,
-							 const std::vector<std::array<index_t, 3>>& indices, const std::vector<real_t>& values)
+void add_dirichlet_at(microenvironment& m, index_t substrates_count, const std::vector<std::array<index_t, 3>>& indices,
+					  const std::vector<real_t>& values)
 {
 	m.dirichlet_interior_voxels_count = indices.size();
 	m.dirichlet_interior_voxels = std::make_unique<index_t[]>(m.dirichlet_interior_voxels_count * m.mesh.dims);
@@ -65,8 +66,7 @@ static void add_dirichlet_at(microenvironment& m, index_t substrates_count,
 	}
 }
 
-static void add_boundary_dirichlet(microenvironment& m, index_t substrates_count, index_t dim_idx, bool min,
-								   real_t value)
+void add_boundary_dirichlet(microenvironment& m, index_t substrates_count, index_t dim_idx, bool min, real_t value)
 {
 	auto& values = min ? m.dirichlet_min_boundary_values[dim_idx] : m.dirichlet_max_boundary_values[dim_idx];
 	auto& conditions =
@@ -88,7 +88,7 @@ static void add_boundary_dirichlet(microenvironment& m, index_t substrates_count
 	values[0] = value;
 	conditions[0] = true;
 }
-
+} // namespace
 
 TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior1D)
 {

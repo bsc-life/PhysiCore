@@ -46,7 +46,7 @@ protected:
 		}
 	}
 
-	std::unique_ptr<microenvironment> create_test_microenvironment()
+	static std::unique_ptr<microenvironment> create_test_microenvironment()
 	{
 		microenvironment_builder builder;
 		builder.set_name("test_env");
@@ -137,43 +137,43 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithSingleAgent)
 	reader->SetFileName(vtu_file.string().c_str());
 	reader->Update();
 
-	auto unstructured_grid = reader->GetOutput();
+	auto* unstructured_grid = reader->GetOutput();
 	ASSERT_NE(unstructured_grid, nullptr);
 
 	// Check number of points
 	EXPECT_EQ(unstructured_grid->GetNumberOfPoints(), 1);
 
 	// Check point position
-	std::array<double, 3> pos;
+	std::array<double, 3> pos {};
 	unstructured_grid->GetPoint(0, pos.data());
 	EXPECT_DOUBLE_EQ(pos[0], 10.0);
 	EXPECT_DOUBLE_EQ(pos[1], 20.0);
 	EXPECT_DOUBLE_EQ(pos[2], 30.0);
 
 	// Check point data arrays
-	auto point_data = unstructured_grid->GetPointData();
+	auto* point_data = unstructured_grid->GetPointData();
 	ASSERT_NE(point_data, nullptr);
 
 	// Check volume array
-	auto volume_array = point_data->GetArray("volume");
+	auto* volume_array = point_data->GetArray("volume");
 	ASSERT_NE(volume_array, nullptr);
 	EXPECT_EQ(volume_array->GetNumberOfTuples(), 1);
 	EXPECT_DOUBLE_EQ(volume_array->GetTuple1(0), 100.0);
 
 	// Check substrate arrays
-	auto o2_secretion_array = point_data->GetArray("O2_secretion_rate");
+	auto* o2_secretion_array = point_data->GetArray("O2_secretion_rate");
 	ASSERT_NE(o2_secretion_array, nullptr);
 	EXPECT_DOUBLE_EQ(o2_secretion_array->GetTuple1(0), 1.0);
 
-	auto glucose_secretion_array = point_data->GetArray("Glucose_secretion_rate");
+	auto* glucose_secretion_array = point_data->GetArray("Glucose_secretion_rate");
 	ASSERT_NE(glucose_secretion_array, nullptr);
 	EXPECT_DOUBLE_EQ(glucose_secretion_array->GetTuple1(0), 2.0);
 
-	auto o2_saturation_array = point_data->GetArray("O2_saturation_density");
+	auto* o2_saturation_array = point_data->GetArray("O2_saturation_density");
 	ASSERT_NE(o2_saturation_array, nullptr);
 	EXPECT_DOUBLE_EQ(o2_saturation_array->GetTuple1(0), 3.0);
 
-	auto glucose_saturation_array = point_data->GetArray("Glucose_saturation_density");
+	auto* glucose_saturation_array = point_data->GetArray("Glucose_saturation_density");
 	ASSERT_NE(glucose_saturation_array, nullptr);
 	EXPECT_DOUBLE_EQ(glucose_saturation_array->GetTuple1(0), 4.0);
 }
@@ -229,7 +229,7 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 	reader->SetFileName(vtu_file.string().c_str());
 	reader->Update();
 
-	auto unstructured_grid = reader->GetOutput();
+	auto* unstructured_grid = reader->GetOutput();
 	ASSERT_NE(unstructured_grid, nullptr);
 
 	// Check number of points
@@ -238,14 +238,14 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 	// Check point positions and data for each agent
 	for (int i = 0; i < num_agents; ++i)
 	{
-		double pos[3];
-		unstructured_grid->GetPoint(i, pos);
+		std::array<double, 3> pos {};
+		unstructured_grid->GetPoint(i, pos.data());
 		EXPECT_DOUBLE_EQ(pos[0], i * 10.0);
 		EXPECT_DOUBLE_EQ(pos[1], i * 20.0);
 		EXPECT_DOUBLE_EQ(pos[2], i * 30.0);
 
-		auto point_data = unstructured_grid->GetPointData();
-		auto volume_array = point_data->GetArray("volume");
+		auto* point_data = unstructured_grid->GetPointData();
+		auto* volume_array = point_data->GetArray("volume");
 		EXPECT_DOUBLE_EQ(volume_array->GetTuple1(i), (i + 1) * 100.0);
 
 		// Check substrate-related data for each agent
@@ -253,32 +253,32 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 		{
 			std::string substrate_name = m->substrates_names[s];
 
-			auto secretion_array = point_data->GetArray((substrate_name + "_secretion_rate").c_str());
+			auto* secretion_array = point_data->GetArray((substrate_name + "_secretion_rate").c_str());
 			ASSERT_NE(secretion_array, nullptr);
 			EXPECT_DOUBLE_EQ(secretion_array->GetTuple1(i), i + s + 1.0);
 
-			auto saturation_array = point_data->GetArray((substrate_name + "_saturation_density").c_str());
+			auto* saturation_array = point_data->GetArray((substrate_name + "_saturation_density").c_str());
 			ASSERT_NE(saturation_array, nullptr);
 			EXPECT_DOUBLE_EQ(saturation_array->GetTuple1(i), (i + 1) * (s + 1) * 10.0);
 
-			auto uptake_array = point_data->GetArray((substrate_name + "_uptake_rate").c_str());
+			auto* uptake_array = point_data->GetArray((substrate_name + "_uptake_rate").c_str());
 			ASSERT_NE(uptake_array, nullptr);
 			EXPECT_DOUBLE_EQ(uptake_array->GetTuple1(i), (i + 1) * 0.5);
 
-			auto net_export_array = point_data->GetArray((substrate_name + "_net_export_rate").c_str());
+			auto* net_export_array = point_data->GetArray((substrate_name + "_net_export_rate").c_str());
 			ASSERT_NE(net_export_array, nullptr);
 			EXPECT_DOUBLE_EQ(net_export_array->GetTuple1(i), (i + 1) * 0.1);
 
-			auto internalized_array = point_data->GetArray((substrate_name + "_internalized_substrate").c_str());
+			auto* internalized_array = point_data->GetArray((substrate_name + "_internalized_substrate").c_str());
 			ASSERT_NE(internalized_array, nullptr);
 			EXPECT_DOUBLE_EQ(internalized_array->GetTuple1(i), i * 5.0);
 
-			auto fraction_released_array =
+			auto* fraction_released_array =
 				point_data->GetArray((substrate_name + "_fraction_released_at_death").c_str());
 			ASSERT_NE(fraction_released_array, nullptr);
 			EXPECT_DOUBLE_EQ(fraction_released_array->GetTuple1(i), 0.5 + i * 0.1);
 
-			auto fraction_transferred_array =
+			auto* fraction_transferred_array =
 				point_data->GetArray((substrate_name + "_fraction_transferred_when_ingested").c_str());
 			ASSERT_NE(fraction_transferred_array, nullptr);
 			EXPECT_DOUBLE_EQ(fraction_transferred_array->GetTuple1(i), 0.3 + i * 0.05);
@@ -364,8 +364,8 @@ TEST_F(VtkAgentsSerializerTest, AllSubstrateArraysPresent)
 	reader->SetFileName(vtu_file.string().c_str());
 	reader->Update();
 
-	auto unstructured_grid = reader->GetOutput();
-	auto point_data = unstructured_grid->GetPointData();
+	auto* unstructured_grid = reader->GetOutput();
+	auto* point_data = unstructured_grid->GetPointData();
 
 	// Check that all expected arrays are present for each substrate
 	std::vector<std::string> substrates = { "O2", "Glucose" };
@@ -437,7 +437,7 @@ TEST_F(VtkAgentsSerializerTest, IntegrationWithMicroenvironment)
 	reader->SetFileName(vtu_file.string().c_str());
 	reader->Update();
 
-	auto unstructured_grid = reader->GetOutput();
+	auto* unstructured_grid = reader->GetOutput();
 	ASSERT_NE(unstructured_grid, nullptr);
 	EXPECT_EQ(unstructured_grid->GetNumberOfPoints(), num_agents);
 }

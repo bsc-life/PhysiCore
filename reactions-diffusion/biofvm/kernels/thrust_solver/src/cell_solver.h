@@ -67,9 +67,10 @@ public:
 									   bool recompute);
 
 	void release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver, data_manager& data,
-										 index_t agent_index);
+										 index_t agent_index) const;
 
-	void release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver, data_manager& data);
+	void release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver,
+										 data_manager& data) const;
 
 	~cell_solver();
 };

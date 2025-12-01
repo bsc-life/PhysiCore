@@ -7,21 +7,22 @@ using namespace physicore;
 using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::openmp_solver;
 
-static auto fix_dims(const index_t* voxel_index, index_t dims)
+namespace {
+auto fix_dims(const index_t* voxel_index, index_t dims)
 {
 	if (dims == 1)
 		return noarr::fix<'x', 'y', 'z'>(voxel_index[0], 0, 0);
-	else if (dims == 2)
+	if (dims == 2)
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(0);
-	else if (dims == 3)
+	if (dims == 3)
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
 	return noarr::fix<'x', 'y', 'z'>(0, 0, 0);
 }
 
-static void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_densities,
-						   const index_t* HWY_RESTRICT dirichlet_voxels, const real_t* HWY_RESTRICT dirichlet_values,
-						   const bool* HWY_RESTRICT dirichlet_conditions, index_t substrates_count,
-						   index_t dirichlet_voxels_count, index_t dims)
+void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_densities,
+					const index_t* HWY_RESTRICT dirichlet_voxels, const real_t* HWY_RESTRICT dirichlet_values,
+					const bool* HWY_RESTRICT dirichlet_conditions, index_t substrates_count,
+					index_t dirichlet_voxels_count, index_t dims)
 {
 	if (dirichlet_voxels_count == 0)
 		return;
@@ -41,8 +42,8 @@ static void solve_interior(const auto dens_l, real_t* HWY_RESTRICT substrate_den
 }
 
 template <typename density_layout_t>
-static void solve_boundary(real_t* HWY_RESTRICT substrate_densities, const real_t* HWY_RESTRICT dirichlet_values,
-						   const bool* HWY_RESTRICT dirichlet_conditions, const density_layout_t dens_l)
+void solve_boundary(real_t* HWY_RESTRICT substrate_densities, const real_t* HWY_RESTRICT dirichlet_values,
+					const bool* HWY_RESTRICT dirichlet_conditions, const density_layout_t dens_l)
 {
 	if (dirichlet_values == nullptr)
 		return;
@@ -55,7 +56,7 @@ static void solve_boundary(real_t* HWY_RESTRICT substrate_densities, const real_
 	});
 }
 
-static void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_densities, microenvironment& m)
+void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_densities, microenvironment& m)
 {
 	solve_boundary(substrate_densities, m.dirichlet_min_boundary_values[0].get(),
 				   m.dirichlet_min_boundary_conditions[0].get(), dens_l ^ noarr::fix<'x'>(noarr::lit<0>));
@@ -80,6 +81,7 @@ static void solve_boundaries(const auto dens_l, real_t* HWY_RESTRICT substrate_d
 					   dens_l ^ noarr::fix<'z'>(m.mesh.grid_shape[2] - 1));
 	}
 }
+} // namespace
 
 void dirichlet_solver::solve(microenvironment& m, diffusion_solver& d_solver)
 {

@@ -14,7 +14,7 @@ target_sources(
           src/vtk_serializer_base.cpp
           src/config_reader.cpp
           src/vtk_agents_serializer.cpp
-          src/solver_registry_attach.cpp
+          src/solver_registry.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
          ${PUBLIC_INC})
 

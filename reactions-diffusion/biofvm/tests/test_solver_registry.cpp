@@ -9,15 +9,18 @@ using namespace physicore::biofvm;
 class mock_solver : public solver
 {
 public:
-	void initialize(microenvironment&) override {}
-	void solve(microenvironment&, index_t) override {}
-	real_t get_substrate_density(index_t, index_t, index_t, index_t) const override { return 0; }
-	real_t& get_substrate_density(index_t, index_t, index_t, index_t) override
+	void initialize(microenvironment& /*m*/) override {}
+	void solve(microenvironment& /*m*/, index_t /*iterations*/) override {}
+	real_t get_substrate_density(index_t /*s*/, index_t /*x*/, index_t /*y*/, index_t /*z*/) const override
+	{
+		return 0;
+	}
+	real_t& get_substrate_density(index_t /*s*/, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
 	{
 		static real_t dummy = 0;
 		return dummy;
 	}
-	void reinitialize_dirichlet(microenvironment&) override {}
+	void reinitialize_dirichlet(microenvironment& /*m*/) override {}
 };
 
 TEST(SolverRegistryTest, CheckPresentSolvers)

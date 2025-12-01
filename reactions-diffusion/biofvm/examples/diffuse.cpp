@@ -51,11 +51,27 @@ int main()
 		int count;
 	};
 
-	const std::vector<agent_group> groups = {
-		{ { -600.0, 0.0, 0.0 }, 140.0, { 45.0, 6.5 }, { 500, 300 }, { 2, 1.5 }, 2200.0, 24 },
-		{ { 0.0, 0.0, 0.0 }, 180.0, { 32.0, 5.0 }, { 0.09, 0.06 }, { 100, 100.5 }, 2500.0, 30 },
-		{ { 600.0, 200.0, 0.0 }, 120.0, { 24.0, 4.0 }, { 0.14, 0.1 }, { 500, 500 }, 2100.0, 26 }
-	};
+	const std::vector<agent_group> groups = { { .center = { -600.0, 0.0, 0.0 },
+												.radius = 140.0,
+												.saturation = { 45.0, 6.5 },
+												.uptake = { 500, 300 },
+												.secretion = { 2, 1.5 },
+												.volume = 2200.0,
+												.count = 24 },
+											  { .center = { 0.0, 0.0, 0.0 },
+												.radius = 180.0,
+												.saturation = { 32.0, 5.0 },
+												.uptake = { 0.09, 0.06 },
+												.secretion = { 100, 100.5 },
+												.volume = 2500.0,
+												.count = 30 },
+											  { .center = { 600.0, 200.0, 0.0 },
+												.radius = 120.0,
+												.saturation = { 24.0, 4.0 },
+												.uptake = { 0.14, 0.1 },
+												.secretion = { 500, 500 },
+												.volume = 2100.0,
+												.count = 26 } };
 
 	for (const auto& group : groups)
 	{
@@ -78,21 +94,21 @@ int main()
 			uptake[glucose_idx] = group.uptake[1];
 
 			auto secretion = a->secretion_rates();
-			std::fill(secretion.begin(), secretion.end(), 0.0);
+			std::ranges::fill(secretion, 0.0);
 			secretion[oxygen_idx] = group.secretion[0];
 			secretion[glucose_idx] = group.secretion[1];
 
 			auto net_export = a->net_export_rates();
-			std::fill(net_export.begin(), net_export.end(), 0.0);
+			std::ranges::fill(net_export, 0.0);
 
 			auto internalized = a->internalized_substrates();
-			std::fill(internalized.begin(), internalized.end(), 0.0);
+			std::ranges::fill(internalized, 0.0);
 
 			auto release_fraction = a->fraction_released_at_death();
-			std::fill(release_fraction.begin(), release_fraction.end(), 0.0);
+			std::ranges::fill(release_fraction, 0.0);
 
 			auto transfer_fraction = a->fraction_transferred_when_ingested();
-			std::fill(transfer_fraction.begin(), transfer_fraction.end(), 0.0);
+			std::ranges::fill(transfer_fraction, 0.0);
 
 			a->volume() = group.volume;
 		}

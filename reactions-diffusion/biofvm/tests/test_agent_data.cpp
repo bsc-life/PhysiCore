@@ -6,6 +6,7 @@
 using namespace physicore::biofvm;
 using namespace physicore;
 
+namespace {
 // Helper to create a base_agent_data with N agents
 base_agent_data make_base_agent_data(index_t count)
 {
@@ -16,6 +17,7 @@ base_agent_data make_base_agent_data(index_t count)
 	}
 	return data;
 }
+} // namespace
 
 TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 {

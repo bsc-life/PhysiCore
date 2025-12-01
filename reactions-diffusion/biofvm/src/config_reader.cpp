@@ -44,7 +44,7 @@ std::string parse_string(const pugi::xml_node& node, const char* tag_name)
 // Parse <domain> tag
 domain_config parse_domain(const pugi::xml_node& domain_node)
 {
-	domain_config config;
+	domain_config config {};
 	config.x_min = parse_real(domain_node, "x_min");
 	config.x_max = parse_real(domain_node, "x_max");
 	config.y_min = parse_real(domain_node, "y_min");
@@ -74,7 +74,7 @@ overall_config parse_overall(const pugi::xml_node& overall_node)
 // Parse Dirichlet boundary conditions for a variable
 dirichlet_boundary_config parse_dirichlet_options(const pugi::xml_node& variable_node)
 {
-	dirichlet_boundary_config config;
+	dirichlet_boundary_config config {};
 
 	// Initialize with defaults (disabled, zero values)
 	config.mins_values.fill(0.0);
@@ -107,7 +107,7 @@ dirichlet_boundary_config parse_dirichlet_options(const pugi::xml_node& variable
 	}
 
 	// Parse individual boundary values
-	std::array<const char*, 6> boundary_ids = { "xmin", "xmax", "ymin", "ymax", "zmin", "zmax" };
+	std::vector<const char*> boundary_ids = { "xmin", "xmax", "ymin", "ymax", "zmin", "zmax" };
 	for (int i = 0; i < 6; ++i)
 	{
 		pugi::xml_node boundary_value = options_node.find_child_by_attribute("boundary_value", "ID", boundary_ids[i]);

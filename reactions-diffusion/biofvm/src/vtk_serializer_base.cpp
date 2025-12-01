@@ -9,14 +9,13 @@ vtk_serializer_base::vtk_serializer_base(std::string_view output_dir, std::strin
 										 std::string_view pvd_file_name)
 	: output_dir(output_dir),
 	  vtks_dir((std::filesystem::path(output_dir) / vtks_dir_name).string()),
-	  pvd_file_name(pvd_file_name)
-{
-	std::filesystem::create_directories(vtks_dir);
-
-	pvd_contents = R"(<?xml version="1.0"?>
+	  pvd_file_name(pvd_file_name),
+	  pvd_contents(R"(<?xml version="1.0"?>
 <VTKFile type="Collection" version="0.1" byte_order="LittleEndian">
   <Collection>
-)";
+)")
+{
+	std::filesystem::create_directories(vtks_dir);
 }
 
 void vtk_serializer_base::append_to_pvd(std::string_view vtk_file_name, real_t current_time)

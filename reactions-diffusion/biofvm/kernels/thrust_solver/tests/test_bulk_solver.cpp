@@ -19,7 +19,8 @@ using namespace physicore::biofvm;
 
 using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
-static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
+namespace {
+std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
 	real_t timestep = 0.01;
 	index_t substrates_count = 2;
@@ -42,6 +43,7 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 
 	return m;
 }
+} // namespace
 
 struct test_functor : device_bulk_functor
 {

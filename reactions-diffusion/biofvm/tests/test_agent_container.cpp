@@ -6,6 +6,7 @@
 using namespace physicore;
 using namespace physicore::biofvm;
 
+namespace {
 agent_container make_agent_container()
 {
 	auto base_data = std::make_unique<base_agent_data>(3);
@@ -13,6 +14,7 @@ agent_container make_agent_container()
 
 	return agent_container(std::move(base_data), std::move(data));
 }
+} // namespace
 
 TEST(AgentContainerTest, CreateAndRemove)
 {

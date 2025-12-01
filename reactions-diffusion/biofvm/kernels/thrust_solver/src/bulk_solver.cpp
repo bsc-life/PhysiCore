@@ -11,8 +11,7 @@
 using namespace physicore;
 using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
-void bulk_solver::initialize(thrust::device_ptr<device_bulk_functor> functor) { func = functor; }
-
+namespace {
 template <typename density_layout_t>
 void solve_single(real_t* _CCCL_RESTRICT densities, real_t time_step, device_bulk_functor* func,
 				  const density_layout_t dens_l)
@@ -45,6 +44,10 @@ void solve_single(real_t* _CCCL_RESTRICT densities, real_t time_step, device_bul
 						 D = (D + time_step * S * T) / (1 + time_step * (U + S));
 					 });
 }
+} // namespace
+
+void bulk_solver::initialize(thrust::device_ptr<device_bulk_functor> functor) { func = functor; }
+
 
 void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 {

@@ -109,6 +109,7 @@ void microenvironment_builder::set_bulk_functions(std::unique_ptr<bulk_functor> 
 
 void microenvironment_builder::do_compute_internalized_substrates() { compute_internalized_substrates = true; }
 
+namespace {
 void fill_one(index_t dim_idx, index_t substrates_count, const std::vector<std::array<real_t, 3>>& values,
 			  const std::vector<std::array<bool, 3>>& conditions,
 			  std::array<std::unique_ptr<real_t[]>, 3>& linearized_values,
@@ -132,6 +133,7 @@ void fill_one(index_t dim_idx, index_t substrates_count, const std::vector<std::
 		}
 	}
 }
+} // namespace
 
 void microenvironment_builder::fill_dirichlet_vectors(microenvironment& m)
 {
