@@ -1,6 +1,5 @@
 #include "cell_solver.h"
 
-#include <iostream>
 #include <limits>
 
 #include <noarr/structures_extended.hpp>
@@ -23,12 +22,11 @@ using namespace physicore;
 using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
-
-static constexpr index_t no_ballot = std::numeric_limits<index_t>::max();
+namespace {
+constexpr index_t no_ballot = std::numeric_limits<index_t>::max();
 
 template <index_t dims>
-static constexpr auto fix_dims(const real_t* cell_position, const sindex_t* bounding_box_mins,
-							   const index_t* voxel_shape)
+constexpr auto fix_dims(const real_t* cell_position, const sindex_t* bounding_box_mins, const index_t* voxel_shape)
 {
 	index_t voxel_index[3];
 	if constexpr (dims == 1)
@@ -50,8 +48,6 @@ static constexpr auto fix_dims(const real_t* cell_position, const sindex_t* boun
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
 	}
 }
-
-namespace {
 
 template <index_t dims, typename ballot_layout_t>
 void clear_ballots(const ballot_layout_t ballot_l, const real_t* _CCCL_RESTRICT cell_positions,
@@ -240,7 +236,7 @@ void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_
 	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
 															mesh.voxel_shape[2] };
 
-	bool is_conflict;
+	bool is_conflict {};
 	thrust::copy_n(is_conflict_ptr, 1, &is_conflict);
 
 	if (with_internalized && !is_conflict)
@@ -414,7 +410,7 @@ void cell_solver::simulate_secretion_and_uptake(microenvironment& m, diffusion_s
 }
 
 void cell_solver::release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver,
-												  data_manager& data, index_t agent_index)
+												  data_manager& data, index_t agent_index) const
 {
 	if (!compute_internalized_substrates_)
 		return;
@@ -440,7 +436,7 @@ void cell_solver::release_internalized_substrates(const microenvironment& m, dif
 }
 
 void cell_solver::release_internalized_substrates(const microenvironment& m, diffusion_solver& d_solver,
-												  data_manager& data)
+												  data_manager& data) const
 {
 	if (!compute_internalized_substrates_)
 		return;

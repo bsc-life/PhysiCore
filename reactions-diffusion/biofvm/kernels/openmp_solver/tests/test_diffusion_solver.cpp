@@ -8,7 +8,8 @@ using namespace physicore::biofvm;
 
 using namespace physicore::biofvm::kernels::openmp_solver;
 
-static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
+namespace {
+std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
 	real_t timestep = 5;
 	index_t substrates_count = 2;
@@ -32,7 +33,7 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 	return m;
 }
 
-static std::unique_ptr<microenvironment> biorobots_microenv(cartesian_mesh mesh)
+std::unique_ptr<microenvironment> biorobots_microenv(cartesian_mesh mesh)
 {
 	real_t timestep = 0.01;
 	index_t substrates_count = 2;
@@ -55,6 +56,7 @@ static std::unique_ptr<microenvironment> biorobots_microenv(cartesian_mesh mesh)
 
 	return m;
 }
+} // namespace
 
 TEST(DiffusionSolverTest, Uniform1D)
 {
@@ -195,10 +197,10 @@ TEST(DiffusionSolverTest, Random2D)
 #pragma omp parallel
 	solver.solve();
 
-	std::vector<double> expected = { 0.1948319355,  1.1899772978,  2.1441254507,	 3.1335099015,	4.0934189658,
-									5.0770425053,  6.0427124809,  7.0205751090,	 7.9920058,		8.9641077127,
-									9.9412995111,  10.9076403164, 11.8905930262, 12.8511729202, 13.8398865413,
-									14.7947055239, 15.7891800565, 16.7382381276 };
+	std::vector<double> expected = { 0.1948319355,	1.1899772978,  2.1441254507,  3.1335099015,	 4.0934189658,
+									 5.0770425053,	6.0427124809,  7.0205751090,  7.9920058,	 8.9641077127,
+									 9.9412995111,	10.9076403164, 11.8905930262, 12.8511729202, 13.8398865413,
+									 14.7947055239, 15.7891800565, 16.7382381276 };
 
 	for (index_t s = 0; s < m->substrates_count; ++s)
 		for (index_t x = 0; x < mesh.grid_shape[0]; ++x)
@@ -257,7 +259,7 @@ TEST(DiffusionSolverTest, Random3D)
 					index_t index = s + x * m->substrates_count + y * m->substrates_count * mesh.grid_shape[0]
 									+ z * m->substrates_count * mesh.grid_shape[0] * mesh.grid_shape[1];
 
-					EXPECT_NEAR((dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)),
-								expected[index], 1e-6);
+					EXPECT_NEAR((dens_l | noarr::get_at<'x', 'y', 'z', 's'>(densities, x, y, z, s)), expected[index],
+								1e-6);
 				}
 }

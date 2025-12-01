@@ -32,7 +32,6 @@ public:
 	void serialize_state(real_t current_time) override;
 
 	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const;
-	real_t& get_substrate_density(index_t s, index_t x, index_t y, index_t z);
 
 	void print_info(std::ostream& os) const;
 
@@ -78,7 +77,7 @@ public:
 	std::unique_ptr<bulk_functor> bulk_fnc;
 
 	// cell saturation-uptake configuration parameters
-	bool compute_internalized_substrates;
+	bool compute_internalized_substrates = false;
 };
 
 } // namespace physicore::biofvm

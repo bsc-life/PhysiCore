@@ -12,7 +12,8 @@ using namespace physicore::biofvm;
 
 using namespace physicore::biofvm::kernels::openmp_solver;
 
-static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, bool compute_interalized)
+namespace {
+std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, bool compute_interalized)
 {
 	real_t timestep = 0.01;
 	index_t substrates_count = 2;
@@ -38,9 +39,8 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, b
 	return m;
 }
 
-
-static void compute_expected_agent_internalized_1d(auto densities, microenvironment& m, agent_data& agent_data,
-												   std::vector<real_t>& expected_internalized)
+void compute_expected_agent_internalized_1d(auto densities, microenvironment& m, agent_data& agent_data,
+											std::vector<real_t>& expected_internalized)
 {
 	for (index_t i = 0; i < agent_data.base_data.agents_count; i++)
 	{
@@ -65,8 +65,7 @@ static void compute_expected_agent_internalized_1d(auto densities, microenvironm
 	}
 }
 
-static std::vector<real_t> compute_expected_agent_densities_1d(auto densities, microenvironment& m,
-															   agent_data& agent_data)
+std::vector<real_t> compute_expected_agent_densities_1d(auto densities, microenvironment& m, agent_data& agent_data)
 {
 	std::vector<real_t> expected_densities(m.mesh.voxel_count() * m.substrates_count, 0);
 
@@ -74,7 +73,9 @@ static std::vector<real_t> compute_expected_agent_densities_1d(auto densities, m
 	{
 		for (index_t x = 0; x < m.mesh.grid_shape[0]; x++)
 		{
-			real_t num = 0, denom = 0, factor = 0;
+			real_t num = 0;
+			real_t denom = 0;
+			real_t factor = 0;
 
 			for (index_t i = 0; i < agent_data.base_data.agents_count; i++)
 			{
@@ -123,6 +124,7 @@ void set_default_agent_values(agent_interface* a, index_t rates_offset, index_t 
 	for (index_t i = 0; i < dims; ++i)
 		a->position()[i] = position[i];
 }
+} // namespace
 
 class RecomputeTest : public testing::TestWithParam<std::tuple<bool, bool>>
 {};
@@ -139,9 +141,9 @@ TEST_P(RecomputeTest, Simple1D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create();
-	auto a2 = m->agents->create();
-	auto a3 = m->agents->create();
+	auto* a1 = m->agents->create();
+	auto* a2 = m->agents->create();
+	auto* a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 0, 0 }, 1);
 	set_default_agent_values(a2, 400, 1000, { 30, 0, 0 }, 1);
@@ -224,9 +226,9 @@ TEST_P(RecomputeTest, Simple2D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create();
-	auto a2 = m->agents->create();
-	auto a3 = m->agents->create();
+	auto* a1 = m->agents->create();
+	auto* a2 = m->agents->create();
+	auto* a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 0 }, 2);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 0 }, 2);
@@ -310,9 +312,9 @@ TEST_P(RecomputeTest, Simple3D)
 
 	auto m = default_microenv(mesh, compute_internalized);
 
-	auto a1 = m->agents->create();
-	auto a2 = m->agents->create();
-	auto a3 = m->agents->create();
+	auto* a1 = m->agents->create();
+	auto* a2 = m->agents->create();
+	auto* a3 = m->agents->create();
 
 	set_default_agent_values(a1, 0, 1000, { 10, 10, 10 }, 3);
 	set_default_agent_values(a2, 400, 1000, { 30, 30, 30 }, 3);
@@ -401,6 +403,7 @@ TEST_P(RecomputeTest, Conflict)
 
 	std::vector<agent_interface*> agents;
 
+	agents.reserve(6);
 	for (int i = 0; i < 6; i++)
 		agents.push_back(m->agents->create());
 

@@ -45,9 +45,9 @@ protected:
 		}
 	}
 
-	std::unique_ptr<microenvironment> create_test_microenvironment(index_t dims = 3,
-																   std::array<index_t, 3> grid_shape = { 3, 3, 3 },
-																   std::array<index_t, 3> voxel_shape = { 20, 20, 20 })
+	static std::unique_ptr<microenvironment> create_test_microenvironment(
+		index_t dims = 3, std::array<index_t, 3> grid_shape = { 3, 3, 3 },
+		std::array<index_t, 3> voxel_shape = { 20, 20, 20 })
 	{
 		microenvironment_builder builder;
 		builder.set_name("test_env");
@@ -173,36 +173,36 @@ TEST_F(VtkSerializerTest, VtkFileStructure)
 	reader->SetFileName(vti_file.string().c_str());
 	reader->Update();
 
-	auto image_data = reader->GetOutput();
+	auto* image_data = reader->GetOutput();
 	ASSERT_NE(image_data, nullptr);
 
 	// Check dimensions
-	int dims[3];
-	image_data->GetDimensions(dims);
+	std::array<int, 3> dims {};
+	image_data->GetDimensions(dims.data());
 	EXPECT_EQ(dims[0], 4); // grid_shape[0] + 1
 	EXPECT_EQ(dims[1], 4); // grid_shape[1] + 1
 	EXPECT_EQ(dims[2], 4); // grid_shape[2] + 1
 
 	// Check spacing
-	double spacing[3];
-	image_data->GetSpacing(spacing);
+	std::array<double, 3> spacing {};
+	image_data->GetSpacing(spacing.data());
 	EXPECT_DOUBLE_EQ(spacing[0], 20.0);
 	EXPECT_DOUBLE_EQ(spacing[1], 20.0);
 	EXPECT_DOUBLE_EQ(spacing[2], 20.0);
 
 	// Check that arrays exist for substrates
-	auto cell_data = image_data->GetCellData();
+	auto* cell_data = image_data->GetCellData();
 	ASSERT_NE(cell_data, nullptr);
 
 	EXPECT_NE(cell_data->GetArray("O2"), nullptr);
 	EXPECT_NE(cell_data->GetArray("Glucose"), nullptr);
 
 	// Check array properties
-	auto o2_array = cell_data->GetArray("O2");
+	auto* o2_array = cell_data->GetArray("O2");
 	EXPECT_EQ(o2_array->GetNumberOfComponents(), 1);
 	EXPECT_EQ(o2_array->GetNumberOfTuples(), 27); // 3x3x3 = 27 voxels
 
-	auto glucose_array = cell_data->GetArray("Glucose");
+	auto* glucose_array = cell_data->GetArray("Glucose");
 	EXPECT_EQ(glucose_array->GetNumberOfComponents(), 1);
 	EXPECT_EQ(glucose_array->GetNumberOfTuples(), 27); // 3x3x3 = 27 voxels
 }
@@ -258,8 +258,8 @@ TEST_F(VtkSerializerTest, SingleSubstrate)
 	reader->SetFileName(vti_file.string().c_str());
 	reader->Update();
 
-	auto image_data = reader->GetOutput();
-	auto cell_data = image_data->GetCellData();
+	auto* image_data = reader->GetOutput();
+	auto* cell_data = image_data->GetCellData();
 
 	EXPECT_EQ(cell_data->GetNumberOfArrays(), 1);
 	EXPECT_NE(cell_data->GetArray("O2"), nullptr);
@@ -305,8 +305,8 @@ TEST_F(VtkSerializerTest, ManySubstrates)
 	reader->SetFileName(vti_file.string().c_str());
 	reader->Update();
 
-	auto image_data = reader->GetOutput();
-	auto cell_data = image_data->GetCellData();
+	auto* image_data = reader->GetOutput();
+	auto* cell_data = image_data->GetCellData();
 
 	EXPECT_EQ(cell_data->GetNumberOfArrays(), substrate_names.size());
 
@@ -346,10 +346,10 @@ TEST_F(VtkSerializerTest, NonZeroBoundingBoxMins)
 	reader->SetFileName(vti_file.string().c_str());
 	reader->Update();
 
-	auto image_data = reader->GetOutput();
+	auto* image_data = reader->GetOutput();
 
-	int extent[6];
-	image_data->GetExtent(extent);
+	std::array<int, 6> extent {};
+	image_data->GetExtent(extent.data());
 
 	// Check extent calculation: bounding_box_mins / voxel_shape
 	EXPECT_EQ(extent[0], 5);  // 100/20
@@ -374,9 +374,9 @@ TEST_F(VtkSerializerTest, VtkRealArrayTypeConsistency)
 	reader->SetFileName(vti_file.string().c_str());
 	reader->Update();
 
-	auto image_data = reader->GetOutput();
-	auto cell_data = image_data->GetCellData();
-	auto array = cell_data->GetArray("O2");
+	auto* image_data = reader->GetOutput();
+	auto* cell_data = image_data->GetCellData();
+	auto* array = cell_data->GetArray("O2");
 
 	// Check that array type matches real_t (double in this case)
 	if (std::is_same_v<real_t, float>)
@@ -419,13 +419,13 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 	reader->SetFileName(vti_file.string().c_str());
 	reader->Update();
 
-	auto image_data = reader->GetOutput();
+	auto* image_data = reader->GetOutput();
 	ASSERT_NE(image_data, nullptr);
 
-	auto cell_data = image_data->GetCellData();
+	auto* cell_data = image_data->GetCellData();
 	ASSERT_NE(cell_data, nullptr);
 
-	auto o2_array = cell_data->GetArray("O2");
+	auto* o2_array = cell_data->GetArray("O2");
 	ASSERT_NE(o2_array, nullptr);
 
 	EXPECT_EQ(o2_array->GetNumberOfTuples(), m->mesh.voxel_count());
@@ -465,7 +465,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 	cell_data = image_data->GetCellData();
 	ASSERT_NE(cell_data, nullptr);
 
-	auto glucose_array = cell_data->GetArray("Glucose");
+	auto* glucose_array = cell_data->GetArray("Glucose");
 	ASSERT_NE(glucose_array, nullptr);
 
 	EXPECT_EQ(glucose_array->GetNumberOfTuples(), m->mesh.voxel_count());

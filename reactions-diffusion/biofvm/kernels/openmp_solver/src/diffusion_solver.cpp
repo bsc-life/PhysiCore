@@ -10,15 +10,17 @@
 using namespace physicore;
 using namespace physicore::biofvm::kernels::openmp_solver;
 
-static auto get_diagonal_layout(const problem_t& problem, index_t n)
+namespace {
+auto get_diagonal_layout(const problem_t& problem, index_t n)
 {
 	return noarr::scalar<real_t>() ^ noarr::vectors<'s', 'i'>(problem.substrates_count, n);
 }
 
-static auto get_diagonal_layout_c(const problem_t& problem, index_t n, index_t copies)
+auto get_diagonal_layout_c(const problem_t& problem, index_t n, index_t copies)
 {
 	return noarr::scalar<real_t>() ^ noarr::vectors<'c', 'i'>(problem.substrates_count * copies, n);
 }
+} // namespace
 
 real_t* diffusion_solver::get_substrates_pointer() { return substrates_.get(); }
 
@@ -67,7 +69,8 @@ void diffusion_solver::precompute_values(std::unique_ptr<real_t[]>& b, std::uniq
 	{
 		for (index_t copy_idx = 0; copy_idx < copies; copy_idx++)
 			for (index_t s = 0; s < problem.substrates_count; s++)
-				b_diag.template at<'i', 'c', 's'>(0, copy_idx, s) = 1 / b_diag.template at<'i', 'c', 's'>(0, copy_idx, s);
+				b_diag.template at<'i', 'c', 's'>(0, copy_idx, s) =
+					1 / b_diag.template at<'i', 'c', 's'>(0, copy_idx, s);
 
 		for (index_t i = 1; i < n; i++)
 			for (index_t x = 0; x < copies; x++)
@@ -112,11 +115,10 @@ void diffusion_solver::initialize()
 		precompute_values(bz_, cz_, ez_, problem.dz, problem.dims, problem.nz, substrate_copies_);
 }
 
-
+namespace {
 template <typename index_t, typename real_t, typename density_layout_t, typename diagonal_layout_t>
-static void solve_slice_x_1d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b, const real_t* HWY_RESTRICT c,
-							 const real_t* HWY_RESTRICT e, const density_layout_t dens_l,
-							 const diagonal_layout_t diag_l)
+void solve_slice_x_1d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b, const real_t* HWY_RESTRICT c,
+					  const real_t* HWY_RESTRICT e, const density_layout_t dens_l, const diagonal_layout_t diag_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 	const index_t n = dens_l | noarr::get_length<'x'>();
@@ -160,9 +162,9 @@ static void solve_slice_x_1d(real_t* HWY_RESTRICT densities, const real_t* HWY_R
 }
 
 template <typename index_t, typename real_t, typename density_layout_t, typename diagonal_layout_t>
-static void solve_slice_x_2d_and_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b,
-									const real_t* HWY_RESTRICT c, const real_t* HWY_RESTRICT e,
-									const density_layout_t dens_l, const diagonal_layout_t diag_l)
+void solve_slice_x_2d_and_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b, const real_t* HWY_RESTRICT c,
+							 const real_t* HWY_RESTRICT e, const density_layout_t dens_l,
+							 const diagonal_layout_t diag_l)
 {
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 	const index_t n = dens_l | noarr::get_length<'x'>();
@@ -203,9 +205,9 @@ static void solve_slice_x_2d_and_3d(real_t* HWY_RESTRICT densities, const real_t
 }
 
 template <typename index_t, typename real_t, typename density_layout_t, typename diagonal_layout_t>
-static void solve_slice_y_2d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b,
-							 const real_t* HWY_RESTRICT c_, const real_t* HWY_RESTRICT e, const density_layout_t dens_l,
-							 const diagonal_layout_t diag_l, std::size_t s_copies, std::size_t xs_tile_size)
+void solve_slice_y_2d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b, const real_t* HWY_RESTRICT c_,
+					  const real_t* HWY_RESTRICT e, const density_layout_t dens_l, const diagonal_layout_t diag_l,
+					  std::size_t s_copies, std::size_t xs_tile_size)
 {
 	const index_t substrate_count = dens_l | noarr::get_length<'s'>();
 	const index_t n = dens_l | noarr::get_length<'y'>();
@@ -389,9 +391,9 @@ static void solve_slice_y_2d(real_t* HWY_RESTRICT densities, const real_t* HWY_R
 }
 
 template <typename index_t, typename real_t, typename density_layout_t, typename diagonal_layout_t>
-static void solve_slice_y_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b,
-							 const real_t* HWY_RESTRICT c_, const real_t* HWY_RESTRICT e, const density_layout_t dens_l,
-							 const diagonal_layout_t diag_l, std::size_t s_copies, std::size_t xs_tile_size)
+void solve_slice_y_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b, const real_t* HWY_RESTRICT c_,
+					  const real_t* HWY_RESTRICT e, const density_layout_t dens_l, const diagonal_layout_t diag_l,
+					  std::size_t s_copies, std::size_t xs_tile_size)
 {
 	const index_t substrate_count = dens_l | noarr::get_length<'s'>();
 	const index_t n = dens_l | noarr::get_length<'y'>();
@@ -592,9 +594,9 @@ static void solve_slice_y_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_R
 }
 
 template <typename index_t, typename real_t, typename density_layout_t, typename diagonal_layout_t>
-static void solve_slice_z_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b,
-							 const real_t* HWY_RESTRICT c_, const real_t* HWY_RESTRICT e, const density_layout_t dens_l,
-							 const diagonal_layout_t diag_l, std::size_t s_copies, std::size_t xs_tile_size)
+void solve_slice_z_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_RESTRICT b, const real_t* HWY_RESTRICT c_,
+					  const real_t* HWY_RESTRICT e, const density_layout_t dens_l, const diagonal_layout_t diag_l,
+					  std::size_t s_copies, std::size_t xs_tile_size)
 {
 	const index_t substrate_count = dens_l | noarr::get_length<'s'>();
 	const index_t n = dens_l | noarr::get_length<'z'>();
@@ -793,6 +795,7 @@ static void solve_slice_z_3d(real_t* HWY_RESTRICT densities, const real_t* HWY_R
 		}
 	}
 }
+} // namespace
 
 void diffusion_solver::solve()
 {

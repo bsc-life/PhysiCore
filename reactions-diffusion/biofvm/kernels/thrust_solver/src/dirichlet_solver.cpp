@@ -9,16 +9,18 @@ using namespace physicore;
 using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
-static constexpr auto fix_dims(const index_t* voxel_index, index_t dims)
+namespace {
+constexpr auto fix_dims(const index_t* voxel_index, index_t dims)
 {
 	if (dims == 1)
 		return noarr::fix<'x', 'y', 'z'>(voxel_index[0], 0, 0);
-	else if (dims == 2)
+	if (dims == 2)
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(0);
-	else if (dims == 3)
+	if (dims == 3)
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
 	return noarr::fix<'x', 'y', 'z'>(0, 0, 0);
 }
+} // namespace
 
 namespace {
 

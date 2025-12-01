@@ -177,9 +177,9 @@ TEST(MicroenvironmentBuilder, AddBoundaryDirichletConditionsThrows)
 
 struct test_functor : bulk_functor
 {
-	virtual real_t supply_rates(index_t, index_t, index_t, index_t) { return 42; }
-	virtual real_t uptake_rates(index_t, index_t, index_t, index_t) { return 1; }
-	virtual real_t supply_target_densities(index_t, index_t, index_t, index_t) { return 2; }
+	real_t supply_rates(index_t /*s*/, index_t /*x*/, index_t /*y*/, index_t /*z*/) override { return 42; }
+	real_t uptake_rates(index_t /*s*/, index_t /*x*/, index_t /*y*/, index_t /*z*/) override { return 1; }
+	real_t supply_target_densities(index_t /*s*/, index_t /*x*/, index_t /*y*/, index_t /*z*/) override { return 2; }
 };
 
 TEST(MicroenvironmentBuilder, BulkFunctionsAndInternalizedSubstrates)

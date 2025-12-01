@@ -1,6 +1,12 @@
+#include "solver_registry.h"
+
 #include <cassert>
 
-#include "solver_registry.h"
+#include "openmp_solver/register_solver.h"
+
+#if defined(PHYSICORE_HAS_TBB_THRUST) or defined(PHYSICORE_HAS_CUDA_THRUST)
+	#include "thrust_solver/register_solver.h"
+#endif
 
 using namespace physicore::biofvm;
 
@@ -27,3 +33,20 @@ solver_registry& solver_registry::instance()
 	static solver_registry r;
 	return r;
 }
+
+
+struct attachment_point
+{
+	attachment_point()
+	{
+		kernels::openmp_solver::attach_to_registry();
+#ifdef PHYSICORE_HAS_TBB_THRUST
+		kernels::tbb_thrust_solver::attach_to_registry();
+#endif
+#ifdef PHYSICORE_HAS_CUDA_THRUST
+		kernels::cuda_thrust_solver::attach_to_registry();
+#endif
+	}
+};
+
+static const attachment_point ap;

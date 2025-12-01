@@ -7,10 +7,12 @@ using namespace physicore::biofvm;
 
 cartesian_mesh::cartesian_mesh(index_t dims, std::array<sindex_t, 3> bounding_box_mins,
 							   std::array<sindex_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)
-	: dims(dims), bounding_box_mins(bounding_box_mins), bounding_box_maxs(bounding_box_maxs), voxel_shape(voxel_shape)
+	: dims(dims),
+	  bounding_box_mins(bounding_box_mins),
+	  bounding_box_maxs(bounding_box_maxs),
+	  voxel_shape(voxel_shape),
+	  grid_shape({ 1, 1, 1 })
 {
-	grid_shape = { 1, 1, 1 };
-
 	if (dims >= 1)
 	{
 		grid_shape[0] = (bounding_box_maxs[0] - bounding_box_mins[0] + voxel_shape[0] - 1) / voxel_shape[0];

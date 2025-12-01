@@ -1,0 +1,6 @@
+InheritParentConfig: true
+Checks: >
+  performance-*,
+  -performance-avoid-endl,
+
+  -readability-function-cognitive-complexity,

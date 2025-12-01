@@ -96,12 +96,8 @@ void microenvironment::serialize_state(real_t current_time)
 
 real_t microenvironment::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
 {
-	return solver->get_substrate_density(s, x, y, z);
-}
-
-real_t& microenvironment::get_substrate_density(index_t s, index_t x, index_t y, index_t z)
-{
-	return solver->get_substrate_density(s, x, y, z);
+	const auto* solver_ptr = this->solver.get();
+	return solver_ptr->get_substrate_density(s, x, y, z);
 }
 
 void microenvironment::print_info(std::ostream& os) const
@@ -150,7 +146,7 @@ void microenvironment::update_dirichlet_interior_voxel(std::array<index_t, 3> vo
 	// Try to find the voxel in the dirichlet_interior_voxels array
 	for (index_t i = 0; i < dirichlet_interior_voxels_count; ++i)
 	{
-		auto interior_voxel_idx = &dirichlet_interior_voxels[i * mesh.dims];
+		auto* interior_voxel_idx = &dirichlet_interior_voxels[i * mesh.dims];
 		if (mesh.dims >= 1 && voxel[0] != interior_voxel_idx[0])
 			continue;
 		if (mesh.dims >= 2 && voxel[1] != interior_voxel_idx[1])

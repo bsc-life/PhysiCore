@@ -13,13 +13,16 @@ using namespace physicore;
 using namespace physicore::biofvm;
 using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
+namespace {
 void make_agents(microenvironment& m, index_t count, bool conflict)
 {
-	sindex_t x = 0, y = 0, z = 0;
+	sindex_t x = 0;
+	sindex_t y = 0;
+	sindex_t z = 0;
 
 	for (index_t i = 0; i < count; i++)
 	{
-		auto a = m.agents->create();
+		auto* a = m.agents->create();
 		a->position()[0] = x;
 		a->position()[1] = y;
 		a->position()[2] = z;
@@ -39,27 +42,29 @@ void make_agents(microenvironment& m, index_t count, bool conflict)
 
 	if (conflict)
 	{
-		auto a = m.agents->create();
+		auto* a = m.agents->create();
 		a->position()[0] = 0;
 		a->position()[1] = 0;
 		a->position()[2] = 0;
 	}
 }
+} // namespace
 
 // --- bulk functors -------------------------------------------------
 struct bench_functor : device_bulk_functor
 {
-	PHYSICORE_THRUST_DEVICE_FN real_t supply_rates(index_t s, index_t, index_t, index_t) override
+	PHYSICORE_THRUST_DEVICE_FN real_t supply_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
 	{
 		return 0.01 * (s + 1);
 	}
 
-	PHYSICORE_THRUST_DEVICE_FN real_t supply_target_densities(index_t s, index_t, index_t, index_t) override
+	PHYSICORE_THRUST_DEVICE_FN real_t supply_target_densities(index_t s, index_t /*x*/, index_t /*y*/,
+															  index_t /*z*/) override
 	{
 		return 0.01 * (s + 1);
 	}
 
-	PHYSICORE_THRUST_DEVICE_FN real_t uptake_rates(index_t s, index_t, index_t, index_t) override
+	PHYSICORE_THRUST_DEVICE_FN real_t uptake_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
 	{
 		return 0.01 * (s + 1);
 	}
@@ -142,7 +147,10 @@ int main()
 
 	for (index_t i = 0; i < 100; ++i)
 	{
-		std::size_t diffusion_duration = 0, secretion_duration = 0, bulk_duration = 0, dirichlet_duration = 0;
+		std::size_t diffusion_duration = 0;
+		std::size_t secretion_duration = 0;
+		std::size_t bulk_duration = 0;
+		std::size_t dirichlet_duration = 0;
 		{
 			{
 				auto start = std::chrono::steady_clock::now();

@@ -27,7 +27,7 @@ void openmp_solver::solve(biofvm::microenvironment& m, index_t iterations)
 	{
 		d_solver.solve();
 
-		dir_solver.solve(m, d_solver);
+		dirichlet_solver::solve(m, d_solver);
 
 		b_solver.solve(m, d_solver);
 
@@ -38,7 +38,7 @@ void openmp_solver::solve(biofvm::microenvironment& m, index_t iterations)
 real_t openmp_solver::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
 {
 	auto dens_l = d_solver.get_substrates_layout<3>();
-	auto densities = d_solver.get_substrates_pointer();
+	const auto* densities = d_solver.get_substrates_pointer();
 
 	return dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(densities, s, x, y, z);
 }
@@ -46,7 +46,7 @@ real_t openmp_solver::get_substrate_density(index_t s, index_t x, index_t y, ind
 real_t& openmp_solver::get_substrate_density(index_t s, index_t x, index_t y, index_t z)
 {
 	auto dens_l = d_solver.get_substrates_layout<3>();
-	auto densities = d_solver.get_substrates_pointer();
+	auto* densities = d_solver.get_substrates_pointer();
 
 	return dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(densities, s, x, y, z);
 }

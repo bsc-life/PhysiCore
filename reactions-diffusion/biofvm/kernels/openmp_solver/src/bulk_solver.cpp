@@ -8,6 +8,7 @@ using namespace physicore::biofvm::kernels::openmp_solver;
 
 void bulk_solver::initialize(microenvironment& m) { fnc = std::move(m.bulk_fnc); }
 
+namespace {
 template <typename density_layout_t>
 void solve_single(real_t* HWY_RESTRICT densities, bulk_functor* fnc, real_t time_step, const density_layout_t dens_l)
 {
@@ -38,6 +39,7 @@ void solve_single(real_t* HWY_RESTRICT densities, bulk_functor* fnc, real_t time
 		}
 	}
 }
+} // namespace
 
 void bulk_solver::solve(const microenvironment& m, diffusion_solver& d_solver)
 {

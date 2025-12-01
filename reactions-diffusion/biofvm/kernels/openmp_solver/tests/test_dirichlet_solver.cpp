@@ -11,7 +11,8 @@ using namespace physicore::biofvm;
 
 using namespace physicore::biofvm::kernels::openmp_solver;
 
-static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
+namespace {
+std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
 	real_t timestep = 5;
 	index_t substrates_count = 2;
@@ -35,8 +36,8 @@ static std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 	return m;
 }
 
-static void add_dirichlet_at(microenvironment& m, index_t substrates_count,
-							 const std::vector<std::array<index_t, 3>>& indices, const std::vector<real_t>& values)
+void add_dirichlet_at(microenvironment& m, index_t substrates_count, const std::vector<std::array<index_t, 3>>& indices,
+					  const std::vector<real_t>& values)
 {
 	m.dirichlet_interior_voxels_count = indices.size();
 	m.dirichlet_interior_voxels = std::make_unique<index_t[]>(m.dirichlet_interior_voxels_count * m.mesh.dims);
@@ -58,8 +59,7 @@ static void add_dirichlet_at(microenvironment& m, index_t substrates_count,
 	}
 }
 
-static void add_boundary_dirichlet(microenvironment& m, index_t substrates_count, index_t dim_idx, bool min,
-								   real_t value)
+void add_boundary_dirichlet(microenvironment& m, index_t substrates_count, index_t dim_idx, bool min, real_t value)
 {
 	auto& values = min ? m.dirichlet_min_boundary_values[dim_idx] : m.dirichlet_max_boundary_values[dim_idx];
 	auto& conditions =
@@ -81,7 +81,7 @@ static void add_boundary_dirichlet(microenvironment& m, index_t substrates_count
 	values[0] = value;
 	conditions[0] = true;
 }
-
+} // namespace
 
 TEST(DirichletSolverTest, Interior1D)
 {
@@ -92,13 +92,12 @@ TEST(DirichletSolverTest, Interior1D)
 	add_dirichlet_at(*m, m->substrates_count, { { 2, 0, 0 } }, { 41 });
 
 	diffusion_solver d_s;
-	dirichlet_solver s;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
 
 #pragma omp parallel
-	s.solve(*m, d_s);
+	dirichlet_solver::solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<1>();
 	real_t* densities = d_s.get_substrates_pointer();
@@ -124,13 +123,12 @@ TEST(DirichletSolverTest, Interior2D)
 	add_dirichlet_at(*m, m->substrates_count, { { 1, 1, 0 }, { 2, 0, 0 } }, { 10, 11 });
 
 	diffusion_solver d_s;
-	dirichlet_solver s;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
 
 #pragma omp parallel
-	s.solve(*m, d_s);
+	dirichlet_solver::solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<2>();
 	real_t* densities = d_s.get_substrates_pointer();
@@ -164,13 +162,12 @@ TEST(DirichletSolverTest, Interior3D)
 	add_dirichlet_at(*m, m->substrates_count, { { 1, 1, 1 }, { 1, 0, 2 }, { 0, 1, 2 } }, { 1000, 1001, 1002 });
 
 	diffusion_solver d_s;
-	dirichlet_solver s;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
 
 #pragma omp parallel
-	s.solve(*m, d_s);
+	dirichlet_solver::solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<3>();
 	real_t* densities = d_s.get_substrates_pointer();
@@ -210,13 +207,12 @@ TEST(DirichletSolverTest, Boundary1D)
 	add_boundary_dirichlet(*m, m->substrates_count, 0, false, 5);
 
 	diffusion_solver d_s;
-	dirichlet_solver s;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
 
 #pragma omp parallel
-	s.solve(*m, d_s);
+	dirichlet_solver::solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<1>();
 	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
@@ -246,13 +242,12 @@ TEST(DirichletSolverTest, Boundary2D)
 	add_boundary_dirichlet(*m, m->substrates_count, 1, false, 7);
 
 	diffusion_solver d_s;
-	dirichlet_solver s;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
 
 #pragma omp parallel
-	s.solve(*m, d_s);
+	dirichlet_solver::solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<2>();
 	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
@@ -304,13 +299,12 @@ TEST(DirichletSolverTest, Boundary3D)
 	add_boundary_dirichlet(*m, m->substrates_count, 2, false, 9);
 
 	diffusion_solver d_s;
-	dirichlet_solver s;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
 
 #pragma omp parallel
-	s.solve(*m, d_s);
+	dirichlet_solver::solve(*m, d_s);
 
 	auto dens_l = d_s.get_substrates_layout<3>();
 	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
