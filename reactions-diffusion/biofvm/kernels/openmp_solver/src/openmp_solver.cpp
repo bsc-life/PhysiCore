@@ -1,5 +1,7 @@
 #include "openmp_solver.h"
 
+#include "dirichlet_solver.h"
+
 using namespace physicore;
 using namespace physicore::biofvm::kernels::openmp_solver;
 
