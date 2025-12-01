@@ -75,7 +75,7 @@ TEST_F(VtkAgentsSerializerTest, ConstructorInitialization)
 	auto m = create_test_microenvironment();
 
 	// Test constructor doesn't throw
-	EXPECT_NO_THROW({ vtk_agents_serializer serializer(test_output_dir.string(), *m); });
+	EXPECT_NO_THROW({ const vtk_agents_serializer serializer(test_output_dir.string(), *m); });
 
 	// Check that directories are created
 	auto vtk_dir = test_output_dir / "vtk_agents";
@@ -208,8 +208,8 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 		for (index_t s = 0; s < m->substrates_count; ++s)
 		{
 			const index_t idx = i * m->substrates_count + s;
-			biofvm_data->secretion_rates[idx] = i + s + 1.0;
-			biofvm_data->saturation_densities[idx] = (i + 1) * (s + 1) * 10.0;
+			biofvm_data->secretion_rates[idx] = static_cast<real_t>(i + s + 1);
+			biofvm_data->saturation_densities[idx] = static_cast<real_t>((i + 1) * (s + 1) * 10);
 			biofvm_data->uptake_rates[idx] = (i + 1) * 0.5;
 			biofvm_data->net_export_rates[idx] = (i + 1) * 0.1;
 			biofvm_data->internalized_substrates[idx] = i * 5.0;

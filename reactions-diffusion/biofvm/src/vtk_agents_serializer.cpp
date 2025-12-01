@@ -82,7 +82,7 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 
 	// Create points for agent positions
 	auto points = vtkSmartPointer<vtkPoints>::New();
-	points->SetNumberOfPoints(agent_count);
+	points->SetNumberOfPoints(static_cast<vtkIdType>(agent_count));
 
 	// Set point positions from agent data
 	for (index_t i = 0; i < agent_count; ++i)
@@ -92,7 +92,7 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 		{
 			pos[d] = base_data.positions[i * base_data.dims + d];
 		}
-		points->SetPoint(i, pos.data());
+		points->SetPoint(static_cast<vtkIdType>(i), pos.data());
 	}
 	unstructured_grid->SetPoints(points);
 
@@ -101,38 +101,40 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 	for (index_t i = 0; i < agent_count; ++i)
 	{
 		cells->InsertNextCell(1);
-		cells->InsertCellPoint(i);
+		cells->InsertCellPoint(static_cast<vtkIdType>(i));
 	}
 	unstructured_grid->SetCells(VTK_VERTEX, cells);
 
 	// Set array sizes
-	volumes_array->SetNumberOfTuples(agent_count);
+	volumes_array->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
 	for (index_t s = 0; s < substrate_count; ++s)
 	{
-		secretion_rates_arrays[s]->SetNumberOfTuples(agent_count);
-		saturation_densities_arrays[s]->SetNumberOfTuples(agent_count);
-		uptake_rates_arrays[s]->SetNumberOfTuples(agent_count);
-		net_export_rates_arrays[s]->SetNumberOfTuples(agent_count);
-		internalized_substrates_arrays[s]->SetNumberOfTuples(agent_count);
-		fraction_released_at_death_arrays[s]->SetNumberOfTuples(agent_count);
-		fraction_transferred_when_ingested_arrays[s]->SetNumberOfTuples(agent_count);
+		secretion_rates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
+		saturation_densities_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
+		uptake_rates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
+		net_export_rates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
+		internalized_substrates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
+		fraction_released_at_death_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
+		fraction_transferred_when_ingested_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
 	}
 
 	// Fill in the data
 	for (index_t i = 0; i < agent_count; ++i)
 	{
-		volumes_array->SetValue(i, biofvm_data.volumes[i]);
+		volumes_array->SetValue(static_cast<vtkIdType>(i), biofvm_data.volumes[i]);
 
 		for (index_t s = 0; s < substrate_count; ++s)
 		{
 			const index_t idx = i * substrate_count + s;
-			secretion_rates_arrays[s]->SetValue(i, biofvm_data.secretion_rates[idx]);
-			saturation_densities_arrays[s]->SetValue(i, biofvm_data.saturation_densities[idx]);
-			uptake_rates_arrays[s]->SetValue(i, biofvm_data.uptake_rates[idx]);
-			net_export_rates_arrays[s]->SetValue(i, biofvm_data.net_export_rates[idx]);
-			internalized_substrates_arrays[s]->SetValue(i, biofvm_data.internalized_substrates[idx]);
-			fraction_released_at_death_arrays[s]->SetValue(i, biofvm_data.fraction_released_at_death[idx]);
-			fraction_transferred_when_ingested_arrays[s]->SetValue(i,
+			secretion_rates_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.secretion_rates[idx]);
+			saturation_densities_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.saturation_densities[idx]);
+			uptake_rates_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.uptake_rates[idx]);
+			net_export_rates_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.net_export_rates[idx]);
+			internalized_substrates_arrays[s]->SetValue(static_cast<vtkIdType>(i),
+														biofvm_data.internalized_substrates[idx]);
+			fraction_released_at_death_arrays[s]->SetValue(static_cast<vtkIdType>(i),
+														   biofvm_data.fraction_released_at_death[idx]);
+			fraction_transferred_when_ingested_arrays[s]->SetValue(static_cast<vtkIdType>(i),
 																   biofvm_data.fraction_transferred_when_ingested[idx]);
 		}
 	}

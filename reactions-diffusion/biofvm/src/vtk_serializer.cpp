@@ -25,13 +25,15 @@ vtk_serializer::vtk_serializer(std::string_view output_dir, microenvironment& m)
 
 	if (m.mesh.dims == 3)
 	{
-		image_data->SetExtent(x_extent_start, x_extent_end, y_extent_start, y_extent_end, z_extent_start, z_extent_end);
-		image_data->SetSpacing(m.mesh.voxel_shape[0], m.mesh.voxel_shape[1], m.mesh.voxel_shape[2]);
+		image_data->SetExtent((int)x_extent_start, (int)x_extent_end, (int)y_extent_start, (int)y_extent_end,
+							  (int)z_extent_start, (int)z_extent_end);
+		image_data->SetSpacing((double)m.mesh.voxel_shape[0], (double)m.mesh.voxel_shape[1],
+							   (double)m.mesh.voxel_shape[2]);
 	}
 	else
 	{
-		image_data->SetExtent(x_extent_start, x_extent_end, y_extent_start, y_extent_end, 0, 0);
-		image_data->SetSpacing(m.mesh.voxel_shape[0], m.mesh.voxel_shape[1], 0);
+		image_data->SetExtent((int)x_extent_start, (int)x_extent_end, (int)y_extent_start, (int)y_extent_end, 0, 0);
+		image_data->SetSpacing((double)m.mesh.voxel_shape[0], (double)m.mesh.voxel_shape[1], 0);
 	}
 
 	data_arrays.reserve(m.substrates_count);
@@ -40,7 +42,7 @@ vtk_serializer::vtk_serializer(std::string_view output_dir, microenvironment& m)
 	{
 		data_arrays.emplace_back(vtkSmartPointer<vtkRealArray>::New());
 		data_arrays[i]->SetNumberOfComponents(1);
-		data_arrays[i]->SetNumberOfTuples(m.mesh.voxel_count());
+		data_arrays[i]->SetNumberOfTuples(static_cast<vtkIdType>(m.mesh.voxel_count()));
 		data_arrays[i]->SetName(m.substrates_names[i].c_str());
 		image_data->GetCellData()->AddArray(data_arrays[i]);
 	}
@@ -57,7 +59,8 @@ void vtk_serializer::serialize(const microenvironment& m, real_t current_time)
 				for (index_t s_idx = 0; s_idx < m.substrates_count; ++s_idx)
 				{
 					const std::size_t voxel_idx = m.mesh.linearize(x_idx, y_idx, z_idx);
-					data_arrays[s_idx]->SetValue(voxel_idx, m.get_substrate_density(s_idx, x_idx, y_idx, z_idx));
+					data_arrays[s_idx]->SetValue(static_cast<vtkIdType>(voxel_idx),
+												 m.get_substrate_density(s_idx, x_idx, y_idx, z_idx));
 				}
 
 	std::ostringstream ss;

@@ -55,15 +55,15 @@ void compute_expected_agent_internalized_1d(auto&& densities, microenvironment& 
 
 			auto denom = (agent_data.secretion_rates[i * m.substrates_count + s]
 						  + agent_data.uptake_rates[i * m.substrates_count + s])
-						 * m.diffusion_timestep * agent_data.volumes[i] / m.mesh.voxel_volume();
-
+						 * m.diffusion_timestep * agent_data.volumes[i] / (real_t)m.mesh.voxel_volume();
 			auto factor = agent_data.net_export_rates[i * m.substrates_count + s] * m.diffusion_timestep;
 
 			auto mesh_idx =
 				m.mesh.voxel_position(std::span<const real_t>(agent_data.base_data.positions.data() + i, 1));
 
 			expected_internalized[i * m.substrates_count + s] -=
-				(m.mesh.voxel_volume() * -denom * densities.template at<'x', 's'>(mesh_idx[0], s) + num) + factor;
+				((real_t)m.mesh.voxel_volume() * -denom * densities.template at<'x', 's'>(mesh_idx[0], s) + num)
+				+ factor;
 		}
 	}
 }
@@ -82,18 +82,18 @@ std::vector<real_t> compute_expected_agent_densities_1d(auto densities, microenv
 
 			for (index_t i = 0; i < agent_data.base_data.agents_count; i++)
 			{
-				if (agent_data.base_data.positions[i] / m.mesh.voxel_shape[0] == x)
+				if (m.mesh.voxel_position(std::span(agent_data.base_data.positions.data() + i, 1))[0] == x)
 				{
 					num += agent_data.secretion_rates[i * m.substrates_count + s]
 						   * agent_data.saturation_densities[i * m.substrates_count + s] * m.diffusion_timestep
-						   * agent_data.volumes[i] / m.mesh.voxel_volume();
+						   * agent_data.volumes[i] / (real_t)m.mesh.voxel_volume();
 
 					denom += (agent_data.secretion_rates[i * m.substrates_count + s]
 							  + agent_data.uptake_rates[i * m.substrates_count + s])
-							 * m.diffusion_timestep * agent_data.volumes[i] / m.mesh.voxel_volume();
+							 * m.diffusion_timestep * agent_data.volumes[i] / (real_t)m.mesh.voxel_volume();
 
 					factor += agent_data.net_export_rates[i * m.substrates_count + s] * m.diffusion_timestep
-							  / m.mesh.voxel_volume();
+							  / (real_t)m.mesh.voxel_volume();
 				}
 			}
 			expected_densities[x * m.substrates_count + s] =
@@ -450,6 +450,7 @@ TEST_P(RecomputeTest, Conflict)
 	auto& agent_data = agent_retriever().retrieve_agent_data(*m->agents);
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
+	auto expected_densities = compute_expected_agent_densities_1d(densities, *m, agent_data);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
 	mgr.transfer_to_host();
@@ -465,15 +466,13 @@ TEST_P(RecomputeTest, Conflict)
 		}
 	}
 
+	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 	{
-		auto expected = compute_expected_agent_densities_1d(densities, *m, agent_data);
-
-		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
-		{
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
-		}
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected_densities[2 * x], 1e-6);
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected_densities[2 * x + 1], 1e-6);
 	}
+
+	expected_densities = compute_expected_agent_densities_1d(densities, *m, agent_data);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
 	mgr.transfer_to_host();
@@ -489,14 +488,10 @@ TEST_P(RecomputeTest, Conflict)
 		}
 	}
 
+	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 	{
-		auto expected = compute_expected_agent_densities_1d(densities, *m, agent_data);
-
-		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
-		{
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
-		}
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected_densities[2 * x], 1e-6);
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected_densities[2 * x + 1], 1e-6);
 	}
 
 	s.release_internalized_substrates(*m, d_s, mgr);
@@ -548,6 +543,7 @@ TEST_P(RecomputeTest, ConflictBig)
 	auto& agent_data = agent_retriever().retrieve_agent_data(*m->agents);
 
 	std::vector<real_t> expected_internalized(agent_data.base_data.agents_count * m->substrates_count, 0);
+	auto expected_densities = compute_expected_agent_densities_1d(densities, *m, agent_data);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
 	mgr.transfer_to_host();
@@ -563,15 +559,13 @@ TEST_P(RecomputeTest, ConflictBig)
 		}
 	}
 
+	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 	{
-		auto expected = compute_expected_agent_densities_1d(densities, *m, agent_data);
-
-		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
-		{
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
-		}
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected_densities[2 * x], 1e-6);
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected_densities[2 * x + 1], 1e-6);
 	}
+
+	expected_densities = compute_expected_agent_densities_1d(densities, *m, agent_data);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, recompute);
 	mgr.transfer_to_host();
@@ -587,14 +581,10 @@ TEST_P(RecomputeTest, ConflictBig)
 		}
 	}
 
+	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
 	{
-		auto expected = compute_expected_agent_densities_1d(densities, *m, agent_data);
-
-		for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
-		{
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected[2 * x], 1e-6);
-			EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected[2 * x + 1], 1e-6);
-		}
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 0)), expected_densities[2 * x], 1e-6);
+		EXPECT_NEAR((densities.at<'x', 's'>(x, 1)), expected_densities[2 * x + 1], 1e-6);
 	}
 
 	s.release_internalized_substrates(*m, d_s, mgr);

@@ -23,9 +23,9 @@ void make_agents(microenvironment& m, index_t count, bool conflict)
 	for (index_t i = 0; i < count; i++)
 	{
 		auto* a = m.agents->create();
-		a->position()[0] = x;
-		a->position()[1] = y;
-		a->position()[2] = z;
+		a->position()[0] = static_cast<real_t>(x);
+		a->position()[1] = static_cast<real_t>(y);
+		a->position()[2] = static_cast<real_t>(z);
 
 		x += 20;
 		if (x >= m.mesh.bounding_box_maxs[0])
@@ -55,18 +55,17 @@ struct bench_functor : device_bulk_functor
 {
 	PHYSICORE_THRUST_DEVICE_FN real_t supply_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
 	{
-		return 0.01 * (s + 1);
+		return 0.01 * static_cast<real_t>(s + 1);
 	}
 
 	PHYSICORE_THRUST_DEVICE_FN real_t supply_target_densities(index_t s, index_t /*x*/, index_t /*y*/,
 															  index_t /*z*/) override
 	{
-		return 0.01 * (s + 1);
+		return 0.01 * static_cast<real_t>(s + 1);
 	}
-
 	PHYSICORE_THRUST_DEVICE_FN real_t uptake_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
 	{
-		return 0.01 * (s + 1);
+		return 0.01 * static_cast<real_t>(s + 1);
 	}
 };
 
@@ -123,7 +122,7 @@ int main()
 		for (index_t s = 0; s < m.substrates_count; ++s)
 		{
 			m.dirichlet_min_boundary_values[dim][s] = 0.0;
-			m.dirichlet_max_boundary_values[dim][s] = 0.5 * (dim + 1);
+			m.dirichlet_max_boundary_values[dim][s] = 0.5 * static_cast<real_t>(dim + 1);
 
 			m.dirichlet_min_boundary_conditions[dim][s] = true;
 			m.dirichlet_max_boundary_conditions[dim][s] = true;
