@@ -1,4 +1,4 @@
-name: Clang-Format
+name: Formal Checks with clang-format and clang-tidy
 
 on:
   push:
@@ -10,25 +10,31 @@ permissions:
   contents: read
 
 jobs:
-  clang-format:
-    name: Check C/C++ formatting
-    runs-on: ubuntu-slim
+  checks:
+    name: Formal Checks
+    runs-on: ubuntu-latest
+    env:
+      # This is just a placeholder, vcpkg step will set it up
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          submodules: recursive
           fetch-depth: 0
-          submodules: false
 
-      - name: Install clang-format
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang-format-18
+          sudo apt-get install -y clang-format-18 clang-tidy-18
           sudo ln -sf /usr/bin/clang-format-18 /usr/bin/clang-format
+          sudo ln -sf /usr/bin/clang-tidy-18 /usr/bin/clang-tidy
 
-      - name: Show clang-format version
-        run: clang-format --version
+      - name: Show versions
+        run: |
+          clang-format --version
+          clang-tidy --version
 
       - name: Validate formatting
         shell: bash
@@ -52,3 +58,22 @@ jobs:
           fi
 
           echo "All files are properly formatted."
+
+      - name: Set up vcpkg
+        uses: lukka/run-vcpkg@v11
+        env:
+          VCPKG_BINARY_SOURCES: default,readwrite
+
+      - name: Set up binary cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          # Invalidate cache when vcpkg manifests or overlay ports change
+          key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-binary-cache-
+
+      - name: Run clang-tidy analysis
+        uses: lukka/run-cmake@v10
+        with:
+          workflowPreset: "llvm-tidy-debug"
