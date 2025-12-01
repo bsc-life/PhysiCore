@@ -156,6 +156,8 @@
                 "_debug-base"
             ],
             "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
             }
         },
@@ -167,6 +169,8 @@
                 "_debug-base"
             ],
             "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
                 "CMAKE_CXX_FLAGS": "-fprofile-instr-generate -fcoverage-mapping"
             }
         },
