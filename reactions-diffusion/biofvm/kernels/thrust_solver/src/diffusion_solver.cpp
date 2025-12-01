@@ -92,7 +92,7 @@ void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& db, thrust:
 
 		for (index_t x = 0; x < copies; x++)
 			for (index_t s = 0; s < m.substrates_count; s++)
-				b[x * m.substrates_count + s] = 1 / (1 + m.decay_rates[s] * m.diffusion_timestep / dims);
+				b[x * m.substrates_count + s] = 1 / (1 + m.decay_rates[s] * m.diffusion_timestep / (real_t)dims);
 
 		db = thrust::device_new<real_t>(m.substrates_count * copies);
 		thrust::copy(b.get(), b.get() + m.substrates_count * copies, db);
@@ -113,7 +113,8 @@ void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& db, thrust:
 	// compute c_i
 	for (index_t x = 0; x < copies; x++)
 		for (index_t s = 0; s < m.substrates_count; s++)
-			c[x * m.substrates_count + s] = -m.diffusion_timestep * m.diffusion_coefficients[s] / (shape * shape);
+			c[x * m.substrates_count + s] =
+				-m.diffusion_timestep * m.diffusion_coefficients[s] / (real_t)(shape * shape);
 
 	// compute b_i
 	{
@@ -122,12 +123,12 @@ void diffusion_solver::precompute_values(thrust::device_ptr<real_t>& db, thrust:
 				for (index_t s = 0; s < m.substrates_count; s++)
 				{
 					b_diag.at<'i', 'x', 's'>(i, x, s) =
-						1 + m.decay_rates[s] * m.diffusion_timestep / dims
-						+ 2 * m.diffusion_timestep * m.diffusion_coefficients[s] / (shape * shape);
+						1 + m.decay_rates[s] * m.diffusion_timestep / (real_t)dims
+						+ 2 * m.diffusion_timestep * m.diffusion_coefficients[s] / (real_t)(shape * shape);
 
 					if (i == 0 || i == n - 1)
 						b_diag.at<'i', 'x', 's'>(i, x, s) -=
-							m.diffusion_timestep * m.diffusion_coefficients[s] / (shape * shape);
+							m.diffusion_timestep * m.diffusion_coefficients[s] / (real_t)(shape * shape);
 				}
 	}
 

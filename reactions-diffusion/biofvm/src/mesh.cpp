@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 #include <cassert>
+#include <cmath>
 
 using namespace physicore;
 using namespace physicore::biofvm;
@@ -37,18 +38,23 @@ index_t cartesian_mesh::voxel_volume() const { return voxel_shape[0] * voxel_sha
 std::array<index_t, 3> cartesian_mesh::voxel_position(std::span<const real_t> position) const
 {
 	assert(position.size() == (size_t)dims);
+	assert(position[0] <= bounding_box_maxs[0] && position[0] >= bounding_box_mins[0]);
+	if (dims >= 2)
+		assert(position[1] <= bounding_box_maxs[1] && position[1] >= bounding_box_mins[1]);
+	if (dims >= 3)
+		assert(position[2] <= bounding_box_maxs[2] && position[2] >= bounding_box_mins[2]);
 
 	switch (position.size())
 	{
 		case 1:
-			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]), 0, 0 };
+			return { ((sindex_t)std::llround(position[0]) - bounding_box_mins[0]) / voxel_shape[0], 0, 0 };
 		case 2:
-			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]),
-					 (index_t)((position[1] - bounding_box_mins[1]) / voxel_shape[1]), 0 };
+			return { ((sindex_t)std::llround(position[0]) - bounding_box_mins[0]) / voxel_shape[0],
+					 ((sindex_t)std::llround(position[1]) - bounding_box_mins[1]) / voxel_shape[1], 0 };
 		case 3:
-			return { (index_t)((position[0] - bounding_box_mins[0]) / voxel_shape[0]),
-					 (index_t)((position[1] - bounding_box_mins[1]) / voxel_shape[1]),
-					 (index_t)((position[2] - bounding_box_mins[2]) / voxel_shape[2]) };
+			return { ((sindex_t)std::llround(position[0]) - bounding_box_mins[0]) / voxel_shape[0],
+					 ((sindex_t)std::llround(position[1]) - bounding_box_mins[1]) / voxel_shape[1],
+					 ((sindex_t)std::llround(position[2]) - bounding_box_mins[2]) / voxel_shape[2] };
 		default:
 			assert(false); // Should never reach here
 			return { 0, 0, 0 };
@@ -57,9 +63,13 @@ std::array<index_t, 3> cartesian_mesh::voxel_position(std::span<const real_t> po
 
 std::array<real_t, 3> cartesian_mesh::voxel_center(std::array<index_t, 3> position) const
 {
-	return { position[0] * voxel_shape[0] + voxel_shape[0] / (real_t)2.0 + bounding_box_mins[0],
-			 position[1] * voxel_shape[1] + voxel_shape[1] / (real_t)2.0 + bounding_box_mins[1],
-			 position[2] * voxel_shape[2] + voxel_shape[2] / (real_t)2.0 + bounding_box_mins[2] };
+	assert(position[0] < grid_shape[0]);
+	assert(position[1] < grid_shape[1]);
+	assert(position[2] < grid_shape[2]);
+
+	return { (real_t)(position[0] * voxel_shape[0] + bounding_box_mins[0]) + ((real_t)voxel_shape[0] / (real_t)2.0),
+			 (real_t)(position[1] * voxel_shape[1] + bounding_box_mins[1]) + ((real_t)voxel_shape[1] / (real_t)2.0),
+			 (real_t)(position[2] * voxel_shape[2] + bounding_box_mins[2]) + ((real_t)voxel_shape[2] / (real_t)2.0) };
 }
 
 std::size_t cartesian_mesh::linearize(index_t x, index_t y, index_t z) const

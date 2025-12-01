@@ -82,7 +82,7 @@ TEST_F(VtkSerializerTest, ConstructorInitialization)
 	auto m = create_test_microenvironment();
 
 	// Test constructor doesn't throw
-	EXPECT_NO_THROW({ vtk_serializer serializer(test_output_dir.string(), *m); });
+	EXPECT_NO_THROW({ const vtk_serializer serializer(test_output_dir.string(), *m); });
 
 	// Check that directories are created
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
@@ -277,16 +277,16 @@ TEST_F(VtkSerializerTest, ManySubstrates)
 	for (size_t i = 0; i < substrate_names.size(); ++i)
 	{
 		const auto& name = substrate_names[i];
-		builder.add_density(name, "unit", 1.0, 0.01, 10.0 + i); // Different initial conditions
+		builder.add_density(name, "unit", 1.0, 0.01, static_cast<real_t>(10 + i)); // Different initial conditions
 
 		// Add boundary conditions for each substrate
 		builder.add_boundary_dirichlet_conditions(i, // substrate index
-												  { static_cast<real_t>(15.0 + i), static_cast<real_t>(14.0 + i),
-													static_cast<real_t>(13.0 + i) }, // min boundary values
-												  { static_cast<real_t>(20.0 + i), static_cast<real_t>(19.0 + i),
-													static_cast<real_t>(18.0 + i) }, // max boundary values
-												  { true, true, true },				 // min boundary conditions
-												  { true, true, true }				 // max boundary conditions
+												  { static_cast<real_t>(15 + i), static_cast<real_t>(14 + i),
+													static_cast<real_t>(13 + i) }, // min boundary values
+												  { static_cast<real_t>(20 + i), static_cast<real_t>(19 + i),
+													static_cast<real_t>(18 + i) }, // max boundary values
+												  { true, true, true },			   // min boundary conditions
+												  { true, true, true }			   // max boundary conditions
 		);
 	}
 
@@ -435,7 +435,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 			for (index_t x = 0; x < m->mesh.grid_shape[0]; ++x)
 			{
 				const std::size_t voxel_idx = m->mesh.linearize(x, y, z);
-				const real_t value = o2_array->GetTuple1(voxel_idx);
+				const real_t value = o2_array->GetTuple1(static_cast<vtkIdType>(voxel_idx));
 
 				if (x == 0)
 					EXPECT_EQ(value, 100.0); // High boundary
@@ -444,7 +444,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 				else
 					EXPECT_EQ(value, 20.0);
 
-				const real_t value2 = cell_data->GetArray("Glucose")->GetTuple1(voxel_idx);
+				const real_t value2 = cell_data->GetArray("Glucose")->GetTuple1(static_cast<vtkIdType>(voxel_idx));
 				EXPECT_EQ(value2, m->get_substrate_density(1, x, y, z));
 			}
 
@@ -475,7 +475,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 			for (index_t x = 0; x < m->mesh.grid_shape[0]; ++x)
 			{
 				const std::size_t voxel_idx = m->mesh.linearize(x, y, z);
-				const real_t value = glucose_array->GetTuple1(voxel_idx);
+				const real_t value = glucose_array->GetTuple1(static_cast<vtkIdType>(voxel_idx));
 				EXPECT_EQ(value, m->get_substrate_density(1, x, y, z));
 			}
 }

@@ -95,14 +95,20 @@ int main()
 	// --- bulk functors -------------------------------------------------
 	struct benchmark_bulk_functor : bulk_functor
 	{
-		real_t supply_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override { return 0.01 * (s + 1); }
+		real_t supply_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
+		{
+			return 0.01 * static_cast<real_t>(s + 1);
+		}
 
 		real_t supply_target_densities(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
 		{
-			return 0.01 * (s + 1);
+			return 0.01 * static_cast<real_t>(s + 1);
 		}
 
-		real_t uptake_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override { return 0.01 * (s + 1); }
+		real_t uptake_rates(index_t s, index_t /*x*/, index_t /*y*/, index_t /*z*/) override
+		{
+			return 0.01 * static_cast<real_t>(s + 1);
+		}
 	};
 	m.bulk_fnc = std::make_unique<benchmark_bulk_functor>();
 
@@ -117,7 +123,7 @@ int main()
 		for (index_t s = 0; s < m.substrates_count; ++s)
 		{
 			m.dirichlet_min_boundary_values[dim][s] = 0.0;
-			m.dirichlet_max_boundary_values[dim][s] = 0.5 * (dim + 1);
+			m.dirichlet_max_boundary_values[dim][s] = 0.5 * static_cast<real_t>(dim + 1);
 
 			m.dirichlet_min_boundary_conditions[dim][s] = true;
 			m.dirichlet_max_boundary_conditions[dim][s] = true;

@@ -44,7 +44,7 @@ void diffusion_solver::precompute_values(std::unique_ptr<real_t[]>& b, std::uniq
 	for (index_t x = 0; x < copies; x++)
 		for (index_t s = 0; s < problem.substrates_count; s++)
 			c[x * problem.substrates_count + s] =
-				-1 * -problem.dt * problem.diffusion_coefficients[s] / (shape * shape);
+				-1 * -problem.dt * problem.diffusion_coefficients[s] / (real_t)(shape * shape);
 
 	// compute b_i
 	{
@@ -53,12 +53,12 @@ void diffusion_solver::precompute_values(std::unique_ptr<real_t[]>& b, std::uniq
 				for (index_t s = 0; s < problem.substrates_count; s++)
 				{
 					b_diag.template at<'i', 'c', 's'>(i, x, s) =
-						1 + problem.decay_rates[s] * problem.dt / dims
-						+ 2 * problem.dt * problem.diffusion_coefficients[s] / (shape * shape);
+						1 + problem.decay_rates[s] * problem.dt / (real_t)dims
+						+ 2 * problem.dt * problem.diffusion_coefficients[s] / (real_t)(shape * shape);
 
 					if (i == 0 || i == n - 1)
 						b_diag.template at<'i', 'c', 's'>(i, x, s) -=
-							problem.dt * problem.diffusion_coefficients[s] / (shape * shape);
+							problem.dt * problem.diffusion_coefficients[s] / (real_t)(shape * shape);
 				}
 	}
 
