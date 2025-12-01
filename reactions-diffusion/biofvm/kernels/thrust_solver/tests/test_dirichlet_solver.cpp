@@ -21,8 +21,8 @@ using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 namespace {
 std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)
 {
-	real_t timestep = 5;
-	index_t substrates_count = 2;
+	const real_t timestep = 5;
+	const index_t substrates_count = 2;
 
 	auto diff_coefs = std::make_unique<real_t[]>(2);
 	diff_coefs[0] = 4;
@@ -92,7 +92,7 @@ void add_boundary_dirichlet(microenvironment& m, index_t substrates_count, index
 
 TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior1D)
 {
-	cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 0, 0 }, { 20, 0, 0 });
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 0, 0 }, { 20, 0, 0 });
 
 	auto m = default_microenv(mesh);
 
@@ -125,7 +125,7 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior1D)
 
 TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior2D)
 {
-	cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 0 }, { 20, 20, 0 });
+	const cartesian_mesh mesh(2, { 0, 0, 0 }, { 60, 60, 0 }, { 20, 20, 0 });
 
 	auto m = default_microenv(mesh);
 
@@ -166,7 +166,7 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior2D)
 
 TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior3D)
 {
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 60, 60, 60 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
@@ -212,7 +212,7 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Interior3D)
 
 TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary1D)
 {
-	cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
@@ -247,7 +247,7 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary1D)
 
 TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary2D)
 {
-	cartesian_mesh mesh(2, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(2, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 
@@ -304,7 +304,7 @@ TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary2D)
 
 TEST(PREPEND_TEST_NAME(ThrustDirichletSolverTest), Boundary3D)
 {
-	cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
+	const cartesian_mesh mesh(3, { 0, 0, 0 }, { 100, 100, 100 }, { 20, 20, 20 });
 
 	auto m = default_microenv(mesh);
 

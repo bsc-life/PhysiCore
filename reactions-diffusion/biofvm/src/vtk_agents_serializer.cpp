@@ -125,7 +125,7 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 
 		for (index_t s = 0; s < substrate_count; ++s)
 		{
-			index_t idx = i * substrate_count + s;
+			const index_t idx = i * substrate_count + s;
 			secretion_rates_arrays[s]->SetValue(i, biofvm_data.secretion_rates[idx]);
 			saturation_densities_arrays[s]->SetValue(i, biofvm_data.saturation_densities[idx]);
 			uptake_rates_arrays[s]->SetValue(i, biofvm_data.uptake_rates[idx]);

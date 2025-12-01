@@ -55,12 +55,12 @@ void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT subs
 					  std::array<thrust::device_vector<bool>, 3>& dirichlet_min_boundary_conditions,
 					  std::array<thrust::device_vector<bool>, 3>& dirichlet_max_boundary_conditions)
 {
-	index_t s_len = m.substrates_count;
-	index_t x_len = m.mesh.grid_shape[0];
-	index_t y_len = m.mesh.grid_shape[1];
-	index_t z_len = m.mesh.grid_shape[2];
+	const index_t s_len = m.substrates_count;
+	const index_t x_len = m.mesh.grid_shape[0];
+	const index_t y_len = m.mesh.grid_shape[1];
+	const index_t z_len = m.mesh.grid_shape[2];
 
-	std::size_t dirichlet_x_side_work = (std::size_t)s_len * y_len * z_len;
+	const std::size_t dirichlet_x_side_work = (std::size_t)s_len * y_len * z_len;
 
 	// x min
 	if (m.dirichlet_min_boundary_values[0])
@@ -102,7 +102,7 @@ void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT subs
 
 	if (m.mesh.dims > 1)
 	{
-		std::size_t dirichlet_y_side_work = (std::size_t)s_len * x_len * z_len;
+		const std::size_t dirichlet_y_side_work = (std::size_t)s_len * x_len * z_len;
 
 		// y min
 		if (m.dirichlet_min_boundary_values[1])
@@ -145,7 +145,7 @@ void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT subs
 
 	if (m.mesh.dims > 2)
 	{
-		std::size_t dirichlet_z_side_work = (std::size_t)s_len * x_len * y_len;
+		const std::size_t dirichlet_z_side_work = (std::size_t)s_len * x_len * y_len;
 
 		// z min
 		if (m.dirichlet_min_boundary_values[2])
@@ -191,7 +191,7 @@ void solve_boundaries(const density_layout_t dens_l, real_t* _CCCL_RESTRICT subs
 
 void dirichlet_solver::initialize(microenvironment& m)
 {
-	index_t s_len = m.substrates_count;
+	const index_t s_len = m.substrates_count;
 
 	auto copy = [](auto&& host_pointer, auto&& device_vector, index_t len) {
 		if (host_pointer == nullptr)

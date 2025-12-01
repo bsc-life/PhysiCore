@@ -37,7 +37,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckPositions)
 	agent2->position()[0] = 5.0;
 	agent2->position()[1] = 6.0; // agent 2
 
-	int remove_idx = GetParam();
+	const int remove_idx = GetParam();
 	container.remove_at(remove_idx);
 
 	if (remove_idx != 0)

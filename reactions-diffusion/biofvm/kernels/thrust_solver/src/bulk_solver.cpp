@@ -16,8 +16,8 @@ template <typename density_layout_t>
 void solve_single(real_t* _CCCL_RESTRICT densities, real_t time_step, device_bulk_functor* func,
 				  const density_layout_t dens_l)
 {
-	std::size_t n = (std::size_t)(dens_l | noarr::get_length<'s'>()) * (dens_l | noarr::get_length<'x'>())
-					* (dens_l | noarr::get_length<'y'>()) * (dens_l | noarr::get_length<'z'>());
+	const std::size_t n = (std::size_t)(dens_l | noarr::get_length<'s'>()) * (dens_l | noarr::get_length<'x'>())
+						  * (dens_l | noarr::get_length<'y'>()) * (dens_l | noarr::get_length<'z'>());
 
 	thrust::for_each(thrust::device, thrust::make_counting_iterator<std::size_t>(0),
 					 thrust::make_counting_iterator<std::size_t>(n),

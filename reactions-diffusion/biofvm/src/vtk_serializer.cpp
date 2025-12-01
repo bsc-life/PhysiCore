@@ -56,7 +56,7 @@ void vtk_serializer::serialize(const microenvironment& m, real_t current_time)
 			for (index_t x_idx = 0; x_idx < m.mesh.grid_shape[0]; ++x_idx)
 				for (index_t s_idx = 0; s_idx < m.substrates_count; ++s_idx)
 				{
-					std::size_t voxel_idx = m.mesh.linearize(x_idx, y_idx, z_idx);
+					const std::size_t voxel_idx = m.mesh.linearize(x_idx, y_idx, z_idx);
 					data_arrays[s_idx]->SetValue(voxel_idx, m.get_substrate_density(s_idx, x_idx, y_idx, z_idx));
 				}
 

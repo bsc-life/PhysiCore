@@ -167,14 +167,14 @@ TEST_F(ConfigReaderTest, ParsePhysiCellConfigFile)
 
 TEST_F(ConfigReaderTest, MissingFileThrowsException)
 {
-	std::filesystem::path nonexistent = "nonexistent_config.xml";
+	const std::filesystem::path nonexistent = "nonexistent_config.xml";
 	EXPECT_THROW(parse_physicell_config(nonexistent), std::runtime_error);
 }
 
 TEST_F(ConfigReaderTest, MalformedXMLThrowsException)
 {
 	// Create a temporary malformed XML file
-	std::filesystem::path temp_file = "malformed_test.xml";
+	const std::filesystem::path temp_file = "malformed_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << "<PhysiCell_settings>\n<domain>\n<x_min>100</x_min>\n"; // Missing closing tags
 	ofs.close();
@@ -188,7 +188,7 @@ TEST_F(ConfigReaderTest, MalformedXMLThrowsException)
 TEST_F(ConfigReaderTest, MissingRequiredTagThrowsException)
 {
 	// Create a temporary XML file missing required <overall> tag
-	std::filesystem::path temp_file = "missing_tag_test.xml";
+	const std::filesystem::path temp_file = "missing_tag_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <PhysiCell_settings>
@@ -275,7 +275,7 @@ TEST_F(ConfigReaderTest, CreateMicroenvironmentFromConfig)
 TEST(ConfigReaderErrorTest, MissingRootNodeThrowsException)
 {
 	// Create XML without PhysiCell_settings root
-	std::filesystem::path temp_file = "missing_root_test.xml";
+	const std::filesystem::path temp_file = "missing_root_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <Settings>
@@ -295,7 +295,7 @@ TEST(ConfigReaderErrorTest, MissingRootNodeThrowsException)
 TEST(ConfigReaderErrorTest, MissingOptionsNodeUsesDefaults)
 {
 	// Create XML with microenvironment but no options
-	std::filesystem::path temp_file = "missing_options_test.xml";
+	const std::filesystem::path temp_file = "missing_options_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <PhysiCell_settings>
@@ -334,7 +334,7 @@ TEST(ConfigReaderErrorTest, MissingOptionsNodeUsesDefaults)
 )";
 	ofs.close();
 
-	physicell_config config = parse_physicell_config(temp_file);
+	const physicell_config config = parse_physicell_config(temp_file);
 
 	// Options should default to false
 	EXPECT_FALSE(config.microenvironment.calculate_gradients);
@@ -346,7 +346,7 @@ TEST(ConfigReaderErrorTest, MissingOptionsNodeUsesDefaults)
 TEST(ConfigReaderErrorTest, NoSubstratesThrowsException)
 {
 	// Create XML with microenvironment_setup but no variables
-	std::filesystem::path temp_file = "no_substrates_test.xml";
+	const std::filesystem::path temp_file = "no_substrates_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <PhysiCell_settings>
@@ -390,7 +390,7 @@ TEST(ConfigReaderErrorTest, NoSubstratesThrowsException)
 TEST(ConfigReaderErrorTest, LegacyDirichletBoundaryCondition)
 {
 	// Create XML using legacy Dirichlet_boundary_condition instead of Dirichlet_options
-	std::filesystem::path temp_file = "legacy_dirichlet_test.xml";
+	const std::filesystem::path temp_file = "legacy_dirichlet_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <PhysiCell_settings>
@@ -463,7 +463,7 @@ TEST(ConfigReaderErrorTest, LegacyDirichletBoundaryCondition)
 TEST(ConfigReaderErrorTest, NoDirichletOptionsUsesDefaults)
 {
 	// Create XML with no Dirichlet options at all
-	std::filesystem::path temp_file = "no_dirichlet_test.xml";
+	const std::filesystem::path temp_file = "no_dirichlet_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <PhysiCell_settings>
@@ -534,7 +534,7 @@ TEST(ConfigReaderErrorTest, NoDirichletOptionsUsesDefaults)
 TEST(ConfigReaderSolverTest, SolverConfigParsed)
 {
 	// Create XML with solver section
-	std::filesystem::path temp_file = "solver_test.xml";
+	const std::filesystem::path temp_file = "solver_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <PhysiCell_settings>
@@ -581,7 +581,7 @@ TEST(ConfigReaderSolverTest, SolverConfigParsed)
 )";
 	ofs.close();
 
-	physicell_config config = parse_physicell_config(temp_file);
+	const physicell_config config = parse_physicell_config(temp_file);
 
 	// Verify solver parsed correctly
 	EXPECT_EQ(config.solver.name, "openmp");
@@ -592,7 +592,7 @@ TEST(ConfigReaderSolverTest, SolverConfigParsed)
 TEST(ConfigReaderSolverTest, MissingSolverUsesDefault)
 {
 	// Create XML without solver section
-	std::filesystem::path temp_file = "no_solver_test.xml";
+	const std::filesystem::path temp_file = "no_solver_test.xml";
 	std::ofstream ofs(temp_file);
 	ofs << R"(<?xml version="1.0"?>
 <PhysiCell_settings>
@@ -635,7 +635,7 @@ TEST(ConfigReaderSolverTest, MissingSolverUsesDefault)
 )";
 	ofs.close();
 
-	physicell_config config = parse_physicell_config(temp_file);
+	const physicell_config config = parse_physicell_config(temp_file);
 
 	// Should default to empty string
 	EXPECT_EQ(config.solver.name, "");

@@ -22,7 +22,7 @@ base_agent_data make_base_agent_data(index_t count)
 TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 {
 	base_agent_data base = make_base_agent_data(0);
-	index_t substrate_count = 3;
+	const index_t substrate_count = 3;
 	agent_data data(base, substrate_count);
 
 	data.add(); // adds one agent
@@ -53,7 +53,7 @@ TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 {
 	base_agent_data base = make_base_agent_data(0);
-	index_t substrate_count = 2;
+	const index_t substrate_count = 2;
 	agent_data data(base, substrate_count);
 
 	data.add(); // agent 0

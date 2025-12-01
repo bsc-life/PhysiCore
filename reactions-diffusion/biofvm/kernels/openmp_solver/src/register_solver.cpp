@@ -6,5 +6,5 @@
 
 void physicore::biofvm::kernels::openmp_solver::attach_to_registry()
 {
-	static physicore::biofvm::registry_adder<openmp_solver> openmp_solver_adder("openmp_solver");
+	static const physicore::biofvm::registry_adder<openmp_solver> openmp_solver_adder("openmp_solver");
 }

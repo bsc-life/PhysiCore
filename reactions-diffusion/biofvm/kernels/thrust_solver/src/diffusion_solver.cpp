@@ -17,8 +17,8 @@ namespace {
 
 index_t lcm(index_t a, index_t b)
 {
-	index_t high = std::max(a, b);
-	index_t low = std::min(a, b);
+	const index_t high = std::max(a, b);
+	const index_t low = std::min(a, b);
 
 	index_t ret = high;
 
@@ -37,8 +37,8 @@ void diffusion_solver::initialize(microenvironment& m)
 	// Finding least common multiple is the most optimal, as the loop has no remainder wrt vector registers.
 	// But we want to limit it - when substrates size is much higher than 512 bits, multiplying it will not benefit much
 
-	index_t register_size = 512;
-	index_t substrates_size = m.substrates_count * sizeof(real_t) * 8;
+	const index_t register_size = 512;
+	const index_t substrates_size = m.substrates_count * sizeof(real_t) * 8;
 	index_t multiple = lcm(substrates_size, register_size);
 
 	while (multiple > 10 * register_size && multiple > substrates_size)
@@ -200,7 +200,7 @@ void diffusion_solver::solve()
 {
 	auto dens_l = get_substrates_layout();
 
-	std::size_t x_work = (std::size_t)ns_ * ny_ * nz_;
+	const std::size_t x_work = (std::size_t)ns_ * ny_ * nz_;
 
 	// swipe x
 	thrust::for_each(
@@ -220,7 +220,7 @@ void diffusion_solver::solve()
 
 	if (ny_ != 1)
 	{
-		std::size_t y_work = (std::size_t)ns_ * nx_ * nz_;
+		const std::size_t y_work = (std::size_t)ns_ * nx_ * nz_;
 
 		// swipe y
 		thrust::for_each(
@@ -241,7 +241,7 @@ void diffusion_solver::solve()
 
 	if (nz_ != 1)
 	{
-		std::size_t z_work = (std::size_t)ns_ * nx_ * ny_;
+		const std::size_t z_work = (std::size_t)ns_ * nx_ * ny_;
 
 		// swipe y
 		thrust::for_each(

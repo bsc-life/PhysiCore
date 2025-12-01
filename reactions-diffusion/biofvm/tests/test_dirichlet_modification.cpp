@@ -13,8 +13,8 @@ TEST(DirichletModification, SetInteriorVoxel)
 	builder.resize(3, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 });
 
 	// Add a Dirichlet node at (5, 5, 5)
-	std::vector<real_t> values = { 100.0, 50.0 };
-	std::vector<bool> conditions = { true, true };
+	const std::vector<real_t> values = { 100.0, 50.0 };
+	const std::vector<bool> conditions = { true, true };
 	builder.add_dirichlet_node({ 5, 5, 5 }, values, conditions);
 
 	auto env = builder.build();
