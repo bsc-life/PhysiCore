@@ -36,6 +36,17 @@ option(
   "Enable building examples. Default: ${PROJECT_IS_TOP_LEVEL}. Values: { ON, OFF }."
   ${PROJECT_IS_TOP_LEVEL})
 
+option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+
+if(BUILD_SHARED_LIBS)
+  set(PHYSICORE_BUILD_TESTS
+      OFF
+      CACHE
+        BOOL
+        "Shared libraries are incompatible with tests due to symbol visibility."
+        FORCE)
+endif()
+
 include(CTest)
 
 add_subdirectory(common)
