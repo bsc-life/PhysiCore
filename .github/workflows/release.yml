@@ -5,6 +5,9 @@ on:
     branches:
       - 'main'
       - 'feature/*'
+  pull_request:
+    branches:
+      - '**'  # if we are in a pull request, we run semantic-release in dry-run mode
   workflow_dispatch:
 
 permissions:
@@ -86,7 +89,7 @@ jobs:
           retention-days: 1
 
   release:
-    name: Semantic Release
+    name: Semantic Release ${{ github.event_name == 'pull_request' && 'Dry Run' || '' }}
     needs: build-artifacts
     runs-on: ubuntu-slim
 
@@ -116,4 +119,4 @@ jobs:
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: npx semantic-release ${{ github.event_name == 'pull_request' && '--dry-run' || '' }}
