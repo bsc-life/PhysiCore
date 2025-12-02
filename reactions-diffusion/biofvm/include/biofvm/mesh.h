@@ -3,11 +3,12 @@
 #include <array>
 #include <span>
 
+#include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
 namespace physicore::biofvm {
 
-struct cartesian_mesh
+struct BIOFVM_EXPORT cartesian_mesh
 {
 	index_t dims; // 1 or 2 or 3
 
