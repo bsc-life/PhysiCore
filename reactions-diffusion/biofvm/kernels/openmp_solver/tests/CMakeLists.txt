@@ -7,7 +7,6 @@ add_executable(physicore.reactions-diffusion.biofvm.kernels.openmp_solver.tests
 target_link_libraries(
   physicore.reactions-diffusion.biofvm.kernels.openmp_solver.tests
   PRIVATE
-    physicore.reactions-diffusion.biofvm.kernels.openmp_solver
     physicore.reactions-diffusion.biofvm.kernels.openmp_solver_internal_iface
     physicore.reactions-diffusion.biofvm GTest::gtest GTest::gtest_main)
 

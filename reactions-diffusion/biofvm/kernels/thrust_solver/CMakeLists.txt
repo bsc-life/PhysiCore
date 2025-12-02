@@ -4,6 +4,12 @@ add_library(
 add_library(physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
             OBJECT)
 
+if(${BUILD_SHARED_LIBS})
+  set_target_properties(
+    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver
+    PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
 find_package(Thrust REQUIRED CONFIG)
 
 thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
@@ -50,6 +56,12 @@ if(${CUDAToolkit_FOUND})
     INTERFACE)
   add_library(physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver
               OBJECT)
+
+  if(${BUILD_SHARED_LIBS})
+    set_target_properties(
+      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver
+      PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  endif()
 
   get_target_property(
     TBB_SOURCES physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver

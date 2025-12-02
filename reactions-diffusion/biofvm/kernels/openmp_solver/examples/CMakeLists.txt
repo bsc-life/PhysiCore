@@ -7,7 +7,6 @@ foreach(example ${ALL_EXAMPLES})
   target_link_libraries(
     physicore.reactions-diffusion.biofvm.kernels.openmp_solver.${example}
     PRIVATE
-      physicore.reactions-diffusion.biofvm.kernels.openmp_solver
       physicore.reactions-diffusion.biofvm.kernels.openmp_solver_internal_iface
       physicore.reactions-diffusion.biofvm)
 endforeach()

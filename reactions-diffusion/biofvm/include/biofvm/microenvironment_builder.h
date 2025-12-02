@@ -2,6 +2,7 @@
 
 #include <optional>
 
+#include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
 #include "bulk_functor.h"
@@ -10,7 +11,7 @@
 
 namespace physicore::biofvm {
 
-class microenvironment_builder
+class BIOFVM_EXPORT microenvironment_builder
 {
 	std::string name, time_units, space_units;
 

@@ -2,22 +2,26 @@
 
 include(CMakeFindDependencyMacro)
 
-# Core dependencies for main BioFVM library
-find_dependency(VTK CONFIG)
-find_dependency(pugixml CONFIG)
+# For static builds, find all transitive dependencies
+# For shared builds, dependencies are embedded in the shared library
+if(NOT @BUILD_SHARED_LIBS@)
+  # Core dependencies for main BioFVM library
+  find_dependency(VTK CONFIG)
+  find_dependency(pugixml CONFIG)
 
-# OpenMP solver dependencies
-find_dependency(OpenMP 4 QUIET)
+  # OpenMP solver dependencies
+  find_dependency(OpenMP 4 QUIET)
 
-# Thrust solver dependencies (conditionally built)
-if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  find_dependency(Thrust CONFIG)
-  thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
+  # Thrust solver dependencies (conditionally built)
+  if(@BIOFVM_HAS_THRUST@)
+    find_dependency(Thrust CONFIG)
+    thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
 
-  # CUDA solver dependencies (optional)
-  find_package(CUDAToolkit 12 QUIET)
-  if(${CUDAToolkit_FOUND})
-    thrust_create_target(ThrustCUDA HOST TBB DEVICE CUDA)
+    # CUDA solver dependencies (optional)
+    if(@BIOFVM_HAS_CUDA@)
+      find_package(CUDAToolkit 12)
+      thrust_create_target(ThrustCUDA HOST TBB DEVICE CUDA)
+    endif()
   endif()
 endif()
 
