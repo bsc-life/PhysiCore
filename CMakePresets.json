@@ -135,6 +135,7 @@
                 "_gcc-base"
             ],
             "cacheVariables": {
+                "BUILD_SHARED_LIBS": "ON",
                 "PHYSICORE_BUILD_TESTS": "OFF",
                 "PHYSICORE_BUILD_EXAMPLES": "OFF"
             }
@@ -228,6 +229,7 @@
                 "_appleclang-base"
             ],
             "cacheVariables": {
+                "BUILD_SHARED_LIBS": "ON",
                 "PHYSICORE_BUILD_TESTS": "OFF",
                 "PHYSICORE_BUILD_EXAMPLES": "OFF"
             }
@@ -259,6 +261,7 @@
                 "_msvc-base"
             ],
             "cacheVariables": {
+                "BUILD_SHARED_LIBS": "ON",
                 "PHYSICORE_BUILD_TESTS": "OFF",
                 "PHYSICORE_BUILD_EXAMPLES": "OFF"
             }
