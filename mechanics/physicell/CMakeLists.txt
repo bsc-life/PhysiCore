@@ -19,6 +19,7 @@ target_link_libraries(physicore.mechanics.physicell_internal_iface
                       INTERFACE physicore::common)
 
 target_link_libraries(physicore.mechanics.physicell
+                      PUBLIC physicore::common
                       PRIVATE physicore.mechanics.physicell_internal_iface)
 
 if(PHYSICORE_BUILD_TESTS)
