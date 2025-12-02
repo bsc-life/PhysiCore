@@ -1,4 +1,4 @@
-add_library(physicore.mechanics.micromechanics)
+add_library(physicore.mechanics.micromechanics STATIC)
 add_library(physicore::mechanics::micromechanics ALIAS
             physicore.mechanics.micromechanics)
 add_library(physicore.mechanics.micromechanics_internal_iface INTERFACE)
