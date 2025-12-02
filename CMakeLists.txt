@@ -36,7 +36,7 @@ option(
   "Enable building examples. Default: ${PROJECT_IS_TOP_LEVEL}. Values: { ON, OFF }."
   ${PROJECT_IS_TOP_LEVEL})
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 if(BUILD_SHARED_LIBS)
   set(PHYSICORE_BUILD_TESTS
