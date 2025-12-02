@@ -81,6 +81,7 @@ jobs:
           Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath release-artifacts/${{ matrix.artifact_name }}.zip
 
       - name: Upload build artifacts
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
