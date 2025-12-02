@@ -3,6 +3,12 @@ add_library(
   INTERFACE)
 add_library(physicore.reactions-diffusion.biofvm.kernels.openmp_solver OBJECT)
 
+if(${BUILD_SHARED_LIBS})
+  set_target_properties(
+    physicore.reactions-diffusion.biofvm.kernels.openmp_solver
+    PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
 find_package(hwy CONFIG REQUIRED)
 find_package(OpenMP 4)
 

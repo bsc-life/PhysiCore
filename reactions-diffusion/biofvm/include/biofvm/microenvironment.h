@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <biofvm/biofvm_export.h>
 #include <common/timestep_executor.h>
 #include <common/types.h>
 
@@ -16,7 +17,7 @@
 
 namespace physicore::biofvm {
 
-class microenvironment : public timestep_executor
+class BIOFVM_EXPORT microenvironment : public timestep_executor
 {
 public:
 	microenvironment(const cartesian_mesh& mesh, index_t substrates_count, real_t timestep);

@@ -1,13 +1,14 @@
 #pragma once
 #include <memory>
 
+#include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
 namespace physicore::biofvm {
 
 class microenvironment;
 
-class serializer
+class BIOFVM_EXPORT serializer
 {
 public:
 	virtual void serialize(const microenvironment& m, real_t current_time) = 0;

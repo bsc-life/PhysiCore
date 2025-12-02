@@ -2,13 +2,14 @@
 
 #include <memory>
 
+#include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
 namespace physicore::biofvm {
 
 class microenvironment;
 
-class solver
+class BIOFVM_EXPORT solver
 {
 public:
 	// Set initial values (such as substrate densities) in the microenvironment

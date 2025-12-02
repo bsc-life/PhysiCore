@@ -4,6 +4,20 @@ add_library(physicore::reactions-diffusion::biofvm ALIAS
 add_library(physicore.reactions-diffusion.biofvm_internal_iface INTERFACE)
 add_library(physicore.reactions-diffusion.biofvm_iface INTERFACE)
 
+include(GenerateExportHeader)
+generate_export_header(
+  physicore.reactions-diffusion.biofvm BASE_NAME biofvm EXPORT_FILE_NAME
+  ${CMAKE_CURRENT_BINARY_DIR}/include/biofvm/biofvm_export.h)
+
+if(${BUILD_SHARED_LIBS})
+  set_target_properties(
+    physicore.reactions-diffusion.biofvm
+    PROPERTIES CXX_VISIBILITY_PRESET hidden
+               VISIBILITY_INLINES_HIDDEN ON
+               POSITION_INDEPENDENT_CODE ON
+               INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
 file(GLOB PUBLIC_INC "include/biofvm/*.h")
 target_sources(
   physicore.reactions-diffusion.biofvm
@@ -15,8 +29,14 @@ target_sources(
           src/config_reader.cpp
           src/vtk_agents_serializer.cpp
           src/solver_registry.cpp
-  PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
-         ${PUBLIC_INC})
+  PUBLIC FILE_SET
+         HEADERS
+         BASE_DIRS
+         "${CMAKE_CURRENT_SOURCE_DIR}/include"
+         "${CMAKE_CURRENT_BINARY_DIR}/include"
+         FILES
+         ${PUBLIC_INC}
+         "${CMAKE_CURRENT_BINARY_DIR}/include/biofvm/biofvm_export.h")
 
 target_include_directories(
   physicore.reactions-diffusion.biofvm_internal_iface
@@ -25,7 +45,8 @@ target_include_directories(
 
 target_sources(
   physicore.reactions-diffusion.biofvm_iface
-  INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            "${CMAKE_CURRENT_BINARY_DIR}/include")
 
 target_link_libraries(physicore.reactions-diffusion.biofvm_internal_iface
                       INTERFACE physicore::common)
@@ -43,13 +64,19 @@ target_link_libraries(
 
 # Thrust does not support AppleClang
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  set(BIOFVM_HAS_THRUST ON)
   add_subdirectory(kernels/thrust_solver)
+else()
+  set(BIOFVM_HAS_THRUST OFF)
 endif()
 
 get_target_property(HAS_CUDA physicore.reactions-diffusion.biofvm
                     INTERFACE_HAS_CUDA)
 if(HAS_CUDA)
+  set(BIOFVM_HAS_CUDA ON)
   enable_language(CUDA)
+else()
+  set(BIOFVM_HAS_CUDA OFF)
 endif()
 
 add_subdirectory(kernels/openmp_solver)
@@ -84,6 +111,6 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/BioFVMConfig.cmake"
 
 install(
   EXPORT BioFVMTargets
-  NAMESPACE BioFVM::
+  NAMESPACE physicore::reactions-diffusion::biofvm::
   FILE BioFVMTargets.cmake
   DESTINATION lib/cmake/BioFVM)
