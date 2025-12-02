@@ -1,6 +1,11 @@
 {
     "branches": [
-        "main"
+        "main",
+        {
+            "name": "feature/*",
+            "channel": "${name.replace(/\\//g, '-')}",
+            "prerelease": "${name.replace(/\\//g, '-')}"
+        }
     ],
     "plugins": [
         [
