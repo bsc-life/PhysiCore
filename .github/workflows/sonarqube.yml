@@ -2,7 +2,8 @@ name: SonarQube Analysis
 on:
   push:
     branches:
-      - main
+      - 'main'
+      - 'feature/*'
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
@@ -31,6 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          # Invalidate cache when vcpkg manifests or overlay ports change
           key: ${{ runner.os }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
           restore-keys: |
             ${{ runner.os }}-vcpkg-binary-cache-
@@ -56,7 +58,7 @@ jobs:
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             --define sonar.projectKey=bsc-life_PhysiCore

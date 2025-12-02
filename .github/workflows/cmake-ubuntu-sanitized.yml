@@ -2,9 +2,11 @@ name: ASAN, LSAN, UBSAN, TSAN Build on Ubuntu
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - 'main'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - '**'
 
 jobs:
   build:
@@ -15,7 +17,6 @@ jobs:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
 
     strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
 
       matrix:
@@ -39,6 +40,8 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 20 all
+          sudo ln -sf /usr/lib/llvm-20/bin/clang++-20 /usr/bin/clang++
+          sudo ln -sf /usr/lib/llvm-20/bin/clang-20 /usr/bin/clang
 
     - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11
@@ -55,7 +58,6 @@ jobs:
           ${{ runner.os }}-vcpkg-binary-cache-
 
     - name: Run CMake Workflow
-      run: |
-          cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-20 -DCMAKE_C_COMPILER=/usr/bin/clang-20 --preset ${{ matrix.workflow }}
-          cmake --build --preset ${{ matrix.workflow }}
-          ctest --preset ${{ matrix.workflow }}
+      uses: lukka/run-cmake@v10
+      with:
+        workflowPreset: ${{ matrix.workflow }}
