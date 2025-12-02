@@ -2,9 +2,11 @@ name: Formal Checks with clang-format and clang-tidy
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - 'main'
   pull_request:
-    branches: [ '**' ]
+    branches:
+      - '**'
 
 permissions:
   contents: read
