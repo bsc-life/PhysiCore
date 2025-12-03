@@ -1,17 +1,16 @@
-add_library(physicore.reactions-diffusion.biofvm)
-add_library(physicore::reactions-diffusion::biofvm ALIAS
-            physicore.reactions-diffusion.biofvm)
-add_library(physicore.reactions-diffusion.biofvm_internal_iface INTERFACE)
-add_library(physicore.reactions-diffusion.biofvm_iface INTERFACE)
+add_library(reactions-diffusion.biofvm)
+add_library(reactions-diffusion::biofvm ALIAS reactions-diffusion.biofvm)
+add_library(reactions-diffusion.biofvm_internal_iface INTERFACE)
+add_library(reactions-diffusion.biofvm_iface INTERFACE)
 
 include(GenerateExportHeader)
 generate_export_header(
-  physicore.reactions-diffusion.biofvm BASE_NAME biofvm EXPORT_FILE_NAME
+  reactions-diffusion.biofvm BASE_NAME biofvm EXPORT_FILE_NAME
   ${CMAKE_CURRENT_BINARY_DIR}/include/biofvm/biofvm_export.h)
 
 if(${BUILD_SHARED_LIBS})
   set_target_properties(
-    physicore.reactions-diffusion.biofvm
+    reactions-diffusion.biofvm
     PROPERTIES CXX_VISIBILITY_PRESET hidden
                VISIBILITY_INLINES_HIDDEN ON
                POSITION_INDEPENDENT_CODE ON
@@ -20,7 +19,7 @@ endif()
 
 file(GLOB PUBLIC_INC "include/biofvm/*.h")
 target_sources(
-  physicore.reactions-diffusion.biofvm
+  reactions-diffusion.biofvm
   PRIVATE src/microenvironment.cpp
           src/microenvironment_builder.cpp
           src/mesh.cpp
@@ -39,28 +38,28 @@ target_sources(
          "${CMAKE_CURRENT_BINARY_DIR}/include/biofvm/biofvm_export.h")
 
 target_include_directories(
-  physicore.reactions-diffusion.biofvm_internal_iface
+  reactions-diffusion.biofvm_internal_iface
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/biofvm>)
 
 target_sources(
-  physicore.reactions-diffusion.biofvm_iface
+  reactions-diffusion.biofvm_iface
   INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
             "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-target_link_libraries(physicore.reactions-diffusion.biofvm_internal_iface
-                      INTERFACE physicore::common)
+target_link_libraries(reactions-diffusion.biofvm_internal_iface
+                      INTERFACE common)
 
 find_package(VTK CONFIG REQUIRED)
 find_package(pugixml CONFIG REQUIRED)
 
-target_link_libraries(physicore.reactions-diffusion.biofvm_internal_iface
+target_link_libraries(reactions-diffusion.biofvm_internal_iface
                       INTERFACE VTK::IOXML pugixml::pugixml)
 
 target_link_libraries(
-  physicore.reactions-diffusion.biofvm
-  PRIVATE physicore.reactions-diffusion.biofvm_internal_iface
-  PUBLIC physicore::common)
+  reactions-diffusion.biofvm
+  PRIVATE reactions-diffusion.biofvm_internal_iface
+  PUBLIC common)
 
 # Thrust does not support AppleClang
 if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
@@ -70,8 +69,7 @@ else()
   set(BIOFVM_HAS_THRUST OFF)
 endif()
 
-get_target_property(HAS_CUDA physicore.reactions-diffusion.biofvm
-                    INTERFACE_HAS_CUDA)
+get_target_property(HAS_CUDA reactions-diffusion.biofvm INTERFACE_HAS_CUDA)
 if(HAS_CUDA)
   set(BIOFVM_HAS_CUDA ON)
   enable_language(CUDA)
@@ -90,8 +88,7 @@ if(PHYSICORE_BUILD_EXAMPLES)
 endif()
 
 install(
-  TARGETS physicore.reactions-diffusion.biofvm
-          physicore.reactions-diffusion.biofvm_internal_iface
+  TARGETS reactions-diffusion.biofvm reactions-diffusion.biofvm_internal_iface
   EXPORT BioFVMTargets
   FILE_SET HEADERS)
 
@@ -111,6 +108,6 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/BioFVMConfig.cmake"
 
 install(
   EXPORT BioFVMTargets
-  NAMESPACE physicore::reactions-diffusion::biofvm::
+  NAMESPACE PhysiCore::
   FILE BioFVMTargets.cmake
   DESTINATION lib/cmake/BioFVM)
