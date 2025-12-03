@@ -24,15 +24,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             preset: gcc-release-artifacts
             artifact_name: physicore-linux-x64
-          - os: macos-latest
+          - os: ubuntu-22.04-arm
+            preset: gcc-release-artifacts
+            artifact_name: physicore-linux-arm64
+          - os: macos-14
             preset: appleclang-release-artifacts
             artifact_name: physicore-macos-arm64
+          - os: macos-13
+            preset: appleclang-release-artifacts
+            artifact_name: physicore-macos-x64
           - os: windows-latest
             preset: msvc-release-artifacts
             artifact_name: physicore-windows-x64
+          - os: windows-11-arm
+            preset: msvc-release-artifacts
+            artifact_name: physicore-windows-arm64
 
     env:
       VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
