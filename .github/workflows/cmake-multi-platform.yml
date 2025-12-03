@@ -59,10 +59,9 @@ jobs:
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
         # Invalidate cache when vcpkg manifests or overlay ports change
-        key: ${{ runner.name }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+        key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
         restore-keys: |
-          ${{ runner.os }}-vcpkg-binary-cache-
-          ${{ runner.name }}-vcpkg-binary-cache-
+          ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-
 
     - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
       uses: lukka/run-cmake@v10
