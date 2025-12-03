@@ -11,10 +11,10 @@ add_custom_command(
 add_custom_target(copy_xml ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/settings.xml)
 
 foreach(example ${ALL_EXAMPLES})
-  add_executable(physicore.reactions-diffusion.biofvm.${example} ${example}.cpp)
+  add_executable(reactions-diffusion.biofvm.${example} ${example}.cpp)
 
-  target_link_libraries(physicore.reactions-diffusion.biofvm.${example}
-                        PRIVATE physicore.reactions-diffusion.biofvm)
+  target_link_libraries(reactions-diffusion.biofvm.${example}
+                        PRIVATE reactions-diffusion.biofvm)
 
-  add_dependencies(physicore.reactions-diffusion.biofvm.${example} copy_xml)
+  add_dependencies(reactions-diffusion.biofvm.${example} copy_xml)
 endforeach()
