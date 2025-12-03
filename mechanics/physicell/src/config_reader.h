@@ -10,9 +10,9 @@ namespace physicore::mechanics::physicell {
 
 struct mechanics_config
 {
-	SimulationParameters<> parameters;
+	SimulationParameters parameters;
 	std::vector<std::string> cell_definition_names; // Indexed by cell_definition ID
-	std::vector<std::string> substrate_names;		   // Order taken from <microenvironment_setup>
+	std::vector<std::string> substrate_names;		// Order taken from <microenvironment_setup>
 };
 
 /**

@@ -67,7 +67,7 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 	}
 
 	mechanics_config config {};
-	SimulationParameters<>& params = config.parameters;
+	SimulationParameters& params = config.parameters;
 
 	if (pugi::xml_node domain_node = root.child("domain"); domain_node)
 	{
@@ -141,10 +141,10 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 	ensure_size(params.motility_bias, cell_count, 0.0);
 	ensure_size(params.normalize_each_gradient, cell_count, false);
 
-	ensure_matrix(params.cell_adhesion_affinity, cell_count, cell_count, 0.0);
-	ensure_matrix(params.chemotaxis_sensitivity, cell_count, substrate_count, 0.0);
-	ensure_matrix(params.chemotaxis_enabled, cell_count, substrate_count, false);
-	ensure_matrix(params.chemotaxis_advanced_enabled, cell_count, substrate_count, 0.0);
+	ensure_size(params.cell_adhesion_affinity, cell_count * cell_count, 0.0);
+	ensure_size(params.chemotaxis_sensitivity, cell_count * substrate_count, 0.0);
+	ensure_size(params.chemotaxis_enabled, cell_count * substrate_count, false);
+	ensure_size(params.chemotaxis_advanced_enabled, cell_count * substrate_count, 0.0);
 
 	params.basic_motility_enabled = false;
 	params.advanced_motility_enabled = false;
@@ -173,7 +173,8 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 					throw std::runtime_error("Unknown cell type in <cell_adhesion_affinity>: " + other_name);
 				}
 
-				params.cell_adhesion_affinity[id][it->second] = static_cast<real_t>(affinity.text().as_double());
+				params.cell_adhesion_affinity[id * cell_count + it->second] =
+					static_cast<real_t>(affinity.text().as_double());
 			}
 		}
 
@@ -243,10 +244,10 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 
 				if (it != substrate_index.end())
 				{
-					params.chemotaxis_enabled[id][it->second] = chem_enabled;
+					params.chemotaxis_enabled[id * substrate_count + it->second] = chem_enabled;
 					if (chem_enabled)
 					{
-						params.chemotaxis_sensitivity[id][it->second] =
+						params.chemotaxis_sensitivity[id * substrate_count + it->second] =
 							static_cast<real_t>(chemotaxis_node.child("direction").text().as_double());
 					}
 				}
@@ -281,9 +282,9 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 							real_t value = static_cast<real_t>(sens.text().as_double());
 							if (advanced_enabled)
 							{
-								params.chemotaxis_advanced_enabled[id][it->second] = value;
-								params.chemotaxis_enabled[id][it->second] = true;
-								params.chemotaxis_sensitivity[id][it->second] = value;
+								params.chemotaxis_advanced_enabled[id * substrate_count + it->second] = value;
+								params.chemotaxis_enabled[id * substrate_count + it->second] = true;
+								params.chemotaxis_sensitivity[id * substrate_count + it->second] = value;
 							}
 						}
 					}

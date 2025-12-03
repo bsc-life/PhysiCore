@@ -33,7 +33,8 @@ TEST(ConfigReaderMechanics, ParsesMechanicsParametersFromSettings)
 	EXPECT_DOUBLE_EQ(params.cell_cell_adhesion_strength[0], 0.4);
 	EXPECT_DOUBLE_EQ(params.cell_cell_repulsion_strength[0], 10.0);
 	EXPECT_DOUBLE_EQ(params.relative_maximum_adhesion_distance[0], 1.25);
-	EXPECT_DOUBLE_EQ(params.cell_adhesion_affinity[0][1], 1.0); // cargo cell affinity
+	EXPECT_DOUBLE_EQ(params.cell_adhesion_affinity[0 * config.cell_definition_names.size() + 1],
+					 1.0); // cargo cell affinity
 
 	EXPECT_DOUBLE_EQ(params.attachment_elastic_coefficient[0], 0.5);
 	EXPECT_DOUBLE_EQ(params.attachment_rate[0], 10.0);
@@ -53,8 +54,7 @@ TEST(ConfigReaderMechanics, ParsesMechanicsParametersFromSettings)
 
 
 	// Chemotaxis matrices sized correctly and default disabled
-	EXPECT_EQ(params.chemotaxis_sensitivity.size(), 3u);	// cell types
-	EXPECT_EQ(params.chemotaxis_sensitivity[0].size(), 2u); // substrates
-	EXPECT_FALSE(params.chemotaxis_enabled[0][0]);
-	EXPECT_DOUBLE_EQ(params.chemotaxis_sensitivity[0][0], 0.0);
+	EXPECT_EQ(params.chemotaxis_sensitivity.size(), 6u); // cell types *substrates
+	EXPECT_FALSE(params.chemotaxis_enabled[0]);
+	EXPECT_DOUBLE_EQ(params.chemotaxis_sensitivity[0], 0.0);
 }
