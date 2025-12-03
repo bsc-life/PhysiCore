@@ -62,10 +62,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-          key: ${{ runner.name }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
           restore-keys: |
-            ${{ runner.os }}-vcpkg-binary-cache-
-            ${{ runner.name }}-vcpkg-binary-cache-
+            ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-
 
       - name: Build with CMake
         uses: lukka/run-cmake@v10
