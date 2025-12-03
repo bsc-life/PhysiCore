@@ -45,17 +45,32 @@
                     {
                         "path": "release-artifacts/physicore-linux-x64/physicore-linux-x64.tar.gz",
                         "name": "physicore-linux-x64-v${nextRelease.version}.tar.gz",
-                        "label": "Linux Package"
+                        "label": "Linux x64 Package"
+                    },
+                    {
+                        "path": "release-artifacts/physicore-linux-arm64/physicore-linux-arm64.tar.gz",
+                        "name": "physicore-linux-arm64-v${nextRelease.version}.tar.gz",
+                        "label": "Linux ARM64 Package"
+                    },
+                    {
+                        "path": "release-artifacts/physicore-macos-x64/physicore-macos-x64.tar.gz",
+                        "name": "physicore-macos-x64-v${nextRelease.version}.tar.gz",
+                        "label": "MacOS x64 Package"
                     },
                     {
                         "path": "release-artifacts/physicore-macos-arm64/physicore-macos-arm64.tar.gz",
                         "name": "physicore-macos-arm64-v${nextRelease.version}.tar.gz",
-                        "label": "MacOS Package"
+                        "label": "MacOS ARM64 Package"
                     },
                     {
                         "path": "release-artifacts/physicore-windows-x64/physicore-windows-x64.zip",
                         "name": "physicore-windows-x64-v${nextRelease.version}.zip",
-                        "label": "Windows Package"
+                        "label": "Windows x64 Package"
+                    },
+                    {
+                        "path": "release-artifacts/physicore-windows-arm64/physicore-windows-arm64.zip",
+                        "name": "physicore-windows-arm64-v${nextRelease.version}.zip",
+                        "label": "Windows ARM64 Package"
                     }
                 ]
             }
