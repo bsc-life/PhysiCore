@@ -10,7 +10,7 @@ if(NOT @BUILD_SHARED_LIBS@)
   find_dependency(pugixml CONFIG)
 
   # OpenMP solver dependencies
-  find_dependency(OpenMP 4 QUIET)
+  find_dependency(OpenMP 4)
 
   # Thrust solver dependencies (conditionally built)
   if(@BIOFVM_HAS_THRUST@)
@@ -19,7 +19,7 @@ if(NOT @BUILD_SHARED_LIBS@)
 
     # CUDA solver dependencies (optional)
     if(@BIOFVM_HAS_CUDA@)
-      find_package(CUDAToolkit 12)
+      find_dependency(CUDAToolkit 12)
       thrust_create_target(ThrustCUDA HOST TBB DEVICE CUDA)
     endif()
   endif()
