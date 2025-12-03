@@ -1,21 +1,16 @@
 find_package(GTest REQUIRED)
 
 file(GLOB TEST_SOURCES *.cpp)
-add_executable(
-  physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests
-  ${TEST_SOURCES})
+add_executable(reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests
+               ${TEST_SOURCES})
 
 target_link_libraries(
-  physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests
-  PRIVATE
-    physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
-    physicore.reactions-diffusion.biofvm
-    GTest::gtest
-    GTest::gtest_main)
+  reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests
+  PRIVATE reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
+          reactions-diffusion.biofvm GTest::gtest GTest::gtest_main)
 
 include(GoogleTest)
-gtest_discover_tests(
-  physicore.reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests)
+gtest_discover_tests(reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests)
 
 if(${CUDAToolkit_FOUND})
   set(CUDA_TEST_SOURCES "")
@@ -36,26 +31,21 @@ if(${CUDAToolkit_FOUND})
     list(APPEND CUDA_TEST_SOURCES ${dst})
   endforeach()
 
-  add_executable(
-    physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests)
+  add_executable(reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests)
 
-  target_sources(
-    physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
-    PRIVATE ${CUDA_TEST_SOURCES})
+  target_sources(reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
+                 PRIVATE ${CUDA_TEST_SOURCES})
 
   set_target_properties(
-    physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
+    reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
     PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
 
   target_link_libraries(
-    physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
-    PRIVATE
-      physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
-      physicore.reactions-diffusion.biofvm
-      GTest::gtest
-      GTest::gtest_main)
+    reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
+    PRIVATE reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
+            reactions-diffusion.biofvm GTest::gtest GTest::gtest_main)
 
   include(GoogleTest)
   gtest_discover_tests(
-    physicore.reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests)
+    reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests)
 endif()

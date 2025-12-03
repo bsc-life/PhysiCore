@@ -1,7 +1,6 @@
-add_executable(physicore.phenotype.physicore)
+add_executable(phenotype.physicore)
 
-target_sources(physicore.phenotype.physicore PRIVATE src/main.cpp)
+target_sources(phenotype.physicore PRIVATE src/main.cpp)
 
-target_link_libraries(
-  physicore.phenotype.physicore PRIVATE physicore::mechanics::micromechanics
-                                        physicore::reactions-diffusion::biofvm)
+target_link_libraries(phenotype.physicore PRIVATE mechanics::micromechanics
+                                                  reactions-diffusion::biofvm)
