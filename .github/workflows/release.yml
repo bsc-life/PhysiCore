@@ -90,7 +90,6 @@ jobs:
           Compress-Archive -Path ${{ matrix.artifact_name }} -DestinationPath release-artifacts/${{ matrix.artifact_name }}.zip
 
       - name: Upload build artifacts
-        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
@@ -127,6 +126,13 @@ jobs:
           path: release-artifacts
 
       - name: Run Semantic Release
+        if: github.event_name != 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
+
+      - name: Dry Run Semantic Release
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release --dry-run --no-ci
