@@ -47,6 +47,7 @@ class data_manager : private generic_agent_solver<agent>
 	thrust::device_vector<real_t> d_fraction_released_at_death;
 	thrust::device_vector<real_t> d_fraction_transferred_when_ingested;
 	thrust::device_vector<real_t> d_volumes;
+	thrust::device_vector<uint8_t> d_is_active;
 	thrust::device_ptr<real_t> d_substrate_densities;
 
 	std::shared_ptr<agent_container_interface> h_agent_container;
@@ -69,6 +70,7 @@ public:
 	real_t* fraction_released_at_death = nullptr;
 	real_t* fraction_transferred_when_ingested = nullptr;
 	real_t* volumes = nullptr;
+	uint8_t* is_active = nullptr;
 };
 
 

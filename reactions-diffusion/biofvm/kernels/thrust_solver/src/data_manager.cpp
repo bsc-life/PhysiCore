@@ -49,6 +49,7 @@ void data_manager::transfer_to_host()
 	thrust::copy(d_fraction_transferred_when_ingested.begin(), d_fraction_transferred_when_ingested.end(),
 				 h_agent_data.fraction_transferred_when_ingested.begin());
 	thrust::copy(d_volumes.begin(), d_volumes.end(), h_agent_data.volumes.begin());
+	thrust::copy(d_is_active.begin(), d_is_active.end(), h_agent_data.is_active.begin());
 
 	thrust::copy_n(d_substrate_densities, densities_size_bytes / sizeof(real_t), h_substrate_densities.get());
 
@@ -70,6 +71,7 @@ void data_manager::transfer_to_device()
 	d_fraction_released_at_death = h_agent_data.fraction_released_at_death;
 	d_fraction_transferred_when_ingested = h_agent_data.fraction_transferred_when_ingested;
 	d_volumes = h_agent_data.volumes;
+	d_is_active = h_agent_data.is_active;
 
 	thrust::copy_n(h_substrate_densities.get(), densities_size_bytes / sizeof(real_t), d_substrate_densities);
 
@@ -84,6 +86,7 @@ void data_manager::transfer_to_device()
 		fraction_released_at_death = d_fraction_released_at_death.data().get();
 		fraction_transferred_when_ingested = d_fraction_transferred_when_ingested.data().get();
 		volumes = d_volumes.data().get();
+		is_active = d_is_active.data().get();
 	}
 
 	residency = data_residency::DEVICE;
@@ -102,5 +105,6 @@ void data_manager::transfer_to_device()
 	fraction_released_at_death = h_agent_data.fraction_released_at_death.data();
 	fraction_transferred_when_ingested = h_agent_data.fraction_transferred_when_ingested.data();
 	volumes = h_agent_data.volumes.data();
+	is_active = h_agent_data.is_active.data();
 }
 #endif
