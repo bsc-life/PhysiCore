@@ -599,3 +599,189 @@ TEST_P(RecomputeTest, ConflictBig)
 		}
 	}
 }
+
+TEST(CellSolverTest, InactiveAgentsSkipSecretion)
+{
+	// Test that inactive agents do not contribute to secretion/uptake
+	const bool compute_internalized = true;
+
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 60, 20, 20 }, { 20, 20, 20 });
+
+	auto m = default_microenv(mesh, compute_internalized);
+
+	// Create three agents: active, inactive, active
+	auto* a1 = m->agents->create();
+	auto* a2 = m->agents->create();
+	auto* a3 = m->agents->create();
+
+	set_default_agent_values(a1, 0, 1000, { 10, 0, 0 }, 1);
+	set_default_agent_values(a2, 400, 1000, { 30, 0, 0 }, 1);
+	set_default_agent_values(a3, 800, 1000, { 50, 0, 0 }, 1);
+
+	// Set agent 2 (middle agent) to inactive
+	a2->is_active() = 0;
+
+	diffusion_solver d_s;
+	cell_solver s;
+	data_manager mgr;
+
+	d_s.initialize(*m, 1);
+	s.initialize(*m);
+	mgr.initialize(*m, d_s);
+	mgr.transfer_to_device();
+
+	// Store initial substrate densities
+	auto dens_l = d_s.get_substrates_layout<1>();
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
+
+	real_t initial_density_x1_s0 = densities.template at<'x', 's'>(1, 0);
+	real_t initial_density_x1_s1 = densities.template at<'x', 's'>(1, 1);
+
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
+
+	// Agent 1 (active) should affect voxel 0
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 0)), 28, 1e-6);
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 1)), 1.0005, 1e-6);
+
+	// Agent 2 (inactive) should NOT affect voxel 1 - should remain at initial conditions
+	EXPECT_DOUBLE_EQ((densities.template at<'x', 's'>(1, 0)), initial_density_x1_s0);
+	EXPECT_DOUBLE_EQ((densities.template at<'x', 's'>(1, 1)), initial_density_x1_s1);
+
+	// Agent 3 (active) should affect voxel 2
+	EXPECT_NEAR((densities.template at<'x', 's'>(2, 0)), 366.963, 1e-3);
+	EXPECT_NEAR((densities.template at<'x', 's'>(2, 1)), 1.0015, 1e-6);
+
+	// Verify internalized substrates
+	if (compute_internalized)
+	{
+		// Agent 1 (active) should have updated internalized substrates
+		EXPECT_NEAR(a1->internalized_substrates()[0], -216000.000000, 1e-6);
+		EXPECT_NEAR(a1->internalized_substrates()[1], -4, 1e-6);
+
+		// Agent 2 (inactive) should have NO change to internalized substrates
+		EXPECT_DOUBLE_EQ(a2->internalized_substrates()[0], 0.0);
+		EXPECT_DOUBLE_EQ(a2->internalized_substrates()[1], 0.0);
+
+		// Agent 3 (active) should have updated internalized substrates
+		EXPECT_NEAR(a3->internalized_substrates()[0], -2927703.8, 0.1);
+		EXPECT_NEAR(a3->internalized_substrates()[1], -12, 1e-6);
+	}
+}
+
+TEST(CellSolverTest, AllInactiveAgentsNoSecretion)
+{
+	// Test that when all agents are inactive, no secretion occurs
+	const bool compute_internalized = true;
+
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 60, 20, 20 }, { 20, 20, 20 });
+
+	auto m = default_microenv(mesh, compute_internalized);
+
+	auto* a1 = m->agents->create();
+	auto* a2 = m->agents->create();
+
+	set_default_agent_values(a1, 0, 1000, { 10, 0, 0 }, 1);
+	set_default_agent_values(a2, 400, 1000, { 30, 0, 0 }, 1);
+
+	// Set all agents to inactive
+	a1->is_active() = 0;
+	a2->is_active() = 0;
+
+	diffusion_solver d_s;
+	cell_solver s;
+	data_manager mgr;
+
+	d_s.initialize(*m, 1);
+	s.initialize(*m);
+	mgr.initialize(*m, d_s);
+	mgr.transfer_to_device();
+
+	auto dens_l = d_s.get_substrates_layout<1>();
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
+
+	// Store initial conditions
+	std::vector<real_t> initial_densities(m->mesh.voxel_count() * m->substrates_count);
+	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
+	{
+		for (index_t s = 0; s < m->substrates_count; s++)
+		{
+			initial_densities[x * m->substrates_count + s] = densities.template at<'x', 's'>(x, s);
+		}
+	}
+
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
+
+	// All substrate densities should remain unchanged
+	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
+	{
+		for (index_t s = 0; s < m->substrates_count; s++)
+		{
+			EXPECT_DOUBLE_EQ((densities.template at<'x', 's'>(x, s)), initial_densities[x * m->substrates_count + s]);
+		}
+	}
+
+	// All internalized substrates should remain at 0
+	if (compute_internalized)
+	{
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[0], 0.0);
+		EXPECT_DOUBLE_EQ(a1->internalized_substrates()[1], 0.0);
+		EXPECT_DOUBLE_EQ(a2->internalized_substrates()[0], 0.0);
+		EXPECT_DOUBLE_EQ(a2->internalized_substrates()[1], 0.0);
+	}
+}
+
+TEST(CellSolverTest, InactiveAgentReactivation)
+{
+	// Test that agents can be deactivated and reactivated
+	const bool compute_internalized = true;
+
+	const cartesian_mesh mesh(1, { 0, 0, 0 }, { 40, 20, 20 }, { 20, 20, 20 });
+
+	auto m = default_microenv(mesh, compute_internalized);
+
+	auto* agent = m->agents->create();
+	set_default_agent_values(agent, 0, 1000, { 10, 0, 0 }, 1);
+
+	diffusion_solver d_s;
+	cell_solver s;
+	data_manager mgr;
+
+	d_s.initialize(*m, 1);
+	s.initialize(*m);
+	mgr.initialize(*m, d_s);
+	mgr.transfer_to_device();
+
+	auto dens_l = d_s.get_substrates_layout<1>();
+	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
+
+	// First run with active agent
+	agent->is_active() = 1;
+
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
+
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 0)), 28, 1e-6);
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 1)), 1.0005, 1e-6);
+
+	// Deactivate agent and reinitialize solvers
+	agent->is_active() = 0;
+
+	mgr.transfer_to_device();
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
+
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 0)), 28, 1e-6);
+	EXPECT_NEAR((densities.template at<'x', 's'>(0, 1)), 1.0005, 1e-6);
+
+	// Reactivate agent and reinitialize solvers
+	agent->is_active() = 1;
+
+	mgr.transfer_to_device();
+	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
+	mgr.transfer_to_host();
+
+	EXPECT_NEAR((densities.at<'x', 's'>(0, 0)), 47.636364, 1e-4);
+	EXPECT_NEAR((densities.at<'x', 's'>(0, 1)), 1.001, 1e-6);
+}
