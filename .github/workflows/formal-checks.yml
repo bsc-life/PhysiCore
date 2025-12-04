@@ -63,7 +63,6 @@ jobs:
         uses: ./.github/actions/setup-vcpkg
         with:
           os: ubuntu-latest
-          arch: ${{ runner.arch }}
 
       - name: Run clang-tidy analysis
         uses: lukka/run-cmake@v10

@@ -54,7 +54,6 @@ jobs:
         uses: ./.github/actions/setup-vcpkg
         with:
           os: ${{ matrix.os }}
-          arch: ${{ runner.arch }}
 
       - name: Build with CMake
         uses: lukka/run-cmake@v10
