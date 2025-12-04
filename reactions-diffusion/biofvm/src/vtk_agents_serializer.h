@@ -7,14 +7,16 @@
 
 #include <common/generic_agent_solver.h>
 #include <common/types.h>
+#include <common/vtk_serializer_base.h>
 
 #include "agent.h"
 #include "serializer.h"
-#include "vtk_serializer_base.h"
 
 namespace physicore::biofvm {
 
-class vtk_agents_serializer : public vtk_serializer_base, public serializer, private generic_agent_solver<agent>
+using common::vtkRealArray;
+
+class vtk_agents_serializer : public common::vtk_serializer_base, public serializer, private generic_agent_solver<agent>
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();

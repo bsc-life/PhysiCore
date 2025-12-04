@@ -6,13 +6,15 @@
 #include <vtkXMLImageDataWriter.h>
 
 #include <common/types.h>
+#include <common/vtk_serializer_base.h>
 
 #include "serializer.h"
-#include "vtk_serializer_base.h"
 
 namespace physicore::biofvm {
 
-class vtk_serializer : public vtk_serializer_base, public serializer
+using common::vtkRealArray;
+
+class vtk_serializer : public common::vtk_serializer_base, public serializer
 {
 	vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
 	vtkSmartPointer<vtkImageData> image_data = vtkSmartPointer<vtkImageData>::New();
