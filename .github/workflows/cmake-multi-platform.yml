@@ -49,7 +49,6 @@ jobs:
       uses: ./.github/actions/setup-vcpkg
       with:
         os: ${{ matrix.os }}
-        arch: ${{ runner.arch }}
 
     - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
       uses: lukka/run-cmake@v10

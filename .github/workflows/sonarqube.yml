@@ -26,7 +26,6 @@ jobs:
         uses: ./.github/actions/setup-vcpkg
         with:
           os: ubuntu-latest
-          arch: ${{ runner.arch }}
       - name: Install Build Wrapper
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
       - name: Run Build Wrapper
