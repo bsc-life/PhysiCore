@@ -1,9 +1,9 @@
-#include "vtk_serializer_base.h"
+#include <common/vtk_serializer_base.h>
 
 #include <filesystem>
 #include <fstream>
 
-using namespace physicore::biofvm;
+using namespace physicore::common;
 
 vtk_serializer_base::vtk_serializer_base(std::string_view output_dir, std::string_view vtks_dir_name,
 										 std::string_view pvd_file_name)
@@ -33,3 +33,4 @@ void vtk_serializer_base::append_to_pvd(std::string_view vtk_file_name, real_t c
 
 	pvd_file.close();
 }
+
