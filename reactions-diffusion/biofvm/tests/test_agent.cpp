@@ -117,6 +117,13 @@ TEST_F(AgentTest, Volume)
 	EXPECT_EQ(test_agent.volume(), 100.5);
 }
 
+TEST_F(AgentTest, IsActive)
+{
+	agent test_agent(0, data);
+	test_agent.is_active() = 0;
+	EXPECT_EQ(test_agent.is_active(), 0);
+}
+
 TEST_F(AgentTest, MultipleAgents)
 {
 	// Add second agent

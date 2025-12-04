@@ -51,6 +51,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent0->fraction_released_at_death()[0] = 0.6;
 	agent0->fraction_transferred_when_ingested()[0] = 0.7;
 	agent0->position()[0] = 0.8;
+	agent0->is_active() = 10;
 
 	agent1->volume() = 2.0;
 	agent1->secretion_rates()[0] = 1.1;
@@ -61,6 +62,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent1->fraction_released_at_death()[0] = 1.6;
 	agent1->fraction_transferred_when_ingested()[0] = 1.7;
 	agent1->position()[0] = 1.8;
+	agent1->is_active() = 11;
 
 	agent2->volume() = 3.0;
 	agent2->secretion_rates()[0] = 2.1;
@@ -71,6 +73,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent2->fraction_released_at_death()[0] = 2.6;
 	agent2->fraction_transferred_when_ingested()[0] = 2.7;
 	agent2->position()[0] = 2.8;
+	agent2->is_active() = 12;
 
 	const int remove_idx = std::get<0>(GetParam());
 	const bool remove_via_pointer = std::get<1>(GetParam());
@@ -92,6 +95,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 		EXPECT_DOUBLE_EQ(agent0->fraction_released_at_death()[0], 0.6);
 		EXPECT_DOUBLE_EQ(agent0->fraction_transferred_when_ingested()[0], 0.7);
 		EXPECT_DOUBLE_EQ(agent0->position()[0], 0.8);
+		EXPECT_EQ(agent0->is_active(), 10);
 	}
 	if (remove_idx != 1)
 	{
@@ -104,6 +108,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 		EXPECT_DOUBLE_EQ(agent1->fraction_released_at_death()[0], 1.6);
 		EXPECT_DOUBLE_EQ(agent1->fraction_transferred_when_ingested()[0], 1.7);
 		EXPECT_DOUBLE_EQ(agent1->position()[0], 1.8);
+		EXPECT_EQ(agent1->is_active(), 11);
 	}
 	if (remove_idx != 2)
 	{
@@ -116,6 +121,7 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 		EXPECT_DOUBLE_EQ(agent2->fraction_released_at_death()[0], 2.6);
 		EXPECT_DOUBLE_EQ(agent2->fraction_transferred_when_ingested()[0], 2.7);
 		EXPECT_DOUBLE_EQ(agent2->position()[0], 2.8);
+		EXPECT_EQ(agent2->is_active(), 12);
 	}
 }
 

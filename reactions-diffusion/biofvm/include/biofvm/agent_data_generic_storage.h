@@ -27,6 +27,9 @@ public:
 	// n
 	ContainerType<real_t> volumes;
 
+	// n - boolean flag indicating if agent is active (1) or inactive (0)
+	ContainerType<uint8_t> is_active;
+
 	index_t agents_count = 0;
 	index_t substrate_count;
 
@@ -55,9 +58,10 @@ void agent_data_generic_storage<ContainerType>::add()
 
 	internalized_substrates.resize(agents_count * substrate_count);
 	fraction_released_at_death.resize(agents_count * substrate_count);
-	fraction_transferred_when_ingested.resize(agents_count * substrate_count);
+	fraction_transferred_when_ingested.resize(agents_count * substrate_count, 1);
 
 	volumes.resize(agents_count);
+	is_active.resize(agents_count, 1);
 }
 
 template <template <typename...> typename ContainerType>
@@ -89,6 +93,7 @@ void agent_data_generic_storage<ContainerType>::remove_at(index_t position)
 									 substrate_count);
 
 		base_agent_data::move_scalar(&volumes[position], &volumes[agents_count]);
+		base_agent_data::move_scalar(&is_active[position], &is_active[agents_count]);
 	}
 
 	secretion_rates.resize(agents_count * substrate_count);
@@ -101,6 +106,7 @@ void agent_data_generic_storage<ContainerType>::remove_at(index_t position)
 	fraction_transferred_when_ingested.resize(agents_count * substrate_count);
 
 	volumes.resize(agents_count);
+	is_active.resize(agents_count);
 }
 
 } // namespace physicore::biofvm

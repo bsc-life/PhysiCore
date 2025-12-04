@@ -36,6 +36,7 @@ TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count);
 	EXPECT_EQ(data.volumes.size(), 1);
+	EXPECT_EQ(data.is_active.size(), 1);
 
 	data.add(); // adds another agent
 
@@ -48,6 +49,7 @@ TEST(AgentDataTest, AddInitializesVectorsCorrectly)
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * 2);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * 2);
 	EXPECT_EQ(data.volumes.size(), 2);
+	EXPECT_EQ(data.is_active.size(), 2);
 }
 
 TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
@@ -71,6 +73,7 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.volumes.size(), expected_size);
+	EXPECT_EQ(data.is_active.size(), expected_size);
 
 	// Remove agent at position 1
 	data.remove_at(1);
@@ -86,6 +89,7 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.volumes.size(), expected_size);
+	EXPECT_EQ(data.is_active.size(), expected_size);
 
 	// Remove agent at position 0
 	data.remove_at(0);
@@ -101,4 +105,5 @@ TEST(AgentDataTest, RemoveShrinksVectorsCorrectly)
 	EXPECT_EQ(data.fraction_released_at_death.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.fraction_transferred_when_ingested.size(), substrate_count * expected_size);
 	EXPECT_EQ(data.volumes.size(), expected_size);
+	EXPECT_EQ(data.is_active.size(), expected_size);
 }
