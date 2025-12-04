@@ -71,6 +71,8 @@ public:
 	}
 
 	real_t& volume() override { return data.volumes[index]; }
+
+	uint8_t& is_active() override { return data.is_active[index]; }
 };
 
 #ifdef _MSC_VER

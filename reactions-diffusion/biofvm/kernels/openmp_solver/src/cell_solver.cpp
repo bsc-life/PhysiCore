@@ -21,7 +21,8 @@ auto fix_dims(const real_t* cell_position, const cartesian_mesh& m)
 
 template <index_t dims>
 void clear_ballots(const auto ballot_l, const real_t* HWY_RESTRICT cell_positions,
-				   std::atomic<index_t>* HWY_RESTRICT ballots, std::atomic<real_t>* HWY_RESTRICT reduced_numerators,
+				   const uint8_t* HWY_RESTRICT is_active, std::atomic<index_t>* HWY_RESTRICT ballots,
+				   std::atomic<real_t>* HWY_RESTRICT reduced_numerators,
 				   std::atomic<real_t>* HWY_RESTRICT reduced_denominators,
 				   std::atomic<real_t>* HWY_RESTRICT reduced_factors, index_t n, const cartesian_mesh& m,
 				   index_t substrate_densities)
@@ -29,6 +30,9 @@ void clear_ballots(const auto ballot_l, const real_t* HWY_RESTRICT cell_position
 #pragma omp for
 	for (index_t i = 0; i < n; i++)
 	{
+		if (!is_active[i])
+			continue;
+
 		auto b_l = ballot_l ^ fix_dims<dims>(cell_positions + dims * i, m);
 
 		auto& b = b_l | noarr::get_at(ballots);
@@ -48,11 +52,15 @@ void compute_intermediates(real_t* HWY_RESTRICT numerators, real_t* HWY_RESTRICT
 						   real_t* HWY_RESTRICT factors, const real_t* HWY_RESTRICT secretion_rates,
 						   const real_t* HWY_RESTRICT uptake_rates, const real_t* HWY_RESTRICT saturation_densities,
 						   const real_t* HWY_RESTRICT net_export_rates, const real_t* HWY_RESTRICT cell_volumes,
-						   real_t voxel_volume, real_t time_step, index_t n, index_t substrates_count)
+						   const uint8_t* HWY_RESTRICT is_active, real_t voxel_volume, real_t time_step, index_t n,
+						   index_t substrates_count)
 {
 #pragma omp for
 	for (index_t i = 0; i < n; i++)
 	{
+		if (!is_active[i])
+			continue;
+
 		for (index_t s = 0; s < substrates_count; s++)
 		{
 			numerators[i * substrates_count + s] = secretion_rates[i * substrates_count + s]
@@ -73,12 +81,16 @@ void ballot_and_sum(const auto ballot_l, std::atomic<real_t>* HWY_RESTRICT reduc
 					std::atomic<real_t>* HWY_RESTRICT reduced_denominators,
 					std::atomic<real_t>* HWY_RESTRICT reduced_factors, const real_t* HWY_RESTRICT numerators,
 					const real_t* HWY_RESTRICT denominators, const real_t* HWY_RESTRICT factors,
-					const real_t* HWY_RESTRICT cell_positions, std::atomic<index_t>* HWY_RESTRICT ballots, index_t n,
-					index_t substrates_count, const cartesian_mesh& m, std::atomic<bool>* HWY_RESTRICT is_conflict)
+					const real_t* HWY_RESTRICT cell_positions, const uint8_t* HWY_RESTRICT is_active,
+					std::atomic<index_t>* HWY_RESTRICT ballots, index_t n, index_t substrates_count,
+					const cartesian_mesh& m, std::atomic<bool>* HWY_RESTRICT is_conflict)
 {
 #pragma omp for
 	for (index_t i = 0; i < n; i++)
 	{
+		if (!is_active[i])
+			continue;
+
 		auto b_l = ballot_l ^ fix_dims<dims>(cell_positions + dims * i, m);
 
 		auto& b = b_l | noarr::get_at(ballots);
@@ -186,6 +198,9 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 #pragma omp for
 		for (index_t i = 0; i < data.base_data.agents_count; i++)
 		{
+			if (!data.is_active[i])
+				continue;
+
 			auto fixed_dims = fix_dims<dims>(data.base_data.positions.data() + i * dims, mesh);
 
 			compute_fused(substrates, data.internalized_substrates.data() + i * data.substrate_count,
@@ -200,6 +215,9 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 #pragma omp for
 	for (index_t i = 0; i < data.base_data.agents_count; i++)
 	{
+		if (!data.is_active[i])
+			continue;
+
 		auto fixed_dims = fix_dims<dims>(data.base_data.positions.data() + i * dims, mesh);
 
 		auto ballot = ((ballot_l ^ fixed_dims) | noarr::get_at(ballots)).load(std::memory_order_relaxed);
@@ -213,6 +231,9 @@ void compute_result(const auto dens_l, const auto ballot_l, agent_data& data, co
 #pragma omp for
 		for (index_t i = 0; i < data.base_data.agents_count; i++)
 		{
+			if (!data.is_active[i])
+				continue;
+
 			auto fixed_dims = fix_dims<dims>(data.base_data.positions.data() + i * dims, mesh);
 
 			compute_internalized(data.internalized_substrates.data() + i * data.substrate_count, substrates,
@@ -233,15 +254,15 @@ void simulate(const auto dens_l, const auto ballot_l, agent_data& data, microenv
 	{
 		compute_intermediates(numerators, denominators, factors, data.secretion_rates.data(), data.uptake_rates.data(),
 							  data.saturation_densities.data(), data.net_export_rates.data(), data.volumes.data(),
-							  (real_t)m.mesh.voxel_volume(), m.diffusion_timestep, data.base_data.agents_count,
-							  data.substrate_count);
+							  data.is_active.data(), (real_t)m.mesh.voxel_volume(), m.diffusion_timestep,
+							  data.base_data.agents_count, data.substrate_count);
 
-		clear_ballots<dims>(ballot_l, data.base_data.positions.data(), ballots, reduced_numerators,
-							reduced_denominators, reduced_factors, data.base_data.agents_count, m.mesh,
-							data.substrate_count);
+		clear_ballots<dims>(ballot_l, data.base_data.positions.data(), data.is_active.data(), ballots,
+							reduced_numerators, reduced_denominators, reduced_factors, data.base_data.agents_count,
+							m.mesh, data.substrate_count);
 
 		ballot_and_sum<dims>(ballot_l, reduced_numerators, reduced_denominators, reduced_factors, numerators,
-							 denominators, factors, data.base_data.positions.data(), ballots,
+							 denominators, factors, data.base_data.positions.data(), data.is_active.data(), ballots,
 							 data.base_data.agents_count, data.substrate_count, m.mesh, is_conflict);
 	}
 
