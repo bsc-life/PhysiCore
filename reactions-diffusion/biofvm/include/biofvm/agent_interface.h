@@ -23,6 +23,8 @@ public:
 	virtual std::span<real_t> fraction_transferred_when_ingested() = 0;
 
 	virtual real_t& volume() = 0;
+
+	virtual uint8_t& is_active() = 0;
 };
 
 } // namespace physicore::biofvm
