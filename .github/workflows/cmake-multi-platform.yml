@@ -12,10 +12,6 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
-    env:
-      # This is just a placeholder, vcpkg step will set it up
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
-
     strategy:
       fail-fast: false
 
@@ -49,19 +45,11 @@ jobs:
       with:
         method: 'network'
 
-    - name: Set up vcpkg
-      uses: lukka/run-vcpkg@v11
-      env:
-        VCPKG_BINARY_SOURCES: default,readwrite
-
-    - name: Set up binary cache
-      uses: actions/cache@v4
+    - name: Set up vcpkg with cache
+      uses: ./.github/actions/setup-vcpkg
       with:
-        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        # Invalidate cache when vcpkg manifests or overlay ports change
-        key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-
+        os: ${{ matrix.os }}
+        arch: ${{ runner.arch }}
 
     - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
       uses: lukka/run-cmake@v10

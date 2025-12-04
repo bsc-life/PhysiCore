@@ -1,0 +1,27 @@
+name: 'Setup vcpkg with cache'
+description: 'Sets up vcpkg with binary caching'
+
+inputs:
+  os:
+    description: 'Operating system identifier for cache key (e.g., ubuntu-22.04, macos-latest)'
+    required: true
+  arch:
+    description: 'Architecture for cache key (e.g., X64, ARM64)'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up vcpkg
+      uses: lukka/run-vcpkg@v11
+      shell: bash
+      env:
+        VCPKG_BINARY_SOURCES: default,readwrite
+
+    - name: Set up binary cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ inputs.os }}-${{ inputs.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
+        restore-keys: |
+          ${{ inputs.os }}-${{ inputs.arch }}-vcpkg-binary-cache-

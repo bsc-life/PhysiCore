@@ -43,9 +43,6 @@ jobs:
             preset: msvc-release-artifacts
             artifact_name: physicore-windows-arm64
 
-    env:
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,18 +50,11 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Set up vcpkg
-        uses: lukka/run-vcpkg@v11
-        env:
-          VCPKG_BINARY_SOURCES: default,readwrite
-
-      - name: Set up binary cache
-        uses: actions/cache@v4
+      - name: Set up vcpkg with cache
+        uses: ./.github/actions/setup-vcpkg
         with:
-          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-
+          os: ${{ matrix.os }}
+          arch: ${{ runner.arch }}
 
       - name: Build with CMake
         uses: lukka/run-cmake@v10
