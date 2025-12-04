@@ -48,4 +48,3 @@ public:
 };
 
 } // namespace physicore::mechanics::micromechanics
-

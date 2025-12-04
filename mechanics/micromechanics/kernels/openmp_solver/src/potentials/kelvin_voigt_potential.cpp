@@ -63,4 +63,3 @@ real_t kelvin_voigt_potential::max_interaction_distance(const environment& env, 
 }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

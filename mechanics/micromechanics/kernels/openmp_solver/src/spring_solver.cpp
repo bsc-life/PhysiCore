@@ -95,4 +95,3 @@ void spring_solver::update_spring_attachments(environment& e)
 }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

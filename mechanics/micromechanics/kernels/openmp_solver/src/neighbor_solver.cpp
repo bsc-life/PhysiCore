@@ -31,4 +31,3 @@ void neighbor_solver::update_neighbors(environment& e)
 }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

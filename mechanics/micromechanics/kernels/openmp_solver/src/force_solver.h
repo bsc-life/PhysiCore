@@ -7,7 +7,6 @@
 #include <vector>
 
 #include <common/types.h>
-
 #include <micromechanics/potential_interface.h>
 #include <micromechanics/simulation_parameters.h>
 
@@ -65,4 +64,3 @@ private:
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

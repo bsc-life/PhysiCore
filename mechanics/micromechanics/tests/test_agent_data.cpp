@@ -162,4 +162,3 @@ TEST_F(AgentDataTest, RemoveLastAgentNoMove)
 	EXPECT_EQ(data.agents_count, 1);
 	EXPECT_DOUBLE_EQ(data.radii[0], 1.0);
 }
-

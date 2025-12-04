@@ -29,4 +29,3 @@ public:
 };
 
 } // namespace physicore::common
-

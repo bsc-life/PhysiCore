@@ -1,7 +1,7 @@
-#include <common/vtk_serializer_base.h>
-
 #include <filesystem>
 #include <fstream>
+
+#include <common/vtk_serializer_base.h>
 
 using namespace physicore::common;
 
@@ -33,4 +33,3 @@ void vtk_serializer_base::append_to_pvd(std::string_view vtk_file_name, real_t c
 
 	pvd_file.close();
 }
-

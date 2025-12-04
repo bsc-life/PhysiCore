@@ -86,4 +86,3 @@ struct registry_adder
 };
 
 } // namespace physicore::mechanics::micromechanics
-

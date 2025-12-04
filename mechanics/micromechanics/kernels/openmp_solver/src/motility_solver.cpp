@@ -96,4 +96,3 @@ void motility_solver::update_motility(environment& e)
 }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

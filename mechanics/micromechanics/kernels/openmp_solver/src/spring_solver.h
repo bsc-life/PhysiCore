@@ -33,4 +33,3 @@ public:
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

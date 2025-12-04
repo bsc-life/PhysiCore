@@ -106,4 +106,3 @@ void basement_membrane_solver::update_interactions(environment& e)
 }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

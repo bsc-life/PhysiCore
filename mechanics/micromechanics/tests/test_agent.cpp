@@ -147,4 +147,3 @@ TEST_F(AgentTest, MultipleAgents)
 	EXPECT_DOUBLE_EQ(agent1.radius(), 7.0);
 	EXPECT_DOUBLE_EQ(agent1.cell_cell_repulsion_strength(), 15.0);
 }
-

@@ -75,4 +75,3 @@ void position_solver::update_positions(environment& e)
 }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-

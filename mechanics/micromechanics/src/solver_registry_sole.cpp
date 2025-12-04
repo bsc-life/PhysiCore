@@ -44,4 +44,3 @@ solver_registry& solver_registry::instance()
 }
 
 } // namespace physicore::mechanics::micromechanics
-

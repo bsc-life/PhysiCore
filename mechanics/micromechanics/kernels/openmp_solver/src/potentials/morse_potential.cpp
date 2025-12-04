@@ -72,4 +72,3 @@ real_t morse_potential::max_interaction_distance(const environment& env, index_t
 }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
-
