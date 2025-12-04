@@ -31,10 +31,10 @@ jobs:
             preset: gcc-release-artifacts
             artifact_name: physicore-linux-arm64
           - os: macos-latest
-            preset: appleclang-release-artifacts
+            preset: gcc-release-artifacts
             artifact_name: physicore-macos-arm64
           - os: macos-15-intel
-            preset: appleclang-release-artifacts
+            preset: gcc-release-artifacts
             artifact_name: physicore-macos-x64
           - os: windows-latest
             preset: msvc-release-artifacts
