@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/.vcpkg-cache # This is just a placeholder, vcpkg step will set it up
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,19 +22,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libomp-dev
-      - name: Set up vcpkg
-        uses: lukka/run-vcpkg@v11
-        env:
-          VCPKG_BINARY_SOURCES: default,readwrite
-
-      - name: Set up binary cache
-        uses: actions/cache@v4
+      - name: Set up vcpkg with cache
+        uses: ./.github/actions/setup-vcpkg
         with:
-          path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-          # Invalidate cache when vcpkg manifests or overlay ports change
-          key: ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-
+          os: ubuntu-latest
+          arch: ${{ runner.arch }}
       - name: Install Build Wrapper
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
       - name: Run Build Wrapper
