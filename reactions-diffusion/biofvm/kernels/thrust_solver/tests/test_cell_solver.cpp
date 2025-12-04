@@ -634,8 +634,8 @@ TEST(CellSolverTest, InactiveAgentsSkipSecretion)
 	auto dens_l = d_s.get_substrates_layout<1>();
 	auto densities = noarr::make_bag(dens_l, mgr.substrate_densities);
 
-	real_t initial_density_x1_s0 = densities.template at<'x', 's'>(1, 0);
-	real_t initial_density_x1_s1 = densities.template at<'x', 's'>(1, 1);
+	const real_t initial_density_x1_s0 = densities.template at<'x', 's'>(1, 0);
+	const real_t initial_density_x1_s1 = densities.template at<'x', 's'>(1, 1);
 
 	s.simulate_secretion_and_uptake(*m, d_s, mgr, true);
 	mgr.transfer_to_host();
