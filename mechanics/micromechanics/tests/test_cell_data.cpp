@@ -39,7 +39,7 @@ protected:
 	index_t AddAgent(real_t x, real_t y, real_t z, real_t radius, index_t cell_id, std::uint8_t agent_type = 0)
 	{
 		auto* agent = env->agents->create();
-		index_t idx = env->agents->size() - 1;
+		index_t const idx = env->agents->size() - 1;
 		agent->position()[0] = x;
 		agent->position()[1] = y;
 		agent->position()[2] = z;
@@ -135,7 +135,7 @@ TEST_F(CellDataTest, CalculateCellDataVolumes)
 	solver->calculate_cell_data(*env);
 
 	// Volume = sum of 4/3 * pi * r^3
-	real_t expected_volume = (4.0 / 3.0) * std::numbers::pi * (10.0 * 10.0 * 10.0 + 5.0 * 5.0 * 5.0);
+	real_t const expected_volume = (4.0 / 3.0) * std::numbers::pi * (10.0 * 10.0 * 10.0 + 5.0 * 5.0 * 5.0);
 
 	ASSERT_TRUE(env->cells.volumes.count(0) > 0);
 	EXPECT_NEAR(env->cells.volumes[0], expected_volume, 0.01);
@@ -143,8 +143,8 @@ TEST_F(CellDataTest, CalculateCellDataVolumes)
 
 TEST_F(CellDataTest, CalculateCellDataVelocities)
 {
-	index_t idx0 = AddAgent(0, 0, 0, 5, 0);
-	index_t idx1 = AddAgent(20, 0, 0, 5, 0);
+	index_t const idx0 = AddAgent(0, 0, 0, 5, 0);
+	index_t const idx1 = AddAgent(20, 0, 0, 5, 0);
 
 	auto& mech_data = *std::get<std::unique_ptr<agent_data>>(env->agents->agent_datas);
 	mech_data.velocities[idx0 * 3 + 0] = 2.0;
@@ -210,8 +210,8 @@ TEST_F(CellDataTest, MultipleCellsVolumes)
 	solver->initialize(*env);
 	solver->calculate_cell_data(*env);
 
-	real_t vol_r10 = (4.0 / 3.0) * std::numbers::pi * 10.0 * 10.0 * 10.0;
-	real_t vol_r5 = (4.0 / 3.0) * std::numbers::pi * 5.0 * 5.0 * 5.0;
+	real_t const vol_r10 = (4.0 / 3.0) * std::numbers::pi * 10.0 * 10.0 * 10.0;
+	real_t const vol_r5 = (4.0 / 3.0) * std::numbers::pi * 5.0 * 5.0 * 5.0;
 
 	ASSERT_TRUE(env->cells.volumes.count(0) > 0);
 	EXPECT_NEAR(env->cells.volumes[0], vol_r10, 0.01);
@@ -248,10 +248,10 @@ TEST_F(CellDataTest, MultipleCellsCompartmentCounts)
 TEST_F(CellDataTest, MultipleCellsVelocities)
 {
 	// Cell 0: 2 agents with different velocities
-	index_t idx0 = AddAgent(0, 0, 0, 5, 0);
-	index_t idx1 = AddAgent(10, 0, 0, 5, 0);
+	index_t const idx0 = AddAgent(0, 0, 0, 5, 0);
+	index_t const idx1 = AddAgent(10, 0, 0, 5, 0);
 	// Cell 1: 1 agent
-	index_t idx2 = AddAgent(100, 0, 0, 5, 1);
+	index_t const idx2 = AddAgent(100, 0, 0, 5, 1);
 
 	auto& mech_data = *std::get<std::unique_ptr<agent_data>>(env->agents->agent_datas);
 	mech_data.velocities[idx0 * 3 + 0] = 4.0;

@@ -41,7 +41,7 @@ std::unique_ptr<potential_interface> force_solver::create_potential(const intera
 	{
 		return std::make_unique<morse_potential>(config);
 	}
-	else if (config.potential_name == "kelvin_voigt")
+	if (config.potential_name == "kelvin_voigt")
 	{
 		return std::make_unique<kelvin_voigt_potential>(config);
 	}
@@ -66,7 +66,7 @@ void force_solver::clear_forces(environment& e)
 	auto& agents = *e.agents;
 	auto& mech_data = *std::get<std::unique_ptr<agent_data>>(agents.agent_datas);
 
-	std::fill(mech_data.forces.begin(), mech_data.forces.end(), 0.0);
+	std::ranges::fill(mech_data.forces, 0.0);
 }
 
 void force_solver::calculate_forces(environment& e)
@@ -74,7 +74,7 @@ void force_solver::calculate_forces(environment& e)
 	auto& agents = *e.agents;
 	auto& mech_data = *std::get<std::unique_ptr<agent_data>>(agents.agent_datas);
 	auto& base_data = mech_data.base_data;
-	index_t count = agents.size();
+	index_t const count = agents.size();
 
 	// Clear force accumulators
 	clear_forces(e);
@@ -86,30 +86,27 @@ void force_solver::calculate_forces(environment& e)
 			continue;
 
 		// Get agent type from agent_data
-		std::uint8_t type_i = mech_data.agent_types[i];
+		std::uint8_t const type_i = mech_data.agent_types[i];
 
 		// Determine max interaction distance from default potential
-		real_t max_dist = default_potential_->max_interaction_distance(e, i);
+		real_t const max_dist = default_potential_->max_interaction_distance(e, i);
 
 		// Query neighbors within interaction distance
 		auto neighbors = e.index->query_neighbors(e, i, max_dist);
 
-		for (index_t j : neighbors)
+		for (index_t const j : neighbors)
 		{
-			std::uint8_t type_j = mech_data.agent_types[j];
+			std::uint8_t const type_j = mech_data.agent_types[j];
 
 			// Calculate position difference (j - i, so positive = j is ahead of i)
 			// Legacy uses this convention: position_difference points from i to j
-			real_t dx = base_data.positions[j * 3] - base_data.positions[i * 3];
-			real_t dy = base_data.positions[j * 3 + 1] - base_data.positions[i * 3 + 1];
-			real_t dz = base_data.positions[j * 3 + 2] - base_data.positions[i * 3 + 2];
+			real_t const dx = base_data.positions[j * 3] - base_data.positions[i * 3];
+			real_t const dy = base_data.positions[j * 3 + 1] - base_data.positions[i * 3 + 1];
+			real_t const dz = base_data.positions[j * 3 + 2] - base_data.positions[i * 3 + 2];
 			real_t distance = std::sqrt(dx * dx + dy * dy + dz * dz);
 
 			// Avoid division by zero (legacy uses 0.00001)
-			if (distance < 0.00001)
-			{
-				distance = 0.00001;
-			}
+			distance = std::max(distance, 0.00001);
 
 			// Get appropriate potential for this type pair
 			const auto& potential = get_potential(type_i, type_j);

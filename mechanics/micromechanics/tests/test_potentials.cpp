@@ -56,11 +56,11 @@ TEST_F(PotentialTest, StandardPotentialRepulsion)
 	mech_data.cell_cell_adhesion_strength[0] = 0.0;
 	mech_data.cell_cell_adhesion_strength[1] = 0.0;
 
-	interaction_config config;
-	standard_potential potential(config);
+	interaction_config const config;
+	standard_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 15.0;
+	real_t const distance = 15.0;
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 15.0, 0.0, 0.0, force_out);
 
 	// Repulsion should be positive (pushing apart)
@@ -81,11 +81,11 @@ TEST_F(PotentialTest, StandardPotentialAdhesion)
 	mech_data.relative_maximum_adhesion_distance[0] = 1.5;
 	mech_data.relative_maximum_adhesion_distance[1] = 1.5;
 
-	interaction_config config;
-	standard_potential potential(config);
+	interaction_config const config;
+	standard_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 22.0;
+	real_t const distance = 22.0;
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 22.0, 0.0, 0.0, force_out);
 
 	// Adhesion should dominate (negative force = pulling together)
@@ -106,11 +106,11 @@ TEST_F(PotentialTest, StandardPotentialNoForceOutOfRange)
 	mech_data.relative_maximum_adhesion_distance[0] = 1.5; // Max dist = 1.5*10 + 1.5*10 = 30
 	mech_data.relative_maximum_adhesion_distance[1] = 1.5;
 
-	interaction_config config;
-	standard_potential potential(config);
+	interaction_config const config;
+	standard_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 100.0;
+	real_t const distance = 100.0;
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 100.0, 0.0, 0.0, force_out);
 
 	// No force at this distance
@@ -129,11 +129,11 @@ TEST_F(PotentialTest, MorsePotentialAtEquilibrium)
 	mech_data.intra_equilibrium_distances[0] = 20.0; // Equilibrium at distance 20
 	mech_data.intra_stiffnesses[0] = 1.0;
 
-	interaction_config config;
-	morse_potential potential(config);
+	interaction_config const config;
+	morse_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 20.0;
+	real_t const distance = 20.0;
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 20.0, 0.0, 0.0, force_out);
 
 	// At equilibrium, force should be zero
@@ -150,11 +150,11 @@ TEST_F(PotentialTest, MorsePotentialRepulsionWhenCompressed)
 	mech_data.intra_equilibrium_distances[0] = 20.0;
 	mech_data.intra_stiffnesses[0] = 1.0;
 
-	interaction_config config;
-	morse_potential potential(config);
+	interaction_config const config;
+	morse_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 15.0; // Less than equilibrium
+	real_t const distance = 15.0; // Less than equilibrium
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 15.0, 0.0, 0.0, force_out);
 
 	// When compressed (r < r0), should repel (positive force)
@@ -171,11 +171,11 @@ TEST_F(PotentialTest, MorsePotentialAttractionWhenStretched)
 	mech_data.intra_equilibrium_distances[0] = 20.0;
 	mech_data.intra_stiffnesses[0] = 1.0;
 
-	interaction_config config;
-	morse_potential potential(config);
+	interaction_config const config;
+	morse_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 25.0; // Greater than equilibrium
+	real_t const distance = 25.0; // Greater than equilibrium
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 25.0, 0.0, 0.0, force_out);
 
 	// When stretched (r > r0), should attract (negative force)
@@ -197,11 +197,11 @@ TEST_F(PotentialTest, StandardPotentialBalancePoint)
 	mech_data.relative_maximum_adhesion_distance[0] = 1.5;
 	mech_data.relative_maximum_adhesion_distance[1] = 1.5;
 
-	interaction_config config;
-	standard_potential potential(config);
+	interaction_config const config;
+	standard_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 20.0; // Exactly at repulsive boundary
+	real_t const distance = 20.0; // Exactly at repulsive boundary
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 20.0, 0.0, 0.0, force_out);
 
 	// At touching point: repulsion=0 (1-d/R = 0), but adhesion > 0
@@ -221,11 +221,11 @@ TEST_F(PotentialTest, KelvinVoigtSpringForceAtRest)
 	mech_data.dissipation_rates[0] = 0.0; // No damping for this test
 	mech_data.radii[0] = 10.0;
 
-	interaction_config config;
-	kelvin_voigt_potential potential(config);
+	interaction_config const config;
+	kelvin_voigt_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 20.0; // At rest length
+	real_t const distance = 20.0; // At rest length
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 20.0, 0.0, 0.0, force_out);
 
 	// At rest length, spring force should be zero
@@ -242,11 +242,11 @@ TEST_F(PotentialTest, KelvinVoigtSpringForceCompressed)
 	mech_data.dissipation_rates[0] = 0.0; // No damping
 	mech_data.radii[0] = 10.0;			  // Rest length = 20
 
-	interaction_config config;
-	kelvin_voigt_potential potential(config);
+	interaction_config const config;
+	kelvin_voigt_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 15.0; // Compressed by 5 units
+	real_t const distance = 15.0; // Compressed by 5 units
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 15.0, 0.0, 0.0, force_out);
 
 	// F = k * (d - rest) = 5 * (15 - 20) = -25 (negative = push apart)
@@ -263,11 +263,11 @@ TEST_F(PotentialTest, KelvinVoigtSpringForceStretched)
 	mech_data.dissipation_rates[0] = 0.0; // No damping
 	mech_data.radii[0] = 10.0;			  // Rest length = 20
 
-	interaction_config config;
-	kelvin_voigt_potential potential(config);
+	interaction_config const config;
+	kelvin_voigt_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 25.0; // Stretched by 5 units
+	real_t const distance = 25.0; // Stretched by 5 units
 	potential.calculate_pairwise_force(*env, 0, 1, distance, 25.0, 0.0, 0.0, force_out);
 
 	// F = k * (d - rest) = 5 * (25 - 20) = 25 (positive = pull together)
@@ -288,12 +288,12 @@ TEST_F(PotentialTest, KelvinVoigtDampingForce)
 	mech_data.previous_velocities[0] = 0.0;	 // agent 0 stationary
 	mech_data.previous_velocities[3] = -5.0; // agent 1 moving left (toward agent 0)
 
-	interaction_config config;
-	kelvin_voigt_potential potential(config);
+	interaction_config const config;
+	kelvin_voigt_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 20.0;
-	real_t dx = 20.0; // Direction from agent 0 to agent 1
+	real_t const distance = 20.0;
+	real_t const dx = 20.0; // Direction from agent 0 to agent 1
 	potential.calculate_pairwise_force(*env, 0, 1, distance, dx, 0.0, 0.0, force_out);
 
 	// dv = v1 - v0 = -5 - 0 = -5 (relative velocity toward agent 0)
@@ -316,12 +316,12 @@ TEST_F(PotentialTest, KelvinVoigtCombinedForce)
 	mech_data.previous_velocities[0] = -1.0; // agent 0 moving left
 	mech_data.previous_velocities[3] = 1.0;	 // agent 1 moving right
 
-	interaction_config config;
-	kelvin_voigt_potential potential(config);
+	interaction_config const config;
+	kelvin_voigt_potential const potential(config);
 
 	real_t force_out = 0.0;
-	real_t distance = 25.0;
-	real_t dx = 25.0;
+	real_t const distance = 25.0;
+	real_t const dx = 25.0;
 	potential.calculate_pairwise_force(*env, 0, 1, distance, dx, 0.0, 0.0, force_out);
 
 	// Spring: F = k * (d - rest) = 5 * (25 - 20) = 25

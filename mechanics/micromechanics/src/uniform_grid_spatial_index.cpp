@@ -16,16 +16,16 @@ void uniform_grid_spatial_index::build(const environment& env)
 	auto& agents = *env.agents;
 	auto& mech_data_ptr = std::get<std::unique_ptr<agent_data>>(agents.agent_datas);
 	auto& base_data = mech_data_ptr->base_data;
-	index_t count = agents.size();
+	index_t const count = agents.size();
 
 	for (index_t i = 0; i < count; ++i)
 	{
-		real_t x = base_data.positions[i * 3];
-		real_t y = base_data.positions[i * 3 + 1];
-		real_t z = base_data.positions[i * 3 + 2];
+		real_t const x = base_data.positions[i * 3];
+		real_t const y = base_data.positions[i * 3 + 1];
+		real_t const z = base_data.positions[i * 3 + 2];
 
-		grid_key key { static_cast<int>(std::floor(x / cell_size)), static_cast<int>(std::floor(y / cell_size)),
-					   static_cast<int>(std::floor(z / cell_size)) };
+		grid_key const key { .x=static_cast<int>(std::floor(x / cell_size)), .y=static_cast<int>(std::floor(y / cell_size)),
+					   .z=static_cast<int>(std::floor(z / cell_size)) };
 		grid[key].push_back(i);
 	}
 }
@@ -38,15 +38,15 @@ std::vector<index_t> uniform_grid_spatial_index::query_neighbors(const environme
 	auto& mech_data_ptr = std::get<std::unique_ptr<agent_data>>(agents.agent_datas);
 	auto& base_data = mech_data_ptr->base_data;
 
-	real_t x = base_data.positions[agent_index * 3];
-	real_t y = base_data.positions[agent_index * 3 + 1];
-	real_t z = base_data.positions[agent_index * 3 + 2];
+	real_t const x = base_data.positions[agent_index * 3];
+	real_t const y = base_data.positions[agent_index * 3 + 1];
+	real_t const z = base_data.positions[agent_index * 3 + 2];
 
-	int cx = static_cast<int>(std::floor(x / cell_size));
-	int cy = static_cast<int>(std::floor(y / cell_size));
-	int cz = static_cast<int>(std::floor(z / cell_size));
+	int const cx = static_cast<int>(std::floor(x / cell_size));
+	int const cy = static_cast<int>(std::floor(y / cell_size));
+	int const cz = static_cast<int>(std::floor(z / cell_size));
 
-	int search_radius = static_cast<int>(std::ceil(radius / cell_size));
+	int const search_radius = static_cast<int>(std::ceil(radius / cell_size));
 
 	for (int dx = -search_radius; dx <= search_radius; ++dx)
 	{
@@ -54,20 +54,20 @@ std::vector<index_t> uniform_grid_spatial_index::query_neighbors(const environme
 		{
 			for (int dz = -search_radius; dz <= search_radius; ++dz)
 			{
-				grid_key key { cx + dx, cy + dy, cz + dz };
+				grid_key const key { .x=cx + dx, .y=cy + dy, .z=cz + dz };
 				auto it = grid.find(key);
 				if (it != grid.end())
 				{
-					for (index_t other_index : it->second)
+					for (index_t const other_index : it->second)
 					{
 						if (agent_index == other_index)
 							continue;
 
-						real_t ox = base_data.positions[other_index * 3];
-						real_t oy = base_data.positions[other_index * 3 + 1];
-						real_t oz = base_data.positions[other_index * 3 + 2];
+						real_t const ox = base_data.positions[other_index * 3];
+						real_t const oy = base_data.positions[other_index * 3 + 1];
+						real_t const oz = base_data.positions[other_index * 3 + 2];
 
-						real_t dist_sq = (x - ox) * (x - ox) + (y - oy) * (y - oy) + (z - oz) * (z - oz);
+						real_t const dist_sq = (x - ox) * (x - ox) + (y - oy) * (y - oy) + (z - oz) * (z - oz);
 						if (dist_sq <= radius * radius)
 						{
 							neighbors.push_back(other_index);

@@ -29,7 +29,7 @@ public:
 	 *
 	 * Also updates previous_velocities for next timestep.
 	 */
-	void update_positions(environment& e);
+	static void update_positions(environment& e);
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver

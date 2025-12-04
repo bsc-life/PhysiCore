@@ -50,7 +50,7 @@ private:
 	/**
 	 * @brief Create a potential instance from configuration.
 	 */
-	std::unique_ptr<potential_interface> create_potential(const interaction_config& config);
+	static std::unique_ptr<potential_interface> create_potential(const interaction_config& config);
 
 	/**
 	 * @brief Get the potential for a type pair.
@@ -60,7 +60,7 @@ private:
 	/**
 	 * @brief Clear all force accumulators.
 	 */
-	void clear_forces(environment& e);
+	static void clear_forces(environment& e);
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver

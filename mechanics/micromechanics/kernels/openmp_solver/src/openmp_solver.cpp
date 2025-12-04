@@ -3,6 +3,7 @@
 #include <cmath>
 #include <numbers>
 #include <tuple>
+#include <utility>
 
 #include <common/base_agent_data.h>
 #include <micromechanics/agent_data.h>
@@ -35,7 +36,7 @@ void openmp_solver::calculate_cell_data(environment& e)
 	auto& base_data = *std::get<std::unique_ptr<base_agent_data>>(agents.agent_datas);
 	auto& mech_data = *std::get<std::unique_ptr<agent_data>>(agents.agent_datas);
 
-	const index_t count = static_cast<index_t>(agents.size());
+	const auto count = static_cast<index_t>(agents.size());
 	constexpr index_t dims = 3;
 	constexpr real_t four_thirds_pi = 4.0 / 3.0 * std::numbers::pi;
 
@@ -51,25 +52,25 @@ void openmp_solver::calculate_cell_data(environment& e)
 	// First pass: accumulate all agent data per cell
 	for (index_t i = 0; i < count; ++i)
 	{
-		index_t cell_id = mech_data.cell_ids[i];
+		index_t const cell_id = mech_data.cell_ids[i];
 
 		// Skip standalone agents (cell_id == -1)
-		if (cell_id == static_cast<index_t>(-1))
+		if (std::cmp_equal(cell_id ,-1)))
 			continue;
 
-		std::uint8_t agent_type = mech_data.agent_types[i];
+		std::uint8_t const agent_type = mech_data.agent_types[i];
 
 		// Compartment counts
 		e.cells.compartment_counts[{ cell_id, agent_type }]++;
 
 		// Volume: sum of 4/3 * pi * r^3
-		real_t r = mech_data.radii[i];
+		real_t const r = mech_data.radii[i];
 		e.cells.volumes[cell_id] += four_thirds_pi * r * r * r;
 
 		// Position accumulation
-		real_t px = base_data.positions[i * dims];
-		real_t py = base_data.positions[i * dims + 1];
-		real_t pz = base_data.positions[i * dims + 2];
+		real_t const px = base_data.positions[i * dims];
+		real_t const py = base_data.positions[i * dims + 1];
+		real_t const pz = base_data.positions[i * dims + 2];
 
 		position_sums[cell_id][0] += px;
 		position_sums[cell_id][1] += py;
@@ -77,9 +78,9 @@ void openmp_solver::calculate_cell_data(environment& e)
 		position_counts[cell_id]++;
 
 		// Velocity accumulation
-		real_t vx = mech_data.velocities[i * dims];
-		real_t vy = mech_data.velocities[i * dims + 1];
-		real_t vz = mech_data.velocities[i * dims + 2];
+		real_t const vx = mech_data.velocities[i * dims];
+		real_t const vy = mech_data.velocities[i * dims + 1];
+		real_t const vz = mech_data.velocities[i * dims + 2];
 
 		velocity_sums[cell_id][0] += vx;
 		velocity_sums[cell_id][1] += vy;
@@ -87,10 +88,10 @@ void openmp_solver::calculate_cell_data(environment& e)
 		velocity_counts[cell_id]++;
 
 		// Pressure: sum of |force|
-		real_t fx = mech_data.forces[i * dims];
-		real_t fy = mech_data.forces[i * dims + 1];
-		real_t fz = mech_data.forces[i * dims + 2];
-		real_t force_magnitude = std::sqrt(fx * fx + fy * fy + fz * fz);
+		real_t const fx = mech_data.forces[i * dims];
+		real_t const fy = mech_data.forces[i * dims + 1];
+		real_t const fz = mech_data.forces[i * dims + 2];
+		real_t const force_magnitude = std::sqrt(fx * fx + fy * fy + fz * fz);
 		e.cells.add_pressure(cell_id, agent_type, force_magnitude);
 	}
 
@@ -98,21 +99,21 @@ void openmp_solver::calculate_cell_data(environment& e)
 	for (const auto& [cell_id, sum] : position_sums)
 	{
 		// Position: average of all agents in the cell
-		real_t n = static_cast<real_t>(position_counts[cell_id]);
+		auto const n = static_cast<real_t>(position_counts[cell_id]);
 		e.cells.positions[cell_id] = { sum[0] / n, sum[1] / n, sum[2] / n };
 	}
 
 	for (const auto& [cell_id, sum] : velocity_sums)
 	{
-		real_t n = static_cast<real_t>(velocity_counts[cell_id]);
-		real_t vx = sum[0] / n;
-		real_t vy = sum[1] / n;
-		real_t vz = sum[2] / n;
+		auto const n = static_cast<real_t>(velocity_counts[cell_id]);
+		real_t const vx = sum[0] / n;
+		real_t const vy = sum[1] / n;
+		real_t const vz = sum[2] / n;
 
 		e.cells.velocities[cell_id] = { vx, vy, vz };
 
 		// Speed (velocity magnitude)
-		real_t speed = std::sqrt(vx * vx + vy * vy + vz * vz);
+		real_t const speed = std::sqrt(vx * vx + vy * vy + vz * vz);
 		e.cells.speeds[cell_id] = speed;
 
 		// Motility direction (normalized velocity)
@@ -129,14 +130,14 @@ void openmp_solver::calculate_cell_data(environment& e)
 	// Third pass: build cell neighbor lists from agent neighbors
 	for (index_t i = 0; i < count; ++i)
 	{
-		index_t cell_id_i = mech_data.cell_ids[i];
-		if (cell_id_i == static_cast<index_t>(-1))
+		index_t const cell_id_i = mech_data.cell_ids[i];
+		if (std::cmp_equal(cell_id_i ,-1)))
 			continue;
 
-		for (index_t j : mech_data.neighbors[i])
+		for (index_t const j : mech_data.neighbors[i])
 		{
-			index_t cell_id_j = mech_data.cell_ids[j];
-			if (cell_id_j == static_cast<index_t>(-1))
+			index_t const cell_id_j = mech_data.cell_ids[j];
+			if (std::cmp_equal(cell_id_j ,-1)))
 				continue;
 
 			// Different cells that touch are neighbors

@@ -2,13 +2,14 @@
 
 #include <cmath>
 #include <tuple>
+#include <utility>
 
 #include <micromechanics/agent_data.h>
 #include <micromechanics/environment.h>
 
 namespace physicore::mechanics::micromechanics::kernels::openmp_solver {
 
-morse_potential::morse_potential(const interaction_config& config) : config_(config) {}
+morse_potential::morse_potential(interaction_config  config) : config_(std::move(config)) {}
 
 void morse_potential::calculate_pairwise_force(const environment& env, index_t agent_i, index_t /*agent_j*/,
 											   real_t distance, real_t /*dx*/, real_t /*dy*/, real_t /*dz*/,
@@ -39,15 +40,15 @@ void morse_potential::calculate_pairwise_force(const environment& env, index_t a
 
 	// Calculate potential well depth
 	// D = (k * r0^2) / (8 * a^2)
-	real_t potential_well_depth =
+	real_t const potential_well_depth =
 		(stiffness * equilibrium_distance * equilibrium_distance) / (8.0 * scaling_factor * scaling_factor);
 
 	// Calculate exp power: a * (1 - r^2/r0^2)
-	real_t exp_power = scaling_factor * (1.0 - (distance * distance) / (equilibrium_distance * equilibrium_distance));
+	real_t const exp_power = scaling_factor * (1.0 - (distance * distance) / (equilibrium_distance * equilibrium_distance));
 
 	// Force magnitude from Morse potential derivative
 	// F = (4 * a * r * D) * (exp(2P) - exp(P)) / r0^2
-	real_t exp_p = std::exp(exp_power);
+	real_t const exp_p = std::exp(exp_power);
 	force_out = (4.0 * scaling_factor * distance * potential_well_depth) * (exp_p * exp_p - exp_p)
 				/ (equilibrium_distance * equilibrium_distance);
 

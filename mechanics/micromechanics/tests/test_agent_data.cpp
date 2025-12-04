@@ -39,24 +39,24 @@ TEST_F(AgentDataTest, AddResizesAllVectors)
 	data.add();
 
 	// Scalar fields
-	EXPECT_EQ(data.agent_types.size(), 1u);
-	EXPECT_EQ(data.cell_ids.size(), 1u);
-	EXPECT_EQ(data.radii.size(), 1u);
-	EXPECT_EQ(data.is_movable.size(), 1u);
-	EXPECT_EQ(data.cell_cell_adhesion_strength.size(), 1u);
-	EXPECT_EQ(data.cell_cell_repulsion_strength.size(), 1u);
-	EXPECT_EQ(data.is_motile.size(), 1u);
-	EXPECT_EQ(data.spring_constants.size(), 1u);
+	EXPECT_EQ(data.agent_types.size(), 1U);
+	EXPECT_EQ(data.cell_ids.size(), 1U);
+	EXPECT_EQ(data.radii.size(), 1U);
+	EXPECT_EQ(data.is_movable.size(), 1U);
+	EXPECT_EQ(data.cell_cell_adhesion_strength.size(), 1U);
+	EXPECT_EQ(data.cell_cell_repulsion_strength.size(), 1U);
+	EXPECT_EQ(data.is_motile.size(), 1U);
+	EXPECT_EQ(data.spring_constants.size(), 1U);
 
 	// Vector fields (3 components each)
-	EXPECT_EQ(data.velocities.size(), 3u);
-	EXPECT_EQ(data.previous_velocities.size(), 3u);
-	EXPECT_EQ(data.forces.size(), 3u);
-	EXPECT_EQ(data.motility_directions.size(), 3u);
+	EXPECT_EQ(data.velocities.size(), 3U);
+	EXPECT_EQ(data.previous_velocities.size(), 3U);
+	EXPECT_EQ(data.forces.size(), 3U);
+	EXPECT_EQ(data.motility_directions.size(), 3U);
 
 	// Nested vectors
-	EXPECT_EQ(data.neighbors.size(), 1u);
-	EXPECT_EQ(data.spring_attachments.size(), 1u);
+	EXPECT_EQ(data.neighbors.size(), 1U);
+	EXPECT_EQ(data.spring_attachments.size(), 1U);
 }
 
 TEST_F(AgentDataTest, AddInitializesDefaultValues)

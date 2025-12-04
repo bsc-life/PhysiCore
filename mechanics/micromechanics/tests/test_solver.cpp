@@ -87,7 +87,7 @@ TEST_F(SolverTest, UpdateForcesCalculatesRepulsion)
 	// Agent 0 should be pushed in negative x direction
 	// Agent 1 should be pushed in positive x direction
 	// (actual direction depends on implementation)
-	bool has_force = (mech_data.forces[0] != 0.0 || mech_data.forces[3] != 0.0);
+	bool const has_force = (mech_data.forces[0] != 0.0 || mech_data.forces[3] != 0.0);
 	EXPECT_TRUE(has_force);
 }
 
@@ -99,8 +99,8 @@ TEST_F(SolverTest, UpdatePositionsMovesAgents)
 
 	auto& base_data = *std::get<std::unique_ptr<base_agent_data>>(env->agents->agent_datas);
 
-	real_t initial_x0 = base_data.positions[0];
-	real_t initial_x1 = base_data.positions[3];
+	real_t const initial_x0 = base_data.positions[0];
+	real_t const initial_x1 = base_data.positions[3];
 
 	solver->initialize(*env);
 	solver->update_cell_neighbors(*env);
@@ -108,7 +108,7 @@ TEST_F(SolverTest, UpdatePositionsMovesAgents)
 	solver->update_positions(*env);
 
 	// Positions should have changed
-	bool pos_changed = (base_data.positions[0] != initial_x0 || base_data.positions[3] != initial_x1);
+	bool const pos_changed = (base_data.positions[0] != initial_x0 || base_data.positions[3] != initial_x1);
 	EXPECT_TRUE(pos_changed);
 
 	// Agents should have moved apart (x0 decreased, x1 increased)
@@ -127,7 +127,7 @@ TEST_F(SolverTest, ImmovableAgentDoesNotMove)
 	// Make agent 0 immovable
 	mech_data.is_movable[0] = 0;
 
-	real_t initial_x0 = base_data.positions[0];
+	real_t const initial_x0 = base_data.positions[0];
 
 	solver->initialize(*env);
 	solver->update_cell_neighbors(*env);

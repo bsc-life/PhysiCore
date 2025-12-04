@@ -8,7 +8,7 @@
 using namespace physicore;
 using namespace physicore::mechanics::micromechanics;
 
-agent_container make_agent_container()
+static agent_container make_agent_container()
 {
 	auto base_data = std::make_unique<base_agent_data>(3);
 	auto mech_data = std::make_unique<agent_data>(*base_data);
@@ -21,11 +21,11 @@ TEST(AgentContainerTest, CreateIncreasesSize)
 
 	auto* a0 = container.create();
 	ASSERT_NE(a0, nullptr);
-	EXPECT_EQ(container.size(), 1u);
+	EXPECT_EQ(container.size(), 1U);
 
 	auto* a1 = container.create();
 	ASSERT_NE(a1, nullptr);
-	EXPECT_EQ(container.size(), 2u);
+	EXPECT_EQ(container.size(), 2U);
 }
 
 TEST(AgentContainerTest, CreateAndRemove)
@@ -37,10 +37,10 @@ TEST(AgentContainerTest, CreateAndRemove)
 	EXPECT_NE(agent2, nullptr);
 	EXPECT_NE(agent1, agent2);
 	container.remove_agent(agent1);
-	EXPECT_EQ(container.size(), 1u);
+	EXPECT_EQ(container.size(), 1U);
 	// After removal, agent1 pointer is invalid, but we can create a new agent
 	EXPECT_NE(container.create(), nullptr);
-	EXPECT_EQ(container.size(), 2u);
+	EXPECT_EQ(container.size(), 2U);
 }
 
 class RemoveAgentTest : public ::testing::TestWithParam<std::tuple<int, bool>>
@@ -74,8 +74,8 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	agent2->position()[0] = 2.8;
 	agent2->velocity()[0] = 2.9;
 
-	int remove_idx = std::get<0>(GetParam());
-	bool remove_via_pointer = std::get<1>(GetParam());
+	int const remove_idx = std::get<0>(GetParam());
+	bool const remove_via_pointer = std::get<1>(GetParam());
 
 	if (remove_via_pointer)
 		container.remove_agent(container.get_agent_at(remove_idx));

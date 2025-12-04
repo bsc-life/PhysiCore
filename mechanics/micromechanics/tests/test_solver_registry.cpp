@@ -16,14 +16,14 @@ static bool ensure_registered = []() {
 class mock_solver : public solver
 {
 public:
-	void initialize(environment&) override {}
-	void update_cell_neighbors(environment&) override {}
-	void update_cell_forces(environment&) override {}
-	void calculate_cell_data(environment&) override {}
-	void update_motility(environment&) override {}
-	void update_basement_membrane_interactions(environment&) override {}
-	void update_spring_attachments(environment&) override {}
-	void update_positions(environment&) override {}
+	void initialize(environment& /*e*/) override {}
+	void update_cell_neighbors(environment& /*e*/) override {}
+	void update_cell_forces(environment& /*e*/) override {}
+	void calculate_cell_data(environment& /*e*/) override {}
+	void update_motility(environment& /*e*/) override {}
+	void update_basement_membrane_interactions(environment& /*e*/) override {}
+	void update_spring_attachments(environment& /*e*/) override {}
+	void update_positions(environment& /*e*/) override {}
 };
 
 TEST(SolverRegistryTest, CheckPresentSolvers)
@@ -65,7 +65,7 @@ TEST(SolverRegistryTest, RegistryAdder)
 	auto& registry = solver_registry::instance();
 
 	// Use registry_adder to register a solver
-	registry_adder<mock_solver> mock_solver_adder("test_mock_solver");
+	registry_adder<mock_solver> const mock_solver_adder("test_mock_solver");
 
 	EXPECT_TRUE(registry.is_available("test_mock_solver"));
 	EXPECT_NE(registry.get("test_mock_solver"), nullptr);
@@ -81,10 +81,11 @@ TEST(SolverRegistryTest, AvailableSolvers)
 	registry.register_factory("solver_2", []() { return std::make_unique<mock_solver>(); });
 
 	auto solvers = registry.available_solvers();
-	EXPECT_EQ(solvers.size(), 2u);
+	EXPECT_EQ(solvers.size(), 2U);
 
 	// Check both solvers are in the list (order may vary due to unordered_map)
-	bool found_1 = false, found_2 = false;
+	bool found_1 = false;
+	bool found_2 = false;
 	for (const auto& name : solvers)
 	{
 		if (name == "solver_1")

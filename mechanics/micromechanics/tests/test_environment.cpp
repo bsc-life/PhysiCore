@@ -48,7 +48,7 @@ protected:
 		}
 	}
 
-	std::unique_ptr<environment> create_test_environment()
+	static std::unique_ptr<environment> create_test_environment()
 	{
 		auto env = std::make_unique<environment>(0.01);
 		auto base_data = std::make_unique<base_agent_data>(3);
@@ -134,7 +134,7 @@ TEST_F(EnvironmentTest, PvdFileContainsCorrectEntries)
 	ASSERT_TRUE(std::filesystem::exists(pvd_file));
 
 	std::ifstream file(pvd_file);
-	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	std::string const content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
 	// Check XML structure
 	EXPECT_TRUE(content.find("<?xml version=\"1.0\"?>") != std::string::npos);
@@ -176,8 +176,8 @@ TEST_F(EnvironmentTest, RunMultipleTimestepsWithForces)
 	agent1->cell_cell_repulsion_strength() = 10.0;
 	agent1->relative_maximum_adhesion_distance() = 1.5;
 
-	real_t initial_x0 = agent0->position()[0];
-	real_t initial_x1 = agent1->position()[0];
+	real_t const initial_x0 = agent0->position()[0];
+	real_t const initial_x1 = agent1->position()[0];
 
 	// Run several timesteps
 	for (int i = 0; i < 10; ++i)

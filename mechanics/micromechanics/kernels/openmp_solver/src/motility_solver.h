@@ -30,7 +30,7 @@ public:
 	 * - Scale by migration speed
 	 * - Add to velocity accumulator
 	 */
-	void update_motility(environment& e);
+	static void update_motility(environment& e);
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver

@@ -27,7 +27,7 @@ public:
 	 * For each agent near a domain boundary, applies a repulsive
 	 * force to keep the agent inside the domain.
 	 */
-	void update_interactions(environment& e);
+	static void update_interactions(environment& e);
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
