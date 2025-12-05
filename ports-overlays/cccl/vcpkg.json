@@ -3,7 +3,13 @@
     "version-string": "3.1.0",
     "description": "CUDA Core Compute Libraries",
     "dependencies": [
-        "vcpkg-cmake",
-        "vcpkg-cmake-config"
+        {
+            "name": "vcpkg-cmake",
+            "host": true
+        },
+        {
+            "name": "vcpkg-cmake-config",
+            "host": true
+        }
     ]
 }

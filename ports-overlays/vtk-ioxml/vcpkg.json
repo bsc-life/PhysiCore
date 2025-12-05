@@ -5,7 +5,13 @@
     "homepage": "https://vtk.org",
     "license": "BSD-3-Clause",
     "dependencies": [
-        "vcpkg-cmake",
-        "vcpkg-cmake-config"
+        {
+            "name": "vcpkg-cmake",
+            "host": true
+        },
+        {
+            "name": "vcpkg-cmake-config",
+            "host": true
+        }
     ]
 }

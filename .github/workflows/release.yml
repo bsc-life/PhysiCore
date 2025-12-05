@@ -30,11 +30,11 @@ jobs:
           - os: ubuntu-22.04-arm
             preset: gcc-release-artifacts
             artifact_name: physicore-linux-arm64
-          - os: macos-latest
-            preset: gcc-release-artifacts
+          - os: macos-14
+            preset: macos-arm-release-artifacts
             artifact_name: physicore-macos-arm64
-          - os: macos-15-intel
-            preset: gcc-release-artifacts
+          - os: macos-13
+            preset: macos-x64-release-artifacts
             artifact_name: physicore-macos-x64
           - os: windows-latest
             preset: msvc-release-artifacts
