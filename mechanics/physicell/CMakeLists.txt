@@ -5,7 +5,8 @@ add_library(physicore.mechanics.physicell_internal_iface INTERFACE)
 file(GLOB PUBLIC_INC "include/physicell/*.h")
 target_sources(
   physicore.mechanics.physicell
-  PRIVATE src/environment.cpp src/config_reader.cpp
+  PRIVATE src/environment.cpp src/config_reader.cpp src/agent_data.cpp
+          src/mechanical_agent.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
          ${PUBLIC_INC})
 
