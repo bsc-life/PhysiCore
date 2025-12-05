@@ -231,7 +231,9 @@
             "cacheVariables": {
                 "BUILD_SHARED_LIBS": "ON",
                 "PHYSICORE_BUILD_TESTS": "OFF",
-                "PHYSICORE_BUILD_EXAMPLES": "OFF"
+                "PHYSICORE_BUILD_EXAMPLES": "OFF",
+                "CMAKE_C_COMPILER": "gcc-15",
+                "CMAKE_CXX_COMPILER": "g++-15"
             }
         },
         {
