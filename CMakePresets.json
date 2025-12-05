@@ -221,17 +221,35 @@
             ]
         },
         {
-            "name": "appleclang-release-artifacts",
-            "displayName": "AppleClang Release Artifacts Build",
+            "name": "macos-arm-release-artifacts",
+            "displayName": "MacOS ARM Release Artifacts Build",
             "inherits": [
                 "_root-config",
                 "_release-base",
-                "_appleclang-base"
+                "_gcc-base"
             ],
             "cacheVariables": {
                 "BUILD_SHARED_LIBS": "ON",
                 "PHYSICORE_BUILD_TESTS": "OFF",
                 "PHYSICORE_BUILD_EXAMPLES": "OFF",
+                "VCPKG_TARGET_TRIPLET": "arm-osx-gcc",
+                "CMAKE_C_COMPILER": "gcc-15",
+                "CMAKE_CXX_COMPILER": "g++-15"
+            }
+        },
+        {
+            "name": "macos-x64-release-artifacts",
+            "displayName": "MacOS x64 Release Artifacts Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_gcc-base"
+            ],
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "ON",
+                "PHYSICORE_BUILD_TESTS": "OFF",
+                "PHYSICORE_BUILD_EXAMPLES": "OFF",
+                "VCPKG_TARGET_TRIPLET": "x64-osx-gcc",
                 "CMAKE_C_COMPILER": "gcc-15",
                 "CMAKE_CXX_COMPILER": "g++-15"
             }
@@ -359,8 +377,15 @@
             ]
         },
         {
-            "name": "appleclang-release-artifacts",
-            "configurePreset": "appleclang-release-artifacts",
+            "name": "macos-arm-release-artifacts",
+            "configurePreset": "macos-arm-release-artifacts",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "macos-x64-release-artifacts",
+            "configurePreset": "macos-x64-release-artifacts",
             "inherits": [
                 "_root-build"
             ]
@@ -688,16 +713,30 @@
             ]
         },
         {
-            "name": "appleclang-release-artifacts",
-            "displayName": "AppleClang Release Artifacts Build",
+            "name": "macos-arm-release-artifacts",
+            "displayName": "MacOS ARM Release Artifacts Build",
             "steps": [
                 {
                     "type": "configure",
-                    "name": "appleclang-release-artifacts"
+                    "name": "macos-arm-release-artifacts"
                 },
                 {
                     "type": "build",
-                    "name": "appleclang-release-artifacts"
+                    "name": "macos-arm-release-artifacts"
+                }
+            ]
+        },
+        {
+            "name": "macos-x64-release-artifacts",
+            "displayName": "MacOS x64 Release Artifacts Build",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "macos-x64-release-artifacts"
+                },
+                {
+                    "type": "build",
+                    "name": "macos-x64-release-artifacts"
                 }
             ]
         },
