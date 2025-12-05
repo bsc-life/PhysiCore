@@ -606,7 +606,7 @@ TEST_P(RecomputeTest, ConflictBig)
 	}
 }
 
-TEST(PREPEND_TEST_NAME(CellSolverTest), InactiveAgentsSkipSecretion)
+TEST(PREPEND_TEST_NAME(ThrustCellSolverTest), InactiveAgentsSkipSecretion)
 {
 	// Test that inactive agents do not contribute to secretion/uptake
 	const bool compute_internalized = true;
@@ -675,7 +675,7 @@ TEST(PREPEND_TEST_NAME(CellSolverTest), InactiveAgentsSkipSecretion)
 	}
 }
 
-TEST(PREPEND_TEST_NAME(CellSolverTest), AllInactiveAgentsNoSecretion)
+TEST(PREPEND_TEST_NAME(ThrustCellSolverTest), AllInactiveAgentsNoSecretion)
 {
 	// Test that when all agents are inactive, no secretion occurs
 	const bool compute_internalized = true;
@@ -738,7 +738,7 @@ TEST(PREPEND_TEST_NAME(CellSolverTest), AllInactiveAgentsNoSecretion)
 	}
 }
 
-TEST(PREPEND_TEST_NAME(CellSolverTest), InactiveAgentReactivation)
+TEST(PREPEND_TEST_NAME(ThrustCellSolverTest), InactiveAgentReactivation)
 {
 	// Test that agents can be deactivated and reactivated
 	const bool compute_internalized = true;

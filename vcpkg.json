@@ -1,11 +1,17 @@
 {
   "dependencies": [
-    "cccl",
+    {
+      "name": "cccl",
+      "platform": "!osx"
+    },
     "gtest",
     "highway",
     "noarr-structures",
     "pugixml",
-    "tbb",
+    {
+      "name": "tbb",
+      "platform": "!osx"
+    },
     "vtk-ioxml"
   ]
 }

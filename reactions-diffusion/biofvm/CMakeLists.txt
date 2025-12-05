@@ -61,8 +61,8 @@ target_link_libraries(
   PRIVATE reactions-diffusion.biofvm_internal_iface
   PUBLIC common)
 
-# Thrust does not support AppleClang
-if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+# Thrust is only supported on Windows and Linux
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(BIOFVM_HAS_THRUST ON)
   add_subdirectory(kernels/thrust_solver)
 else()
