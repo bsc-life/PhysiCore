@@ -232,7 +232,7 @@
                 "BUILD_SHARED_LIBS": "ON",
                 "PHYSICORE_BUILD_TESTS": "OFF",
                 "PHYSICORE_BUILD_EXAMPLES": "OFF",
-                "VCPKG_TARGET_TRIPLET": "arm-osx-gcc",
+                "VCPKG_TARGET_TRIPLET": "arm64-osx-gcc",
                 "CMAKE_C_COMPILER": "gcc-15",
                 "CMAKE_CXX_COMPILER": "g++-15"
             }
