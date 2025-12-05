@@ -31,10 +31,10 @@ jobs:
             preset: gcc-release-artifacts
             artifact_name: physicore-linux-arm64
           - os: macos-latest
-            preset: appleclang-release-artifacts
+            preset: gcc-release-artifacts
             artifact_name: physicore-macos-arm64
           - os: macos-15-intel
-            preset: appleclang-release-artifacts
+            preset: gcc-release-artifacts
             artifact_name: physicore-macos-x64
           - os: windows-latest
             preset: msvc-release-artifacts
@@ -49,6 +49,11 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+
+      - name: Install GCC on macOS
+        if: matrix.os == 'macos-latest' || matrix.os == 'macos-15-intel'
+        run: |
+          brew install gcc
 
       - name: Set up vcpkg with cache
         uses: ./.github/actions/setup-vcpkg
