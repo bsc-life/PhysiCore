@@ -671,11 +671,11 @@ TEST(CellSolverTest, AllInactiveAgentsNoSecretion)
 	a2->is_active() = 0;
 
 	diffusion_solver d_s;
-	cell_solver s;
+	cell_solver solver;
 
 	d_s.prepare(*m, 1);
 	d_s.initialize();
-	s.initialize(*m);
+	solver.initialize(*m);
 
 	auto dens_l = d_s.get_substrates_layout<1>();
 	auto densities = noarr::make_bag(dens_l, d_s.get_substrates_pointer());
@@ -691,7 +691,7 @@ TEST(CellSolverTest, AllInactiveAgentsNoSecretion)
 	}
 
 #pragma omp parallel
-	s.simulate_secretion_and_uptake(*m, d_s, true);
+	solver.simulate_secretion_and_uptake(*m, d_s, true);
 
 	// All substrate densities should remain unchanged
 	for (index_t x = 0; x < m->mesh.grid_shape[0]; x++)
