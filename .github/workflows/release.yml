@@ -33,7 +33,7 @@ jobs:
           - os: macos-14
             preset: macos-arm-release-artifacts
             artifact_name: physicore-macos-arm64
-          - os: macos-13
+          - os: macos-15-intel
             preset: macos-x64-release-artifacts
             artifact_name: physicore-macos-x64
           - os: windows-latest
