@@ -278,14 +278,28 @@
             ]
         },
         {
-            "name": "msvc-release-artifacts",
-            "displayName": "MSVC Release Artifacts Build",
+            "name": "msvc-x64-release-artifacts",
+            "displayName": "MSVC x64 Release Artifacts Build",
             "inherits": [
                 "_root-config",
                 "_release-base",
                 "_artifacts-base",
                 "_msvc-base"
             ]
+        },
+        {
+            "name": "msvc-arm-release-artifacts",
+            "displayName": "MSVC ARM Release Artifacts Build",
+            "inherits": [
+                "_root-config",
+                "_release-base",
+                "_artifacts-base",
+                "_msvc-base"
+            ],
+            "cacheVariables": {
+                "VCPKG_HOST_TRIPLET": "arm64-windows-static-md",
+                "VCPKG_TARGET_TRIPLET": "arm64-windows-static-md"
+            }
         }
     ],
     "buildPresets": [
@@ -406,8 +420,15 @@
             ]
         },
         {
-            "name": "msvc-release-artifacts",
-            "configurePreset": "msvc-release-artifacts",
+            "name": "msvc-x64-release-artifacts",
+            "configurePreset": "msvc-x64-release-artifacts",
+            "inherits": [
+                "_root-build"
+            ]
+        },
+        {
+            "name": "msvc-arm-release-artifacts",
+            "configurePreset": "msvc-arm-release-artifacts",
             "inherits": [
                 "_root-build"
             ]
@@ -793,16 +814,30 @@
             ]
         },
         {
-            "name": "msvc-release-artifacts",
-            "displayName": "MSVC Release Artifacts Build",
+            "name": "msvc-x64-release-artifacts",
+            "displayName": "MSVC x64 Release Artifacts Build",
             "steps": [
                 {
                     "type": "configure",
-                    "name": "msvc-release-artifacts"
+                    "name": "msvc-x64-release-artifacts"
                 },
                 {
                     "type": "build",
-                    "name": "msvc-release-artifacts"
+                    "name": "msvc-x64-release-artifacts"
+                }
+            ]
+        },
+        {
+            "name": "msvc-arm-release-artifacts",
+            "displayName": "MSVC ARM Release Artifacts Build",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "msvc-arm-release-artifacts"
+                },
+                {
+                    "type": "build",
+                    "name": "msvc-arm-release-artifacts"
                 }
             ]
         }

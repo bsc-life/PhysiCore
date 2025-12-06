@@ -37,10 +37,10 @@ jobs:
             preset: macos-x64-release-artifacts
             artifact_name: physicore-macos-x64
           - os: windows-latest
-            preset: msvc-release-artifacts
+            preset: msvc-x64-release-artifacts
             artifact_name: physicore-windows-x64
           - os: windows-11-arm
-            preset: msvc-release-artifacts
+            preset: msvc-arm-release-artifacts
             artifact_name: physicore-windows-arm64
 
     steps:
