@@ -7,6 +7,8 @@ if(${BUILD_SHARED_LIBS})
                         PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
+set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
+
 find_package(Thrust REQUIRED CONFIG)
 
 thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
@@ -103,10 +105,6 @@ if(${CUDAToolkit_FOUND})
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/cuda>
               $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 
-  set_target_properties(
-    reactions-diffusion.biofvm.kernels.cuda_thrust_solver
-    PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
-
   target_link_libraries(
     reactions-diffusion.biofvm.kernels.cuda_thrust_solver
     PRIVATE reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
@@ -130,7 +128,6 @@ if(${CUDAToolkit_FOUND})
   set_target_properties(
     reactions-diffusion.biofvm
     PROPERTIES LINKER_LANGUAGE CUDA
-               CUDA_ARCHITECTURES native
                CUDA_SEPARABLE_COMPILATION ON
                INTERFACE_HAS_CUDA TRUE)
 

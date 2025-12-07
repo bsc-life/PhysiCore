@@ -26,10 +26,6 @@ if(${CUDAToolkit_FOUND})
       reactions-diffusion.biofvm.kernels.cuda_thrust_solver.${example}
       PRIVATE ${cuda_example})
 
-    set_target_properties(
-      reactions-diffusion.biofvm.kernels.cuda_thrust_solver.${example}
-      PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
-
     target_link_libraries(
       reactions-diffusion.biofvm.kernels.cuda_thrust_solver.${example}
       PRIVATE
