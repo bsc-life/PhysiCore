@@ -51,7 +51,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install CUDA Toolkit
-        if: runner.os != 'macOS'
+        if: runner.os != 'macOS' && matrix.os != 'windows-11-arm'
         uses: N-Storm/cuda-toolkit@v0.2.28
         with:
           method: 'network'
