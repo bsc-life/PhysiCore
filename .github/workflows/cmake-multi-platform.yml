@@ -44,7 +44,7 @@ jobs:
       uses: jimver/cuda-toolkit@v0.2.29
       with:
         method: 'network'
-        sub-packages: '["nvfatbin", "nvdisasm", "nvjitlink", "nvrtc", "nvrtc_dev", "crt", "cudart", "nvcc"]'
+        sub-packages: '["nvcc", "cudart", "visual_studio_integration"]'
 
     - name: Set up vcpkg with cache
       uses: ./.github/actions/setup-vcpkg
