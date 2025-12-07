@@ -1,0 +1,12 @@
+name: 'Install CUDA Toolkit'
+description: 'GitHub Action to install the CUDA Toolkit on Ubuntu and Windows runners.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install CUDA Toolkit
+      if: runner.os == 'Linux' || (runner.os == 'Windows' && runner.arch != 'ARM64')
+      uses: jimver/cuda-toolkit@v0.2.29
+      with:
+        method: 'network'
+        sub-packages: ${{ runner.os == 'Linux' && '["nvcc"]' || '[]' }}

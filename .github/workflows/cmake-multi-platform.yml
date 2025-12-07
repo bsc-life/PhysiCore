@@ -40,12 +40,7 @@ jobs:
         sudo apt-get install -y libomp-dev
 
     - name: Install CUDA Toolkit
-      if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
-      uses: jimver/cuda-toolkit@v0.2.29
-      with:
-        cuda: '12.6.2'
-        method: 'network'
-        sub-packages: '["nvcc", "cudart", "visual_studio_integration"]'
+      uses: ./.github/actions/cuda-toolkit
 
     - name: Set up vcpkg with cache
       uses: ./.github/actions/setup-vcpkg
