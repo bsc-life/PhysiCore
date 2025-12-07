@@ -50,6 +50,12 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Install CUDA Toolkit
+        if: runner.os != 'macOS'
+        uses: N-Storm/cuda-toolkit@v0.2.28
+        with:
+          method: 'network'
+
       - name: Set up vcpkg with cache
         uses: ./.github/actions/setup-vcpkg
         with:
