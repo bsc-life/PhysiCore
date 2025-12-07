@@ -55,7 +55,7 @@ jobs:
         uses: jimver/cuda-toolkit@v0.2.29
         with:
           method: 'network'
-          sub-packages: '["cccl", "crt", "cudart", "nvcc"]'
+          sub-packages: '["thrust", "crt", "cudart", "nvcc"]'
 
       - name: Set up vcpkg with cache
         uses: ./.github/actions/setup-vcpkg
