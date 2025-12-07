@@ -51,11 +51,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install CUDA Toolkit
-        if: runner.os != 'macOS' && matrix.os != 'windows-11-arm'
-        uses: jimver/cuda-toolkit@v0.2.29
-        with:
-          method: 'network'
-          sub-packages: '["nvcc"]'
+        uses: ./.github/actions/cuda-toolkit
 
       - name: Set up vcpkg with cache
         uses: ./.github/actions/setup-vcpkg
