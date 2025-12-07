@@ -39,7 +39,15 @@
             "cacheVariables": {
                 "BUILD_SHARED_LIBS": "ON",
                 "PHYSICORE_BUILD_TESTS": "OFF",
-                "PHYSICORE_BUILD_EXAMPLES": "OFF"
+                "PHYSICORE_BUILD_EXAMPLES": "OFF",
+                "CMAKE_CUDA_ARCHITECTURES": "all-major"
+            }
+        },
+        {
+            "name": "_native-cuda",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_CUDA_ARCHITECTURES": "native"
             }
         },
         {
@@ -116,7 +124,8 @@
             "inherits": [
                 "_root-config",
                 "_debug-base",
-                "_gcc-base"
+                "_gcc-base",
+                "_native-cuda"
             ]
         },
         {
@@ -134,7 +143,8 @@
             "inherits": [
                 "_root-config",
                 "_release-base",
-                "_gcc-base"
+                "_gcc-base",
+                "_native-cuda"
             ]
         },
         {
@@ -153,7 +163,8 @@
             "inherits": [
                 "_root-config",
                 "_debug-base",
-                "_llvm-base"
+                "_llvm-base",
+                "_native-cuda"
             ]
         },
         {
@@ -197,7 +208,8 @@
             "inherits": [
                 "_root-config",
                 "_release-base",
-                "_llvm-base"
+                "_llvm-base",
+                "_native-cuda"
             ]
         },
         {
@@ -265,7 +277,8 @@
             "inherits": [
                 "_root-config",
                 "_debug-base",
-                "_msvc-base"
+                "_msvc-base",
+                "_native-cuda"
             ]
         },
         {
@@ -274,7 +287,8 @@
             "inherits": [
                 "_root-config",
                 "_release-base",
-                "_msvc-base"
+                "_msvc-base",
+                "_native-cuda"
             ]
         },
         {

@@ -36,10 +36,6 @@ if(${CUDAToolkit_FOUND})
   target_sources(reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
                  PRIVATE ${CUDA_TEST_SOURCES})
 
-  set_target_properties(
-    reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
-    PROPERTIES CUDA_ARCHITECTURES native CUDA_SEPARABLE_COMPILATION ON)
-
   target_link_libraries(
     reactions-diffusion.biofvm.kernels.cuda_thrust_solver.tests
     PRIVATE reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
