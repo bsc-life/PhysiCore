@@ -54,6 +54,7 @@ jobs:
         if: runner.os != 'macOS' && matrix.os != 'windows-11-arm'
         uses: jimver/cuda-toolkit@v0.2.29
         with:
+          cuda: '12.1'
           method: 'network'
           sub-packages: '["nvcc", "cudart", "crt", "visual_studio_integration"]'
 

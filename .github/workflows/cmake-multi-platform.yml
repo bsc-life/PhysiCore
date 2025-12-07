@@ -43,6 +43,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
       uses: jimver/cuda-toolkit@v0.2.29
       with:
+        cuda: '12.6'
         method: 'network'
         sub-packages: '["nvcc", "cudart", "visual_studio_integration"]'
 
