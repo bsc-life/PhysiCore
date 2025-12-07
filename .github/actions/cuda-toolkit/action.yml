@@ -9,4 +9,4 @@ runs:
       uses: jimver/cuda-toolkit@v0.2.29
       with:
         method: 'network'
-        sub-packages: ${{ runner.os == 'Linux' && '["nvcc"]' || '[]' }}
+        sub-packages: ${{ runner.os == 'Linux' && '["nvcc"]' || '["crt", "cudart", "nvcc", "nvvm"]' }}
