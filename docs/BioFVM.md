@@ -419,7 +419,14 @@ public:
         const microenvironment& m
     ) const override {
         // Example: Gaussian source at origin
-        auto center = m.mesh.voxel_center(/*...*/);
+        // First, convert linear index to 3D coordinates
+        index_t z = voxel_idx / (m.mesh.grid_shape[0] * m.mesh.grid_shape[1]);
+        index_t rem = voxel_idx % (m.mesh.grid_shape[0] * m.mesh.grid_shape[1]);
+        index_t y = rem / m.mesh.grid_shape[0];
+        index_t x = rem % m.mesh.grid_shape[0];
+        
+        // Get voxel center position
+        auto center = m.mesh.voxel_center({x, y, z});
         real_t r2 = center[0]*center[0] + 
                     center[1]*center[1] + 
                     center[2]*center[2];
