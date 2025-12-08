@@ -1,46 +1,13 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely edit after that. If you find
-# yourself editing this file very often, consider using Jekyll's data files
-# feature for the data you need to update frequently.
-#
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'bundle exec jekyll serve'. If you change this file, please restart the server process.
-#
-# If you need help with YAML syntax, here are some quick references for you:
-# https://learn-the-web.algonquindesign.ca/topics/markdown-yaml-cheat-sheet/#yaml
-# https://learnxinyminutes.com/docs/yaml/
-#
-# Site settings
-title: PhysiCore Documentation
-email: physicore@bsc.es
+title: PhysiCore Docs
+email: adamsmelko1@gmail.com
 description: >-
-  PhysiCore — A modern C++20 re-architecture of PhysiCell: modular, fast, and future-ready.
   High-performance agent-based multicellular simulations with pluggable solvers and mechanics.
 baseurl: "/PhysiCore"
 url: "https://bsc-life.github.io"
 
 # Build settings
 remote_theme: just-the-docs/just-the-docs
-color_scheme: light
-
-# Just the Docs theme configuration
-search_enabled: true
-search:
-  heading_level: 2
-  previews: 3
-  preview_words_before: 5
-  preview_words_after: 10
-  tokenizer_separator: /[\s/]+/
-  rel_url: true
-  button: false
-
-# Navigation structure
-nav_sort: case_insensitive
-
-# Enable heading anchors
-heading_anchors: true
+color_scheme: dark
 
 # Aux links for the upper right navigation
 aux_links:
@@ -48,22 +15,13 @@ aux_links:
     - "https://github.com/bsc-life/PhysiCore"
 
 # Footer content
-footer_content: "Copyright &copy; 2025 Barcelona Supercomputing Center. Released under the BSD 3-Clause License."
+footer_content: "Copyright &copy; 2025 Barcelona Supercomputing Center. Released under the MIT License."
 
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
-# Exclude from processing
-exclude:
-  - .sass-cache/
-  - .jekyll-cache/
-  - gemfiles/
-  - Gemfile
-  - Gemfile.lock
-  - node_modules/
-  - vendor/bundle/
-  - vendor/cache/
-  - vendor/gems/
-  - vendor/ruby/
-  - README.md
+mermaid:
+  # Version of mermaid library
+  # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
+  version: "11.12.2"

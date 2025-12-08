@@ -13,7 +13,7 @@ This guide walks you through setting up PhysiCore on your system, from installin
 
 ### Required Tools
 
-- **CMake 3.25+** - Build system with presets support
+- **CMake 3.24+** - Build system with presets support
 - **C++20 Compiler** - See [Supported Compilers](#supported-compilers) below
 - **Ninja** - Build tool (CMake presets use the Ninja generator)
 - **vcpkg** - C++ package manager for dependencies
@@ -22,18 +22,18 @@ This guide walks you through setting up PhysiCore on your system, from installin
 
 PhysiCore is tested and supported on:
 
-- **Linux** - Ubuntu 20.04+, Debian 11+, and compatible distributions
-- **macOS** - macOS 12+ (Monterey and later)
-- **Windows** - Windows 10/11 with Visual Studio 2019+
+- **Linux** - Ubuntu 22.04+ (x86, arm64)
+- **macOS** - macOS 15+ (x86, arm64)
+- **Windows** - Windows 11 with Visual Studio 2019+ (x86, arm64)
 
 ### Supported Compilers
 
 | Platform | Compiler | Minimum Version |
 |----------|----------|-----------------|
-| Linux | GCC | 11+ |
-| Linux | Clang/LLVM | 14+ |
-| macOS | AppleClang | 14+ |
-| Windows | MSVC | 19.29+ (VS 2019) |
+| Linux | GCC | 13+ |
+| Linux | Clang/LLVM | 18+ |
+| macOS | GCC/AppleClang | 13+/18+ |
+| Windows | MSVC/LLVM | 19.29+ (VS 2019) |
 
 ## Dependencies
 
@@ -214,4 +214,3 @@ To enable CUDA support:
 
 - Explore the [Architecture](Architecture.md) to understand how PhysiCore is organized
 - Browse the [Repository Structure](Repository-Structure.md) to navigate the codebase
-- Check out additional examples in the `reactions-diffusion/biofvm/examples/` directory

@@ -19,29 +19,90 @@ PhysiCore follows several key architectural principles:
 4. **Self-registering components** - Implementations register themselves at startup for runtime selection
 5. **Performance-first** - Ready for HPC, vectorization, and GPU acceleration
 
-## Module Overview
+
+## Terminology
+
+Understanding PhysiCore's architecture requires familiarity with several key terms that describe different levels of abstraction:
+
+1. Module
+    1. Its Implementation
+        1. Its Execution Kernel
+
+### Module
+
+A **module** represents a distinct physics domain or time scale in multicellular simulations. Modules define the contract and interface that implementations must follow, but contain no concrete algorithms themselves.
+
+Examples:
+- `reactions-diffusion` - Handles substrate transport and reaction kinetics
+- `mechanics` - Manages cell-cell and cell-substrate mechanical interactions  
+- `phenotype` - Integrates modules and defines biological behaviors
+
+Modules are organized as separate CMake libraries under their own directories (e.g., `reactions-diffusion/`, `mechanics/`).
+
+### Module Implementations
+
+**Module implementations** (also called **models** or **engines**) provide concrete algorithms and data structures that fulfill a module's interface contract. Multiple implementations can exist for the same module, offering different algorithmic approaches or trade-offs.
+
+Examples:
+- `biofvm` - A finite volume implementation of the reactions-diffusion module
+- `micromechanics` - A spring-based implementation of the mechanics module
+- `physicore` - The reference implementation of the phenotype module
+
+Each implementation lives in its own subdirectory within the module (e.g., `reactions-diffusion/biofvm/`, `mechanics/micromechanics/`).
+
+### Kernels and Solvers
+
+**Kernels** (also called **solvers** or **backends**) are hardware-specific implementations of the computational core within a module implementation. They provide the same algorithm but optimized for different execution environments.
+
+Examples:
+- `openmp_solver` - CPU parallelization using OpenMP threads
+- `thrust_solver` - GPU/CPU parallelization using NVIDIA Thrust
+- `cuda_solver` - Direct GPU acceleration using CUDA
+
+Kernels self-register with registries (like `solver_registry`) at static initialization, enabling runtime selection without compile-time dependencies. They are located in `kernels/` subdirectories within implementations (e.g., `reactions-diffusion/biofvm/kernels/openmp_solver/`).
+
+The distinction between **kernel** and **solver** is subtle:
+- **Solver** emphasizes the algorithmic approach (finite volume solver, finite element solver)
+- **Kernel** emphasizes the execution backend (OpenMP kernel, CUDA kernel)
+
+PhysiCore uses "kernel" to highlight that these components provide alternative execution strategies for the same underlying algorithm.
+
+
+## Architecture Overview
 
 PhysiCore is organized into **modules** based on the time scale and physics domain they represent. Each module defines a contract (interface) that multiple **implementations** can provide.
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    PhysiCore                        │
-│                                                     │
-│  ┌──────────┐  ┌──────────────────┐  ┌──────────┐ │
-│  │  Common  │  │ Reactions-       │  │Mechanics │ │
-│  │  (Core)  │  │ Diffusion        │  │          │ │
-│  │          │  │                  │  │          │ │
-│  └──────────┘  └──────────────────┘  └──────────┘ │
-│       │                 │                  │        │
-│       │                 │                  │        │
-│  ┌────┴────────────┬───┴────┬────────────┴───┐    │
-│  │  Phenotype      │        │                 │    │
-│  │  (Integration)  │        │                 │    │
-│  └─────────────────┘        │                 │    │
-│                              │                 │    │
-└──────────────────────────────┼─────────────────┼────┘
-                               │                 │
-                          Executables       Executables
+```mermaid
+---
+config:
+  flowchart:
+    htmlLabels: false
+---
+flowchart TB
+    subgraph S0[Physicore Framework]
+        direction TB
+        subgraph S1[Core Modules]
+            direction TB
+            C["`Common Module<br/>*Core Abstractions*`"] --> D["`Reactions-Diffusion Module<br/>*Substrate Transport*`"] & M["`Mechanics Module<br/>*Cell Interactions*`"] 
+
+            P["`Phenotype Module<br/>*Integration Layer*`"]
+        end
+
+        C --> X["`Module X<br/>*Added functionality*`"]
+
+        D --> P
+        M --> P
+        X --> P
+    end
+    
+    
+    subgraph S2["`**Applications**`"]
+        direction LR
+        F[Simulation Executables] ~~~ G[Analysis Tools]
+    end
+    
+    S0 -.-> S2
+
 ```
 
 ### Core Modules
