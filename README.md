@@ -36,11 +36,11 @@ cmake --workflow --preset=gcc-release
 
 ## Documentation
 
-Comprehensive documentation is available in the [**PhysiCore Wiki**](../../wiki):
+Comprehensive documentation is available in the [`docs/`](docs/) directory:
 
-- **[Installation Guide](../../wiki/Installation)** - Dependencies, build instructions, and platform support
-- **[Architecture](../../wiki/Architecture)** - Modular design, implementations, and solver backends
-- **[Repository Structure](../../wiki/Repository-Structure)** - Directory layout and code organization
+- **[Installation Guide](docs/Installation.md)** - Dependencies, build instructions, and platform support
+- **[Architecture](docs/Architecture.md)** - Modular design, implementations, and solver backends
+- **[Repository Structure](docs/Repository-Structure.md)** - Directory layout and code organization
 
 ## Contributing
 
