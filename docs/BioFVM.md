@@ -385,13 +385,17 @@ int main() {
     
     // Run simulation for 30 minutes
     real_t end_time = 30.0;
+    int output_interval = 10;  // Output every 10 minutes
+    int next_output_time = output_interval;
+    
     while (m->simulation_time < end_time) {
         m->run_single_timestep();
         
-        if (static_cast<int>(m->simulation_time) % 10 == 0) {
+        if (m->simulation_time >= next_output_time) {
             std::cout << "Time: " << m->simulation_time 
                       << " min" << std::endl;
             m->serialize_state(m->simulation_time);
+            next_output_time += output_interval;
         }
     }
     
@@ -419,13 +423,15 @@ public:
         const microenvironment& m
     ) const override {
         // Example: Gaussian source at origin
-        // First, convert linear index to 3D coordinates
-        index_t z = voxel_idx / (m.mesh.grid_shape[0] * m.mesh.grid_shape[1]);
-        index_t rem = voxel_idx % (m.mesh.grid_shape[0] * m.mesh.grid_shape[1]);
-        index_t y = rem / m.mesh.grid_shape[0];
-        index_t x = rem % m.mesh.grid_shape[0];
+        // Convert linear voxel index to 3D coordinates
+        // Note: This logic should match your mesh's linearization
+        const auto& gs = m.mesh.grid_shape;
+        index_t z = voxel_idx / (gs[0] * gs[1]);
+        index_t rem = voxel_idx % (gs[0] * gs[1]);
+        index_t y = rem / gs[0];
+        index_t x = rem % gs[0];
         
-        // Get voxel center position
+        // Get voxel center position in physical space
         auto center = m.mesh.voxel_center({x, y, z});
         real_t r2 = center[0]*center[0] + 
                     center[1]*center[1] + 
