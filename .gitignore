@@ -2,4 +2,3 @@
 .vscode/*
 !.vscode/tasks.json
 build
-.wiki
