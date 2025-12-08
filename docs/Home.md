@@ -1,4 +1,4 @@
-# PhysiCore Wiki
+# PhysiCore Documentation
 
 Welcome to the **PhysiCore** documentation! PhysiCore is a modern C++20 re-architecture of the [PhysiCell](http://physicell.org) agent-based multicellular simulation framework, designed for flexibility, performance, and clarity.
 
@@ -18,7 +18,7 @@ PhysiCore aims to be the foundation for **next-generation, high-performance mult
 
 ## Documentation
 
-This wiki provides comprehensive documentation for using and developing with PhysiCore:
+This documentation provides comprehensive information for using and developing with PhysiCore:
 
 - **[Installation](Installation)** - Get started with dependencies, build tools, and platform support
 - **[Architecture](Architecture)** - Understand the modular design and how components interact
