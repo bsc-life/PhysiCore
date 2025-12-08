@@ -31,7 +31,7 @@ export VCPKG_ROOT="$PWD/vcpkg"
 cmake --workflow --preset=gcc-release
 
 # Run an example
-./build/gcc-release/reactions-diffusion/biofvm/examples/physicore.reactions-diffusion.biofvm.diffuse
+./build/gcc-release/reactions-diffusion/biofvm/examples/reactions-diffusion.biofvm.diffuse
 ```
 
 ## Documentation
