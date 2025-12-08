@@ -1,3 +1,10 @@
+---
+layout: default
+title: Installation
+nav_order: 2
+description: "Complete installation guide for PhysiCore including dependencies, build instructions, and platform support"
+---
+
 # Installation
 
 This guide walks you through setting up PhysiCore on your system, from installing dependencies to building your first example.

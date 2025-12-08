@@ -1,3 +1,10 @@
+---
+layout: default
+title: Repository Structure
+nav_order: 4
+description: "Code organization guide with directory layout, module structure, and navigation tips"
+---
+
 # Repository Structure
 
 This page documents the directory layout and organization of the PhysiCore repository. Understanding this structure will help you navigate the codebase and find the components you need.

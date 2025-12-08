@@ -1,3 +1,10 @@
+---
+layout: default
+title: Architecture
+nav_order: 3
+description: "Detailed architecture documentation explaining PhysiCore's modular design, implementations, and kernel backends"
+---
+
 # Architecture
 
 PhysiCore is designed with modularity and extensibility at its core. This page explains the logical structure and how different components interact to create a flexible multicellular simulation framework.
