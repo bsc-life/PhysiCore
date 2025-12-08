@@ -196,9 +196,12 @@ If CMake can't find your compiler:
 
 ### CUDA Support
 
-CUDA support is optional. To enable:
+CUDA support is optional and automatically detected when available. The standard presets (e.g., `gcc-release`, `llvm-release`) will use CUDA if the NVIDIA CUDA Toolkit is installed.
+
+To enable CUDA support:
 1. Install [NVIDIA CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)
-2. Use a preset with CUDA enabled (e.g., `gcc-release` instead of `gcc-release-no-cuda`)
+2. Use any standard preset (e.g., `gcc-release`, `llvm-release`)
+3. CMake will automatically detect and enable CUDA support
 
 ## Next Steps
 
