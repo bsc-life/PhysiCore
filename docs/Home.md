@@ -20,9 +20,9 @@ PhysiCore aims to be the foundation for **next-generation, high-performance mult
 
 This documentation provides comprehensive information for using and developing with PhysiCore:
 
-- **[Installation](Installation)** - Get started with dependencies, build tools, and platform support
-- **[Architecture](Architecture)** - Understand the modular design and how components interact
-- **[Repository Structure](Repository-Structure)** - Navigate the codebase and understand the directory layout
+- **[Installation](Installation.md)** - Get started with dependencies, build tools, and platform support
+- **[Architecture](Architecture.md)** - Understand the modular design and how components interact
+- **[Repository Structure](Repository-Structure.md)** - Navigate the codebase and understand the directory layout
 
 ## Quick Links
 

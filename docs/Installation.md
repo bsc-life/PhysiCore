@@ -205,6 +205,6 @@ To enable CUDA support:
 
 ## Next Steps
 
-- Explore the [Architecture](Architecture) to understand how PhysiCore is organized
-- Browse the [Repository Structure](Repository-Structure) to navigate the codebase
+- Explore the [Architecture](Architecture.md) to understand how PhysiCore is organized
+- Browse the [Repository Structure](Repository-Structure.md) to navigate the codebase
 - Check out additional examples in the `reactions-diffusion/biofvm/examples/` directory
