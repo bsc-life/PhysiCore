@@ -1,15 +1,15 @@
 ---
 layout: default
-title: BioFVM Module
-nav_order: 5
-description: "Complete guide to the BioFVM reaction-diffusion module including mathematical model and API reference"
-has_children: false
+title: BioFVM Implementation
+parent: Reactions-Diffusion Module
+nav_order: 1
+description: "Complete guide to the BioFVM finite volume implementation including mathematical model and API reference"
 ---
 
-# BioFVM Module
+# BioFVM Implementation
 {: .no_toc }
 
-BioFVM is PhysiCore's reaction-diffusion module for simulating substrate transport and reaction kinetics in 3D domains. It implements a finite volume method for solving partial differential equations on Cartesian meshes.
+BioFVM is PhysiCore's finite volume implementation of the reactions-diffusion module for simulating substrate transport and reaction kinetics in 3D domains. It provides a highly optimized solver for reaction-diffusion PDEs on Cartesian meshes.
 
 ## Table of Contents
 {: .no_toc .text-delta }

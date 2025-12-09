@@ -2,6 +2,7 @@
 layout: default
 title: Architecture
 nav_order: 3
+has_children: true
 description: "Detailed architecture documentation explaining PhysiCore's modular design, implementations, and kernel backends"
 ---
 
@@ -120,72 +121,27 @@ PhysiCore consists of four primary modules:
 
 ### Common Module
 
-The `common` module provides the foundational abstractions that all other modules build upon:
+The `common` module provides foundational abstractions including `timestep_executor`, agent containers, and core types. All other modules depend on these base interfaces.
 
-**Key Components:**
-- `timestep_executor` - Defines the simulation loop contract
-- `base_agent` - Agent data structures using structure-of-arrays (SoA) pattern
-- `base_agent_container` - Container for managing agent collections
-- Core types and concepts for type safety
-
-**Namespace:** `physicore::common`
-
-**Location:** `common/include/common/`
-
-The `timestep_executor` is the central abstraction:
-```cpp
-class timestep_executor {
-    virtual void run_single_timestep() = 0;
-    virtual void serialize_state(real_t current_time) = 0;
-};
-```
-
-All simulation components implement this interface to participate in the main simulation loop.
+👉 **[Learn more about the Common Module](Architecture-Common.md)**
 
 ### Reactions-Diffusion Module
 
-Handles substrate transport and reaction kinetics on timescales of seconds to minutes.
+Handles substrate transport and reaction kinetics on timescales of seconds to minutes using reaction-diffusion PDEs.
 
-**Implementations:**
-- **BioFVM** - Finite volume method for reaction-diffusion PDEs
-
-**Namespace:** `physicore::reactions-diffusion::biofvm`
-
-**Location:** `reactions-diffusion/biofvm/`
-
-**Features:**
-- 3D Cartesian mesh discretization
-- Multiple substrates with independent diffusion coefficients
-- Source/sink terms from cell secretion and uptake
-- Dirichlet boundary conditions
+👉 **[Learn more about the Reactions-Diffusion Module](Architecture-Diffusion.md)**
 
 ### Mechanics Module
 
-Handles cell-cell and cell-substrate mechanical interactions on timescales of minutes to hours.
+Handles cell-cell and cell-substrate mechanical interactions on timescales of minutes to hours using force-based models.
 
-**Implementations:**
-- **Micromechanics** - Spring-based mechanics with repulsion and adhesion forces
-
-**Namespace:** `physicore::mechanics::micromechanics`
-
-**Location:** `mechanics/micromechanics/`
-
-**Features:**
-- Spring-based cell-cell interactions
-- Cell-cell repulsion when overlapping
-- Cell-cell adhesion forces
-- Boundary force models
+👉 **[Learn more about the Mechanics Module](Architecture-Mechanics.md)**
 
 ### Phenotype Module
 
-Integrates the diffusion and mechanics modules into complete simulations and defines cell phenotype behaviors.
+Integrates diffusion and mechanics modules into complete simulations, coordinates timesteps, and defines cell phenotype behaviors.
 
-**Implementations:**
-- **PhysiCore Phenotype** - Reference phenotype implementation
-
-**Namespace:** `physicore::phenotype::physicore`
-
-**Location:** `phenotype/physicore/`
+👉 **[Learn more about the Phenotype Module](Architecture-Phenotype.md)**
 
 ## Implementation Pattern
 
@@ -288,29 +244,6 @@ In PhysiCore, we use **kernel** for the hardware-specific implementations becaus
 2. Kernels provide alternative execution strategies for the same algorithm
 3. The term aligns with GPU computing terminology
 
-## Module Communication
-
-Modules interact through well-defined interfaces:
-
-1. **Diffusion → Mechanics**: Substrate concentrations influence cell behavior
-2. **Mechanics → Diffusion**: Cell positions determine source/sink terms
-3. **Phenotype**: Coordinates both modules and implements biological rules
-
-```
-┌─────────────────────────────────────────┐
-│           Phenotype Layer               │
-│  (Coordinates simulation, biology)      │
-└───────────────┬─────────────────────────┘
-                │
-       ┌────────┴────────┐
-       │                 │
-┌──────▼──────┐   ┌──────▼──────┐
-│  Diffusion  │   │  Mechanics  │
-│   Module    │◄──┤   Module    │
-└─────────────┘   └─────────────┘
-  Concentrations    Cell Positions
-```
-
 ## Public vs Internal APIs
 
 PhysiCore maintains a clear distinction between public and internal interfaces:
@@ -356,6 +289,17 @@ target_link_libraries(my_simulation PRIVATE physicore::reactions-diffusion::biof
 # - physicore::common
 # - physicore::reactions-diffusion::biofvm
 ```
+
+## Next Steps
+
+Explore each module in detail:
+
+- **[Common Module](Architecture-Common.md)** - Core abstractions, timestep executors, and agent containers
+- **[Reactions-Diffusion Module](Architecture-Diffusion.md)** - Substrate transport and reaction kinetics
+- **[Mechanics Module](Architecture-Mechanics.md)** - Cell-cell and cell-substrate mechanical interactions
+- **[Phenotype Module](Architecture-Phenotype.md)** - Integration layer and biological behaviors
+
+---
 
 ## Summary
 
