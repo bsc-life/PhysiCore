@@ -45,10 +45,10 @@ namespace physicore::common {
 class timestep_executor {
 public:
     virtual ~timestep_executor() = default;
-    
+
     // Execute a single timestep of the simulation
     virtual void run_single_timestep() = 0;
-    
+
     // Serialize current simulation state
     virtual void serialize_state(real_t current_time) = 0;
 };
@@ -78,7 +78,7 @@ public:
         apply_reactions();
         update_concentrations();
     }
-    
+
     void serialize_state(real_t current_time) override {
         // Write substrate concentrations to VTK files
         vtk_writer.write(current_time, substrate_data);
@@ -110,10 +110,10 @@ PhysiCore uses structure-of-arrays (SoA):
 ```cpp
 // Structure-of-Arrays (SoA) - Used in PhysiCore
 struct AgentData {
-    std::vector<double> x, y, z;        // Positions
-    std::vector<double> vx, vy, vz;     // Velocities
-    std::vector<double> radius;
-    std::vector<int> type;
+    std::vector<double> positions;        // Positions of all agents
+    std::vector<double> velocities;     // Velocities of all agents
+    std::vector<double> radii;
+    std::vector<int> types;
 };
 ```
 
@@ -123,38 +123,8 @@ struct AgentData {
 - **Memory bandwidth** - Fewer cache misses during computation
 - **Parallelization** - Easy to partition across threads/GPUs
 
-### The `base_agent_data` Class
+The `base_agent_data` class provides the foundational SoA storage for all agents in the simulation by defining *an array of positions*.
 
-The `base_agent_data` class provides the foundational SoA storage:
-
-```cpp
-namespace physicore::common {
-
-class base_agent_data {
-public:
-    // Positions
-    std::vector<real_t> positions_x;
-    std::vector<real_t> positions_y;
-    std::vector<real_t> positions_z;
-    
-    // Velocities
-    std::vector<real_t> velocities_x;
-    std::vector<real_t> velocities_y;
-    std::vector<real_t> velocities_z;
-    
-    // Add a new agent
-    void push_back(real_t x, real_t y, real_t z,
-                   real_t vx, real_t vy, real_t vz);
-    
-    // Get number of agents
-    std::size_t size() const;
-    
-    // Remove agent at index
-    void erase(std::size_t index);
-};
-
-} // namespace physicore::common
-```
 
 ### The `base_agent` Proxy
 
@@ -164,42 +134,42 @@ To provide object-like access to individual agents while maintaining SoA storage
 namespace physicore::common {
 
 class base_agent {
+    base_agent_data& data;
+    std::size_t index;
 public:
     // Constructor takes reference to data and index
     base_agent(base_agent_data& data, std::size_t index);
-    
+
     // Access position
-    real_t position_x() const;
-    real_t position_y() const;
-    real_t position_z() const;
-    
-    // Modify position
-    void set_position(real_t x, real_t y, real_t z);
-    
-    // Access velocity
-    real_t velocity_x() const;
-    void set_velocity_x(real_t vx);
-    
-    // ... similar for other properties
+    std::span<real_t> position() { /* accesses SoA data using its index */ }
 };
 
 } // namespace physicore::common
 ```
 
-**Usage:**
+**Key relationships:**
+- `base_agent_data` owns the SoA storage (positions array)
+- `base_agent` holds a reference to the data and an index
+- `base_agent::position()` accesses the data using its index to provide object-like interface
 
-```cpp
-base_agent_data agents;
-agents.push_back(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+```mermaid
+classDiagram
+    class base_agent_data {
+        -std::vector~real_t~ positions
+        +size() std::size_t
+    }
 
-// Access via proxy
-base_agent agent(agents, 0);
-agent.set_position(1.0, 2.0, 3.0);
+    class base_agent {
+        -base_agent_data& data
+        -std::size_t index
+        +position() std::span~real_t~
+    }
 
-real_t x = agent.position_x();  // Returns 1.0
+    base_agent --* base_agent_data
 ```
 
-## Agent Containers
+
+<!-- ## Agent Containers
 
 The `base_agent_container` provides high-level management of agent collections:
 
@@ -210,20 +180,20 @@ class base_agent_container {
 public:
     // Add a new agent
     base_agent create_agent(real_t x, real_t y, real_t z);
-    
+
     // Access agent by index
     base_agent operator[](std::size_t index);
-    
+
     // Iterate over all agents
     auto begin();
     auto end();
-    
+
     // Get number of agents
     std::size_t size() const;
-    
+
     // Remove agent
     void remove(std::size_t index);
-    
+
 private:
     base_agent_data data_;
 };
@@ -247,7 +217,7 @@ for (auto agent : container) {
     real_t x = agent.position_x();
     agent.set_velocity_x(x * 0.1);
 }
-```
+``` -->
 
 ## Core Types
 
@@ -256,43 +226,16 @@ The Common module defines fundamental types used throughout PhysiCore:
 ```cpp
 namespace physicore::common {
 
-// Floating-point precision (configurable)
+// Real number type (double precision)
 using real_t = double;
-
-// Index types
-using index_t = std::size_t;
-
-// Time types
-using time_t = real_t;
+// Unsigned and signed index types
+using index_t = std::uint64_t;
+using sindex_t = std::int64_t;
 
 } // namespace physicore::common
 ```
 
-## C++20 Concepts
-
-PhysiCore uses C++20 concepts to enforce type constraints and provide better error messages:
-
-```cpp
-namespace physicore::common {
-
-// Concept: Type must be a timestep executor
-template<typename T>
-concept TimestepExecutor = requires(T t, real_t time) {
-    { t.run_single_timestep() } -> std::same_as<void>;
-    { t.serialize_state(time) } -> std::same_as<void>;
-};
-
-// Concept: Type must be an agent container
-template<typename T>
-concept AgentContainer = requires(T t, std::size_t index) {
-    { t.size() } -> std::convertible_to<std::size_t>;
-    { t[index] };
-    { t.begin() };
-    { t.end() };
-};
-
-} // namespace physicore::common
-```
+These types ensure consistency and portability across modules and a single place of modification if we want to change precision later.
 
 ## File Organization
 
@@ -330,16 +273,8 @@ The Common module has minimal external dependencies:
 
 This makes it the lightest-weight component and suitable as a foundation for all other modules.
 
-## Next Steps
+<!-- ## Next Steps
 
 Learn how the Common module interfaces are used in specific physics domains:
 
-- **[Reactions-Diffusion Module](Architecture-Diffusion.md)** - Uses `timestep_executor` for diffusion solvers
-- **[Mechanics Module](Architecture-Mechanics.md)** - Uses agent containers for force calculations
-- **[Phenotype Module](Architecture-Phenotype.md)** - Orchestrates multiple executors
-
----
-
-**See also:**
-- [Architecture Overview](Architecture.md)
-- [Build System Integration](Architecture.md#build-system-integration)
+- **[Reactions-Diffusion BioFVM Implementation](BioFVM.md)** - Uses `timestep_executor` for diffusion solvers -->

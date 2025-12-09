@@ -21,7 +21,18 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
+  syntax_highlighter: rouge
+
 mermaid:
   # Version of mermaid library
   # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
   version: "11.12.2"
+
+exclude:
+  - Architecture-Diffusion.md
+  - Architecture-Mechanics.md
+  - Architecture-Phenotype.md
+  - NewModule.md

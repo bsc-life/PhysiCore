@@ -3,6 +3,7 @@ layout: default
 title: Architecture
 nav_order: 3
 has_children: true
+math: true
 description: "Detailed architecture documentation explaining PhysiCore's modular design, implementations, and kernel backends"
 ---
 
@@ -23,11 +24,19 @@ PhysiCore follows several key architectural principles:
 
 ## Terminology
 
-Understanding PhysiCore's architecture requires familiarity with several key terms that describe different levels of abstraction:
+Understanding PhysiCore's architecture requires familiarity with several key terms that describe different levels of abstraction: **module**, **module implementation**, and **kernel**.
 
-1. Module
-    1. Its Implementation
-        1. Its Execution Kernel
+```mermaid
+---
+config:
+  flowchart:
+    htmlLabels: false
+---
+flowchart LR
+    A[Module] --> B@{ shape: processes, label: "Multiple implementations" }
+    B --> C@{ shape: processes, label: "Multiple per-implementation kernels" }
+
+```
 
 ### Module
 
@@ -35,7 +44,7 @@ A **module** represents a distinct physics domain or time scale in multicellular
 
 Examples:
 - `reactions-diffusion` - Handles substrate transport and reaction kinetics
-- `mechanics` - Manages cell-cell and cell-substrate mechanical interactions  
+- `mechanics` - Manages cell-cell and cell-substrate mechanical interactions
 - `phenotype` - Integrates modules and defines biological behaviors
 
 Modules are organized as separate CMake libraries under their own directories (e.g., `reactions-diffusion/`, `mechanics/`).
@@ -84,7 +93,7 @@ flowchart TB
         direction TB
         subgraph S1[Core Modules]
             direction TB
-            C["`Common Module<br/>*Core Abstractions*`"] --> D["`Reactions-Diffusion Module<br/>*Substrate Transport*`"] & M["`Mechanics Module<br/>*Cell Interactions*`"] 
+            C["`Common Module<br/>*Core Abstractions*`"] --> D["`Reactions-Diffusion Module<br/>*Substrate Transport*`"] & M["`Mechanics Module<br/>*Cell Interactions*`"]
 
             P["`Phenotype Module<br/>*Integration Layer*`"]
         end
@@ -95,15 +104,14 @@ flowchart TB
         M --> P
         X --> P
     end
-    
-    
+
+
     subgraph S2["`**Applications**`"]
         direction LR
         F[Simulation Executables] ~~~ G[Analysis Tools]
     end
-    
-    S0 -.-> S2
 
+    S0 -.-> S2
 ```
 
 ### Core Modules
@@ -117,41 +125,17 @@ PhysiCore consists of four primary modules:
 | **mechanics** | Cell-cell and cell-substrate mechanical interactions | `mechanics/` |
 | **phenotype** | Phenotype models and simulation wiring | `phenotype/` |
 
-## Module Hierarchy
+Currently, these modules cover the essential physics for multicellular simulations. Additional modules can be added to extend functionality.
 
-### Common Module
-
-The `common` module provides foundational abstractions including `timestep_executor`, agent containers, and core types. All other modules depend on these base interfaces.
+So far, PhysiCore implements *common* functionality and the *reactions-diffusion* module via the **BioFVM** implementation.
 
 👉 **[Learn more about the Common Module](Architecture-Common.md)**
 
-### Reactions-Diffusion Module
+<!-- 👉 **[Learn more about the Reactions-Diffusion Module](Architecture-Diffusion.md)** -->
 
-Handles substrate transport and reaction kinetics on timescales of seconds to minutes using reaction-diffusion PDEs.
+## Directory Structure of an Implementation
 
-👉 **[Learn more about the Reactions-Diffusion Module](Architecture-Diffusion.md)**
-
-### Mechanics Module
-
-Handles cell-cell and cell-substrate mechanical interactions on timescales of minutes to hours using force-based models.
-
-👉 **[Learn more about the Mechanics Module](Architecture-Mechanics.md)**
-
-### Phenotype Module
-
-Integrates diffusion and mechanics modules into complete simulations, coordinates timesteps, and defines cell phenotype behaviors.
-
-👉 **[Learn more about the Phenotype Module](Architecture-Phenotype.md)**
-
-## Implementation Pattern
-
-Each module can have multiple **implementations** (also called **models** or **engines**). For example:
-- The reactions-diffusion module has the **BioFVM** implementation
-- The mechanics module has the **micromechanics** implementation
-
-Implementations provide concrete algorithms while adhering to the module's interface contract.
-
-### Directory Structure of an Implementation
+As you know, each module can have multiple *implementations*. Each implementation follows a consistent directory structure to separate public APIs, internal implementations, kernels, examples, and tests.
 
 Using BioFVM as an example:
 
@@ -161,8 +145,10 @@ reactions-diffusion/biofvm/
 │   └── biofvm/
 │       ├── solver.h
 │       └── microenvironment.h
-├── src/                  # Implementation files
+├── src/                  # Implementation files and private headers
 │   ├── solver.cpp
+│   ├── config_reader.h
+│   ├── config_reader.cpp
 │   └── microenvironment.cpp
 ├── kernels/              # Backend-specific implementations
 │   ├── openmp_solver/
@@ -173,88 +159,17 @@ reactions-diffusion/biofvm/
     └── solver_test.cpp
 ```
 
-## Kernel Implementations
-
-Within each implementation, **kernels** (also called **solvers** or **backends**) provide hardware-specific optimizations. Kernels are the lowest level of the hierarchy and execute the actual computational work.
-
-### What are Kernels?
-
-Kernels are specialized implementations of core algorithms optimized for different hardware or parallelization strategies:
-
-- **OpenMP Solver** - CPU parallelization using OpenMP threads
-- **Thrust Solver** - GPU/CPU parallelization using NVIDIA Thrust library with TBB backend
-- **CUDA Solver** (planned) - Direct GPU acceleration using CUDA
-
-### Self-Registration Pattern
-
-Kernels self-register with the `solver_registry` at static initialization time. This enables runtime selection without hard-coding dependencies.
-
-**Example:** BioFVM diffusion solvers
-
-```
-reactions-diffusion/biofvm/kernels/
-├── openmp_solver/
-│   ├── include/
-│   │   └── biofvm/kernels/openmp_solver/
-│   │       └── diffusion_solver.h
-│   └── src/
-│       ├── diffusion_solver.cpp
-│       └── register_solver.cpp     # Self-registration code
-└── thrust_solver/
-    ├── include/
-    │   └── biofvm/kernels/thrust_solver/
-    │       └── diffusion_solver.h
-    └── src/
-        ├── diffusion_solver.cpp
-        └── register_solver.cpp     # Self-registration code
-```
-
-**Registration Example:**
-
-Each kernel implements a registration unit (e.g., `register_solver.cpp`):
-
-```cpp
-// In openmp_solver/src/register_solver.cpp
-#include <biofvm/solver_registry.h>
-#include "diffusion_solver.h"
-
-namespace {
-    // Self-registers at static initialization
-    auto registered = biofvm::registry_adder<OpenMPDiffusionSolver>("openmp");
-}
-```
-
-The main application then selects a solver at runtime:
-
-```cpp
-auto solver = solver_registry::instance().get("openmp");
-// or
-auto solver = solver_registry::instance().get("thrust");
-```
-
-### Why Kernels vs Solvers?
-
-The terms **kernel** and **solver** are sometimes used interchangeably, but have subtle differences:
-
-- **Solver** emphasizes the algorithmic approach (e.g., finite volume solver, finite element solver)
-- **Kernel** emphasizes the computational backend (e.g., OpenMP kernel, CUDA kernel)
-
-In PhysiCore, we use **kernel** for the hardware-specific implementations because:
-1. The algorithm (e.g., finite volume) is defined by the implementation (BioFVM)
-2. Kernels provide alternative execution strategies for the same algorithm
-3. The term aligns with GPU computing terminology
-
-## Public vs Internal APIs
+<!-- ### Public vs Internal APIs
 
 PhysiCore maintains a clear distinction between public and internal interfaces:
 
-### Public API
+#### Public API
 - **Location:** `*/include/` directories
-- **Export:** Via CMake `FILE_SET HEADERS` 
+- **Export:** Via CMake `FILE_SET HEADERS`
 - **Stability:** Stable across minor versions
 - **Usage:** Consumed by downstream code and other modules
 
-### Internal Implementation
+#### Internal Implementation
 - **Location:** `*/src/` directories
 - **Visibility:** Private to the module
 - **Stability:** May change without notice
@@ -288,27 +203,15 @@ target_link_libraries(my_simulation PRIVATE physicore::reactions-diffusion::biof
 # Automatically includes public headers from:
 # - physicore::common
 # - physicore::reactions-diffusion::biofvm
-```
+``` -->
 
 ## Next Steps
 
 Explore each module in detail:
 
 - **[Common Module](Architecture-Common.md)** - Core abstractions, timestep executors, and agent containers
-- **[Reactions-Diffusion Module](Architecture-Diffusion.md)** - Substrate transport and reaction kinetics
+
+<!-- - **[Reactions-Diffusion Module](Architecture-Diffusion.md)** - Substrate transport and reaction kinetics
 - **[Mechanics Module](Architecture-Mechanics.md)** - Cell-cell and cell-substrate mechanical interactions
-- **[Phenotype Module](Architecture-Phenotype.md)** - Integration layer and biological behaviors
+- **[Phenotype Module](Architecture-Phenotype.md)** - Integration layer and biological behaviors -->
 
----
-
-## Summary
-
-The PhysiCore architecture provides:
-
-1. **Modularity** - Clear separation between diffusion, mechanics, and phenotype
-2. **Extensibility** - Add new implementations without modifying existing code
-3. **Flexibility** - Choose different kernels at runtime
-4. **Performance** - Hardware-specific optimizations via specialized kernels
-5. **Maintainability** - Clean interfaces and namespace organization
-
-This design enables researchers to focus on science while benefiting from high-performance numerical methods and modern software engineering practices.

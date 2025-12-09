@@ -77,33 +77,6 @@ $$
 
 Where $R_i(\rho_1, \ldots, \rho_N)$ represents chemical reactions between species.
 
-## Module Interface Contract
-
-All implementations of the reactions-diffusion module must implement the `timestep_executor` interface from the Common module:
-
-```cpp
-#include <common/timestep_executor.h>
-
-namespace physicore::reactions_diffusion {
-
-class diffusion_solver : public physicore::common::timestep_executor {
-public:
-    // Run one timestep of diffusion
-    void run_single_timestep() override;
-    
-    // Serialize substrate concentrations
-    void serialize_state(real_t current_time) override;
-    
-    // Module-specific interface
-    virtual void set_diffusion_coefficient(std::size_t substrate_index, real_t D) = 0;
-    virtual void set_decay_rate(std::size_t substrate_index, real_t lambda) = 0;
-    virtual real_t get_concentration(std::size_t substrate_index, 
-                                     real_t x, real_t y, real_t z) const = 0;
-};
-
-} // namespace physicore::reactions_diffusion
-```
-
 ## Discretization Methods
 
 The reactions-diffusion module can be implemented using various numerical methods:
@@ -153,15 +126,6 @@ $$
 - Isolated domains
 - Zero-flux boundaries
 
-## Time Integration
-
-The module typically uses operator splitting for time integration:
-
-1. **Diffusion step** - Solve $\frac{\partial \rho}{\partial t} = D \nabla^2 \rho$
-2. **Reaction/decay step** - Solve $\frac{\partial \rho}{\partial t} = -\lambda \rho + S$
-
-This allows different numerical methods for each operator, optimizing stability and accuracy.
-
 ## Coupling with Cells
 
 The reactions-diffusion module interacts with cell agents through:
@@ -186,33 +150,6 @@ $$
 Where:
 - $u_{i,k}$ - Uptake rate of substrate $i$ by cell $k$
 
-## Performance Considerations
-
-Diffusion is often the computational bottleneck in multicellular simulations:
-
-### Timestep Constraints
-The diffusion equation imposes stability constraints:
-$$
-\Delta t \leq \frac{(\Delta x)^2}{6D}
-$$
-
-For typical values ($D \sim 10^5$ µm²/min, $\Delta x = 20$ µm):
-$$
-\Delta t \leq 0.67 \text{ min}
-$$
-
-### Computational Cost
-- **Grid size:** $N_x \times N_y \times N_z$ voxels
-- **Substrates:** $N_s$ chemical species
-- **Operations per timestep:** $\mathcal{O}(N_x N_y N_z N_s)$
-
-### Optimization Strategies
-1. **Adaptive timestepping** - Larger steps when possible
-2. **Sparse storage** - Only active regions
-3. **Multigrid methods** - Faster convergence
-4. **GPU acceleration** - Parallel voxel updates
-5. **Operator splitting** - Optimize each sub-step
-
 ## Implementations
 
 PhysiCore currently provides one production-ready implementation:
@@ -226,18 +163,10 @@ PhysiCore currently provides one production-ready implementation:
 - Multiple substrates with independent properties
 - Dirichlet boundary conditions
 - Efficient source/sink handling
-- Pluggable solver backends (OpenMP, Thrust)
 
 👉 **[Learn more about BioFVM](BioFVM.md)**
 
-### Future Implementations
-
-Planned implementations include:
-- **Adaptive mesh refinement** - Higher resolution near cells
-- **Unstructured meshes** - Complex tissue geometries
-- **Spectral methods** - Higher-order accuracy
-
-## Integration with Other Modules
+<!-- ## Integration with Other Modules
 
 The reactions-diffusion module integrates with:
 
@@ -251,54 +180,15 @@ The reactions-diffusion module integrates with:
 - **Output:** Substrate levels trigger phenotype transitions
 - **Coupling:** Bidirectional feedback between substrates and behaviors
 
-See [Phenotype Module](Architecture-Phenotype.md#module-communication) for orchestration details.
-
-## Example Usage
-
-```cpp
-#include <biofvm/microenvironment.h>
-#include <biofvm/solver_registry.h>
-
-using namespace physicore::reactions_diffusion::biofvm;
-
-// Create microenvironment
-auto microenv = microenvironment_builder()
-    .set_domain(-500, 500, -500, 500, -500, 500)
-    .set_voxel_size(20.0)
-    .add_substrate("oxygen", 1e5, 0.1)     // D=1e5 µm²/min, λ=0.1/min
-    .add_substrate("glucose", 8e4, 0.05)
-    .build();
-
-// Select solver backend
-auto solver = solver_registry::instance().get("openmp");
-microenv.set_solver(std::move(solver));
-
-// Simulation loop
-for (int step = 0; step < 1000; ++step) {
-    microenv.run_single_timestep();
-    
-    if (step % 10 == 0) {
-        microenv.serialize_state(step * dt);
-    }
-}
-```
-
-## Testing
-
-Implementations should be validated against:
-- **Analytical solutions** - Simple geometries and boundary conditions
-- **Benchmark problems** - Standard test cases from literature
-- **Conservation laws** - Mass conservation in closed systems
-- **Convergence rates** - Spatial and temporal accuracy
+See [Phenotype Module](Architecture-Phenotype.md#module-communication) for orchestration details. -->
 
 ## Next Steps
 
 - **[BioFVM Implementation](BioFVM.md)** - Detailed guide to the finite volume solver
 - **[Common Module](Architecture-Common.md)** - Understanding the `timestep_executor` interface
-- **[Phenotype Module](Architecture-Phenotype.md)** - How diffusion integrates with complete simulations
+<!-- - **[Phenotype Module](Architecture-Phenotype.md)** - How diffusion integrates with complete simulations -->
 
 ---
 
 **See also:**
 - [Architecture Overview](Architecture.md)
-- [Kernel Implementations](Architecture.md#kernel-implementations)

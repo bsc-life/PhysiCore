@@ -240,18 +240,18 @@ class solver {
 public:
     // Initialize substrate densities
     virtual void initialize(microenvironment& m) = 0;
-    
+
     // Solve diffusion-decay for N iterations
     virtual void solve(microenvironment& m, index_t iterations) = 0;
-    
+
     // Access substrate density
     virtual real_t get_substrate_density(
         index_t s, index_t x, index_t y, index_t z
     ) const = 0;
-    
+
     // Update Dirichlet conditions
     virtual void reinitialize_dirichlet(microenvironment& m) = 0;
-    
+
     // GPU solvers: transfer data
     virtual void transfer_to_device(microenvironment& m);
     virtual void transfer_to_host(microenvironment& m);
@@ -274,12 +274,12 @@ public:
     // Position and volume
     virtual std::span<const real_t> position() const = 0;
     virtual real_t volume() const = 0;
-    
+
     // Substrate interactions
     virtual real_t secretion_rate(index_t substrate_index) const = 0;
     virtual real_t uptake_rate(index_t substrate_index) const = 0;
     virtual real_t saturation_density(index_t substrate_index) const = 0;
-    
+
     // Internalized substrates (optional)
     virtual real_t& internalized_substrates(index_t substrate_index) = 0;
 };
@@ -295,7 +295,7 @@ container_ptr agents = m->agents;
 for (auto& agent : *agents) {
     auto pos = agent.position();
     auto vol = agent.volume();
-    
+
     // Get uptake rate for oxygen
     auto uptake = agent.uptake_rate(0);
 }
@@ -359,46 +359,46 @@ int main() {
         {500, 500, 500},
         {20, 20, 20}
     );
-    
+
     // Create microenvironment with oxygen
     auto m = std::make_unique<microenvironment>(mesh, 1, 0.01);
-    
+
     // Configure oxygen
     m->substrates_names[0] = "oxygen";
     m->substrates_units[0] = "mmHg";
     m->diffusion_coefficients[0] = 100000.0;  // μm²/min
     m->decay_rates[0] = 0.1;                  // 1/min
     m->initial_conditions[0] = 38.0;          // mmHg
-    
+
     // Set boundary: normoxic on all sides
     for (char dim : {'x', 'y', 'z'}) {
         m->update_dirichlet_boundary_min(dim, 0, 38.0, true);
         m->update_dirichlet_boundary_max(dim, 0, 38.0, true);
     }
     m->update_dirichlet_conditions();
-    
+
     // Select OpenMP solver
     m->solver = solver_registry::instance().get("openmp");
-    
+
     // Initialize
     m->solver->initialize(*m);
-    
+
     // Run simulation for 30 minutes
     real_t end_time = 30.0;
     int output_interval = 10;  // Output every 10 minutes
     int next_output_time = output_interval;
-    
+
     while (m->simulation_time < end_time) {
         m->run_single_timestep();
-        
+
         if (m->simulation_time >= next_output_time) {
-            std::cout << "Time: " << m->simulation_time 
+            std::cout << "Time: " << m->simulation_time
                       << " min" << std::endl;
             m->serialize_state(m->simulation_time);
             next_output_time += output_interval;
         }
     }
-    
+
     std::cout << "Simulation complete!" << std::endl;
     return 0;
 }
@@ -430,11 +430,11 @@ public:
         index_t rem = voxel_idx % (gs[0] * gs[1]);
         index_t y = rem / gs[0];
         index_t x = rem % gs[0];
-        
+
         // Get voxel center position in physical space
         auto center = m.mesh.voxel_center({x, y, z});
-        real_t r2 = center[0]*center[0] + 
-                    center[1]*center[1] + 
+        real_t r2 = center[0]*center[0] +
+                    center[1]*center[1] +
                     center[2]*center[2];
         return 1000.0 * std::exp(-r2 / 10000.0);
     }
