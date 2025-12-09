@@ -36,11 +36,11 @@ cmake --workflow --preset=gcc-release
 
 ## Documentation
 
-Comprehensive documentation is available in the [`docs/`](docs/) directory:
+Comprehensive documentation is available at [PhysiCore GitHub Pages](https://bsc-life.github.io/PhysiCore/), including:
 
-- **[Installation Guide](docs/Installation.md)** - Dependencies, build instructions, and platform support
-- **[Architecture](docs/Architecture.md)** - Modular design, implementations, and solver backends
-- **[Repository Structure](docs/Repository-Structure.md)** - Directory layout and code organization
+- **[Installation Guide](https://bsc-life.github.io/PhysiCore/Installation.html)** - Dependencies, build instructions, and platform support
+- **[Architecture](https://bsc-life.github.io/PhysiCore/Architecture.html)** - Modular design, implementations, and solver backends
+- **[Repository Structure](https://bsc-life.github.io/PhysiCore/Repository-Structure.html)** - Directory layout and code organization
 
 ## Contributing
 
