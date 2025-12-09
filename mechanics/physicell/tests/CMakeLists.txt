@@ -10,5 +10,4 @@ target_link_libraries(
           GTest::gtest_main)
 
 include(GoogleTest)
-gtest_discover_tests(physicore.mechanics.physicell.tests TEST_EXECUTOR
-                     ${CMAKE_COMMAND} -E env)
+gtest_discover_tests(physicore.mechanics.physicell.tests)

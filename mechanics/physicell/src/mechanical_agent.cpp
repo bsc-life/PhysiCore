@@ -5,22 +5,14 @@
 
 namespace physicore::mechanics::physicell {
 
-namespace {
-template <typename T>
-T value_or(const std::vector<T>& values, index_t idx, T fallback)
-{
-	return idx < values.size() ? static_cast<T>(values[idx]) : fallback;
-}
-} // namespace
-
 std::unique_ptr<mechanical_agent> mechanical_agent::add(index_t new_id, index_t cell_type,
-														SimulationParameters& parameters)
+														mechanical_parameters& parameters, bool is_2D)
 {
-	return add(new_id, cell_type, parameters, data);
+	return add(new_id, cell_type, parameters, data, is_2D);
 }
 
 std::unique_ptr<mechanical_agent> mechanical_agent::add(index_t new_id, index_t cell_type,
-														SimulationParameters& parameters, agent_data& data)
+														mechanical_parameters& parameters, agent_data& data, bool is_2D)
 {
 	assert(new_id == data.base_data.agents_count);
 
@@ -44,38 +36,31 @@ std::unique_ptr<mechanical_agent> mechanical_agent::add(index_t new_id, index_t 
 
 	data.cell_definition_indices[new_id] = cell_type;
 
-	data.cell_cell_adhesion_strength[new_id] =
-		value_or(parameters.cell_cell_adhesion_strength, cell_type, 0.0);
-	data.cell_BM_adhesion_strength[new_id] = value_or(parameters.cell_BM_adhesion_strength, cell_type, 0.0);
-	data.cell_cell_repulsion_strength[new_id] =
-		value_or(parameters.cell_cell_repulsion_strength, cell_type, 0.0);
-	data.cell_BM_repulsion_strength[new_id] = value_or(parameters.cell_BM_repulsion_strength, cell_type, 0.0);
+	// Directly assign scalar values from mechanical_parameters
+	data.cell_cell_adhesion_strength[new_id] = parameters.cell_cell_adhesion_strength;
+	data.cell_BM_adhesion_strength[new_id] = parameters.cell_BM_adhesion_strength;
+	data.cell_cell_repulsion_strength[new_id] = parameters.cell_cell_repulsion_strength;
+	data.cell_BM_repulsion_strength[new_id] = parameters.cell_BM_repulsion_strength;
 
+	// Copy cell_adhesion_affinities vector directly
 	const index_t type_count = data.agent_types_count;
-	for (index_t other = 0; other < type_count; ++other)
+	for (index_t other = 0; other < type_count && other < parameters.cell_adhesion_affinity.size(); ++other)
 	{
-		const index_t param_idx = cell_type * type_count + other;
-		const real_t affinity =
-			param_idx < parameters.cell_adhesion_affinity.size() ? parameters.cell_adhesion_affinity[param_idx] : 0.0;
-		data.cell_adhesion_affinities[new_id * type_count + other] = affinity;
+		data.cell_adhesion_affinities[new_id * type_count + other] = parameters.cell_adhesion_affinity[other];
 	}
 
-	data.relative_maximum_adhesion_distance[new_id] =
-		value_or(parameters.relative_maximum_adhesion_distance, cell_type, 0.0);
-	data.maximum_number_of_attachments[new_id] =
-		value_or(parameters.maximum_number_of_attachments, cell_type, index_t(0));
-	data.attachment_elastic_constant[new_id] =
-		value_or(parameters.attachment_elastic_coefficient, cell_type, 0.0);
-	data.attachment_rate[new_id] = value_or(parameters.attachment_rate, cell_type, 0.0);
-	data.detachment_rate[new_id] = value_or(parameters.detachment_rate, cell_type, 0.0);
+	data.relative_maximum_adhesion_distance[new_id] = parameters.relative_maximum_adhesion_distance;
+	data.maximum_number_of_attachments[new_id] = parameters.maximum_number_of_attachments;
+	data.attachment_elastic_constant[new_id] = parameters.attachment_elastic_coefficient;
+	data.attachment_rate[new_id] = parameters.attachment_rate;
+	data.detachment_rate[new_id] = parameters.detachment_rate;
 
-	const bool motile = value_or(parameters.is_movable, cell_type, false);
-	data.is_motile[new_id] = static_cast<std::uint8_t>(motile);
-	data.is_movable[new_id] = static_cast<std::uint8_t>(motile);
-	data.persistence_time[new_id] = value_or(parameters.motility_persistence_time, cell_type, 0.0);
-	data.migration_speed[new_id] = value_or(parameters.motility_speed, cell_type, 0.0);
-	data.migration_bias[new_id] = value_or(parameters.motility_bias, cell_type, 0.0);
-	data.restrict_to_2d[new_id] = static_cast<std::uint8_t>(parameters.is_2D);
+	data.is_motile[new_id] = static_cast<std::uint8_t>(parameters.is_movable);
+	data.is_movable[new_id] = static_cast<std::uint8_t>(parameters.is_movable);
+	data.persistence_time[new_id] = parameters.motility_persistence_time;
+	data.migration_speed[new_id] = parameters.motility_speed;
+	data.migration_bias[new_id] = parameters.motility_bias;
+	data.restrict_to_2d[new_id] = static_cast<std::uint8_t>(is_2D);
 
 	const index_t substrate_count = data.substrates_count;
 	index_t chosen_substrate = 0;
@@ -83,13 +68,9 @@ std::unique_ptr<mechanical_agent> mechanical_agent::add(index_t new_id, index_t 
 
 	for (index_t s = 0; s < substrate_count; ++s)
 	{
-		const index_t param_idx = cell_type * substrate_count + s;
-		const bool enabled =
-			param_idx < parameters.chemotaxis_enabled.size() ? parameters.chemotaxis_enabled[param_idx] : false;
+		const bool enabled = s < parameters.chemotaxis_enabled.size() ? parameters.chemotaxis_enabled[s] : false;
 		const real_t sensitivity =
-			enabled && param_idx < parameters.chemotaxis_sensitivity.size()
-				? parameters.chemotaxis_sensitivity[param_idx]
-				: 0.0;
+			enabled && s < parameters.chemotaxis_sensitivity.size() ? parameters.chemotaxis_sensitivity[s] : 0.0;
 
 		data.chemotactic_sensitivities[new_id * substrate_count + s] = sensitivity;
 

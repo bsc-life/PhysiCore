@@ -10,7 +10,7 @@
 
 #include "agent_data.h"
 #include "agent_interface.h"
-#include "simulations_parameters.h"
+#include "mechanical_parameters.h"
 
 namespace physicore::mechanics::physicell {
 
@@ -109,10 +109,10 @@ public:
 	index_t& cell_definition_index() override { return data.cell_definition_indices[this->index]; }
 	std::uint8_t& is_movable() override { return data.is_movable[this->index]; }
 
-	std::unique_ptr<mechanical_agent> add(index_t new_id, index_t cell_type,
-										  SimulationParameters& parameters);
-	static std::unique_ptr<mechanical_agent> add(index_t new_id, index_t cell_type,
-												 SimulationParameters& parameters, agent_data& data);
+	std::unique_ptr<mechanical_agent> add(index_t new_id, index_t cell_type, mechanical_parameters& parameters,
+										  bool is_2D);
+	static std::unique_ptr<mechanical_agent> add(index_t new_id, index_t cell_type, mechanical_parameters& parameters,
+												 agent_data& data, bool is_2D);
 };
 
 } // namespace physicore::mechanics::physicell
