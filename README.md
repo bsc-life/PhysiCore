@@ -48,7 +48,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 ## License
 
-PhysiCore is released under the BSD 3-Clause License. See [LICENSE](LICENSE) for details.
+PhysiCore is released under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Citation
 
