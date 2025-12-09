@@ -1,0 +1,38 @@
+title: PhysiCore Docs
+email: adamsmelko1@gmail.com
+description: >-
+  High-performance agent-based multicellular simulations with pluggable solvers and mechanics.
+baseurl: "/PhysiCore"
+url: "https://bsc-life.github.io"
+
+# Build settings
+remote_theme: just-the-docs/just-the-docs
+color_scheme: light
+
+# Aux links for the upper right navigation
+aux_links:
+  "PhysiCore on GitHub":
+    - "https://github.com/bsc-life/PhysiCore"
+
+# Footer content
+footer_content: "Copyright &copy; 2025 Barcelona Supercomputing Center. Released under the MIT License."
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
+  syntax_highlighter: rouge
+
+mermaid:
+  # Version of mermaid library
+  # Pick an available version from https://cdn.jsdelivr.net/npm/mermaid/
+  version: "11.12.2"
+
+exclude:
+  - Architecture-Diffusion.md
+  - Architecture-Mechanics.md
+  - Architecture-Phenotype.md
+  - NewModule.md
