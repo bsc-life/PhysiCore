@@ -49,3 +49,9 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ## License
 
 PhysiCore is released under the BSD 3-Clause License. See [LICENSE](LICENSE) for details.
+
+## Citation
+
+PhysiCore builds upon the original PhysiCell framework. If you use PhysiCore in your research, please cite:
+
+> A. Ghaffarizadeh, R. Heiland, S.H. Friedman, S.M. Mumenthaler, and P. Macklin, PhysiCell: an open source physics-based cell simulator for 3-D multicellular systems, *PLoS Comput. Biol.* **14**(2): e1005991 (2018). DOI: [10.1371/journal.pcbi.1005991](https://doi.org/10.1371/journal.pcbi.1005991).
