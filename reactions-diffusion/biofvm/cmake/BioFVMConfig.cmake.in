@@ -11,6 +11,7 @@ if(NOT @BUILD_SHARED_LIBS@)
 
   # OpenMP solver dependencies
   find_dependency(OpenMP 4)
+  find_dependency(hwy)
 
   # Thrust solver dependencies (conditionally built)
   if(@BIOFVM_HAS_THRUST@)
