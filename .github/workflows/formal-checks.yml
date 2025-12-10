@@ -30,6 +30,7 @@ jobs:
           sudo ./llvm.sh 20 all
           sudo ln -sf /usr/lib/llvm-20/bin/clang-format /usr/bin/clang-format
           sudo ln -sf /usr/lib/llvm-20/bin/clang-tidy /usr/bin/clang-tidy
+          sudo ln -sf /usr/lib/llvm-20/bin/run-clang-tidy /usr/bin/run-clang-tidy
 
       - name: Show versions
         run: |
@@ -64,7 +65,21 @@ jobs:
         with:
           os: ubuntu-latest
 
-      - name: Run clang-tidy analysis
+      - name: Configure project for clang-tidy
         uses: lukka/run-cmake@v10
         with:
-          workflowPreset: "llvm-tidy-debug"
+          configurePreset: "llvm-debug"
+
+      - name: Run clang-tidy analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Running clang-tidy analysis..."
+          if ! run-clang-tidy -p build/llvm-debug; then
+            echo "clang-tidy found issues. Please fix them. Run:"
+            echo "  run-clang-tidy -p build -fix"
+            exit 1
+          fi
+
+          echo "clang-tidy analysis completed with no issues."

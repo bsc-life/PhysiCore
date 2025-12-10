@@ -168,19 +168,6 @@
             ]
         },
         {
-            "name": "llvm-tidy-debug",
-            "displayName": "LLVM Clang-Tidy Build",
-            "inherits": [
-                "_root-config",
-                "_debug-base"
-            ],
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_CXX_CLANG_TIDY": "clang-tidy"
-            }
-        },
-        {
             "name": "llvm-cov-debug",
             "displayName": "LLVM Coverage Build",
             "inherits": [
@@ -359,13 +346,6 @@
         {
             "name": "llvm-cov-debug",
             "configurePreset": "llvm-cov-debug",
-            "inherits": [
-                "_root-build"
-            ]
-        },
-        {
-            "name": "llvm-tidy-debug",
-            "configurePreset": "llvm-tidy-debug",
             "inherits": [
                 "_root-build"
             ]
@@ -643,20 +623,6 @@
                 {
                     "type": "test",
                     "name": "llvm-debug"
-                }
-            ]
-        },
-        {
-            "name": "llvm-tidy-debug",
-            "displayName": "LLVM Clang-Tidy Build",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "llvm-tidy-debug"
-                },
-                {
-                    "type": "build",
-                    "name": "llvm-tidy-debug"
                 }
             ]
         },
