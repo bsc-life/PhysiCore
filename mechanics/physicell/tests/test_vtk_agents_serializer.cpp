@@ -135,7 +135,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeSingleAgentWritesExpectedArray
 	auto* point_data = grid->GetPointData();
 	ASSERT_NE(point_data, nullptr);
 
-	auto get_arr = [&](const char* name) {
+	auto get_arr = [&](const char* name) -> vtkRealArray* {
 		auto* arr = point_data->GetArray(name);
 		ASSERT_NE(arr, nullptr) << "Missing array: " << name;
 		return arr;
@@ -244,7 +244,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
 	auto* point_data = grid->GetPointData();
 	ASSERT_NE(point_data, nullptr);
 
-	auto get_arr = [&](const char* name) {
+	auto get_arr = [&](const char* name) -> vtkRealArray* {
 		auto* arr = point_data->GetArray(name);
 		ASSERT_NE(arr, nullptr) << "Missing array: " << name;
 		return arr;

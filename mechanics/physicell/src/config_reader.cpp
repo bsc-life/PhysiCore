@@ -95,7 +95,7 @@ void parse_mechanics_params(const pugi::xml_node& mechanics_node, mechanical_par
 				params.set_relative_maximum_adhesion_distance = static_cast<real_t>(rel.text().as_double());
 			}
 		}
-		if (pugi::xml_node abs_node = options_node.child("set_absolute_equilibrium_distance"); abs_node)
+		if (const pugi::xml_node abs_node = options_node.child("set_absolute_equilibrium_distance"); abs_node)
 		{
 			if (abs_node.attribute("enabled").as_bool())
 			{
@@ -170,9 +170,9 @@ void parse_advanced_chemotaxis_sensitivities(const pugi::xml_node& sensitivities
 void parse_advanced_chemotaxis_options(const pugi::xml_node& options_node, mechanical_parameters& params,
 									   const std::unordered_map<std::string, std::size_t>& substrate_index)
 {
-	if (pugi::xml_node advanced_node = options_node.child("advanced_chemotaxis"); advanced_node)
+	if (const pugi::xml_node advanced_node = options_node.child("advanced_chemotaxis"); advanced_node)
 	{
-		bool advanced_enabled = advanced_node.child("enabled") && advanced_node.child("enabled").text().as_bool();
+		const bool advanced_enabled = advanced_node.child("enabled") && advanced_node.child("enabled").text().as_bool();
 		params.normalize_each_gradient = advanced_enabled
 										 && (advanced_node.child("normalize_each_gradient")
 											 && advanced_node.child("normalize_each_gradient").text().as_bool());

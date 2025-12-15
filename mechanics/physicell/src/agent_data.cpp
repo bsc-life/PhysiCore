@@ -241,8 +241,6 @@ void mechanical_agent_data::add(index_t new_id, index_t cell_type, mechanical_pa
 	state.attached_cells[new_id].clear();
 
 	state.simple_pressure[new_id] = 0.0;
-
-	return;
 }
 
 } // namespace physicore::mechanics::physicell
