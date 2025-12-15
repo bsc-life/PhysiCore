@@ -114,11 +114,11 @@ if(${CUDAToolkit_FOUND})
     reactions-diffusion.biofvm.kernels.cuda_thrust_solver
     PRIVATE reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
   )
-  
-find_path(NOARR_STRUCTURES_INCLUDE_DIRS "noarr/introspection.hpp")
-target_include_directories(
-  reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
-  INTERFACE $<BUILD_INTERFACE:${NOARR_STRUCTURES_INCLUDE_DIRS}>)
+
+  find_path(NOARR_STRUCTURES_INCLUDE_DIRS "noarr/introspection.hpp")
+  target_include_directories(
+    reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
+    INTERFACE $<BUILD_INTERFACE:${NOARR_STRUCTURES_INCLUDE_DIRS}>)
 endif()
 
 target_link_libraries(
