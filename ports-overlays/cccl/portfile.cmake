@@ -1,6 +1,6 @@
 vcpkg_from_git(
   OUT_SOURCE_PATH SOURCE_PATH URL https://github.com/NVIDIA/cccl.git REF
-  c859e948453f41076cf9727958cc709799c21ffb)
+  db78d421a0ce92ed159400d800268574aded45e3)
 
 vcpkg_cmake_configure(
   SOURCE_PATH
