@@ -46,7 +46,7 @@ public:
 
 	virtual std::span<real_t> orientation() = 0;
 	virtual real_t& simple_pressure() = 0;
-	virtual index_t& cell_definition_index() = 0;
+	virtual index_t& agent_type_index() = 0;
 	virtual std::uint8_t& is_movable() = 0;
 };
 

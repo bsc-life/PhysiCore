@@ -21,6 +21,7 @@ public:
 	explicit base_agent_interface(index_t index) : index(index) {}
 
 	virtual std::span<real_t> position() = 0;
+	index_t get_index() const { return index; }
 	virtual ~base_agent_interface() = default;
 };
 
