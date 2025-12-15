@@ -63,7 +63,13 @@ target_link_libraries(
   PRIVATE reactions-diffusion.biofvm_internal_iface
   PUBLIC common)
 
-add_subdirectory(kernels/thrust_solver)
+# Thrust is only supported on Windows and Linux
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(BIOFVM_HAS_THRUST ON)
+  add_subdirectory(kernels/thrust_solver)
+else()
+  set(BIOFVM_HAS_THRUST OFF)
+endif()
 
 get_target_property(HAS_CUDA reactions-diffusion.biofvm INTERFACE_HAS_CUDA)
 if(HAS_CUDA)
