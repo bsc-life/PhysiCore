@@ -69,8 +69,7 @@ class vtk_agents_serializer : public vtk_serializer_base,
 
 public:
 	vtk_agents_serializer(std::string_view output_dir, mechanical_agent_container_interface& container,
-						  std::vector<std::string> substrate_names = {},
-						  std::vector<std::string> cell_type_names = {});
+						  std::vector<std::string> substrate_names = {}, std::vector<std::string> cell_type_names = {});
 
 	void serialize(real_t current_time) override;
 };

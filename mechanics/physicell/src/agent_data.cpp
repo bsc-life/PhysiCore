@@ -9,12 +9,9 @@
 
 namespace physicore::mechanics::physicell {
 
-mechanical_agent_data::mechanical_agent_data(
-	physicore::base_agent_data_generic_storage<std::vector>& base_data, index_t agent_types_count,
-	index_t substrates_count)
-	: base_data(base_data),
-	  agent_types_count(agent_types_count),
-	  substrates_count(substrates_count)
+mechanical_agent_data::mechanical_agent_data(physicore::base_agent_data_generic_storage<std::vector>& base_data,
+											 index_t agent_types_count, index_t substrates_count)
+	: base_data(base_data), agent_types_count(agent_types_count), substrates_count(substrates_count)
 {}
 
 void mechanical_agent_data::add()
@@ -71,8 +68,10 @@ void mechanical_agent_data::remove_at(index_t position)
 
 	if (position != last)
 	{
-		base_storage_t::move_vector(&velocity[position * base_data.dims], &velocity[last * base_data.dims], base_data.dims);
-		base_storage_t::move_vector(&previous_velocity[position * base_data.dims], &previous_velocity[last * base_data.dims], base_data.dims);
+		base_storage_t::move_vector(&velocity[position * base_data.dims], &velocity[last * base_data.dims],
+									base_data.dims);
+		base_storage_t::move_vector(&previous_velocity[position * base_data.dims],
+									&previous_velocity[last * base_data.dims], base_data.dims);
 		base_storage_t::move_scalar(&radius[position], &radius[last]);
 
 		// Mechanics properties
@@ -104,8 +103,8 @@ void mechanical_agent_data::remove_at(index_t position)
 		base_storage_t::move_vector(&motility.migration_bias_direction[position * base_data.dims],
 									&motility.migration_bias_direction[last * base_data.dims], base_data.dims);
 		base_storage_t::move_scalar(&motility.migration_bias[position], &motility.migration_bias[last]);
-		base_storage_t::move_vector(&motility.motility_vector[position * base_data.dims], &motility.motility_vector[last * base_data.dims],
-									base_data.dims);
+		base_storage_t::move_vector(&motility.motility_vector[position * base_data.dims],
+									&motility.motility_vector[last * base_data.dims], base_data.dims);
 		base_storage_t::move_scalar(&motility.restrict_to_2d[position], &motility.restrict_to_2d[last]);
 		base_storage_t::move_scalar(&motility.chemotaxis_index[position], &motility.chemotaxis_index[last]);
 		base_storage_t::move_scalar(&motility.chemotaxis_direction[position], &motility.chemotaxis_direction[last]);
@@ -116,7 +115,8 @@ void mechanical_agent_data::remove_at(index_t position)
 		state.neighbors[position] = std::move(state.neighbors[last]);
 		state.springs[position] = std::move(state.springs[last]);
 		state.attached_cells[position] = std::move(state.attached_cells[last]);
-		base_storage_t::move_vector(&state.orientation[position * base_data.dims], &state.orientation[last * base_data.dims], base_data.dims);
+		base_storage_t::move_vector(&state.orientation[position * base_data.dims],
+									&state.orientation[last * base_data.dims], base_data.dims);
 		base_storage_t::move_scalar(&state.simple_pressure[position], &state.simple_pressure[last]);
 		base_storage_t::move_scalar(&state.agent_type_index[position], &state.agent_type_index[last]);
 		base_storage_t::move_scalar(&state.is_movable[position], &state.is_movable[last]);
@@ -164,9 +164,7 @@ void mechanical_agent_data::remove_at(index_t position)
 
 
 
-
-void mechanical_agent_data::add(index_t new_id, index_t cell_type,
-														mechanical_parameters& parameters, bool is_2D)
+void mechanical_agent_data::add(index_t new_id, index_t cell_type, mechanical_parameters& parameters, bool is_2D)
 {
 	assert(new_id == base_data.agents_count);
 

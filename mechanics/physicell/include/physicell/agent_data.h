@@ -70,12 +70,12 @@ struct state_properties
 	std::vector<std::vector<index_t>> attached_cells; // attachments not modeled as springs
 
 	// Orientation and pressure
-	std::vector<real_t> orientation;	   // dims per agent
+	std::vector<real_t> orientation;	 // dims per agent
 	std::vector<real_t> simple_pressure; // scalar mechanics pressure proxy
 
 	// Cell metadata
 	std::vector<index_t> agent_type_index; // link to cell definition
-	std::vector<std::uint8_t> is_movable;			// mobility toggle per agent
+	std::vector<std::uint8_t> is_movable;  // mobility toggle per agent
 };
 
 struct mechanical_agent_data
@@ -103,7 +103,7 @@ public:
 
 	void add();
 	void remove_at(index_t position);
-	void add(index_t new_id, index_t cell_type,mechanical_parameters& parameters, bool is_2D);
+	void add(index_t new_id, index_t cell_type, mechanical_parameters& parameters, bool is_2D);
 };
 
 using agent_data = mechanical_agent_data;

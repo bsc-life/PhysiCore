@@ -113,7 +113,6 @@ public:
 	real_t& simple_pressure() override { return data.state.simple_pressure[this->index]; }
 	index_t& agent_type_index() override { return data.state.agent_type_index[this->index]; }
 	std::uint8_t& is_movable() override { return data.state.is_movable[this->index]; }
-
 };
 
 } // namespace physicore::mechanics::physicell
