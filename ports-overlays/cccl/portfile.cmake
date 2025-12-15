@@ -20,9 +20,9 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
-# Relocate headers under a single cccl/ prefix: include/cccl/{thrust,cub,cuda}
+# Relocate headers under a single cccl/ prefix: include/cccl/{thrust,cub,cuda,nv}
 file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/include/cccl")
-set(_cccl_header_dirs cub thrust cuda)
+set(_cccl_header_dirs cub thrust cuda nv)
 foreach(_dir IN LISTS _cccl_header_dirs)
   if(EXISTS "${CURRENT_PACKAGES_DIR}/include/${_dir}")
     file(COPY "${CURRENT_PACKAGES_DIR}/include/${_dir}" DESTINATION "${CURRENT_PACKAGES_DIR}/include/cccl")
