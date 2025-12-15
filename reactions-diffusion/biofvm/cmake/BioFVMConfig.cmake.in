@@ -13,14 +13,16 @@ if(NOT @BUILD_SHARED_LIBS@)
   find_dependency(OpenMP 4)
   find_dependency(hwy)
 
-  # Thrust solver dependencies
-  find_dependency(Thrust CONFIG)
-  thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
+  # Thrust solver dependencies (conditionally built)
+  if(@BIOFVM_HAS_THRUST@)
+    find_dependency(Thrust CONFIG)
+    thrust_create_target(ThrustTBB HOST TBB DEVICE TBB)
 
-  # CUDA solver dependencies (optional)
-  if(@BIOFVM_HAS_CUDA@)
-    find_dependency(CUDAToolkit 12)
-    thrust_create_target(ThrustCUDA HOST TBB DEVICE CUDA)
+    # CUDA solver dependencies (optional)
+    if(@BIOFVM_HAS_CUDA@)
+      find_dependency(CUDAToolkit 12)
+      thrust_create_target(ThrustCUDA HOST TBB DEVICE CUDA)
+    endif()
   endif()
 endif()
 
