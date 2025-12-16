@@ -40,7 +40,8 @@
 				"cheshirekow.cmake-format",
 				"ms-vscode.cpptools-extension-pack",
 				"ms-vscode.cmake-tools",
-				"github.vscode-github-actions"
+				"github.vscode-github-actions",
+				"github.vscode-pull-request-github"
 			],
 			"settings": {
 				"editor.formatOnSave": true,
