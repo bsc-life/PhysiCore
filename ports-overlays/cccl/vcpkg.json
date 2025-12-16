@@ -1,6 +1,6 @@
 {
     "name": "cccl",
-    "version-string": "3.1.0",
+    "version-string": "3.1.3",
     "description": "CUDA Core Compute Libraries",
     "dependencies": [
         {
