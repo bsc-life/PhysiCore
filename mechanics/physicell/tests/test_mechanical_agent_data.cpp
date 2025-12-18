@@ -1,8 +1,4 @@
-#include <memory>
-#include <vector>
-
 #include <common/base_agent_data.h>
-#include <common/types.h>
 #include <gtest/gtest.h>
 
 #include "physicell/agent_data.h"
@@ -12,502 +8,219 @@ namespace physicore::mechanics::physicell::tests {
 using namespace physicore;
 using namespace physicore::mechanics::physicell;
 
-class MechanicalAgentDataTest : public ::testing::Test
+namespace {
+base_agent_data make_base_agent_data(index_t dims, index_t count)
 {
-protected:
-	std::unique_ptr<base_agent_data_generic_storage<std::vector>> base_data;
-
-	void SetUp() override { base_data = std::make_unique<base_agent_data_generic_storage<std::vector>>(3); }
-};
-
-// Constructor tests
-TEST_F(MechanicalAgentDataTest, ConstructorDefaultValues)
-{
-	agent_data agent_data_obj(*base_data);
-
-	EXPECT_EQ(agent_data_obj.agents_count, 0);
-	EXPECT_EQ(agent_data_obj.base_data.dims, 3);
-	EXPECT_EQ(agent_data_obj.agent_types_count, 1);
-	EXPECT_EQ(agent_data_obj.substrates_count, 1);
-}
-
-TEST_F(MechanicalAgentDataTest, ConstructorCustomDimensions)
-{
-	// agent_types_count and substrates_count from parameters
-	agent_data agent_data_obj(*base_data, 5, 3);
-
-	EXPECT_EQ(agent_data_obj.base_data.dims, 3); // Takes base_data.dims (3)
-	EXPECT_EQ(agent_data_obj.agent_types_count, 5);
-	EXPECT_EQ(agent_data_obj.substrates_count, 3);
-	EXPECT_EQ(agent_data_obj.agents_count, 0);
-}
-
-TEST_F(MechanicalAgentDataTest, ConstructorWithDifferentParams)
-{
-	base_data = std::make_unique<base_agent_data_generic_storage<std::vector>>(3);
-	agent_data agent_data_obj(*base_data, 10, 5);
-
-	// dims comes from base_data
-	EXPECT_EQ(agent_data_obj.base_data.dims, 3);
-	EXPECT_EQ(agent_data_obj.agent_types_count, 10);
-	EXPECT_EQ(agent_data_obj.substrates_count, 5);
-}
-
-// Add single agent tests
-TEST_F(MechanicalAgentDataTest, AddSingleAgent)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.agents_count, 1);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 3); // dims
-	EXPECT_EQ(agent_data_obj.previous_velocity.size(), 3);
-	EXPECT_EQ(agent_data_obj.radius.size(), 1);
-}
-
-TEST_F(MechanicalAgentDataTest, AddMultipleAgents)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.agents_count, 3);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 9); // 3 agents * 3 dims
-	EXPECT_EQ(agent_data_obj.radius.size(), 3);
-	EXPECT_EQ(agent_data_obj.motility.is_motile.size(), 3);
-}
-
-// Adhesion container tests
-TEST_F(MechanicalAgentDataTest, AdhesionContainersAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.mechanics.cell_cell_adhesion_strength.size(), 2);
-	EXPECT_EQ(agent_data_obj.mechanics.cell_BM_adhesion_strength.size(), 2);
-	EXPECT_EQ(agent_data_obj.mechanics.cell_cell_repulsion_strength.size(), 2);
-	EXPECT_EQ(agent_data_obj.mechanics.cell_BM_repulsion_strength.size(), 2);
-	EXPECT_EQ(agent_data_obj.mechanics.relative_maximum_adhesion_distance.size(), 2);
-}
-
-// Motility container tests
-TEST_F(MechanicalAgentDataTest, MotilityContainersAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.motility.is_motile.size(), 1);
-	EXPECT_EQ(agent_data_obj.motility.persistence_time.size(), 1);
-	EXPECT_EQ(agent_data_obj.motility.migration_speed.size(), 1);
-	EXPECT_EQ(agent_data_obj.motility.migration_bias.size(), 1);
-	EXPECT_EQ(agent_data_obj.motility.restrict_to_2d.size(), 1);
-}
-
-// Chemotaxis container tests
-TEST_F(MechanicalAgentDataTest, ChemotaxisContainersAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 2, 2);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.motility.chemotaxis_index.size(), 1);
-	EXPECT_EQ(agent_data_obj.motility.chemotaxis_direction.size(), 1);
-	EXPECT_EQ(agent_data_obj.motility.chemotactic_sensitivities.size(), 2); // substrates_count
-}
-
-// Affinities container test
-TEST_F(MechanicalAgentDataTest, AffinitiiesContainerAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 3, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.mechanics.cell_adhesion_affinities.size(), 3); // agent_types_count
-}
-
-// State container tests
-TEST_F(MechanicalAgentDataTest, StateContainersAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.state.neighbors.size(), 1);
-	EXPECT_EQ(agent_data_obj.state.springs.size(), 1);
-	EXPECT_EQ(agent_data_obj.state.attached_cells.size(), 1);
-	EXPECT_EQ(agent_data_obj.state.orientation.size(), 3); // dims
-	EXPECT_EQ(agent_data_obj.state.simple_pressure.size(), 1);
-	EXPECT_EQ(agent_data_obj.state.agent_type_index.size(), 1);
-	EXPECT_EQ(agent_data_obj.state.is_movable.size(), 1);
-}
-
-// Remove tests
-TEST_F(MechanicalAgentDataTest, RemoveAtFirstAgent)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	EXPECT_EQ(agent_data_obj.agents_count, 3);
-
-	base_data->remove_at(0);
-	agent_data_obj.remove_at(0);
-
-	EXPECT_EQ(agent_data_obj.agents_count, 2);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 6); // 2 agents * 3 dims
-	EXPECT_EQ(agent_data_obj.radius.size(), 2);
-}
-
-TEST_F(MechanicalAgentDataTest, RemoveAtLastAgent)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	base_data->remove_at(2);
-	agent_data_obj.remove_at(2);
-
-	EXPECT_EQ(agent_data_obj.agents_count, 2);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 6);
-}
-
-TEST_F(MechanicalAgentDataTest, RemoveMultipleAgents)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	base_data->remove_at(1);
-	agent_data_obj.remove_at(1);
-
-	EXPECT_EQ(agent_data_obj.agents_count, 2);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 6);
-	EXPECT_EQ(agent_data_obj.radius.size(), 2);
-}
-
-TEST_F(MechanicalAgentDataTest, RemoveSingleAgent)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	EXPECT_EQ(agent_data_obj.agents_count, 1);
-
-	base_data->remove_at(0);
-	agent_data_obj.remove_at(0);
-
-	EXPECT_EQ(agent_data_obj.agents_count, 0);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 0);
-}
-
-// Multiple add/remove cycles
-TEST_F(MechanicalAgentDataTest, MultipleAddRemoveCycles)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	EXPECT_EQ(agent_data_obj.agents_count, 2);
-
-	base_data->remove_at(0);
-	agent_data_obj.remove_at(0);
-	EXPECT_EQ(agent_data_obj.agents_count, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	EXPECT_EQ(agent_data_obj.agents_count, 3);
-
-	base_data->remove_at(1);
-	agent_data_obj.remove_at(1);
-	EXPECT_EQ(agent_data_obj.agents_count, 2);
-}
-
-// Container consistency tests
-TEST_F(MechanicalAgentDataTest, ContainerConsistencyAfterAddRemove)
-{
-	agent_data agent_data_obj(*base_data, 4, 2);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	// All scalar containers should have size = agents_count
-	EXPECT_EQ(agent_data_obj.velocity.size(), agent_data_obj.agents_count * 3);
-	EXPECT_EQ(agent_data_obj.radius.size(), agent_data_obj.agents_count);
-	EXPECT_EQ(agent_data_obj.motility.is_motile.size(), agent_data_obj.agents_count);
-	EXPECT_EQ(agent_data_obj.state.is_movable.size(), agent_data_obj.agents_count);
-
-	base_data->remove_at(1);
-	agent_data_obj.remove_at(1);
-
-	// Consistency after removal
-	EXPECT_EQ(agent_data_obj.velocity.size(), agent_data_obj.agents_count * 3);
-	EXPECT_EQ(agent_data_obj.radius.size(), agent_data_obj.agents_count);
-	EXPECT_EQ(agent_data_obj.motility.is_motile.size(), agent_data_obj.agents_count);
-	EXPECT_EQ(agent_data_obj.state.is_movable.size(), agent_data_obj.agents_count);
-}
-
-// Attachment container tests
-TEST_F(MechanicalAgentDataTest, AttachmentContainersAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.mechanics.maximum_number_of_attachments.size(), 2);
-	EXPECT_EQ(agent_data_obj.mechanics.attachment_elastic_constant.size(), 2);
-	EXPECT_EQ(agent_data_obj.mechanics.attachment_rate.size(), 2);
-	EXPECT_EQ(agent_data_obj.mechanics.detachment_rate.size(), 2);
-}
-
-// Dimension-dependent container tests
-TEST_F(MechanicalAgentDataTest, DimensionDependentContainersAfterAdd2D)
-{
-	base_data = std::make_unique<base_agent_data_generic_storage<std::vector>>(2);
-	agent_data agent_data_obj(*base_data, 1, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	// Containers with dims scaling
-	EXPECT_EQ(agent_data_obj.velocity.size(), 2); // dims
-	EXPECT_EQ(agent_data_obj.previous_velocity.size(), 2);
-	EXPECT_EQ(agent_data_obj.motility.migration_bias_direction.size(), 2);
-	EXPECT_EQ(agent_data_obj.motility.motility_vector.size(), 2);
-	EXPECT_EQ(agent_data_obj.state.orientation.size(), 2);
-}
-
-TEST_F(MechanicalAgentDataTest, DimensionDependentContainersAfterAdd3D)
-{
-	base_data = std::make_unique<base_agent_data_generic_storage<std::vector>>(3);
-	agent_data agent_data_obj(*base_data, 1, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.velocity.size(), 3);
-	EXPECT_EQ(agent_data_obj.previous_velocity.size(), 3);
-	EXPECT_EQ(agent_data_obj.motility.migration_bias_direction.size(), 3);
-	EXPECT_EQ(agent_data_obj.motility.motility_vector.size(), 3);
-	EXPECT_EQ(agent_data_obj.state.orientation.size(), 3);
-}
-
-// Type-dependent container tests
-TEST_F(MechanicalAgentDataTest, TypeDependentContainersAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 5, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.mechanics.cell_adhesion_affinities.size(), 5);
-}
-
-TEST_F(MechanicalAgentDataTest, TypeDependentContainersMultipleAgents)
-{
-	agent_data agent_data_obj(*base_data, 4, 1);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.mechanics.cell_adhesion_affinities.size(), 8); // 2 agents * 4 types
-}
-
-// Substrate-dependent container tests
-TEST_F(MechanicalAgentDataTest, SubstrateDependentContainersAfterAdd)
-{
-	agent_data agent_data_obj(*base_data, 1, 4);
-
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.motility.chemotactic_sensitivities.size(), 4);
-}
-
-TEST_F(MechanicalAgentDataTest, SubstrateDependentContainersMultipleAgents)
-{
-	agent_data agent_data_obj(*base_data, 1, 3);
-
-	base_data->add();
-	agent_data_obj.add();
-	base_data->add();
-	agent_data_obj.add();
-
-	EXPECT_EQ(agent_data_obj.motility.chemotactic_sensitivities.size(), 6); // 2 agents * 3 substrates
-}
-
-// Large-scale tests
-TEST_F(MechanicalAgentDataTest, LargeScaleAdd)
-{
-	agent_data agent_data_obj(*base_data, 10, 5);
-
-	for (int i = 0; i < 100; ++i)
+	base_agent_data data(dims);
+	for (index_t i = 0; i < count; ++i)
 	{
-		base_data->add();
-		agent_data_obj.add();
+		data.add();
 	}
-	EXPECT_EQ(agent_data_obj.agents_count, 100);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 300); // 100 * 3
-	EXPECT_EQ(agent_data_obj.radius.size(), 100);
+	return data;
 }
 
-TEST_F(MechanicalAgentDataTest, LargeScaleRemove)
+void sync_add(base_agent_data& base, agent_data& data)
 {
-	agent_data agent_data_obj(*base_data, 10, 5);
-
-	for (int i = 0; i < 100; ++i)
-	{
-		base_data->add();
-		agent_data_obj.add();
-	}
-	EXPECT_EQ(agent_data_obj.agents_count, 100);
-
-	for (int i = 0; i < 50; ++i)
-	{
-		base_data->remove_at(0);
-		agent_data_obj.remove_at(0);
-	}
-	EXPECT_EQ(agent_data_obj.agents_count, 50);
-
-	// Container consistency
-	EXPECT_EQ(agent_data_obj.velocity.size(), 150); // 50 * 3
-	EXPECT_EQ(agent_data_obj.radius.size(), 50);
-	EXPECT_EQ(agent_data_obj.state.agent_type_index.size(), 50);
+	base.add();
+	data.add();
 }
 
-// Edge case tests
-TEST_F(MechanicalAgentDataTest, AllContainerTypesPresent)
+void sync_remove_at(base_agent_data& base, agent_data& data, index_t position)
 {
-	agent_data agent_data_obj(*base_data, 2, 2);
+	base.remove_at(position);
+	data.remove_at(position);
+}
 
-	base_data->add();
-	agent_data_obj.add();
+void expect_container_sizes(const agent_data& data, index_t dims, index_t agent_types_count, index_t substrates_count)
+{
+	const index_t n = data.agents_count;
 
 	// Kinematics
-	EXPECT_EQ(agent_data_obj.velocity.size(), 3);
-	EXPECT_EQ(agent_data_obj.previous_velocity.size(), 3);
-	EXPECT_EQ(agent_data_obj.radius.size(), 1);
+	EXPECT_EQ(data.velocity.size(), n * dims);
+	EXPECT_EQ(data.previous_velocity.size(), n * dims);
+	EXPECT_EQ(data.radius.size(), n);
 
-	// Mechanics
-	EXPECT_EQ(agent_data_obj.mechanics.cell_cell_adhesion_strength.size(), 1);
-	EXPECT_EQ(agent_data_obj.mechanics.cell_adhesion_affinities.size(), 2);
+	// Mechanics properties
+	EXPECT_EQ(data.mechanics_data.cell_cell_adhesion_strength.size(), n);
+	EXPECT_EQ(data.mechanics_data.cell_BM_adhesion_strength.size(), n);
+	EXPECT_EQ(data.mechanics_data.cell_cell_repulsion_strength.size(), n);
+	EXPECT_EQ(data.mechanics_data.cell_BM_repulsion_strength.size(), n);
+	EXPECT_EQ(data.mechanics_data.cell_adhesion_affinities.size(), n * agent_types_count);
+	EXPECT_EQ(data.mechanics_data.relative_maximum_adhesion_distance.size(), n);
+	EXPECT_EQ(data.mechanics_data.maximum_number_of_attachments.size(), n);
+	EXPECT_EQ(data.mechanics_data.attachment_elastic_constant.size(), n);
+	EXPECT_EQ(data.mechanics_data.attachment_rate.size(), n);
+	EXPECT_EQ(data.mechanics_data.detachment_rate.size(), n);
 
-	// Motility
-	EXPECT_EQ(agent_data_obj.motility.is_motile.size(), 1);
-	EXPECT_EQ(agent_data_obj.motility.migration_bias_direction.size(), 3);
+	// Motility properties
+	EXPECT_EQ(data.motility_data.is_motile.size(), n);
+	EXPECT_EQ(data.motility_data.persistence_time.size(), n);
+	EXPECT_EQ(data.motility_data.migration_speed.size(), n);
+	EXPECT_EQ(data.motility_data.migration_bias_direction.size(), n * dims);
+	EXPECT_EQ(data.motility_data.migration_bias.size(), n);
+	EXPECT_EQ(data.motility_data.motility_vector.size(), n * dims);
+	EXPECT_EQ(data.motility_data.restrict_to_2d.size(), n);
+	EXPECT_EQ(data.motility_data.chemotaxis_index.size(), n);
+	EXPECT_EQ(data.motility_data.chemotaxis_direction.size(), n);
+	EXPECT_EQ(data.motility_data.chemotactic_sensitivities.size(), n * substrates_count);
 
-	// State
-	EXPECT_EQ(agent_data_obj.state.neighbors.size(), 1);
-	EXPECT_EQ(agent_data_obj.state.orientation.size(), 3);
+	// State properties
+	EXPECT_EQ(data.state_data.neighbors.size(), n);
+	EXPECT_EQ(data.state_data.springs.size(), n);
+	EXPECT_EQ(data.state_data.attached_cells.size(), n);
+	EXPECT_EQ(data.state_data.orientation.size(), n * dims);
+	EXPECT_EQ(data.state_data.simple_pressure.size(), n);
+	EXPECT_EQ(data.state_data.agent_type_index.size(), n);
+	EXPECT_EQ(data.state_data.is_movable.size(), n);
+}
+} // namespace
+
+TEST(MechanicalAgentDataTest, AddInitializesVectorsCorrectly)
+{
+	const index_t dims = 3;
+	base_agent_data base = make_base_agent_data(dims, 0);
+	const index_t agent_types_count = 4;
+	const index_t substrates_count = 2;
+	agent_data data(base, agent_types_count, substrates_count);
+
+	EXPECT_EQ(data.agents_count, 0);
+	EXPECT_EQ(data.base_data.dims, dims);
+	EXPECT_EQ(data.agent_types_count, agent_types_count);
+	EXPECT_EQ(data.substrates_count, substrates_count);
+	expect_container_sizes(data, dims, agent_types_count, substrates_count);
+
+	sync_add(base, data);
+
+	EXPECT_EQ(data.agents_count, 1);
+	EXPECT_EQ(data.agents_count, base.agents_count);
+	expect_container_sizes(data, dims, agent_types_count, substrates_count);
+
+	sync_add(base, data);
+
+	EXPECT_EQ(data.agents_count, 2);
+	EXPECT_EQ(data.agents_count, base.agents_count);
+	expect_container_sizes(data, dims, agent_types_count, substrates_count);
 }
 
-TEST_F(MechanicalAgentDataTest, EmptyToPopulatedTransition)
+TEST(MechanicalAgentDataTest, RemoveShrinksVectorsCorrectly)
 {
-	agent_data agent_data_obj(*base_data, 2, 1);
+	const index_t dims = 3;
+	base_agent_data base = make_base_agent_data(dims, 0);
+	const index_t agent_types_count = 3;
+	const index_t substrates_count = 2;
+	agent_data data(base, agent_types_count, substrates_count);
 
-	EXPECT_EQ(agent_data_obj.agents_count, 0);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 0);
-	EXPECT_EQ(agent_data_obj.radius.size(), 0);
+	sync_add(base, data); // agent 0
+	sync_add(base, data); // agent 1
+	sync_add(base, data); // agent 2
 
-	base_data->add();
-	agent_data_obj.add();
+	EXPECT_EQ(data.agents_count, 3);
+	EXPECT_EQ(data.agents_count, base.agents_count);
+	expect_container_sizes(data, dims, agent_types_count, substrates_count);
 
-	EXPECT_EQ(agent_data_obj.agents_count, 1);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 3);
-	EXPECT_EQ(agent_data_obj.radius.size(), 1);
+	// Remove agent at position 1
+	sync_remove_at(base, data, 1);
+
+	EXPECT_EQ(data.agents_count, 2);
+	EXPECT_EQ(data.agents_count, base.agents_count);
+	expect_container_sizes(data, dims, agent_types_count, substrates_count);
+
+	// Remove agent at position 0
+	sync_remove_at(base, data, 0);
+
+	EXPECT_EQ(data.agents_count, 1);
+	EXPECT_EQ(data.agents_count, base.agents_count);
+	expect_container_sizes(data, dims, agent_types_count, substrates_count);
 }
 
-TEST_F(MechanicalAgentDataTest, PopulatedToEmptyTransition)
+TEST(MechanicalAgentDataTest, RemoveMovesLastAgentDataToRemovedSlot)
 {
-	agent_data agent_data_obj(*base_data, 2, 1);
+	const index_t dims = 3;
+	base_agent_data base = make_base_agent_data(dims, 0);
+	const index_t agent_types_count = 2;
+	const index_t substrates_count = 2;
+	agent_data data(base, agent_types_count, substrates_count);
 
-	base_data->add();
-	agent_data_obj.add();
-	EXPECT_EQ(agent_data_obj.agents_count, 1);
+	sync_add(base, data); // agent 0
+	sync_add(base, data); // agent 1
+	sync_add(base, data); // agent 2
 
-	base_data->remove_at(0);
-	agent_data_obj.remove_at(0);
+	// Stamp distinct values in multiple containers.
+	data.radius[0] = 10.0;
+	data.radius[1] = 20.0;
+	data.radius[2] = 30.0;
 
-	EXPECT_EQ(agent_data_obj.agents_count, 0);
-	EXPECT_EQ(agent_data_obj.velocity.size(), 0);
-	EXPECT_EQ(agent_data_obj.radius.size(), 0);
-}
+	data.velocity[0 * dims + 0] = 0.1;
+	data.velocity[0 * dims + 1] = 0.2;
+	data.velocity[0 * dims + 2] = 0.3;
+	data.velocity[1 * dims + 0] = 1.1;
+	data.velocity[1 * dims + 1] = 1.2;
+	data.velocity[1 * dims + 2] = 1.3;
+	data.velocity[2 * dims + 0] = 2.1;
+	data.velocity[2 * dims + 1] = 2.2;
+	data.velocity[2 * dims + 2] = 2.3;
 
-// Data integrity test
-TEST_F(MechanicalAgentDataTest, DataIntegrityAfterOperations)
-{
-	agent_data agent_data_obj(*base_data, 2, 1);
+	data.state_data.orientation[0 * dims + 0] = 10.0;
+	data.state_data.orientation[0 * dims + 1] = 20.0;
+	data.state_data.orientation[0 * dims + 2] = 30.0;
+	data.state_data.orientation[1 * dims + 0] = 11.0;
+	data.state_data.orientation[1 * dims + 1] = 21.0;
+	data.state_data.orientation[1 * dims + 2] = 31.0;
+	data.state_data.orientation[2 * dims + 0] = 12.0;
+	data.state_data.orientation[2 * dims + 1] = 22.0;
+	data.state_data.orientation[2 * dims + 2] = 32.0;
 
-	// Add agents and store initial values
-	base_data->add();
-	agent_data_obj.add();
-	agent_data_obj.radius[0] = 5.5F;
-	agent_data_obj.motility.is_motile[0] = 1;
+	data.mechanics_data.cell_adhesion_affinities[0 * agent_types_count + 0] = 0.01;
+	data.mechanics_data.cell_adhesion_affinities[0 * agent_types_count + 1] = 0.02;
+	data.mechanics_data.cell_adhesion_affinities[1 * agent_types_count + 0] = 0.11;
+	data.mechanics_data.cell_adhesion_affinities[1 * agent_types_count + 1] = 0.12;
+	data.mechanics_data.cell_adhesion_affinities[2 * agent_types_count + 0] = 0.21;
+	data.mechanics_data.cell_adhesion_affinities[2 * agent_types_count + 1] = 0.22;
 
-	base_data->add();
-	agent_data_obj.add();
-	agent_data_obj.radius[1] = 7.2F;
-	agent_data_obj.motility.is_motile[1] = 0;
+	data.motility_data.chemotactic_sensitivities[0 * substrates_count + 0] = 1.0;
+	data.motility_data.chemotactic_sensitivities[0 * substrates_count + 1] = 2.0;
+	data.motility_data.chemotactic_sensitivities[1 * substrates_count + 0] = 3.0;
+	data.motility_data.chemotactic_sensitivities[1 * substrates_count + 1] = 4.0;
+	data.motility_data.chemotactic_sensitivities[2 * substrates_count + 0] = 5.0;
+	data.motility_data.chemotactic_sensitivities[2 * substrates_count + 1] = 6.0;
 
-	base_data->add();
-	agent_data_obj.add();
-	agent_data_obj.radius[2] = 6.3F;
-	agent_data_obj.motility.is_motile[2] = 1;
+	data.state_data.neighbors[0] = { 1 };
+	data.state_data.neighbors[1] = { 0, 2 };
+	data.state_data.neighbors[2] = { 42 };
 
-	// Remove middle agent
-	base_data->remove_at(1);
-	agent_data_obj.remove_at(1);
+	// Remove the middle agent, expect last data to move into slot 1.
+	sync_remove_at(base, data, 1);
 
-	// Check that last agent moved to middle position
-	EXPECT_EQ(agent_data_obj.agents_count, 2);
-	EXPECT_EQ(agent_data_obj.radius[1], 6.3F);
-	EXPECT_EQ(agent_data_obj.motility.is_motile[1], 1);
+	EXPECT_EQ(data.agents_count, 2);
+	EXPECT_EQ(data.agents_count, base.agents_count);
 
-	// Check that first agent is unchanged
-	EXPECT_EQ(agent_data_obj.radius[0], 5.5F);
-	EXPECT_EQ(agent_data_obj.motility.is_motile[0], 1);
+	// Slot 0 unchanged.
+	EXPECT_DOUBLE_EQ(data.radius[0], 10.0);
+	EXPECT_DOUBLE_EQ(data.velocity[0 * dims + 0], 0.1);
+	EXPECT_DOUBLE_EQ(data.velocity[0 * dims + 1], 0.2);
+	EXPECT_DOUBLE_EQ(data.velocity[0 * dims + 2], 0.3);
+	EXPECT_DOUBLE_EQ(data.state_data.orientation[0 * dims + 0], 10.0);
+	EXPECT_DOUBLE_EQ(data.state_data.orientation[0 * dims + 1], 20.0);
+	EXPECT_DOUBLE_EQ(data.state_data.orientation[0 * dims + 2], 30.0);
+	ASSERT_EQ(data.state_data.neighbors[0].size(), 1);
+	EXPECT_EQ(data.state_data.neighbors[0][0], 1);
+
+	// Slot 1 now contains what was previously slot 2.
+	EXPECT_DOUBLE_EQ(data.radius[1], 30.0);
+	EXPECT_DOUBLE_EQ(data.velocity[1 * dims + 0], 2.1);
+	EXPECT_DOUBLE_EQ(data.velocity[1 * dims + 1], 2.2);
+	EXPECT_DOUBLE_EQ(data.velocity[1 * dims + 2], 2.3);
+	EXPECT_DOUBLE_EQ(data.state_data.orientation[1 * dims + 0], 12.0);
+	EXPECT_DOUBLE_EQ(data.state_data.orientation[1 * dims + 1], 22.0);
+	EXPECT_DOUBLE_EQ(data.state_data.orientation[1 * dims + 2], 32.0);
+
+	EXPECT_DOUBLE_EQ(data.mechanics_data.cell_adhesion_affinities[1 * agent_types_count + 0], 0.21);
+	EXPECT_DOUBLE_EQ(data.mechanics_data.cell_adhesion_affinities[1 * agent_types_count + 1], 0.22);
+	EXPECT_DOUBLE_EQ(data.motility_data.chemotactic_sensitivities[1 * substrates_count + 0], 5.0);
+	EXPECT_DOUBLE_EQ(data.motility_data.chemotactic_sensitivities[1 * substrates_count + 1], 6.0);
+
+	ASSERT_EQ(data.state_data.neighbors[1].size(), 1);
+	EXPECT_EQ(data.state_data.neighbors[1][0], 42);
 }
 
 } // namespace physicore::mechanics::physicell::tests

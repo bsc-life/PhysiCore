@@ -30,7 +30,7 @@ using mechanical_agent_container = physicore::generic_agent_and_data_container<p
  * Provides type-erased access to agents via `agent_interface`.
  * Useful for algorithms that need to work with agent interfaces without direct data access.
  */
-using mechanical_agent_container_interface = physicore::generic_agent_interface_container<agent_interface>;
+using mechanical_agent_container_interface = physicore::generic_agent_interface_container<mechanical_agent_interface>;
 
 /**
  * @brief Shared pointer type for mechanical agent containers.

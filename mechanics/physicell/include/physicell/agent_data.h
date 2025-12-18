@@ -62,6 +62,7 @@ struct motility_properties
  * @brief State-related properties for agents
  * Includes neighbor tracking, attachments, orientation, and mobility
  */
+// Warning: "state_properties" can lead to antipatterns if misused. Use with caution.1
 struct state_properties
 {
 	// Spatial relationships
@@ -94,9 +95,9 @@ public:
 	std::vector<real_t> radius;			   // cell radius
 
 	// Organized sub-structures
-	mechanics_properties mechanics;
-	motility_properties motility;
-	state_properties state;
+	mechanics_properties mechanics_data;
+	motility_properties motility_data;
+	state_properties state_data;
 
 	explicit mechanical_agent_data(physicore::base_agent_data_generic_storage<std::vector>& base_data,
 								   index_t agent_types_count = 1, index_t substrates_count = 1);

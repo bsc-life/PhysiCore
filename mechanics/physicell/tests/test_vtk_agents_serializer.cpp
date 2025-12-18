@@ -22,8 +22,138 @@ namespace {
 mechanical_agent_container make_container(int dims, int agent_types, int substrates)
 {
 	auto base = std::make_unique<base_agent_data>(dims);
-	auto data = std::make_unique<agent_data>(*base, agent_types, substrates);
+	auto data = std::make_unique<mechanical_agent_data>(*base, agent_types, substrates);
 	return mechanical_agent_container(std::move(base), std::move(data));
+}
+
+mechanical_agent_container make_single_agent_container()
+{
+	auto container = make_container(3, 2, 2);
+	container.create();
+
+	auto& base_data = *std::get<0>(container.agent_datas);
+	auto& mech_data = *std::get<1>(container.agent_datas);
+
+	base_data.positions = { 1.0, 2.0, 3.0 };
+
+	mech_data.velocity = { 0.1, 0.2, 0.3 };
+	mech_data.previous_velocity = { 0.4, 0.5, 0.6 };
+	mech_data.radius[0] = 4.5;
+
+	mech_data.mechanics_data.cell_cell_adhesion_strength[0] = 0.2;
+	mech_data.mechanics_data.cell_BM_adhesion_strength[0] = 0.3;
+	mech_data.mechanics_data.cell_cell_repulsion_strength[0] = 1.1;
+	mech_data.mechanics_data.cell_BM_repulsion_strength[0] = 0.9;
+	mech_data.mechanics_data.relative_maximum_adhesion_distance[0] = 1.25;
+	mech_data.mechanics_data.maximum_number_of_attachments[0] = 5;
+	mech_data.mechanics_data.attachment_elastic_constant[0] = 0.6;
+	mech_data.mechanics_data.attachment_rate[0] = 0.7;
+	mech_data.mechanics_data.detachment_rate[0] = 0.8;
+	mech_data.mechanics_data.cell_adhesion_affinities = { 0.25, 0.5 };
+
+	mech_data.motility_data.is_motile[0] = 1;
+	mech_data.motility_data.persistence_time[0] = 5.5;
+	mech_data.motility_data.migration_speed[0] = 6.6;
+	mech_data.motility_data.migration_bias_direction = { 0.0, 1.0, 0.0 };
+	mech_data.motility_data.migration_bias[0] = 0.7;
+	mech_data.motility_data.motility_vector = { 1.0, 2.0, 3.0 };
+	mech_data.motility_data.restrict_to_2d[0] = 0;
+	mech_data.motility_data.chemotaxis_index[0] = 1;
+	mech_data.motility_data.chemotaxis_direction[0] = 2;
+	mech_data.motility_data.chemotactic_sensitivities = { 0.01, 0.02 };
+
+	mech_data.state_data.orientation = { 0.1, 0.2, 0.3 };
+	mech_data.state_data.simple_pressure[0] = 12.0;
+	mech_data.state_data.agent_type_index[0] = 1;
+	mech_data.state_data.is_movable[0] = 1;
+
+	return container;
+}
+
+static vtkRealArray* arr(vtkPointData* point_data, const char* name)
+{
+	auto* array = vtkRealArray::SafeDownCast(point_data->GetArray(name));
+	if (!array)
+	{
+		ADD_FAILURE() << "Missing array: " << name;
+	}
+	return array;
+}
+
+static void expect_scalar(vtkPointData* point_data, const char* name, double value)
+{
+	auto* array = arr(point_data, name);
+	ASSERT_NE(array, nullptr);
+	EXPECT_DOUBLE_EQ(array->GetTuple1(0), value);
+}
+
+static void expect_vec3(vtkPointData* point_data, const char* name, const std::array<double, 3>& expected)
+{
+	std::array<double, 3> tuple {};
+	auto* array = arr(point_data, name);
+	ASSERT_NE(array, nullptr);
+	array->GetTuple(0, tuple.data());
+	EXPECT_DOUBLE_EQ(tuple[0], expected[0]);
+	EXPECT_DOUBLE_EQ(tuple[1], expected[1]);
+	EXPECT_DOUBLE_EQ(tuple[2], expected[2]);
+}
+
+static void expect_point_at(vtkUnstructuredGrid* grid, const std::array<double, 3>& expected)
+{
+	std::array<double, 3> pos {};
+	grid->GetPoint(0, pos.data());
+	EXPECT_DOUBLE_EQ(pos[0], expected[0]);
+	EXPECT_DOUBLE_EQ(pos[1], expected[1]);
+	EXPECT_DOUBLE_EQ(pos[2], expected[2]);
+}
+
+static void assert_mechanics(vtkPointData* point_data)
+{
+	expect_scalar(point_data, "radius", 4.5);
+	expect_scalar(point_data, "cell_cell_adhesion_strength", 0.2);
+	expect_scalar(point_data, "cell_BM_adhesion_strength", 0.3);
+	expect_scalar(point_data, "cell_cell_repulsion_strength", 1.1);
+	expect_scalar(point_data, "cell_BM_repulsion_strength", 0.9);
+	expect_scalar(point_data, "relative_maximum_adhesion_distance", 1.25);
+	expect_scalar(point_data, "maximum_number_of_attachments", 5.0);
+	expect_scalar(point_data, "attachment_elastic_constant", 0.6);
+	expect_scalar(point_data, "attachment_rate", 0.7);
+	expect_scalar(point_data, "detachment_rate", 0.8);
+}
+
+static void assert_motility(vtkPointData* point_data)
+{
+	expect_scalar(point_data, "is_motile", 1.0);
+	expect_scalar(point_data, "persistence_time", 5.5);
+	expect_scalar(point_data, "migration_speed", 6.6);
+	expect_scalar(point_data, "migration_bias", 0.7);
+	expect_scalar(point_data, "restrict_to_2d", 0.0);
+	expect_scalar(point_data, "chemotaxis_index", 1.0);
+	expect_scalar(point_data, "chemotaxis_direction", 2.0);
+}
+
+static void assert_state(vtkPointData* point_data)
+{
+	expect_scalar(point_data, "simple_pressure", 12.0);
+	expect_scalar(point_data, "cell_definition_index", 1.0);
+	expect_scalar(point_data, "is_movable", 1.0);
+}
+
+static void assert_vectors(vtkPointData* point_data)
+{
+	expect_vec3(point_data, "velocity", { 0.1, 0.2, 0.3 });
+	expect_vec3(point_data, "previous_velocity", { 0.4, 0.5, 0.6 });
+	expect_vec3(point_data, "migration_bias_direction", { 0.0, 1.0, 0.0 });
+	expect_vec3(point_data, "motility_vector", { 1.0, 2.0, 3.0 });
+	expect_vec3(point_data, "orientation", { 0.1, 0.2, 0.3 });
+}
+
+static void assert_affinities(vtkPointData* point_data)
+{
+	expect_scalar(point_data, "immune_cell_adhesion_affinity", 0.25);
+	expect_scalar(point_data, "cell_type_1_cell_adhesion_affinity", 0.5);
+	expect_scalar(point_data, "O2_chemotactic_sensitivity", 0.01);
+	expect_scalar(point_data, "substrate_1_chemotactic_sensitivity", 0.02);
 }
 
 } // namespace
@@ -53,7 +183,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, ConstructorCreatesOutputDirectories)
 {
 	auto container = make_container(3, 1, 1);
 
-	EXPECT_NO_THROW({ vtk_agents_serializer serializer(test_output_dir.string(), container); });
+	EXPECT_NO_THROW({ const vtk_agents_serializer serializer(test_output_dir.string(), container); });
 
 	auto vtk_dir = test_output_dir / "vtk_mechanics_agents";
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir));
@@ -73,44 +203,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeWithNoAgentsCreatesFiles)
 
 TEST_F(VtkMechanicsAgentsSerializerTest, SerializeSingleAgentWritesExpectedArrays)
 {
-	auto container = make_container(3, 2, 2);
-	container.create();
-
-	auto& base_data = *std::get<0>(container.agent_datas);
-	auto& mech_data = *std::get<1>(container.agent_datas);
-
-	base_data.positions = { 1.0, 2.0, 3.0 };
-
-	mech_data.velocity = { 0.1, 0.2, 0.3 };
-	mech_data.previous_velocity = { 0.4, 0.5, 0.6 };
-	mech_data.radius[0] = 4.5;
-
-	mech_data.mechanics.cell_cell_adhesion_strength[0] = 0.2;
-	mech_data.mechanics.cell_BM_adhesion_strength[0] = 0.3;
-	mech_data.mechanics.cell_cell_repulsion_strength[0] = 1.1;
-	mech_data.mechanics.cell_BM_repulsion_strength[0] = 0.9;
-	mech_data.mechanics.relative_maximum_adhesion_distance[0] = 1.25;
-	mech_data.mechanics.maximum_number_of_attachments[0] = 5;
-	mech_data.mechanics.attachment_elastic_constant[0] = 0.6;
-	mech_data.mechanics.attachment_rate[0] = 0.7;
-	mech_data.mechanics.detachment_rate[0] = 0.8;
-	mech_data.mechanics.cell_adhesion_affinities = { 0.25, 0.5 };
-
-	mech_data.motility.is_motile[0] = 1;
-	mech_data.motility.persistence_time[0] = 5.5;
-	mech_data.motility.migration_speed[0] = 6.6;
-	mech_data.motility.migration_bias_direction = { 0.0, 1.0, 0.0 };
-	mech_data.motility.migration_bias[0] = 0.7;
-	mech_data.motility.motility_vector = { 1.0, 2.0, 3.0 };
-	mech_data.motility.restrict_to_2d[0] = 0;
-	mech_data.motility.chemotaxis_index[0] = 1;
-	mech_data.motility.chemotaxis_direction[0] = 2;
-	mech_data.motility.chemotactic_sensitivities = { 0.01, 0.02 };
-
-	mech_data.state.orientation = { 0.1, 0.2, 0.3 };
-	mech_data.state.simple_pressure[0] = 12.0;
-	mech_data.state.agent_type_index[0] = 1;
-	mech_data.state.is_movable[0] = 1;
+	auto container = make_single_agent_container();
 
 	vtk_agents_serializer serializer(test_output_dir.string(), container, { "O2", "" }, { "immune", "" });
 	serializer.serialize(0.0);
@@ -125,75 +218,16 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeSingleAgentWritesExpectedArray
 	auto* grid = reader->GetOutput();
 	ASSERT_NE(grid, nullptr);
 	EXPECT_EQ(grid->GetNumberOfPoints(), 1);
-
-	std::array<double, 3> pos {};
-	grid->GetPoint(0, pos.data());
-	EXPECT_DOUBLE_EQ(pos[0], 1.0);
-	EXPECT_DOUBLE_EQ(pos[1], 2.0);
-	EXPECT_DOUBLE_EQ(pos[2], 3.0);
+	expect_point_at(grid, { 1.0, 2.0, 3.0 });
 
 	auto* point_data = grid->GetPointData();
 	ASSERT_NE(point_data, nullptr);
 
-	auto get_arr = [&](const char* name) -> vtkRealArray* {
-		auto* arr = point_data->GetArray(name);
-		ASSERT_NE(arr, nullptr) << "Missing array: " << name;
-		return arr;
-	};
-
-	EXPECT_DOUBLE_EQ(get_arr("radius")->GetTuple1(0), 4.5);
-
-	EXPECT_DOUBLE_EQ(get_arr("cell_cell_adhesion_strength")->GetTuple1(0), 0.2);
-	EXPECT_DOUBLE_EQ(get_arr("cell_BM_adhesion_strength")->GetTuple1(0), 0.3);
-	EXPECT_DOUBLE_EQ(get_arr("cell_cell_repulsion_strength")->GetTuple1(0), 1.1);
-	EXPECT_DOUBLE_EQ(get_arr("cell_BM_repulsion_strength")->GetTuple1(0), 0.9);
-	EXPECT_DOUBLE_EQ(get_arr("relative_maximum_adhesion_distance")->GetTuple1(0), 1.25);
-	EXPECT_DOUBLE_EQ(get_arr("maximum_number_of_attachments")->GetTuple1(0), 5.0);
-	EXPECT_DOUBLE_EQ(get_arr("attachment_elastic_constant")->GetTuple1(0), 0.6);
-	EXPECT_DOUBLE_EQ(get_arr("attachment_rate")->GetTuple1(0), 0.7);
-	EXPECT_DOUBLE_EQ(get_arr("detachment_rate")->GetTuple1(0), 0.8);
-
-	EXPECT_DOUBLE_EQ(get_arr("is_motile")->GetTuple1(0), 1.0);
-	EXPECT_DOUBLE_EQ(get_arr("persistence_time")->GetTuple1(0), 5.5);
-	EXPECT_DOUBLE_EQ(get_arr("migration_speed")->GetTuple1(0), 6.6);
-	EXPECT_DOUBLE_EQ(get_arr("migration_bias")->GetTuple1(0), 0.7);
-	EXPECT_DOUBLE_EQ(get_arr("restrict_to_2d")->GetTuple1(0), 0.0);
-	EXPECT_DOUBLE_EQ(get_arr("chemotaxis_index")->GetTuple1(0), 1.0);
-	EXPECT_DOUBLE_EQ(get_arr("chemotaxis_direction")->GetTuple1(0), 2.0);
-	EXPECT_DOUBLE_EQ(get_arr("simple_pressure")->GetTuple1(0), 12.0);
-	EXPECT_DOUBLE_EQ(get_arr("cell_definition_index")->GetTuple1(0), 1.0);
-	EXPECT_DOUBLE_EQ(get_arr("is_movable")->GetTuple1(0), 1.0);
-
-	std::array<double, 3> tuple {};
-	get_arr("velocity")->GetTuple(0, tuple.data());
-	EXPECT_DOUBLE_EQ(tuple[0], 0.1);
-	EXPECT_DOUBLE_EQ(tuple[1], 0.2);
-	EXPECT_DOUBLE_EQ(tuple[2], 0.3);
-
-	get_arr("previous_velocity")->GetTuple(0, tuple.data());
-	EXPECT_DOUBLE_EQ(tuple[0], 0.4);
-	EXPECT_DOUBLE_EQ(tuple[1], 0.5);
-	EXPECT_DOUBLE_EQ(tuple[2], 0.6);
-
-	get_arr("migration_bias_direction")->GetTuple(0, tuple.data());
-	EXPECT_DOUBLE_EQ(tuple[0], 0.0);
-	EXPECT_DOUBLE_EQ(tuple[1], 1.0);
-	EXPECT_DOUBLE_EQ(tuple[2], 0.0);
-
-	get_arr("motility_vector")->GetTuple(0, tuple.data());
-	EXPECT_DOUBLE_EQ(tuple[0], 1.0);
-	EXPECT_DOUBLE_EQ(tuple[1], 2.0);
-	EXPECT_DOUBLE_EQ(tuple[2], 3.0);
-
-	get_arr("orientation")->GetTuple(0, tuple.data());
-	EXPECT_DOUBLE_EQ(tuple[0], 0.1);
-	EXPECT_DOUBLE_EQ(tuple[1], 0.2);
-	EXPECT_DOUBLE_EQ(tuple[2], 0.3);
-
-	EXPECT_DOUBLE_EQ(get_arr("immune_cell_adhesion_affinity")->GetTuple1(0), 0.25);
-	EXPECT_DOUBLE_EQ(get_arr("cell_type_1_cell_adhesion_affinity")->GetTuple1(0), 0.5);
-	EXPECT_DOUBLE_EQ(get_arr("O2_chemotactic_sensitivity")->GetTuple1(0), 0.01);
-	EXPECT_DOUBLE_EQ(get_arr("substrate_1_chemotactic_sensitivity")->GetTuple1(0), 0.02);
+	assert_mechanics(point_data);
+	assert_motility(point_data);
+	assert_state(point_data);
+	assert_vectors(point_data);
+	assert_affinities(point_data);
 }
 
 TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
@@ -215,17 +249,17 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
 		base_data.positions[i * 3 + 2] = 3.0 + i;
 
 		mech_data.radius[i] = 1.0 + i;
-		mech_data.state.agent_type_index[i] = static_cast<index_t>(i);
+		mech_data.state_data.agent_type_index[i] = static_cast<index_t>(i);
 
 		mech_data.velocity[i * 3 + 0] = 0.1 * (i + 1);
 		mech_data.velocity[i * 3 + 1] = 0.2 * (i + 1);
 		mech_data.velocity[i * 3 + 2] = 0.3 * (i + 1);
 
-		mech_data.motility.chemotactic_sensitivities[i * 2 + 0] = 0.01 * (i + 1);
-		mech_data.motility.chemotactic_sensitivities[i * 2 + 1] = 0.02 * (i + 1);
+		mech_data.motility_data.chemotactic_sensitivities[i * 2 + 0] = 0.01 * (i + 1);
+		mech_data.motility_data.chemotactic_sensitivities[i * 2 + 1] = 0.02 * (i + 1);
 
-		mech_data.mechanics.cell_adhesion_affinities[i * 2 + 0] = 0.1 * (i + 1);
-		mech_data.mechanics.cell_adhesion_affinities[i * 2 + 1] = 0.2 * (i + 1);
+		mech_data.mechanics_data.cell_adhesion_affinities[i * 2 + 0] = 0.1 * (i + 1);
+		mech_data.mechanics_data.cell_adhesion_affinities[i * 2 + 1] = 0.2 * (i + 1);
 	}
 
 	vtk_agents_serializer serializer(test_output_dir.string(), container, { "S1", "S2" }, { "typeA", "typeB" });
@@ -245,9 +279,13 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
 	ASSERT_NE(point_data, nullptr);
 
 	auto get_arr = [&](const char* name) -> vtkRealArray* {
-		auto* arr = point_data->GetArray(name);
-		ASSERT_NE(arr, nullptr) << "Missing array: " << name;
-		return arr;
+		auto* array = vtkRealArray::SafeDownCast(point_data->GetArray(name));
+		if (!array)
+		{
+			ADD_FAILURE() << "Missing array: " << name;
+			return nullptr;
+		}
+		return array;
 	};
 
 	for (int i = 0; i < agent_count; ++i)

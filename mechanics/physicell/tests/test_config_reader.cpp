@@ -11,10 +11,10 @@ using namespace physicore;
 using namespace physicore::mechanics::physicell;
 
 // Helper to create a complete test XML with domain and overall sections
-std::string create_complete_xml(const std::string& microenv_section, const std::string& cell_defs_section,
-								const std::string& domain_section = "", const std::string& overall_section = "")
+static std::string create_complete_xml(const std::string& microenv_section, const std::string& cell_defs_section,
+									   const std::string& domain_section = "", const std::string& overall_section = "")
 {
-	std::string domain = domain_section.empty() ? R"(
+	const std::string domain = domain_section.empty() ? R"(
 <domain>
 <x_min>-500</x_min>
 <x_max>500</x_max>
@@ -27,16 +27,16 @@ std::string create_complete_xml(const std::string& microenv_section, const std::
 <dz>20</dz>
 <use_2D>true</use_2D>
 </domain>)"
-												: domain_section;
+													  : domain_section;
 
-	std::string overall = overall_section.empty() ? R"(
+	const std::string overall = overall_section.empty() ? R"(
 <overall>
 <max_time>14400</max_time>
 <time_units>min</time_units>
 <space_units>micron</space_units>
 <dt_mechanics>0.1</dt_mechanics>
 </overall>)"
-												  : overall_section;
+														: overall_section;
 
 	return R"(<?xml version="1.0"?>
 <PhysiCell_settings version="devel-version">)"
@@ -73,7 +73,7 @@ protected:
 
 TEST_F(MechanicsConfigReaderTest, DomainConfig_ParsesAllFields)
 {
-	std::string custom_domain = R"(
+	const std::string custom_domain = R"(
 <domain>
 <x_min>-1000</x_min>
 <x_max>1000</x_max>
@@ -87,12 +87,12 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_ParsesAllFields)
 <use_2D>false</use_2D>
 </domain>)";
 
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="oxygen" ID="0" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
 <phenotype>
@@ -139,7 +139,7 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_ParsesAllFields)
 
 TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
 {
-	std::string custom_domain = R"(
+	const std::string custom_domain = R"(
 <domain>
 <x_min>-500</x_min>
 <x_max>500</x_max>
@@ -153,12 +153,12 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
 <use_2D>true</use_2D>
 </domain>)";
 
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="oxygen" ID="0" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
@@ -199,7 +199,7 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
 
 TEST_F(MechanicsConfigReaderTest, OverallConfig_ParsesAllFields)
 {
-	std::string custom_overall = R"(
+	const std::string custom_overall = R"(
 <overall>
 <max_time>28800</max_time>
 <time_units>hours</time_units>
@@ -207,12 +207,12 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_ParsesAllFields)
 <dt_mechanics>0.05</dt_mechanics>
 </overall>)";
 
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="glucose" ID="0" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="default" ID="0">
 <phenotype>
@@ -252,7 +252,7 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_ParsesAllFields)
 
 TEST_F(MechanicsConfigReaderTest, OverallConfig_DifferentTimeUnits)
 {
-	std::string custom_overall = R"(
+	const std::string custom_overall = R"(
 <overall>
 <max_time>3600</max_time>
 <time_units>seconds</time_units>
@@ -260,12 +260,12 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_DifferentTimeUnits)
 <dt_mechanics>0.1</dt_mechanics>
 </overall>)";
 
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="substrate1" ID="0" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="cell" ID="0">
 <phenotype>
@@ -306,13 +306,13 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_DifferentTimeUnits)
 
 TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 {
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="oxygen" ID="0" />
 <variable name="glucose" ID="1" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
 <phenotype>
@@ -369,7 +369,7 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 TEST_F(MechanicsConfigReaderTest, CornerCase_DefaultDomain2DFalse)
 {
 	// When domain section is missing, should default to use_2D = false
-	std::string no_domain = R"(
+	const std::string no_domain = R"(
 <overall>
 <max_time>14400</max_time>
 <time_units>min</time_units>
@@ -377,12 +377,12 @@ TEST_F(MechanicsConfigReaderTest, CornerCase_DefaultDomain2DFalse)
 <dt_mechanics>0.1</dt_mechanics>
 </overall>)";
 
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="v1" ID="0" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="default" ID="0">
 <phenotype>
@@ -410,9 +410,9 @@ TEST_F(MechanicsConfigReaderTest, CornerCase_DefaultDomain2DFalse)
 </cell_definition>
 </cell_definitions>)";
 
-	std::string xml = R"(<?xml version="1.0"?>
+	const std::string xml = R"(<?xml version="1.0"?>
 <PhysiCell_settings version="devel-version">)"
-					  + no_domain + microenv + cells + R"(
+							+ no_domain + microenv + cells + R"(
 </PhysiCell_settings>)";
 
 	write_config(xml);
@@ -423,11 +423,11 @@ TEST_F(MechanicsConfigReaderTest, CornerCase_DefaultDomain2DFalse)
 
 TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
 {
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
@@ -468,12 +468,12 @@ TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
 
 TEST_F(MechanicsConfigReaderTest, Negative_MissingRequiredElement)
 {
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="oxygen" ID="0" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
@@ -509,12 +509,12 @@ TEST_F(MechanicsConfigReaderTest, Negative_MissingRequiredElement)
 
 TEST_F(MechanicsConfigReaderTest, Negative_UnknownCellTypeInAffinity)
 {
-	std::string microenv = R"(
+	const std::string microenv = R"(
 <microenvironment_setup>
 <variable name="oxygen" ID="0" />
 </microenvironment_setup>)";
 
-	std::string cells = R"(
+	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>

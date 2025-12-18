@@ -9,7 +9,7 @@
 
 namespace physicore::mechanics::physicell {
 
-class agent_interface : public virtual base_agent_interface
+class mechanical_agent_interface : public virtual base_agent_interface
 {
 public:
 	virtual std::span<real_t> velocity() = 0;
@@ -40,9 +40,9 @@ public:
 	virtual index_t& chemotaxis_direction() = 0;
 	virtual std::span<real_t> chemotactic_sensitivities() = 0;
 
-	virtual std::vector<index_t>& neighbors() = 0;
-	virtual std::vector<index_t>& springs() = 0;
-	virtual std::vector<index_t>& attached_cells() = 0;
+	virtual std::span<index_t> neighbors() = 0;
+	virtual std::span<index_t> springs() = 0;
+	virtual std::span<index_t> attached_cells() = 0;
 
 	virtual std::span<real_t> orientation() = 0;
 	virtual real_t& simple_pressure() = 0;

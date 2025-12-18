@@ -273,32 +273,35 @@ void vtk_agents_serializer::serialize(real_t current_time)
 	for (index_t i = 0; i < agent_count; ++i)
 	{
 		radius_array->SetValue(static_cast<vtkIdType>(i), data.radius[i]);
-		cell_cell_adhesion_array->SetValue(static_cast<vtkIdType>(i), data.mechanics.cell_cell_adhesion_strength[i]);
-		cell_BM_adhesion_array->SetValue(static_cast<vtkIdType>(i), data.mechanics.cell_BM_adhesion_strength[i]);
-		cell_cell_repulsion_array->SetValue(static_cast<vtkIdType>(i), data.mechanics.cell_cell_repulsion_strength[i]);
-		cell_BM_repulsion_array->SetValue(static_cast<vtkIdType>(i), data.mechanics.cell_BM_repulsion_strength[i]);
+		cell_cell_adhesion_array->SetValue(static_cast<vtkIdType>(i),
+										   data.mechanics_data.cell_cell_adhesion_strength[i]);
+		cell_BM_adhesion_array->SetValue(static_cast<vtkIdType>(i), data.mechanics_data.cell_BM_adhesion_strength[i]);
+		cell_cell_repulsion_array->SetValue(static_cast<vtkIdType>(i),
+											data.mechanics_data.cell_cell_repulsion_strength[i]);
+		cell_BM_repulsion_array->SetValue(static_cast<vtkIdType>(i), data.mechanics_data.cell_BM_repulsion_strength[i]);
 		relative_maximum_adhesion_distance_array->SetValue(static_cast<vtkIdType>(i),
-														   data.mechanics.relative_maximum_adhesion_distance[i]);
+														   data.mechanics_data.relative_maximum_adhesion_distance[i]);
 		maximum_number_of_attachments_array->SetValue(
-			static_cast<vtkIdType>(i), static_cast<real_t>(data.mechanics.maximum_number_of_attachments[i]));
+			static_cast<vtkIdType>(i), static_cast<real_t>(data.mechanics_data.maximum_number_of_attachments[i]));
 		attachment_elastic_constant_array->SetValue(static_cast<vtkIdType>(i),
-													data.mechanics.attachment_elastic_constant[i]);
-		attachment_rate_array->SetValue(static_cast<vtkIdType>(i), data.mechanics.attachment_rate[i]);
-		detachment_rate_array->SetValue(static_cast<vtkIdType>(i), data.mechanics.detachment_rate[i]);
+													data.mechanics_data.attachment_elastic_constant[i]);
+		attachment_rate_array->SetValue(static_cast<vtkIdType>(i), data.mechanics_data.attachment_rate[i]);
+		detachment_rate_array->SetValue(static_cast<vtkIdType>(i), data.mechanics_data.detachment_rate[i]);
 
-		is_motile_array->SetValue(static_cast<vtkIdType>(i), static_cast<real_t>(data.motility.is_motile[i]));
-		persistence_time_array->SetValue(static_cast<vtkIdType>(i), data.motility.persistence_time[i]);
-		migration_speed_array->SetValue(static_cast<vtkIdType>(i), data.motility.migration_speed[i]);
-		migration_bias_array->SetValue(static_cast<vtkIdType>(i), data.motility.migration_bias[i]);
-		restrict_to_2d_array->SetValue(static_cast<vtkIdType>(i), static_cast<real_t>(data.motility.restrict_to_2d[i]));
+		is_motile_array->SetValue(static_cast<vtkIdType>(i), static_cast<real_t>(data.motility_data.is_motile[i]));
+		persistence_time_array->SetValue(static_cast<vtkIdType>(i), data.motility_data.persistence_time[i]);
+		migration_speed_array->SetValue(static_cast<vtkIdType>(i), data.motility_data.migration_speed[i]);
+		migration_bias_array->SetValue(static_cast<vtkIdType>(i), data.motility_data.migration_bias[i]);
+		restrict_to_2d_array->SetValue(static_cast<vtkIdType>(i),
+									   static_cast<real_t>(data.motility_data.restrict_to_2d[i]));
 		chemotaxis_index_array->SetValue(static_cast<vtkIdType>(i),
-										 static_cast<real_t>(data.motility.chemotaxis_index[i]));
+										 static_cast<real_t>(data.motility_data.chemotaxis_index[i]));
 		chemotaxis_direction_array->SetValue(static_cast<vtkIdType>(i),
-											 static_cast<real_t>(data.motility.chemotaxis_direction[i]));
-		simple_pressure_array->SetValue(static_cast<vtkIdType>(i), data.state.simple_pressure[i]);
+											 static_cast<real_t>(data.motility_data.chemotaxis_direction[i]));
+		simple_pressure_array->SetValue(static_cast<vtkIdType>(i), data.state_data.simple_pressure[i]);
 		cell_definition_index_array->SetValue(static_cast<vtkIdType>(i),
-											  static_cast<real_t>(data.state.agent_type_index[i]));
-		is_movable_array->SetValue(static_cast<vtkIdType>(i), static_cast<real_t>(data.state.is_movable[i]));
+											  static_cast<real_t>(data.state_data.agent_type_index[i]));
+		is_movable_array->SetValue(static_cast<vtkIdType>(i), static_cast<real_t>(data.state_data.is_movable[i]));
 
 		std::array<double, 3> velocity = { 0.0, 0.0, 0.0 };
 		std::array<double, 3> previous_velocity = { 0.0, 0.0, 0.0 };
@@ -311,9 +314,9 @@ void vtk_agents_serializer::serialize(real_t current_time)
 			const index_t offset = i * dims + d;
 			velocity[d] = data.velocity[offset];
 			previous_velocity[d] = data.previous_velocity[offset];
-			migration_bias_dir[d] = data.motility.migration_bias_direction[offset];
-			motility_vector[d] = data.motility.motility_vector[offset];
-			orientation[d] = data.state.orientation[offset];
+			migration_bias_dir[d] = data.motility_data.migration_bias_direction[offset];
+			motility_vector[d] = data.motility_data.motility_vector[offset];
+			orientation[d] = data.state_data.orientation[offset];
 		}
 
 		velocity_array->SetTuple(static_cast<vtkIdType>(i), velocity.data());
@@ -326,14 +329,14 @@ void vtk_agents_serializer::serialize(real_t current_time)
 		{
 			const index_t idx = i * stored_agent_types + t;
 			cell_adhesion_affinity_arrays[t]->SetValue(static_cast<vtkIdType>(i),
-													   data.mechanics.cell_adhesion_affinities[idx]);
+													   data.mechanics_data.cell_adhesion_affinities[idx]);
 		}
 
 		for (index_t s = 0; s < stored_substrates; ++s)
 		{
 			const index_t idx = i * stored_substrates + s;
 			chemotactic_sensitivity_arrays[s]->SetValue(static_cast<vtkIdType>(i),
-														data.motility.chemotactic_sensitivities[idx]);
+														data.motility_data.chemotactic_sensitivities[idx]);
 		}
 	}
 
