@@ -70,7 +70,7 @@ mechanical_agent_container make_single_agent_container()
 	return container;
 }
 
-static vtkRealArray* arr(vtkPointData* point_data, const char* name)
+vtkRealArray* arr(vtkPointData* point_data, const char* name)
 {
 	auto* array = vtkRealArray::SafeDownCast(point_data->GetArray(name));
 	if (!array)
@@ -80,14 +80,14 @@ static vtkRealArray* arr(vtkPointData* point_data, const char* name)
 	return array;
 }
 
-static void expect_scalar(vtkPointData* point_data, const char* name, double value)
+void expect_scalar(vtkPointData* point_data, const char* name, double value)
 {
 	auto* array = arr(point_data, name);
 	ASSERT_NE(array, nullptr);
 	EXPECT_DOUBLE_EQ(array->GetTuple1(0), value);
 }
 
-static void expect_vec3(vtkPointData* point_data, const char* name, const std::array<double, 3>& expected)
+void expect_vec3(vtkPointData* point_data, const char* name, const std::array<double, 3>& expected)
 {
 	std::array<double, 3> tuple {};
 	auto* array = arr(point_data, name);
@@ -98,7 +98,7 @@ static void expect_vec3(vtkPointData* point_data, const char* name, const std::a
 	EXPECT_DOUBLE_EQ(tuple[2], expected[2]);
 }
 
-static void expect_point_at(vtkUnstructuredGrid* grid, const std::array<double, 3>& expected)
+void expect_point_at(vtkUnstructuredGrid* grid, const std::array<double, 3>& expected)
 {
 	std::array<double, 3> pos {};
 	grid->GetPoint(0, pos.data());
@@ -107,7 +107,7 @@ static void expect_point_at(vtkUnstructuredGrid* grid, const std::array<double, 
 	EXPECT_DOUBLE_EQ(pos[2], expected[2]);
 }
 
-static void assert_mechanics(vtkPointData* point_data)
+void assert_mechanics(vtkPointData* point_data)
 {
 	expect_scalar(point_data, "radius", 4.5);
 	expect_scalar(point_data, "cell_cell_adhesion_strength", 0.2);
@@ -121,7 +121,7 @@ static void assert_mechanics(vtkPointData* point_data)
 	expect_scalar(point_data, "detachment_rate", 0.8);
 }
 
-static void assert_motility(vtkPointData* point_data)
+void assert_motility(vtkPointData* point_data)
 {
 	expect_scalar(point_data, "is_motile", 1.0);
 	expect_scalar(point_data, "persistence_time", 5.5);
@@ -132,14 +132,14 @@ static void assert_motility(vtkPointData* point_data)
 	expect_scalar(point_data, "chemotaxis_direction", 2.0);
 }
 
-static void assert_state(vtkPointData* point_data)
+void assert_state(vtkPointData* point_data)
 {
 	expect_scalar(point_data, "simple_pressure", 12.0);
 	expect_scalar(point_data, "cell_definition_index", 1.0);
 	expect_scalar(point_data, "is_movable", 1.0);
 }
 
-static void assert_vectors(vtkPointData* point_data)
+void assert_vectors(vtkPointData* point_data)
 {
 	expect_vec3(point_data, "velocity", { 0.1, 0.2, 0.3 });
 	expect_vec3(point_data, "previous_velocity", { 0.4, 0.5, 0.6 });
@@ -148,7 +148,7 @@ static void assert_vectors(vtkPointData* point_data)
 	expect_vec3(point_data, "orientation", { 0.1, 0.2, 0.3 });
 }
 
-static void assert_affinities(vtkPointData* point_data)
+void assert_affinities(vtkPointData* point_data)
 {
 	expect_scalar(point_data, "immune_cell_adhesion_affinity", 0.25);
 	expect_scalar(point_data, "cell_type_1_cell_adhesion_affinity", 0.5);

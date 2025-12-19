@@ -345,7 +345,7 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 	auto config = parse_simulation_parameters(test_config_file);
 
 	// Basic verification
-	ASSERT_EQ(config.cell_types.size(), 1u);
+	ASSERT_EQ(config.cell_types.size(), 1U);
 	EXPECT_EQ(config.cell_types[0].name, "default cell");
 
 	// Mechanics parameters
@@ -459,7 +459,7 @@ TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
 	auto config = parse_simulation_parameters(test_config_file);
 
 	// Config should parse successfully even without substrates
-	ASSERT_EQ(config.cell_types.size(), 1u);
+	ASSERT_EQ(config.cell_types.size(), 1U);
 }
 
 // ============================================================================

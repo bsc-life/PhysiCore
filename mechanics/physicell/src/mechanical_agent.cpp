@@ -5,7 +5,9 @@
 namespace physicore::mechanics::physicell {
 
 mechanical_agent::mechanical_agent(index_t index, mechanical_agent_data& data)
-	: base_agent_interface(index), physicore::base_agent_generic_storage<base_agent_data>(index, data.base_data), data(data)
+	: base_agent_interface(index),
+	  physicore::base_agent_generic_storage<base_agent_data>(index, data.base_data),
+	  data(data)
 {}
 
 mechanical_agent::mechanical_agent(
@@ -16,13 +18,13 @@ mechanical_agent::mechanical_agent(
 std::span<real_t> mechanical_agent::velocity()
 {
 	const index_t dims = data.base_data.dims;
-	return std::span<real_t>(&data.velocity[this->index * dims], dims);
+	return { &data.velocity[this->index * dims], dims };
 }
 
 std::span<real_t> mechanical_agent::previous_velocity()
 {
 	const index_t dims = data.base_data.dims;
-	return std::span<real_t>(&data.previous_velocity[this->index * dims], dims);
+	return { &data.previous_velocity[this->index * dims], dims };
 }
 
 real_t& mechanical_agent::radius() { return data.radius[this->index]; }
@@ -49,8 +51,8 @@ real_t& mechanical_agent::cell_BM_repulsion_strength()
 
 std::span<real_t> mechanical_agent::cell_adhesion_affinities()
 {
-	return std::span<real_t>(&data.mechanics_data.cell_adhesion_affinities[this->index * data.agent_types_count],
-							 data.agent_types_count);
+	return { &data.mechanics_data.cell_adhesion_affinities[this->index * data.agent_types_count],
+			 data.agent_types_count };
 }
 
 real_t& mechanical_agent::relative_maximum_adhesion_distance()
@@ -81,7 +83,7 @@ real_t& mechanical_agent::migration_speed() { return data.motility_data.migratio
 std::span<real_t> mechanical_agent::migration_bias_direction()
 {
 	const index_t dims = data.base_data.dims;
-	return std::span<real_t>(&data.motility_data.migration_bias_direction[this->index * dims], dims);
+	return { &data.motility_data.migration_bias_direction[this->index * dims], dims };
 }
 
 real_t& mechanical_agent::migration_bias() { return data.motility_data.migration_bias[this->index]; }
@@ -89,7 +91,7 @@ real_t& mechanical_agent::migration_bias() { return data.motility_data.migration
 std::span<real_t> mechanical_agent::motility_vector()
 {
 	const index_t dims = data.base_data.dims;
-	return std::span<real_t>(&data.motility_data.motility_vector[this->index * dims], dims);
+	return { &data.motility_data.motility_vector[this->index * dims], dims };
 }
 
 std::uint8_t& mechanical_agent::restrict_to_2d() { return data.motility_data.restrict_to_2d[this->index]; }
@@ -100,8 +102,8 @@ index_t& mechanical_agent::chemotaxis_direction() { return data.motility_data.ch
 
 std::span<real_t> mechanical_agent::chemotactic_sensitivities()
 {
-	return std::span<real_t>(&data.motility_data.chemotactic_sensitivities[this->index * data.substrates_count],
-							 data.substrates_count);
+	return { &data.motility_data.chemotactic_sensitivities[this->index * data.substrates_count],
+			 data.substrates_count };
 }
 
 std::span<index_t> mechanical_agent::neighbors() { return std::span<index_t>(data.state_data.neighbors[this->index]); }
@@ -116,7 +118,7 @@ std::span<index_t> mechanical_agent::attached_cells()
 std::span<real_t> mechanical_agent::orientation()
 {
 	const index_t dims = data.base_data.dims;
-	return std::span<real_t>(&data.state_data.orientation[this->index * dims], dims);
+	return { &data.state_data.orientation[this->index * dims], dims };
 }
 
 real_t& mechanical_agent::simple_pressure() { return data.state_data.simple_pressure[this->index]; }
