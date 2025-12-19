@@ -106,14 +106,11 @@ std::span<real_t> mechanical_agent::chemotactic_sensitivities()
 			 data.substrates_count };
 }
 
-std::span<index_t> mechanical_agent::neighbors() { return std::span<index_t>(data.state_data.neighbors[this->index]); }
+std::span<index_t> mechanical_agent::neighbors() { return { data.state_data.neighbors[this->index] }; }
 
-std::span<index_t> mechanical_agent::springs() { return std::span<index_t>(data.state_data.springs[this->index]); }
+std::span<index_t> mechanical_agent::springs() { return { data.state_data.springs[this->index] }; }
 
-std::span<index_t> mechanical_agent::attached_cells()
-{
-	return std::span<index_t>(data.state_data.attached_cells[this->index]);
-}
+std::span<index_t> mechanical_agent::attached_cells() { return { data.state_data.attached_cells[this->index] }; }
 
 std::span<real_t> mechanical_agent::orientation()
 {
