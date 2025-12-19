@@ -104,7 +104,6 @@ public:
 
 	void add();
 	void remove_at(index_t position);
-	void add(index_t new_id, index_t cell_type, mechanical_parameters& parameters, bool is_2D);
 };
 
 using agent_data = mechanical_agent_data;

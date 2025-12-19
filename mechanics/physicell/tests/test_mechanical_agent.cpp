@@ -1,4 +1,5 @@
 #include <array>
+
 #include <common/base_agent_data.h>
 #include <gtest/gtest.h>
 
@@ -16,8 +17,8 @@ protected:
 	static constexpr index_t agent_types_count = 4;
 	static constexpr index_t substrates_count = 2;
 
-	base_agent_data base_data{ dims };
-	agent_data data{ base_data, agent_types_count, substrates_count };
+	base_agent_data base_data { dims };
+	agent_data data { base_data, agent_types_count, substrates_count };
 
 	template <class Getter>
 	void set_and_expect_vec3(Getter&& getter, const std::array<real_t, 3>& values)
