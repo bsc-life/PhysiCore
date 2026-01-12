@@ -16,44 +16,10 @@ mechanical_agent_data::mechanical_agent_data(physicore::base_agent_data_generic_
 
 void mechanical_agent_data::add()
 {
+	// Sync with base class
 	agents_count = base_data.agents_count;
 
-	velocity.resize(agents_count * base_data.dims);
-	previous_velocity.resize(agents_count * base_data.dims);
-	radius.resize(agents_count);
-
-	// Mechanics properties
-	mechanics_data.cell_cell_adhesion_strength.resize(agents_count);
-	mechanics_data.cell_BM_adhesion_strength.resize(agents_count);
-	mechanics_data.cell_cell_repulsion_strength.resize(agents_count);
-	mechanics_data.cell_BM_repulsion_strength.resize(agents_count);
-	mechanics_data.cell_adhesion_affinities.resize(agents_count * agent_types_count);
-	mechanics_data.relative_maximum_adhesion_distance.resize(agents_count);
-	mechanics_data.maximum_number_of_attachments.resize(agents_count);
-	mechanics_data.attachment_elastic_constant.resize(agents_count);
-	mechanics_data.attachment_rate.resize(agents_count);
-	mechanics_data.detachment_rate.resize(agents_count);
-
-	// Motility properties
-	motility_data.is_motile.resize(agents_count);
-	motility_data.persistence_time.resize(agents_count);
-	motility_data.migration_speed.resize(agents_count);
-	motility_data.migration_bias_direction.resize(agents_count * base_data.dims);
-	motility_data.migration_bias.resize(agents_count);
-	motility_data.motility_vector.resize(agents_count * base_data.dims);
-	motility_data.restrict_to_2d.resize(agents_count);
-	motility_data.chemotaxis_index.resize(agents_count);
-	motility_data.chemotaxis_direction.resize(agents_count);
-	motility_data.chemotactic_sensitivities.resize(agents_count * substrates_count);
-
-	// State properties
-	state_data.neighbors.resize(agents_count);
-	state_data.springs.resize(agents_count);
-	state_data.attached_cells.resize(agents_count);
-	state_data.orientation.resize(agents_count * base_data.dims);
-	state_data.simple_pressure.resize(agents_count);
-	state_data.agent_type_index.resize(agents_count);
-	state_data.is_movable.resize(agents_count);
+	resize_storage();
 }
 
 void mechanical_agent_data::remove_at(index_t position)
@@ -125,8 +91,14 @@ void mechanical_agent_data::remove_at(index_t position)
 		base_storage_t::move_scalar(&state_data.is_movable[position], &state_data.is_movable[last]);
 	}
 
+	// Sync with base class
 	agents_count = base_data.agents_count;
 
+	resize_storage();
+}
+
+void mechanical_agent_data::resize_storage()
+{
 	velocity.resize(agents_count * base_data.dims);
 	previous_velocity.resize(agents_count * base_data.dims);
 	radius.resize(agents_count);
@@ -164,6 +136,5 @@ void mechanical_agent_data::remove_at(index_t position)
 	state_data.agent_type_index.resize(agents_count);
 	state_data.is_movable.resize(agents_count);
 }
-
 
 } // namespace physicore::mechanics::physicell

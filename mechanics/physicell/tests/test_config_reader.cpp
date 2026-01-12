@@ -10,13 +10,14 @@
 using namespace physicore;
 using namespace physicore::mechanics::physicell;
 
+namespace {
 // Helper to create a complete test XML with domain and overall sections
-static std::string create_complete_xml(const std::string& microenv_section, const std::string& cell_defs_section,
-									   const std::string& domain_section = "", const std::string& overall_section = "")
+std::string create_complete_xml(const std::string& microenv_section, const std::string& cell_defs_section,
+								const std::string& domain_section = "", const std::string& overall_section = "")
 {
 	const std::string domain = domain_section.empty() ? R"(
-<domain>
-<x_min>-500</x_min>
+	<domain>
+	<x_min>-500</x_min>
 <x_max>500</x_max>
 <y_min>-500</y_min>
 <y_max>500</y_max>
@@ -41,8 +42,9 @@ static std::string create_complete_xml(const std::string& microenv_section, cons
 	return R"(<?xml version="1.0"?>
 <PhysiCell_settings version="devel-version">)"
 		   + domain + overall + microenv_section + cell_defs_section + R"(
-</PhysiCell_settings>)";
+	</PhysiCell_settings>)";
 }
+} // namespace
 
 class MechanicsConfigReaderTest : public ::testing::Test
 {

@@ -104,6 +104,9 @@ public:
 
 	void add();
 	void remove_at(index_t position);
+
+private:
+	void resize_storage();
 };
 
 using agent_data = mechanical_agent_data;

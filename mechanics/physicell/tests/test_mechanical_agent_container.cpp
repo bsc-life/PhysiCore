@@ -161,9 +161,9 @@ TEST_F(MechanicalAgentContainerTest, AccessAgentByIndex)
 
 TEST_F(MechanicalAgentContainerTest, RemoveAgentDecreasesSize)
 {
-	auto* agent0 = container.create();
-	auto* agent1 = container.create();
-	auto* agent2 = container.create();
+	container.create();
+	container.create();
+	container.create();
 	EXPECT_EQ(container.size(), 3);
 
 	// Remove the last agent (safest approach)

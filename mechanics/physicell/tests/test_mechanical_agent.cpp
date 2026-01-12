@@ -21,7 +21,7 @@ protected:
 	agent_data data { base_data, agent_types_count, substrates_count };
 
 	template <class Getter>
-	void set_and_expect_vec3(Getter&& getter, const std::array<real_t, 3>& values)
+	void set_and_expect_vec3(const Getter& getter, const std::array<real_t, 3>& values)
 	{
 		auto vec = getter();
 		ASSERT_EQ(vec.size(), static_cast<std::size_t>(dims));
