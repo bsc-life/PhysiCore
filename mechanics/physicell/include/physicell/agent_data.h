@@ -8,7 +8,7 @@
 #include <common/base_agent_data.h>
 #include <common/types.h>
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 struct mechanical_parameters;
 
@@ -111,4 +111,4 @@ private:
 
 using agent_data = mechanical_agent_data;
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

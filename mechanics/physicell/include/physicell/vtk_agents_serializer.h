@@ -15,7 +15,7 @@
 #include "serializer.h"
 #include "vtk_serializer_base.h"
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 class vtk_agents_serializer : public vtk_serializer_base,
 							  public serializer,
@@ -74,4 +74,4 @@ public:
 	void serialize(real_t current_time) override;
 };
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

@@ -13,7 +13,7 @@
 #include "agent_interface.h"
 #include "mechanical_parameters.h"
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 class mechanical_agent : public physicore::base_agent_generic_storage<base_agent_data>,
 						 public virtual mechanical_agent_interface
@@ -72,4 +72,4 @@ public:
 	std::uint8_t& is_movable() override;
 };
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

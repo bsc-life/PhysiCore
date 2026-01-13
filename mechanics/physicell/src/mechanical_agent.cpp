@@ -2,7 +2,7 @@
 
 #include <tuple>
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 mechanical_agent::mechanical_agent(index_t index, mechanical_agent_data& data)
 	: base_agent_interface(index),
@@ -124,4 +124,4 @@ index_t& mechanical_agent::agent_type_index() { return data.state_data.agent_typ
 
 std::uint8_t& mechanical_agent::is_movable() { return data.state_data.is_movable[this->index]; }
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

@@ -7,7 +7,7 @@
 #include <common/base_agent_interface.h>
 #include <common/types.h>
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 class mechanical_agent_interface : public virtual base_agent_interface
 {
@@ -50,4 +50,4 @@ public:
 	virtual std::uint8_t& is_movable() = 0;
 };
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

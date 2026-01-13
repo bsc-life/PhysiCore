@@ -6,7 +6,7 @@
 #include "agent_data.h"
 #include "mechanical_agent.h"
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 /**
  * @brief Container for managing mechanical agents with synchronized data storage.
@@ -37,4 +37,4 @@ using mechanical_agent_container_interface = physicore::generic_agent_interface_
  */
 using mechanical_container_ptr = std::shared_ptr<mechanical_agent_container_interface>;
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

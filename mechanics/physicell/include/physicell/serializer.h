@@ -4,7 +4,7 @@
 
 #include <common/types.h>
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 class serializer
 {
@@ -16,4 +16,4 @@ public:
 
 using serializer_ptr = std::unique_ptr<serializer>;
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

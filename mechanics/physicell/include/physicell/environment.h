@@ -7,7 +7,7 @@
 
 #include "serializer.h"
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 class environment : public timestep_executor
 {
@@ -23,4 +23,4 @@ public:
 	serializer_ptr serializer;
 };
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

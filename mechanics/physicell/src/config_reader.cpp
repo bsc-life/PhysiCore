@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 namespace {
 
@@ -344,4 +344,4 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 	return config;
 }
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

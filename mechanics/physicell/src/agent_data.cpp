@@ -7,7 +7,7 @@
 #include "physicell/mechanical_agent.h"
 #include "physicell/mechanical_parameters.h"
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 mechanical_agent_data::mechanical_agent_data(physicore::base_agent_data_generic_storage<std::vector>& base_data,
 											 index_t agent_types_count, index_t substrates_count)
@@ -137,4 +137,4 @@ void mechanical_agent_data::resize_storage()
 	state_data.is_movable.resize(agents_count);
 }
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

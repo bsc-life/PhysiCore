@@ -13,7 +13,7 @@
 	These are intended to be stored in a container (e.g. vector<mechanical_parameters>)
 	and kept distinct from global timestep / executor settings (dt, agent_types_count).
 */
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 struct mechanical_parameters
 {
@@ -59,4 +59,4 @@ struct mechanical_parameters
 };
 
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

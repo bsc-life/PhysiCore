@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <fstream>
 
-using namespace physicore::mechanics::physicell;
+using namespace mechanics::physicell;
 
 vtk_serializer_base::vtk_serializer_base(std::string_view output_dir, std::string_view vtks_dir_name,
 										 std::string_view pvd_file_name)

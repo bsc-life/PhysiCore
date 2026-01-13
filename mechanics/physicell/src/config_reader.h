@@ -6,7 +6,7 @@
 
 #include "mechanical_parameters.h"
 
-namespace physicore::mechanics::physicell {
+namespace mechanics::physicell {
 
 struct domain_config
 {
@@ -50,4 +50,4 @@ struct mechanics_config
  */
 mechanics_config parse_simulation_parameters(const std::filesystem::path& config_file);
 
-} // namespace physicore::mechanics::physicell
+} // namespace mechanics::physicell

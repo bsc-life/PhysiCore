@@ -11,7 +11,7 @@
 #include <vtkPoints.h>
 #include <vtkSmartPointer.h>
 
-using namespace physicore::mechanics::physicell;
+using namespace mechanics::physicell;
 
 vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir,
 											 mechanical_agent_container_interface& container,

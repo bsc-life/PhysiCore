@@ -1,6 +1,6 @@
 #include "environment.h"
 
-using namespace physicore::mechanics::physicell;
+using namespace mechanics::physicell;
 
 void environment::run_single_timestep()
 {
