@@ -13,20 +13,21 @@ target_sources(
 
 target_sources(
   physicore.mechanics.physicell_internal_iface
-  INTERFACE FILE_SET HEADERS
-            BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include/physicell"
-                      "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  INTERFACE FILE_SET HEADERS BASE_DIRS
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/physicell"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 find_package(pugixml CONFIG REQUIRED)
 find_package(VTK CONFIG REQUIRED)
 
 target_link_libraries(physicore.mechanics.physicell_internal_iface
-                      INTERFACE physicore::common VTK::IOXML)
+                      INTERFACE common VTK::IOXML)
 
-target_link_libraries(physicore.mechanics.physicell
-                      PUBLIC physicore::common
-                      PRIVATE physicore.mechanics.physicell_internal_iface
-                              pugixml::pugixml VTK::IOXML)
+target_link_libraries(
+  physicore.mechanics.physicell
+  PUBLIC common
+  PRIVATE physicore.mechanics.physicell_internal_iface pugixml::pugixml
+          VTK::IOXML)
 
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
