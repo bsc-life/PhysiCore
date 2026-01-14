@@ -11,11 +11,13 @@ if(GIT_FOUND)
     OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
 
   if(GIT_TAG)
-    # Remove 'v' prefix if present
-    string(REGEX REPLACE "^v" "" PROJECT_VERSION_FROM_GIT "${GIT_TAG}")
+    # Remove 'v' prefix if present and extract semantic version (x.y.z)
+    string(REGEX REPLACE "^v" "" GIT_TAG_NO_PREFIX "${GIT_TAG}")
+    string(REGEX MATCH "^[0-9]+\\.[0-9]+\\.[0-9]+" PROJECT_VERSION_FROM_GIT
+                 "${GIT_TAG_NO_PREFIX}")
   endif()
 
-  # Fallback version if git tag not found
+  # Fallback version if git tag not found or version extraction failed
   if(NOT PROJECT_VERSION_FROM_GIT)
     set(PROJECT_VERSION_FROM_GIT "9.9.9")
   endif()
