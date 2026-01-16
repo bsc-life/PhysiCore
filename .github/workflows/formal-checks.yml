@@ -1,12 +1,6 @@
 name: Formal Checks with clang-format and clang-tidy
 
 on:
-  push:
-    branches:
-      - 'main'
-  pull_request:
-    branches:
-      - '**'
   workflow_call:
 
 permissions:
