@@ -16,9 +16,16 @@ permissions:
   pull-requests: write
 
 jobs:
+  formal-checks:
+    name: Formal Checks
+    uses: ./.github/workflows/formal-checks.yml
+    permissions:
+      contents: read
+
   build-artifacts:
     name: Build Release Artifacts
     runs-on: ${{ matrix.os }}
+    needs: formal-checks
 
     strategy:
       fail-fast: false
