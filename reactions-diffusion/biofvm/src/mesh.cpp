@@ -1,7 +1,6 @@
 #include "mesh.h"
 
 #include <cassert>
-#include <cmath>
 
 using namespace physicore;
 using namespace physicore::biofvm;
@@ -47,14 +46,14 @@ std::array<index_t, 3> cartesian_mesh::voxel_position(std::span<const real_t> po
 	switch (position.size())
 	{
 		case 1:
-			return { ((sindex_t)std::llround(position[0]) - bounding_box_mins[0]) / voxel_shape[0], 0, 0 };
+			return { (index_t)((position[0] - (real_t)bounding_box_mins[0]) / (real_t)voxel_shape[0]), 0, 0 };
 		case 2:
-			return { ((sindex_t)std::llround(position[0]) - bounding_box_mins[0]) / voxel_shape[0],
-					 ((sindex_t)std::llround(position[1]) - bounding_box_mins[1]) / voxel_shape[1], 0 };
+			return { (index_t)((position[0] - (real_t)bounding_box_mins[0]) / (real_t)voxel_shape[0]),
+					 (index_t)((position[1] - (real_t)bounding_box_mins[1]) / (real_t)voxel_shape[1]), 0 };
 		case 3:
-			return { ((sindex_t)std::llround(position[0]) - bounding_box_mins[0]) / voxel_shape[0],
-					 ((sindex_t)std::llround(position[1]) - bounding_box_mins[1]) / voxel_shape[1],
-					 ((sindex_t)std::llround(position[2]) - bounding_box_mins[2]) / voxel_shape[2] };
+			return { (index_t)((position[0] - (real_t)bounding_box_mins[0]) / (real_t)voxel_shape[0]),
+					 (index_t)((position[1] - (real_t)bounding_box_mins[1]) / (real_t)voxel_shape[1]),
+					 (index_t)((position[2] - (real_t)bounding_box_mins[2]) / (real_t)voxel_shape[2]) };
 		default:
 			assert(false); // Should never reach here
 			return { 0, 0, 0 };
