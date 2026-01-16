@@ -10,7 +10,7 @@
 #include "serializer.h"
 #include "vtk_serializer_base.h"
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 class vtk_serializer : public vtk_serializer_base, public serializer
 {
@@ -24,4 +24,4 @@ public:
 	void serialize(const microenvironment& m, real_t current_time) override;
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

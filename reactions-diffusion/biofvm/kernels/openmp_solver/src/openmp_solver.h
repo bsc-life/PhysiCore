@@ -6,7 +6,7 @@
 #include "cell_solver.h"
 #include "diffusion_solver.h"
 
-namespace physicore::biofvm::kernels::openmp_solver {
+namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver {
 
 class openmp_solver : public solver
 {
@@ -24,4 +24,4 @@ public:
 	void reinitialize_dirichlet(microenvironment& m) override;
 };
 
-} // namespace physicore::biofvm::kernels::openmp_solver
+} // namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver

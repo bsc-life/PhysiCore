@@ -12,7 +12,7 @@
 #include "agent_container.h"
 #include "microenvironment.h"
 
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir, const microenvironment& m)
 	: vtk_serializer_base(output_dir, "vtk_agents", "agents.pvd"), substrate_count(m.substrates_count)
