@@ -6,7 +6,7 @@
 #include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 struct BIOFVM_EXPORT cartesian_mesh
 {
@@ -31,4 +31,4 @@ struct BIOFVM_EXPORT cartesian_mesh
 	std::array<real_t, 3> voxel_center(std::array<index_t, 3> position) const;
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

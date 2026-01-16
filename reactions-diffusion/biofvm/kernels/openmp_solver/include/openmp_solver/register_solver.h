@@ -1,6 +1,6 @@
 #pragma once
 
-namespace physicore::biofvm::kernels::openmp_solver {
+namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver {
 
 void attach_to_registry();
 

@@ -17,7 +17,7 @@
 #include "vtk_serializer.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 class VtkSerializerTest : public ::testing::Test
 {

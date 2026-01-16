@@ -36,7 +36,7 @@ F = fraction released at death
 D = D + I*F/v
 */
 
-namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
+namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class cell_solver
 {
@@ -75,4 +75,4 @@ public:
 	~cell_solver();
 };
 
-} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE
+} // namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

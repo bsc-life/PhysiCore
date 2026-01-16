@@ -8,7 +8,7 @@
 
 #include <common/types.h>
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 using vtkRealArray = std::conditional_t<std::is_same_v<real_t, float>, vtkFloatArray, vtkDoubleArray>;
 
@@ -28,4 +28,4 @@ public:
 	vtk_serializer_base(std::string_view output_dir, std::string_view vtks_dir_name, std::string_view pvd_file_name);
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

@@ -4,7 +4,7 @@
 #include "solver_registry.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 class mock_solver : public solver
 {
