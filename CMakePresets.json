@@ -106,14 +106,12 @@
             "name": "_msvc-base",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "cl",
-                "CMAKE_CXX_COMPILER": "cl",
-                "CMAKE_C_FLAGS_DEBUG_INIT": "/W4 /Zc:preprocessor /EHsc",
-                "CMAKE_CXX_FLAGS_DEBUG_INIT": "/W4 /Zc:preprocessor /EHsc",
-                "CMAKE_C_FLAGS_RELEASE_INIT": "/W4 /Zc:preprocessor /EHsc",
-                "CMAKE_CXX_FLAGS_RELEASE_INIT": "/W4 /Zc:preprocessor /EHsc",
-                "CMAKE_CUDA_FLAGS_DEBUG_INIT": "-Xcompiler=/Zc:preprocessor",
-                "CMAKE_CUDA_FLAGS_RELEASE_INIT": "-Xcompiler=/Zc:preprocessor",
+                "CMAKE_C_COMPILER": "clang-cl",
+                "CMAKE_CXX_COMPILER": "clang-cl",
+                "CMAKE_C_FLAGS_DEBUG_INIT": "/W4 /EHsc",
+                "CMAKE_CXX_FLAGS_DEBUG_INIT": "/W4 /EHsc",
+                "CMAKE_C_FLAGS_RELEASE_INIT": "/W4 /EHsc",
+                "CMAKE_CXX_FLAGS_RELEASE_INIT": "/W4 /EHsc",
                 "VCPKG_HOST_TRIPLET": "x64-windows-static-md",
                 "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
             }

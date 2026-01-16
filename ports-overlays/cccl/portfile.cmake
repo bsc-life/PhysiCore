@@ -1,6 +1,6 @@
 vcpkg_from_git(
   OUT_SOURCE_PATH SOURCE_PATH URL https://github.com/NVIDIA/cccl.git REF
-  c859e948453f41076cf9727958cc709799c21ffb)
+  db78d421a0ce92ed159400d800268574aded45e3)
 
 vcpkg_cmake_configure(
   SOURCE_PATH
@@ -20,9 +20,9 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 
-# Relocate headers under a single cccl/ prefix: include/cccl/{thrust,cub,cuda}
+# Relocate headers under a single cccl/ prefix: include/cccl/{thrust,cub,cuda,nv}
 file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/include/cccl")
-set(_cccl_header_dirs cub thrust cuda)
+set(_cccl_header_dirs cub thrust cuda nv)
 foreach(_dir IN LISTS _cccl_header_dirs)
   if(EXISTS "${CURRENT_PACKAGES_DIR}/include/${_dir}")
     file(COPY "${CURRENT_PACKAGES_DIR}/include/${_dir}" DESTINATION "${CURRENT_PACKAGES_DIR}/include/cccl")
