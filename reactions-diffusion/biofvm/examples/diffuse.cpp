@@ -10,7 +10,7 @@
 #include <biofvm/microenvironment.h>
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 int main()
 {

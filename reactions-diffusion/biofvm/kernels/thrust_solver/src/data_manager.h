@@ -19,7 +19,7 @@
 	#define PHYSICORE_THRUST_STD std
 #endif
 
-namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
+namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class diffusion_solver;
 
@@ -74,4 +74,4 @@ public:
 };
 
 
-} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE
+} // namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

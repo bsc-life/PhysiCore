@@ -5,7 +5,7 @@
 #include "agent_data.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 class AgentTest : public ::testing::Test
 {

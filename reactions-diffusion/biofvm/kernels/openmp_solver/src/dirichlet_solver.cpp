@@ -4,8 +4,8 @@
 #include "omp_helper.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::openmp_solver;
+using namespace physicore::reactions_diffusion::biofvm;
+using namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver;
 
 namespace {
 auto fix_dims(const index_t* voxel_index, index_t dims)

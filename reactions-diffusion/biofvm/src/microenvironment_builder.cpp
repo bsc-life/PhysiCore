@@ -8,7 +8,7 @@
 #include "vtk_agents_serializer.h"
 #include "vtk_serializer.h"
 
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 using namespace physicore;
 
 void microenvironment_builder::set_name(std::string_view name_) { this->name = name_; }

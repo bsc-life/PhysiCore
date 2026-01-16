@@ -3,7 +3,7 @@
 #include <cassert>
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 cartesian_mesh::cartesian_mesh(index_t dims, std::array<sindex_t, 3> bounding_box_mins,
 							   std::array<sindex_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape)

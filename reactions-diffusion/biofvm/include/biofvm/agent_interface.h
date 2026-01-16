@@ -3,7 +3,7 @@
 #include <common/base_agent_interface.h>
 #include <common/types.h>
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 class agent_interface : public virtual base_agent_interface
 {
@@ -27,4 +27,4 @@ public:
 	virtual uint8_t& is_active() = 0;
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

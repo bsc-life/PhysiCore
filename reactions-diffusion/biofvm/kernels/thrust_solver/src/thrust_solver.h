@@ -9,7 +9,7 @@
 #include "dirichlet_solver.h"
 #include "namespace_config.h"
 
-namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
+namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class thrust_solver : public solver
 {
@@ -34,4 +34,4 @@ public:
 	void recompute_positional_data(microenvironment& m) override;
 };
 
-} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE
+} // namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE
