@@ -5,7 +5,7 @@
 #include <common/base_agent_data.h>
 #include <common/types.h>
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 template <template <typename...> typename ContainerType = std::vector>
 struct agent_data_generic_storage
@@ -109,4 +109,4 @@ void agent_data_generic_storage<ContainerType>::remove_at(index_t position)
 	is_active.resize(agents_count);
 }
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

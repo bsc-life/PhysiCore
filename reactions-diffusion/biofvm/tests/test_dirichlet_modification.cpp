@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 TEST(DirichletModification, SetInteriorVoxel)
 {

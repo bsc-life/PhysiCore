@@ -8,9 +8,9 @@
 #include "diffusion_solver.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
-using namespace physicore::biofvm::kernels::openmp_solver;
+using namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver;
 
 namespace {
 std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh, bool compute_interalized)

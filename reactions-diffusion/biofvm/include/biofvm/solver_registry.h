@@ -8,7 +8,7 @@
 
 #include "solver.h"
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 class solver_registry
 {
@@ -38,4 +38,4 @@ struct registry_adder
 	}
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

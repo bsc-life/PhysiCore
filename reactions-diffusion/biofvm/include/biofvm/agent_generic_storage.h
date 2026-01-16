@@ -5,7 +5,7 @@
 
 #include "agent_interface.h"
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 #ifdef _MSC_VER
 	#pragma warning(push)
@@ -79,4 +79,4 @@ public:
 	#pragma warning(pop)
 #endif
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

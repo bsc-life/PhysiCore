@@ -10,8 +10,8 @@
 #include "namespace_config.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
+using namespace physicore::reactions_diffusion::biofvm;
+using namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 namespace {
 void make_agents(microenvironment& m, index_t count, bool conflict)

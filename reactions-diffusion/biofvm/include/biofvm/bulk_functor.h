@@ -3,7 +3,7 @@
 #include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 struct BIOFVM_EXPORT bulk_functor
 {
@@ -13,4 +13,4 @@ struct BIOFVM_EXPORT bulk_functor
 	virtual ~bulk_functor() = default;
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

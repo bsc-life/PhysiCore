@@ -9,7 +9,7 @@
 #include "microenvironment_builder.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 microenvironment::microenvironment(const cartesian_mesh& mesh, index_t substrates_count, real_t timestep)
 	: diffusion_timestep(timestep), mesh(mesh), substrates_count(substrates_count)

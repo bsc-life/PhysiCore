@@ -15,7 +15,7 @@
 #include "serializer.h"
 #include "solver.h"
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 class BIOFVM_EXPORT microenvironment : public timestep_executor
 {
@@ -81,4 +81,4 @@ public:
 	bool compute_internalized_substrates = false;
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

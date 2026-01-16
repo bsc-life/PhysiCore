@@ -3,8 +3,8 @@
 #include <noarr/structures_extended.hpp>
 
 using namespace physicore;
-using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::openmp_solver;
+using namespace physicore::reactions_diffusion::biofvm;
+using namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver;
 
 void bulk_solver::initialize(microenvironment& m) { fnc = std::move(m.bulk_fnc); }
 
