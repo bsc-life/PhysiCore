@@ -18,7 +18,7 @@ D = (D + dt*S*T)/(1 + dt*(U+S))
 where D is a voxel substrate density vector
 */
 
-namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
+namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class bulk_solver
 {
@@ -36,4 +36,4 @@ public:
 	~bulk_solver();
 };
 
-} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE
+} // namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

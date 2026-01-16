@@ -4,7 +4,7 @@
 
 #include <biofvm/microenvironment.h>
 
-namespace physicore::biofvm::kernels::openmp_solver {
+namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver {
 
 struct problem_t
 {
@@ -46,4 +46,4 @@ struct problem_t
 	}
 };
 
-} // namespace physicore::biofvm::kernels::openmp_solver
+} // namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver

@@ -9,7 +9,7 @@
 #include "mesh.h"
 #include "microenvironment.h"
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 class BIOFVM_EXPORT microenvironment_builder
 {
@@ -77,4 +77,4 @@ public:
 	std::unique_ptr<microenvironment> build();
 };
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm

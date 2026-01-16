@@ -5,7 +5,7 @@
 #include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 class microenvironment;
 
@@ -38,4 +38,4 @@ public:
 
 using solver_ptr = std::unique_ptr<solver>;
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm
