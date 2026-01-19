@@ -124,36 +124,21 @@ struct simulation_parameters
 	 *
 	 * Adds config for both (type_a, type_b) and (type_b, type_a).
 	 */
-	void add_interaction(std::uint8_t type_a, std::uint8_t type_b, const interaction_config& config)
-	{
-		interactions[{ type_a, type_b }] = config;
-		if (type_a != type_b)
-		{
-			interactions[{ type_b, type_a }] = config;
-		}
-	}
+	void add_interaction(std::uint8_t type_a, std::uint8_t type_b, const interaction_config& config);
 
 	/**
 	 * @brief Get interaction config for a type pair.
 	 *
 	 * Returns specific config if defined, otherwise returns default_interaction.
 	 */
-	const interaction_config& get_interaction(std::uint8_t type_a, std::uint8_t type_b) const
-	{
-		auto it = interactions.find({ type_a, type_b });
-		if (it != interactions.end())
-		{
-			return it->second;
-		}
-		return default_interaction;
-	}
+	const interaction_config& get_interaction(std::uint8_t type_a, std::uint8_t type_b) const;
 
 	/**
 	 * @brief Convenience: set up single-type simulation.
 	 *
 	 * Sets the (0, 0) interaction to the given config.
 	 */
-	void set_single_type_interaction(const interaction_config& config) { interactions[{ 0, 0 }] = config; }
+	void set_single_type_interaction(const interaction_config& config);
 };
 
 } // namespace physicore::mechanics::micromechanics
