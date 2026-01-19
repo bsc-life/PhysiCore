@@ -4,7 +4,6 @@
 #include "micromechanics/solver.h"
 #include "micromechanics/solver_registry.h"
 #include "micromechanics/uniform_grid_spatial_index.h"
-#include "micromechanics/vtk_mechanics_serializer.h"
 
 namespace physicore::mechanics::micromechanics {
 
@@ -14,7 +13,6 @@ environment::environment(real_t timestep) : timestep(timestep)
 	auto mech_data = std::make_unique<agent_data>(*base_data);
 	agents = std::make_unique<agent_container>(std::move(base_data), std::move(mech_data));
 	index = std::make_unique<uniform_grid_spatial_index>();
-	serializer = std::make_unique<vtk_mechanics_serializer>("output");
 }
 
 environment::~environment() = default;
@@ -59,10 +57,7 @@ void environment::run_single_timestep()
 
 void environment::serialize_state(real_t current_time)
 {
-	if (serializer)
-	{
-		serializer->serialize(*this, current_time);
-	}
+	(void)current_time;
 }
 
 } // namespace physicore::mechanics::micromechanics
