@@ -14,6 +14,7 @@ namespace physicore::mechanics::micromechanics {
 
 class agent_container;
 class solver;
+class vtk_mechanics_serializer;
 
 /**
  * @brief Main environment class for micromechanics simulations.
@@ -41,6 +42,9 @@ public:
 
 	/// Spatial index for neighbor queries
 	std::unique_ptr<spatial_index> index;
+
+	/// Optional VTK serializer for output
+	std::unique_ptr<vtk_mechanics_serializer> serializer;
 
 	/// Domain boundaries [x_min, y_min, z_min]
 	std::array<real_t, 3> domain_min = { -500.0, -500.0, -500.0 };
