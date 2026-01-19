@@ -1,4 +1,7 @@
+#include <filesystem>
+#include <fstream>
 #include <memory>
+#include <string>
 
 #include <common/base_agent_data.h>
 #include <gtest/gtest.h>
@@ -15,6 +18,42 @@ using namespace physicore::mechanics::micromechanics;
 class EnvironmentTest : public ::testing::Test
 {
 protected:
+	void SetUp() override
+	{
+		// Create a temporary output directory for tests
+		test_output_dir = std::filesystem::temp_directory_path() / "vtk_mechanics_test";
+		std::filesystem::create_directories(test_output_dir);
+
+		// Clean up any existing files
+		if (std::filesystem::exists(test_output_dir))
+		{
+			std::filesystem::remove_all(test_output_dir);
+		}
+		std::filesystem::create_directories(test_output_dir);
+	}
+
+	void TearDown() override
+	{
+		// Clean up test files
+		if (std::filesystem::exists(test_output_dir))
+		{
+			std::filesystem::remove_all(test_output_dir);
+		}
+
+		// Clean up serialization outputs (written under output/)
+		auto vtk_dir = std::filesystem::path("output") / "vtk_mechanics";
+		if (std::filesystem::exists(vtk_dir))
+		{
+			std::filesystem::remove_all(vtk_dir);
+		}
+
+		auto pvd_file = std::filesystem::path("output") / "mechanics.pvd";
+		if (std::filesystem::exists(pvd_file))
+		{
+			std::filesystem::remove(pvd_file);
+		}
+	}
+
 	static std::unique_ptr<environment> create_test_environment()
 	{
 		auto env = std::make_unique<environment>(0.01);
@@ -24,6 +63,8 @@ protected:
 		env->index = std::make_unique<uniform_grid_spatial_index>();
 		return env;
 	}
+
+	std::filesystem::path test_output_dir;
 };
 
 TEST_F(EnvironmentTest, RunSingleTimestep)
@@ -31,4 +72,88 @@ TEST_F(EnvironmentTest, RunSingleTimestep)
 	auto env = create_test_environment();
 	env->run_single_timestep();
 	SUCCEED();
+}
+
+TEST_F(EnvironmentTest, SerializeCreatesFiles)
+{
+	auto env = create_test_environment();
+
+	// Add agents to serialize
+	for (int i = 0; i < 5; ++i)
+	{
+		auto* agent = env->agents->create();
+		agent->position()[0] = i * 10.0;
+		agent->position()[1] = 0.0;
+		agent->position()[2] = 0.0;
+		agent->radius() = 5.0;
+	}
+
+	env->serialize_state(0.0);
+
+	// Check that VTK file is created
+	auto vtk_dir = std::filesystem::path("output") / "vtk_mechanics";
+	auto vtu_file = vtk_dir / "mechanics_000000.vtu";
+	EXPECT_TRUE(std::filesystem::exists(vtu_file));
+
+	// Check that PVD file is created
+	auto pvd_file = std::filesystem::path("output") / "mechanics.pvd";
+	EXPECT_TRUE(std::filesystem::exists(pvd_file));
+}
+
+TEST_F(EnvironmentTest, SerializeMultipleTimes)
+{
+	auto env = create_test_environment();
+
+	// Add an agent
+	auto* agent = env->agents->create();
+	agent->position()[0] = 0.0;
+	agent->radius() = 5.0;
+
+	// Serialize multiple times
+	for (int i = 0; i < 3; ++i)
+	{
+		env->serialize_state(i * 0.1);
+	}
+
+	auto vtk_dir = std::filesystem::path("output") / "vtk_mechanics";
+
+	// Check that multiple VTK files are created
+	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_000000.vtu"));
+	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_000001.vtu"));
+	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_000002.vtu"));
+}
+
+TEST_F(EnvironmentTest, PvdFileContainsCorrectEntries)
+{
+	auto env = create_test_environment();
+
+	auto* agent = env->agents->create();
+	agent->position()[0] = 0.0;
+	agent->radius() = 5.0;
+
+	// Serialize twice with different times
+	env->serialize_state(0.1);
+	env->serialize_state(0.2);
+
+	// Read PVD file content
+	auto pvd_file = std::filesystem::path("output") / "mechanics.pvd";
+	ASSERT_TRUE(std::filesystem::exists(pvd_file));
+
+	std::ifstream file(pvd_file);
+	std::string const content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	// Check XML structure
+	EXPECT_TRUE(content.find("<?xml version=\"1.0\"?>") != std::string::npos);
+	EXPECT_TRUE(content.find("<VTKFile type=\"Collection\"") != std::string::npos);
+	EXPECT_TRUE(content.find("<Collection>") != std::string::npos);
+	EXPECT_TRUE(content.find("</Collection>") != std::string::npos);
+	EXPECT_TRUE(content.find("</VTKFile>") != std::string::npos);
+
+	// Check timestep entries
+	EXPECT_TRUE(content.find("timestep=\"0.1") != std::string::npos);
+	EXPECT_TRUE(content.find("timestep=\"0.2") != std::string::npos);
+
+	// Check file references
+	EXPECT_TRUE(content.find("mechanics_000000.vtu") != std::string::npos);
+	EXPECT_TRUE(content.find("mechanics_000001.vtu") != std::string::npos);
 }
