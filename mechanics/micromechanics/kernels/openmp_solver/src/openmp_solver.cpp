@@ -55,7 +55,7 @@ void openmp_solver::calculate_cell_data(environment& e)
 		index_t const cell_id = mech_data.cell_ids[i];
 
 		// Skip standalone agents (cell_id == -1)
-		if (std::cmp_equal(cell_id ,-1)))
+		if (std::cmp_equal(cell_id, -1))
 			continue;
 
 		std::uint8_t const agent_type = mech_data.agent_types[i];
@@ -131,13 +131,13 @@ void openmp_solver::calculate_cell_data(environment& e)
 	for (index_t i = 0; i < count; ++i)
 	{
 		index_t const cell_id_i = mech_data.cell_ids[i];
-		if (std::cmp_equal(cell_id_i ,-1)))
+		if (std::cmp_equal(cell_id_i, -1))
 			continue;
 
 		for (index_t const j : mech_data.neighbors[i])
 		{
 			index_t const cell_id_j = mech_data.cell_ids[j];
-			if (std::cmp_equal(cell_id_j ,-1)))
+			if (std::cmp_equal(cell_id_j, -1))
 				continue;
 
 			// Different cells that touch are neighbors
