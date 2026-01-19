@@ -28,9 +28,6 @@ target_include_directories(
   physicore.mechanics.micromechanics
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-# Add OpenMP kernel
-add_subdirectory(kernels/openmp_solver)
-
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
