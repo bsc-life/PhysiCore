@@ -23,18 +23,11 @@ target_sources(
   physicore.mechanics.micromechanics_iface
   INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(physicore.mechanics.micromechanics_internal_iface
-                      INTERFACE physicore::common)
-
 find_package(VTK CONFIG REQUIRED)
 
-target_link_libraries(physicore.mechanics.micromechanics_internal_iface
-                      INTERFACE physicore::common::vtk_serializer VTK::IOXML)
-
 target_link_libraries(
-  physicore.mechanics.micromechanics
-  PRIVATE physicore.mechanics.micromechanics_internal_iface
-  PUBLIC physicore::common)
+  physicore.mechanics.micromechanics PUBLIC physicore::common
+                                            physicore::common::vtk_serializer)
 
 target_include_directories(
   physicore.mechanics.micromechanics
