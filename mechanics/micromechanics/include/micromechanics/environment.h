@@ -6,13 +6,13 @@
 #include <common/timestep_executor.h>
 #include <common/types.h>
 
-#include "agent_container.h"
 #include "cell_data.h"
 #include "simulation_parameters.h"
 #include "spatial_index.h"
 
 namespace physicore::mechanics::micromechanics {
 
+class agent_container;
 class solver;
 class vtk_mechanics_serializer;
 

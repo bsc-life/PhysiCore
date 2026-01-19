@@ -10,7 +10,11 @@
 
 namespace physicore::mechanics::micromechanics {
 
-using agent_container = generic_agent_and_data_container<base_agent, agent>;
+class agent_container : public generic_agent_and_data_container<base_agent, agent>
+{
+public:
+	using generic_agent_and_data_container<base_agent, agent>::generic_agent_and_data_container;
+};
 using agent_container_interface = generic_agent_interface_container<cell_interface>;
 using container_ptr = std::shared_ptr<agent_container_interface>;
 

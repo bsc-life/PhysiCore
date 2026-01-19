@@ -6,6 +6,7 @@
 #include <utility>
 
 #include <common/base_agent_data.h>
+#include <micromechanics/agent_container.h>
 #include <micromechanics/agent_data.h>
 #include <micromechanics/environment.h>
 

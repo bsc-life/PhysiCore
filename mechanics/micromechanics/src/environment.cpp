@@ -1,5 +1,6 @@
 #include "micromechanics/environment.h"
 
+#include "micromechanics/agent_container.h"
 #include "micromechanics/solver.h"
 #include "micromechanics/solver_registry.h"
 #include "micromechanics/uniform_grid_spatial_index.h"
