@@ -24,21 +24,20 @@ target_sources(
   physicore.mechanics.micromechanics.kernels.openmp_solver_internal_iface
   INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-target_link_libraries(
-  physicore.mechanics.micromechanics.kernels.openmp_solver_internal_iface
-  INTERFACE physicore.mechanics.micromechanics_internal_iface
-            physicore.mechanics.micromechanics_iface physicore::common)
+# Internal headers from src/ are intended for tests only.
+
+target_include_directories(
+  physicore.mechanics.micromechanics.kernels.openmp_solver
+  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../include>)
+
+target_link_libraries(physicore.mechanics.micromechanics.kernels.openmp_solver
+                      PRIVATE physicore::common)
 
 if(OpenMP_CXX_FOUND)
-  target_link_libraries(
-    physicore.mechanics.micromechanics.kernels.openmp_solver_internal_iface
-    INTERFACE OpenMP::OpenMP_CXX)
+  target_link_libraries(physicore.mechanics.micromechanics.kernels.openmp_solver
+                        PRIVATE OpenMP::OpenMP_CXX)
 endif()
-
-target_link_libraries(
-  physicore.mechanics.micromechanics.kernels.openmp_solver
-  PRIVATE
-    physicore.mechanics.micromechanics.kernels.openmp_solver_internal_iface)
 
 target_link_libraries(
   physicore.mechanics.micromechanics
