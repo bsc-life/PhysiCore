@@ -37,8 +37,8 @@ public:
 	/// Simulation parameters including type-based interactions
 	simulation_parameters params;
 
-	/// The active solver (obtained from solver_registry)
-	std::unique_ptr<solver> active_solver;
+	/// The solver (obtained from solver_registry)
+	std::unique_ptr<solver> solver_;
 
 	/// Spatial index for neighbor queries
 	std::unique_ptr<spatial_index> index;

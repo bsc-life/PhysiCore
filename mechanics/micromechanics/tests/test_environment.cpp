@@ -157,9 +157,9 @@ TEST_F(EnvironmentTest, RunMultipleTimestepsWithForces)
 	auto env = create_test_environment();
 
 	// Set up the solver
-	env->active_solver = solver_registry::instance().get("openmp_solver");
-	ASSERT_NE(env->active_solver, nullptr);
-	env->active_solver->initialize(*env);
+	env->solver_ = solver_registry::instance().get("openmp_solver");
+	ASSERT_NE(env->solver_, nullptr);
+	env->solver_->initialize(*env);
 
 	// Add two overlapping agents
 	auto* agent0 = env->agents->create();

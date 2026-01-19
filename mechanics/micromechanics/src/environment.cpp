@@ -20,39 +20,39 @@ environment::~environment() = default;
 
 void environment::initialize_solver()
 {
-	active_solver = solver_registry::instance().get(params.solver_name);
-	if (active_solver)
+	solver_ = solver_registry::instance().get(params.solver_name);
+	if (solver_)
 	{
-		active_solver->initialize(*this);
+		solver_->initialize(*this);
 	}
 }
 
 void environment::run_single_timestep()
 {
-	if (active_solver)
+	if (solver_)
 	{
-		active_solver->update_cell_neighbors(*this);
-		active_solver->update_cell_forces(*this);
+		solver_->update_cell_neighbors(*this);
+		solver_->update_cell_forces(*this);
 
 		// Calculate cell-level data (positions, volumes, velocities, pressures, neighbors, etc.)
-		active_solver->calculate_cell_data(*this);
+		solver_->calculate_cell_data(*this);
 
 		if (params.enable_motility)
 		{
-			active_solver->update_motility(*this);
+			solver_->update_motility(*this);
 		}
 
 		if (params.enable_basement_membrane)
 		{
-			active_solver->update_basement_membrane_interactions(*this);
+			solver_->update_basement_membrane_interactions(*this);
 		}
 
 		if (params.enable_spring_attachments)
 		{
-			active_solver->update_spring_attachments(*this);
+			solver_->update_spring_attachments(*this);
 		}
 
-		active_solver->update_positions(*this);
+		solver_->update_positions(*this);
 	}
 }
 
