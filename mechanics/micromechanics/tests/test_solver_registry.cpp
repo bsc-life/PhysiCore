@@ -1,10 +1,17 @@
 #include <gtest/gtest.h>
+#include <openmp_solver/register_solver.h>
 
 #include "micromechanics/solver.h"
 #include "micromechanics/solver_registry.h"
 
 using namespace physicore;
 using namespace physicore::mechanics::micromechanics;
+
+// Ensure solver is registered (static library linking doesn't auto-register)
+static bool ensure_registered = []() {
+	kernels::openmp_solver::attach_to_registry();
+	return true;
+}();
 
 class mock_solver : public solver
 {
@@ -23,10 +30,9 @@ TEST(SolverRegistryTest, CheckPresentSolvers)
 {
 	auto& registry = solver_registry::instance();
 
-	// The singleton registry should be usable (register + construct a solver).
-	registry_adder<mock_solver> const mock_solver_adder("test_mock_solver_present");
-	EXPECT_TRUE(registry.is_available("test_mock_solver_present"));
-	EXPECT_NE(registry.get("test_mock_solver_present"), nullptr);
+	// OpenMP solver should always be registered
+	EXPECT_TRUE(registry.is_available("openmp_solver"));
+	EXPECT_NE(registry.get("openmp_solver"), nullptr);
 }
 
 TEST(SolverRegistryTest, GetAndSet)

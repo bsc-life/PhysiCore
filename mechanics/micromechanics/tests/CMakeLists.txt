@@ -8,6 +8,8 @@ target_link_libraries(
   PRIVATE
     physicore.mechanics.micromechanics
     physicore.mechanics.micromechanics_internal_iface
+    physicore.mechanics.micromechanics.kernels.openmp_solver
+    physicore.mechanics.micromechanics.kernels.openmp_solver_internal_iface
     GTest::gtest
     GTest::gtest_main)
 
