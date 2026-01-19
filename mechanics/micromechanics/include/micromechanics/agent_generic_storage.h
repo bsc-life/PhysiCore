@@ -8,6 +8,11 @@
 
 namespace physicore::mechanics::micromechanics {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable : 4250) // inherits via dominance (intentional design)
+#endif
+
 /**
  * @brief Template implementation of agent storage for mechanics agents.
  *
@@ -64,5 +69,9 @@ public:
 	// Topology
 	std::span<index_t> neighbors() override { return std::span<index_t>(data.neighbors[this->index]); }
 };
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 } // namespace physicore::mechanics::micromechanics
