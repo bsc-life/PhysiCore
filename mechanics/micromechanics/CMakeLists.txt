@@ -7,8 +7,9 @@ add_library(physicore.mechanics.micromechanics_iface INTERFACE)
 file(GLOB PUBLIC_INC "include/micromechanics/*.h")
 target_sources(
   physicore.mechanics.micromechanics
-  PRIVATE src/environment.cpp src/uniform_grid_spatial_index.cpp
-          src/vtk_mechanics_serializer.cpp src/solver_registry_sole.cpp
+  PRIVATE src/environment.cpp src/cell_data.cpp
+          src/uniform_grid_spatial_index.cpp src/vtk_mechanics_serializer.cpp
+          src/solver_registry_sole.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
          ${PUBLIC_INC})
 
