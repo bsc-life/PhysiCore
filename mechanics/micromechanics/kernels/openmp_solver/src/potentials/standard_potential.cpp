@@ -10,7 +10,7 @@
 
 namespace physicore::mechanics::micromechanics::kernels::openmp_solver {
 
-standard_potential::standard_potential(interaction_config  config) : config_(std::move(config)) {}
+standard_potential::standard_potential(interaction_config config) : config_(std::move(config)) {}
 
 void standard_potential::calculate_pairwise_force(const environment& env, index_t agent_i, index_t agent_j,
 												  real_t distance, real_t /*dx*/, real_t /*dy*/, real_t /*dz*/,
@@ -43,7 +43,7 @@ void standard_potential::calculate_pairwise_force(const environment& env, index_
 	// Adhesion distance uses per-agent relative_maximum_adhesion_distance
 	// Legacy: adhesion_dist = rel_max_dist[i] * radius[i] + rel_max_dist[j] * radius[j]
 	real_t const adhesion_distance = mech_data.relative_maximum_adhesion_distance[agent_i] * radius_i
-							   + mech_data.relative_maximum_adhesion_distance[agent_j] * radius_j;
+									 + mech_data.relative_maximum_adhesion_distance[agent_j] * radius_j;
 
 	real_t adhesion = 1.0 - distance / adhesion_distance;
 	adhesion = std::max(adhesion, 0.0);

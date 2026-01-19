@@ -9,7 +9,7 @@
 
 namespace physicore::mechanics::micromechanics::kernels::openmp_solver {
 
-kelvin_voigt_potential::kelvin_voigt_potential(interaction_config  config) : config_(std::move(config)) {}
+kelvin_voigt_potential::kelvin_voigt_potential(interaction_config config) : config_(std::move(config)) {}
 
 void kelvin_voigt_potential::calculate_pairwise_force(const environment& env, index_t agent_i, index_t agent_j,
 													  real_t distance, real_t dx, real_t dy, real_t dz,
@@ -36,9 +36,12 @@ void kelvin_voigt_potential::calculate_pairwise_force(const environment& env, in
 	// Damping force: F_damp = gamma * (v_rel . n) * dt
 	// Get previous velocities
 	index_t const dims = 3;
-	real_t const dvx = mech_data.previous_velocities[agent_j * dims + 0] - mech_data.previous_velocities[agent_i * dims + 0];
-	real_t const dvy = mech_data.previous_velocities[agent_j * dims + 1] - mech_data.previous_velocities[agent_i * dims + 1];
-	real_t const dvz = mech_data.previous_velocities[agent_j * dims + 2] - mech_data.previous_velocities[agent_i * dims + 2];
+	real_t const dvx =
+		mech_data.previous_velocities[agent_j * dims + 0] - mech_data.previous_velocities[agent_i * dims + 0];
+	real_t const dvy =
+		mech_data.previous_velocities[agent_j * dims + 1] - mech_data.previous_velocities[agent_i * dims + 1];
+	real_t const dvz =
+		mech_data.previous_velocities[agent_j * dims + 2] - mech_data.previous_velocities[agent_i * dims + 2];
 
 	// Project velocity difference onto normal direction
 	real_t const v_rel_dot_n = (dvx * dx + dvy * dy + dvz * dz);

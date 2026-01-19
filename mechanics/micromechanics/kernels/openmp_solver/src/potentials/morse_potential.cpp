@@ -9,7 +9,7 @@
 
 namespace physicore::mechanics::micromechanics::kernels::openmp_solver {
 
-morse_potential::morse_potential(interaction_config  config) : config_(std::move(config)) {}
+morse_potential::morse_potential(interaction_config config) : config_(std::move(config)) {}
 
 void morse_potential::calculate_pairwise_force(const environment& env, index_t agent_i, index_t /*agent_j*/,
 											   real_t distance, real_t /*dx*/, real_t /*dy*/, real_t /*dz*/,
@@ -44,7 +44,8 @@ void morse_potential::calculate_pairwise_force(const environment& env, index_t a
 		(stiffness * equilibrium_distance * equilibrium_distance) / (8.0 * scaling_factor * scaling_factor);
 
 	// Calculate exp power: a * (1 - r^2/r0^2)
-	real_t const exp_power = scaling_factor * (1.0 - (distance * distance) / (equilibrium_distance * equilibrium_distance));
+	real_t const exp_power =
+		scaling_factor * (1.0 - (distance * distance) / (equilibrium_distance * equilibrium_distance));
 
 	// Force magnitude from Morse potential derivative
 	// F = (4 * a * r * D) * (exp(2P) - exp(P)) / r0^2

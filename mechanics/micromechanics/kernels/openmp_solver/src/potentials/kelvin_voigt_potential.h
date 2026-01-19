@@ -28,7 +28,7 @@ class kelvin_voigt_potential : public potential_interface
 	interaction_config config_;
 
 public:
-	explicit kelvin_voigt_potential(interaction_config  config);
+	explicit kelvin_voigt_potential(interaction_config config);
 
 	void calculate_pairwise_force(const environment& env, index_t agent_i, index_t agent_j, real_t distance, real_t dx,
 								  real_t dy, real_t dz, real_t& force_out) const override;

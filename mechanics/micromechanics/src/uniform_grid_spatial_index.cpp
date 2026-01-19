@@ -24,8 +24,9 @@ void uniform_grid_spatial_index::build(const environment& env)
 		real_t const y = base_data.positions[i * 3 + 1];
 		real_t const z = base_data.positions[i * 3 + 2];
 
-		grid_key const key { .x=static_cast<int>(std::floor(x / cell_size)), .y=static_cast<int>(std::floor(y / cell_size)),
-					   .z=static_cast<int>(std::floor(z / cell_size)) };
+		grid_key const key { .x = static_cast<int>(std::floor(x / cell_size)),
+							 .y = static_cast<int>(std::floor(y / cell_size)),
+							 .z = static_cast<int>(std::floor(z / cell_size)) };
 		grid[key].push_back(i);
 	}
 }
@@ -54,7 +55,7 @@ std::vector<index_t> uniform_grid_spatial_index::query_neighbors(const environme
 		{
 			for (int dz = -search_radius; dz <= search_radius; ++dz)
 			{
-				grid_key const key { .x=cx + dx, .y=cy + dy, .z=cz + dz };
+				grid_key const key { .x = cx + dx, .y = cy + dy, .z = cz + dz };
 				auto it = grid.find(key);
 				if (it != grid.end())
 				{
