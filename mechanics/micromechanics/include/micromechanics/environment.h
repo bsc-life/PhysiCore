@@ -43,10 +43,10 @@ public:
 	std::unique_ptr<spatial_index> index;
 
 	/// Domain boundaries [x_min, y_min, z_min]
-	std::array<real_t, 3> domain_min = { -500.0, -500.0, -500.0 };
+	std::array<real_t, 3> domain_min;
 
 	/// Domain boundaries [x_max, y_max, z_max]
-	std::array<real_t, 3> domain_max = { 500.0, 500.0, 500.0 };
+	std::array<real_t, 3> domain_max;
 
 	explicit environment(real_t timestep);
 	~environment() override;
