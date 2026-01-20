@@ -1,12 +1,43 @@
 #pragma once
 
+#include <cstdint>
+#include <span>
+
 #include <common/base_agent_generic_storage.h>
 #include <common/types.h>
 
 #include "agent_data.h"
-#include "cell_interface.h"
 
 namespace physicore::mechanics::micromechanics {
+
+namespace internal {
+
+/**
+ * @brief Internal interface for mechanics agents (sub-cellular compartments).
+ *
+ * This is intentionally not part of the public micromechanics API surface.
+ */
+class agent_interface : public virtual base_agent_interface
+{
+public:
+	// Kinematics
+	virtual std::span<real_t> velocity() = 0;
+	virtual std::span<real_t> previous_velocity() = 0;
+
+	// Geometry
+	virtual real_t& radius() = 0;
+	virtual std::uint8_t& is_movable() = 0;
+
+	// Per-agent interaction strengths (can vary within a cell type)
+	virtual real_t& cell_cell_adhesion_strength() = 0;
+	virtual real_t& cell_cell_repulsion_strength() = 0;
+	virtual real_t& relative_maximum_adhesion_distance() = 0;
+
+	// Topology
+	virtual std::span<index_t> neighbors() = 0;
+};
+
+} // namespace internal
 
 #ifdef _MSC_VER
 	#pragma warning(push)
@@ -21,14 +52,14 @@ namespace physicore::mechanics::micromechanics {
  */
 template <typename BaseAgentDataType, typename AgentDataType>
 class agent_generic_storage : public physicore::base_agent_generic_storage<BaseAgentDataType>,
-							  public virtual cell_interface
+							  public virtual internal::agent_interface
 {
 protected:
 	AgentDataType& data;
 
 public:
 	using DataType = AgentDataType;
-	using InterfaceType = cell_interface;
+	using InterfaceType = internal::agent_interface;
 
 	agent_generic_storage(index_t index, AgentDataType& data)
 		: base_agent_interface(index),
