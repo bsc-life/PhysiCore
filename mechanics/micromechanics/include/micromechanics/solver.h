@@ -31,7 +31,7 @@ public:
 	virtual void update_cell_forces(environment& e) = 0;
 
 	/// Calculate cell-level data from agents.
-	/// Aggregates: positions, volumes, velocities, speeds, motility directions,
+	/// Aggregates: positions, volumes, velocities, motility directions,
 	/// compartment pressures, neighbor cells, and compartment counts.
 	/// Should be called after update_cell_forces().
 	virtual void calculate_cell_data(environment& e) = 0;

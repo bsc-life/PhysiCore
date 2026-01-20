@@ -115,7 +115,6 @@ void openmp_solver::calculate_cell_data(environment& e)
 
 		// Speed (velocity magnitude)
 		real_t const speed = std::sqrt(vx * vx + vy * vy + vz * vz);
-		e.cells.speeds[cell_id] = speed;
 
 		// Motility direction (normalized velocity)
 		if (speed > 1e-10)
