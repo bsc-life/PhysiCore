@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <span>
 
@@ -8,33 +9,41 @@
 namespace physicore::mechanics::micromechanics {
 
 /**
- * @brief Interface for mechanics agents (sub-cellular compartments).
+ * @brief Cell-level interface for micromechanics.
  *
- * This interface extends base_agent_interface with mechanics-specific
- * properties. Note that cell-level properties (pressure, volume, etc.)
- * are accessed via cell_data, not through this interface.
- *
- * Potential parameters and interaction configs are accessed via
- * simulation_parameters at the cell/type level.
+ * Mirrors the BioFVM pattern: storage lives in cell_data, and this interface
+ * exposes per-cell accessors and small operations.
  */
 class cell_interface : public virtual base_agent_interface
 {
 public:
+	// Geometry
+	virtual real_t& volume() = 0;
+
+	// Definition-derived parameters / bookkeeping
+	virtual index_t& cell_definition_id() = 0;
+	virtual index_t& compartments_count() = 0;
+
 	// Kinematics
 	virtual std::span<real_t> velocity() = 0;
-	virtual std::span<real_t> previous_velocity() = 0;
+	virtual std::span<real_t> motility_direction() = 0;
 
-	// Geometry
-	virtual real_t& radius() = 0;
-	virtual std::uint8_t& is_movable() = 0;
+	// Motility configuration / state
+	virtual real_t& migration_speed() = 0;
+	virtual real_t& migration_bias() = 0;
+	virtual std::span<real_t> polarization() = 0;
+	virtual std::uint8_t& compartment_is_movable(std::uint8_t agent_type) = 0;
 
-	// Per-agent interaction strengths (can vary within a cell type)
-	virtual real_t& cell_cell_adhesion_strength() = 0;
-	virtual real_t& cell_cell_repulsion_strength() = 0;
-	virtual real_t& relative_maximum_adhesion_distance() = 0;
+	// Mechanics (compartmented by agent_type)
+	virtual real_t pressure(std::uint8_t agent_type) const = 0;
+	virtual void add_pressure(std::uint8_t agent_type, real_t delta) = 0;
+	virtual real_t total_pressure() const = 0;
+
+	virtual index_t compartment_count(std::uint8_t agent_type) const = 0;
+	virtual index_t total_agent_count() const = 0;
 
 	// Topology
-	virtual std::span<index_t> neighbors() = 0;
+	virtual std::span<index_t> neighbor_cells() = 0;
 };
 
 } // namespace physicore::mechanics::micromechanics

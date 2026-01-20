@@ -1,11 +1,10 @@
 #pragma once
-#include <common/types.h>
+
+#include "cell_data.h"
+#include "cell_generic_storage.h"
 
 namespace physicore::mechanics::micromechanics {
 
-struct cell
-{
-	index_t id;
-};
+using cell = cell_generic_storage<cell_data>;
 
 } // namespace physicore::mechanics::micromechanics
