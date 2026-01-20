@@ -8,6 +8,7 @@ target_sources(
   PRIVATE src/environment.cpp src/config_reader.cpp src/agent_data.cpp
           src/mechanical_agent.cpp src/vtk_serializer_base.cpp
           src/vtk_agents_serializer.cpp
+          src/solver_registry.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
          ${PUBLIC_INC})
 
@@ -27,6 +28,8 @@ target_link_libraries(
   mechanics.physicell
   PUBLIC common
   PRIVATE mechanics.physicell_internal_iface pugixml::pugixml VTK::IOXML)
+
+add_subdirectory(kernels/openmp_solver)
 
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
