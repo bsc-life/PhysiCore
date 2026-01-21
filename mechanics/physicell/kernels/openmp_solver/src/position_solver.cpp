@@ -1,7 +1,16 @@
-#include "position_solver.h"
+#include "../include/physicell/openmp_solver/position_solver.h"
 
+#include <algorithm>
+#include <functional>
+#include <random>
+
+#include <common/cartesian_mesh.h>
+#include <common/random.h>
 #include <common/types.h>
 #include <physicell/mechanical_agent_container.h>
+
+#include "common_solver.h"
+#include "solver_helper.h"
 
 // Forward declaration - environment is from biofvm
 namespace physicore::biofvm {
@@ -10,7 +19,9 @@ class environment;
 
 using namespace physicore::mechanics::physicell;
 
-namespace physicore::physicell::kernels::openmp_solver {
+namespace physicore::mechanics::physicell::kernels::openmp_solver {
+constexpr real_t simple_pressure_coefficient = 36.64504274775163; // 1 / (12 * (1 - sqrt(pi/(2*sqrt(3))))^2)
+
 
 void clear_simple_pressure(real_t* __restrict__ simple_pressure, index_t count)
 {
@@ -117,32 +128,38 @@ void update_cell_forces_internal(
 
 void position_solver::update_cell_forces(environment& e)
 {
-	auto& data = e.agents; // mechanical_agent_data
+	auto& data = e.get_agent_data(); // mechanical_agent_data
 	const index_t dims = data.base_data.dims;
 
-	clear_simple_pressure(data.states.simple_pressure.data(), data.agents_count);
+	clear_simple_pressure(data.state_data.simple_pressure.data(), data.agents_count);
 
 	if (dims == 1)
-		update_cell_forces_internal<1>(
-			data.agents_count, data.cell_definitions_count, data.velocities.data(), data.states.simple_pressure.data(),
-			data.agent_data.positions.data(), data.geometries.radius.data(),
-			data.mechanics.cell_cell_repulsion_strength.data(), data.mechanics.cell_cell_adhesion_strength.data(),
-			data.mechanics.relative_maximum_adhesion_distance.data(), data.cell_definition_indices.data(),
-			data.mechanics.cell_adhesion_affinities.data(), data.is_movable.data(), data.states.neighbors.data());
+		update_cell_forces_internal<1>(data.agents_count, data.agent_types_count, data.velocity.data(),
+									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
+									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
+									   data.mechanics_data.cell_cell_adhesion_strength.data(),
+									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
+									   data.state_data.agent_type_index.data(),
+									   data.mechanics_data.cell_adhesion_affinities.data(),
+									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
 	else if (dims == 2)
-		update_cell_forces_internal<2>(
-			data.agents_count, data.cell_definitions_count, data.velocities.data(), data.states.simple_pressure.data(),
-			data.agent_data.positions.data(), data.geometries.radius.data(),
-			data.mechanics.cell_cell_repulsion_strength.data(), data.mechanics.cell_cell_adhesion_strength.data(),
-			data.mechanics.relative_maximum_adhesion_distance.data(), data.cell_definition_indices.data(),
-			data.mechanics.cell_adhesion_affinities.data(), data.is_movable.data(), data.states.neighbors.data());
+		update_cell_forces_internal<2>(data.agents_count, data.agent_types_count, data.velocity.data(),
+									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
+									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
+									   data.mechanics_data.cell_cell_adhesion_strength.data(),
+									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
+									   data.state_data.agent_type_index.data(),
+									   data.mechanics_data.cell_adhesion_affinities.data(),
+									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
 	else if (dims == 3)
-		update_cell_forces_internal<3>(
-			data.agents_count, data.cell_definitions_count, data.velocities.data(), data.states.simple_pressure.data(),
-			data.agent_data.positions.data(), data.geometries.radius.data(),
-			data.mechanics.cell_cell_repulsion_strength.data(), data.mechanics.cell_cell_adhesion_strength.data(),
-			data.mechanics.relative_maximum_adhesion_distance.data(), data.cell_definition_indices.data(),
-			data.mechanics.cell_adhesion_affinities.data(), data.is_movable.data(), data.states.neighbors.data());
+		update_cell_forces_internal<3>(data.agents_count, data.agent_types_count, data.velocity.data(),
+									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
+									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
+									   data.mechanics_data.cell_cell_adhesion_strength.data(),
+									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
+									   data.state_data.agent_type_index.data(),
+									   data.mechanics_data.cell_adhesion_affinities.data(),
+									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
 }
 
 
@@ -151,10 +168,12 @@ template <index_t dims>
 void update_cell_neighbors_single(environment& e, index_t i, const real_t* __restrict__ position,
 								  const real_t* __restrict__ radius,
 								  const real_t* __restrict__ relative_maximum_adhesion_distance,
-								  std::vector<index_t>* __restrict__ neighbors)
+								  std::vector<index_t>* __restrict__ neighbors, const cartesian_mesh& mesh,
+								  const std::vector<std::vector<index_t>>& cells_in_voxels)
 {
+	(void)e;
 	common_solver::for_each_in_mech_neighborhood(
-		e, common_solver::get_mesh_position(position + dims * i, e.mechanics_mesh), i, [=](index_t j) {
+		mesh, cells_in_voxels, common_solver::get_mesh_position(position + dims * i, mesh), i, [=](index_t j) {
 			const real_t adhesion_distance =
 				relative_maximum_adhesion_distance[i] * radius[i] + relative_maximum_adhesion_distance[j] * radius[j];
 
@@ -172,7 +191,8 @@ void update_cell_neighbors_internal(environment& e, index_t agents_count, const 
 									const real_t* __restrict__ radius,
 									const real_t* __restrict__ relative_maximum_adhesion_distance,
 									const std::uint8_t* __restrict__ is_movable,
-									std::vector<index_t>* __restrict__ neighbors)
+									std::vector<index_t>* __restrict__ neighbors, const cartesian_mesh& mesh,
+									const std::vector<std::vector<index_t>>& cells_in_voxels)
 {
 #pragma omp for
 	for (index_t i = 0; i < agents_count; i++)
@@ -180,45 +200,55 @@ void update_cell_neighbors_internal(environment& e, index_t agents_count, const 
 		if (is_movable[i] == 0)
 			continue;
 
-		update_cell_neighbors_single<dims>(e, i, position, radius, relative_maximum_adhesion_distance, neighbors);
+		update_cell_neighbors_single<dims>(e, i, position, radius, relative_maximum_adhesion_distance, neighbors, mesh,
+										   cells_in_voxels);
 	}
 }
 
-void position_solver::update_cell_neighbors(environment& e)
+void position_solver::update_cell_neighbors(environment& e, const cartesian_mesh& mesh)
 {
-	auto& data = e.agents;
+	auto& data = e.get_agent_data();
+	const index_t dims = data.base_data.dims;
+
+	std::vector<std::vector<index_t>> cells_in_voxels(mesh.voxel_count());
+	for (index_t i = 0; i < data.agents_count; i++)
+	{
+		const auto voxel_pos = common_solver::get_mesh_position(data.base_data.positions.data() + dims * i, mesh);
+		const auto voxel_idx = common_solver::get_mesh_index(voxel_pos, mesh);
+		cells_in_voxels[voxel_idx].push_back(i);
+	}
 
 	// clear neighbors
 #pragma omp for
 	for (index_t i = 0; i < data.agents_count; i++)
-		data.states.neighbors[i].clear();
+		data.state_data.neighbors[i].clear();
 
-	if (e.m.mesh.dims == 1)
-		update_cell_neighbors_internal<1>(e, data.agents_count, data.agent_data.positions.data(),
-										  data.geometries.radius.data(),
-										  data.mechanics.relative_maximum_adhesion_distance.data(),
-										  data.is_movable.data(), data.states.neighbors.data());
-	else if (e.m.mesh.dims == 2)
-		update_cell_neighbors_internal<2>(e, data.agents_count, data.agent_data.positions.data(),
-										  data.geometries.radius.data(),
-										  data.mechanics.relative_maximum_adhesion_distance.data(),
-										  data.is_movable.data(), data.states.neighbors.data());
-	else if (e.m.mesh.dims == 3)
-		update_cell_neighbors_internal<3>(e, data.agents_count, data.agent_data.positions.data(),
-										  data.geometries.radius.data(),
-										  data.mechanics.relative_maximum_adhesion_distance.data(),
-										  data.is_movable.data(), data.states.neighbors.data());
+	if (dims == 1)
+		update_cell_neighbors_internal<1>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
+										  cells_in_voxels);
+	else if (dims == 2)
+		update_cell_neighbors_internal<2>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
+										  cells_in_voxels);
+	else if (dims == 3)
+		update_cell_neighbors_internal<3>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
+										  cells_in_voxels);
 }
 
 // Motility update code
 template <index_t dims>
-void update_motility_single(index_t i, real_t time_step, real_t* __restrict__ motility_vector,
-							real_t* __restrict__ velocity, const real_t* __restrict__ persistence_time,
-							const real_t* __restrict__ migration_bias, real_t* __restrict__ migration_bias_direction,
-							const std::uint8_t* __restrict__ restrict_to_2d, const std::uint8_t* __restrict__ is_motile,
-							const real_t* __restrict__ migration_speed,
-							const motility_data::direction_update_func* __restrict__ update_migration_bias_direction_f,
-							cell_container& cells)
+void update_motility_single(
+	index_t i, real_t time_step, real_t* __restrict__ motility_vector, real_t* __restrict__ velocity,
+	const real_t* __restrict__ persistence_time, const real_t* __restrict__ migration_bias,
+	real_t* __restrict__ migration_bias_direction, const std::uint8_t* __restrict__ restrict_to_2d,
+	const std::uint8_t* __restrict__ is_motile, const real_t* __restrict__ migration_speed,
+	const motility_properties::direction_update_func* __restrict__ update_migration_bias_direction_f,
+	const index_t* __restrict__ cell_definition_index)
 {
 	if (is_motile[i] == 0)
 		return;
@@ -229,9 +259,9 @@ void update_motility_single(index_t i, real_t time_step, real_t* __restrict__ mo
 
 		position_helper<dims>::random_walk(restrict_to_2d, random_walk);
 
-		if (update_migration_bias_direction_f[i] != nullptr)
+		if (update_migration_bias_direction_f != nullptr && update_migration_bias_direction_f[i])
 		{
-			update_migration_bias_direction_f[i](*cells.agents()[i]);
+			update_migration_bias_direction_f[i](cell_definition_index[i]);
 		}
 
 		position_helper<dims>::update_motility_vector(motility_vector + i * dims, random_walk,
@@ -249,44 +279,44 @@ void update_motility_internal(
 	const real_t* __restrict__ persistence_time, const real_t* __restrict__ migration_bias,
 	real_t* __restrict__ migration_bias_direction, const std::uint8_t* __restrict__ restrict_to_2d,
 	const std::uint8_t* __restrict__ is_motile, const real_t* __restrict__ migration_speed,
-	const motility_data::direction_update_func* __restrict__ update_migration_bias_direction_f, cell_container& cells)
+	const motility_properties::direction_update_func* __restrict__ update_migration_bias_direction_f,
+	const index_t* __restrict__ cell_definition_index)
 {
 #pragma omp for
 	for (index_t i = 0; i < agents_count; i++)
 	{
 		update_motility_single<dims>(i, time_step, motility_vector, velocity, persistence_time, migration_bias,
 									 migration_bias_direction, restrict_to_2d, is_motile, migration_speed,
-									 update_migration_bias_direction_f, cells);
+									 update_migration_bias_direction_f, cell_definition_index);
 	}
 }
 
 
 void position_solver::update_motility(environment& e)
 {
-	auto& data = e.agents;	// get
-	auto& u_environment = ; // how to get biofvm info?
+	auto& data = e.get_agent_data(); // get
 
-	if (data.base_agent_data.dims == 1)
+	if (data.base_data.dims == 1)
 		update_motility_internal<1>(
-			data.agents_count, e.mechanics_time_step, data.motilities.motility_vector.data(), data.velocities.data(),
-			data.motilities.persistence_time.data(), data.motilities.migration_bias.data(),
-			data.motilities.migration_bias_direction.data(), data.motilities.restrict_to_2d.data(),
-			data.motilities.is_motile.data(), data.motilities.migration_speed.data(),
-			data.motilities.update_migration_bias_direction.data(), cells);
-	else if (data.base_agent_data.dims == 2)
+			data.agents_count, e.timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
+			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
+			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
+			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
+	else if (data.base_data.dims == 2)
 		update_motility_internal<2>(
-			data.agents_count, e.mechanics_time_step, data.motilities.motility_vector.data(), data.velocities.data(),
-			data.motilities.persistence_time.data(), data.motilities.migration_bias.data(),
-			data.motilities.migration_bias_direction.data(), data.motilities.restrict_to_2d.data(),
-			data.motilities.is_motile.data(), data.motilities.migration_speed.data(),
-			data.motilities.update_migration_bias_direction.data(), cells);
-	else if (data.base_agent_data.dims == 3)
+			data.agents_count, e.timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
+			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
+			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
+			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
+	else if (data.base_data.dims == 3)
 		update_motility_internal<3>(
-			data.agents_count, e.mechanics_time_step, data.motilities.motility_vector.data(), data.velocities.data(),
-			data.motilities.persistence_time.data(), data.motilities.migration_bias.data(),
-			data.motilities.migration_bias_direction.data(), data.motilities.restrict_to_2d.data(),
-			data.motilities.is_motile.data(), data.motilities.migration_speed.data(),
-			data.motilities.update_migration_bias_direction.data(), cells);
+			data.agents_count, e.timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
+			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
+			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
+			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
 }
 
 // Update basement membrane forces
@@ -320,25 +350,25 @@ void update_basement_membrane_interactions_internal(index_t agents_count, real_t
 	}
 }
 
-void position_solver::update_basement_membrane_interactions(environment& e)
+void position_solver::update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh)
 {
 	if (!e.virtual_wall_at_domain_edges) // note: where do we include this
 		return;
 
-	auto& data = e.agents;
+	auto& data = e.get_agent_data();
 
-	if (data.base_agent_data.dims == 1)
+	if (data.base_data.dims == 1)
 		update_basement_membrane_interactions_internal<1>(
-			data.agents_count, data.velocities.data(), data.agent_data.positions.data(), data.geometries.radius.data(),
-			data.mechanics.cell_BM_repulsion_strength.data(), data.is_movable.data(), e.m.mesh);
-	else if (data.base_agent_data.dims == 2)
+			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
+	else if (data.base_data.dims == 2)
 		update_basement_membrane_interactions_internal<2>(
-			data.agents_count, data.velocities.data(), data.agent_data.positions.data(), data.geometries.radius.data(),
-			data.mechanics.cell_BM_repulsion_strength.data(), data.is_movable.data(), e.m.mesh);
-	else if (data.base_agent_data.dims == 3)
+			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
+	else if (data.base_data.dims == 3)
 		update_basement_membrane_interactions_internal<3>(
-			data.agents_count, data.velocities.data(), data.agent_data.positions.data(), data.geometries.radius.data(),
-			data.mechanics.cell_BM_repulsion_strength.data(), data.is_movable.data(), e.m.mesh);
+			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
 }
 
 
@@ -462,29 +492,30 @@ void position_solver::update_spring_attachments(environment& e)
 	if (!e.automated_spring_adhesion)
 		return;
 
-	auto& data = e.agents;
+	auto& data = e.get_agent_data();
+	const index_t dims = data.base_data.dims;
 
 	update_spring_attachments_internal(
-		data.agents_count, e.mechanics_time_step, e.cell_definitions_count, data.mechanics.detachment_rate.data(),
-		data.mechanics.attachment_rate.data(), data.mechanics.cell_adhesion_affinities.data(),
-		data.mechanics.maximum_number_of_attachments.data(), data.cell_definition_indices.data(),
-		data.states.neighbors.data(), data.states.springs.data());
+		data.agents_count, e.timestep, data.agent_types_count, data.mechanics_data.detachment_rate.data(),
+		data.mechanics_data.attachment_rate.data(), data.mechanics_data.cell_adhesion_affinities.data(),
+		data.mechanics_data.maximum_number_of_attachments.data(), data.state_data.agent_type_index.data(),
+		data.state_data.neighbors.data(), data.state_data.springs.data());
 
-	if (e.mechanics_mesh.dims == 1)
+	if (dims == 1)
 		spring_contract_function<1>(
-			data.agents_count, e.cell_definitions_count, data.velocities.data(), data.cell_definition_indices.data(),
-			data.mechanics.attachment_elastic_constant.data(), data.mechanics.cell_adhesion_affinities.data(),
-			data.agent_data.positions.data(), data.is_movable.data(), data.states.springs.data());
-	else if (e.mechanics_mesh.dims == 2)
+			data.agents_count, data.agent_types_count, data.velocity.data(), data.state_data.agent_type_index.data(),
+			data.mechanics_data.attachment_elastic_constant.data(), data.mechanics_data.cell_adhesion_affinities.data(),
+			data.base_data.positions.data(), data.state_data.is_movable.data(), data.state_data.springs.data());
+	else if (dims == 2)
 		spring_contract_function<2>(
-			data.agents_count, e.cell_definitions_count, data.velocities.data(), data.cell_definition_indices.data(),
-			data.mechanics.attachment_elastic_constant.data(), data.mechanics.cell_adhesion_affinities.data(),
-			data.agent_data.positions.data(), data.is_movable.data(), data.states.springs.data());
-	else if (e.mechanics_mesh.dims == 3)
+			data.agents_count, data.agent_types_count, data.velocity.data(), data.state_data.agent_type_index.data(),
+			data.mechanics_data.attachment_elastic_constant.data(), data.mechanics_data.cell_adhesion_affinities.data(),
+			data.base_data.positions.data(), data.state_data.is_movable.data(), data.state_data.springs.data());
+	else if (dims == 3)
 		spring_contract_function<3>(
-			data.agents_count, e.cell_definitions_count, data.velocities.data(), data.cell_definition_indices.data(),
-			data.mechanics.attachment_elastic_constant.data(), data.mechanics.cell_adhesion_affinities.data(),
-			data.agent_data.positions.data(), data.is_movable.data(), data.states.springs.data());
+			data.agents_count, data.agent_types_count, data.velocity.data(), data.state_data.agent_type_index.data(),
+			data.mechanics_data.attachment_elastic_constant.data(), data.mechanics_data.cell_adhesion_affinities.data(),
+			data.base_data.positions.data(), data.state_data.is_movable.data(), data.state_data.springs.data());
 }
 
 
@@ -516,18 +547,21 @@ void update_positions_internal(index_t agents_count, real_t time_step, real_t* _
 
 void position_solver::update_positions(environment& e)
 {
-	if (e.mechanics_mesh.dims == 1)
-		update_positions_internal<1>(e.agents.agents_count, e.mechanics_time_step, e.agents.agent_data.positions.data(),
-									 e.agents.velocities.data(), e.agents.previous_velocities.data(),
-									 e.agents.is_movable.data());
-	else if (e.mechanics_mesh.dims == 2)
-		update_positions_internal<2>(e.agents.agents_count, e.mechanics_time_step, e.agents.agent_data.positions.data(),
-									 e.agents.velocities.data(), e.agents.previous_velocities.data(),
-									 e.agents.is_movable.data());
-	else if (e.mechanics_mesh.dims == 3)
-		update_positions_internal<3>(e.agents.agents_count, e.mechanics_time_step, e.agents.agent_data.positions.data(),
-									 e.agents.velocities.data(), e.agents.previous_velocities.data(),
-									 e.agents.is_movable.data());
+	auto& data = e.get_agent_data();
+	const index_t dims = data.base_data.dims;
+
+	if (dims == 1)
+		update_positions_internal<1>(data.agents_count, e.timestep, data.base_data.positions.data(),
+									 data.velocity.data(), data.previous_velocity.data(),
+									 data.state_data.is_movable.data());
+	else if (dims == 2)
+		update_positions_internal<2>(data.agents_count, e.timestep, data.base_data.positions.data(),
+									 data.velocity.data(), data.previous_velocity.data(),
+									 data.state_data.is_movable.data());
+	else if (dims == 3)
+		update_positions_internal<3>(data.agents_count, e.timestep, data.base_data.positions.data(),
+									 data.velocity.data(), data.previous_velocity.data(),
+									 data.state_data.is_movable.data());
 }
 
-} // namespace physicore::physicell::kernels::openmp_solver
+} // namespace physicore::mechanics::physicell::kernels::openmp_solver
