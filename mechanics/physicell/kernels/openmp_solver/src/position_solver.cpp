@@ -72,6 +72,8 @@ void solve_pair(index_t lhs, index_t rhs, index_t cell_defs_count, real_t* __res
 
 		adhesion = 1 - distance / adhesion_distance;
 
+		adhesion = adhesion < 0 ? 0 : adhesion;
+
 		adhesion *= adhesion;
 
 		const index_t lhs_cell_def_index = cell_definition_index[lhs];
@@ -563,5 +565,13 @@ void position_solver::update_positions(environment& e)
 									 data.velocity.data(), data.previous_velocity.data(),
 									 data.state_data.is_movable.data());
 }
+
+// Explicit template instantiations for testing
+template void solve_pair<1>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*,
+                            const real_t*, const real_t*, const real_t*, const real_t*, const index_t*);
+template void solve_pair<2>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*,
+                            const real_t*, const real_t*, const real_t*, const real_t*, const index_t*);
+template void solve_pair<3>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*,
+                            const real_t*, const real_t*, const real_t*, const real_t*, const index_t*);
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver
