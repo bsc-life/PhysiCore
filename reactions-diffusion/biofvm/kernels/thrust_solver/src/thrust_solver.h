@@ -14,6 +14,7 @@ namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 class thrust_solver : public solver
 {
 	bool initialized = false;
+	bool recompute_cells = true;
 
 	bulk_solver b_solver;
 	cell_solver c_solver;
@@ -30,6 +31,7 @@ public:
 	void transfer_to_device(microenvironment& m) override;
 	void transfer_to_host(microenvironment& m) override;
 	void reinitialize_dirichlet(microenvironment& m) override;
+	void recompute_positional_data(microenvironment& m) override;
 };
 
 } // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

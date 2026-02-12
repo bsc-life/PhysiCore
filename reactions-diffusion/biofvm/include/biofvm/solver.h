@@ -29,6 +29,10 @@ public:
 	// Reinitialize Dirichlet conditions (e.g., after modifying boundary or interior conditions)
 	virtual void reinitialize_dirichlet(microenvironment& m) = 0;
 
+	// Recompute any agent-specific positional data
+	// (should be called after agent movement was triggered by another module)
+	virtual void recompute_positional_data(microenvironment& m) = 0;
+
 	virtual ~solver() = default;
 };
 

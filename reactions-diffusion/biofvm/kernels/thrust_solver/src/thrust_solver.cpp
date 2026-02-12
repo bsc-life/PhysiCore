@@ -32,8 +32,10 @@ void thrust_solver::solve(biofvm::microenvironment& m, index_t iterations)
 
 		b_solver.solve(m, d_solver);
 
-		c_solver.simulate_secretion_and_uptake(m, d_solver, mgr, it == 0);
+		c_solver.simulate_secretion_and_uptake(m, d_solver, mgr, recompute_cells);
 	}
+
+	recompute_cells = false;
 }
 
 real_t thrust_solver::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
@@ -57,3 +59,5 @@ void thrust_solver::transfer_to_device(microenvironment& /*m*/) { mgr.transfer_t
 void thrust_solver::transfer_to_host(microenvironment& /*m*/) { mgr.transfer_to_host(); }
 
 void thrust_solver::reinitialize_dirichlet(microenvironment& m) { dir_solver.initialize(m); }
+
+void thrust_solver::recompute_positional_data([[maybe_unused]] microenvironment& m) { recompute_cells = true; }
