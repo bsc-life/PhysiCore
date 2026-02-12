@@ -21,6 +21,7 @@ public:
 		return dummy;
 	}
 	void reinitialize_dirichlet(microenvironment& /*m*/) override {}
+	void recompute_positional_data(microenvironment& /*m*/) override {}
 };
 
 TEST(SolverRegistryTest, CheckPresentSolvers)

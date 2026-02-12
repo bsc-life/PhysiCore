@@ -33,8 +33,10 @@ void openmp_solver::solve(biofvm::microenvironment& m, index_t iterations)
 
 		b_solver.solve(m, d_solver);
 
-		c_solver.simulate_secretion_and_uptake(m, d_solver, it == 0);
+		c_solver.simulate_secretion_and_uptake(m, d_solver, recompute_cells);
 	}
+
+	recompute_cells = false;
 }
 
 real_t openmp_solver::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
@@ -58,3 +60,5 @@ void openmp_solver::reinitialize_dirichlet([[maybe_unused]] microenvironment& m)
 	// OpenMP solver doesn't need to reinitialize Dirichlet conditions
 	// since it accesses the microenvironment data directly
 }
+
+void openmp_solver::recompute_positional_data([[maybe_unused]] microenvironment& m) { recompute_cells = true; }
