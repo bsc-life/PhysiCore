@@ -30,7 +30,7 @@ d_n'' == d_n'/b_n'
 d_i'' == (d_i' - c_i*d_(i+1)'')*b_i'                          n >  i >= 1
 */
 
-namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
+namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE {
 
 class diffusion_solver
 {
@@ -81,4 +81,4 @@ public:
 	~diffusion_solver();
 };
 
-} // namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE
+} // namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE

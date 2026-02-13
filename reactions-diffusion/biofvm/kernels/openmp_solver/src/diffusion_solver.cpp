@@ -8,7 +8,7 @@
 #include "solver_utils.h"
 
 using namespace physicore;
-using namespace physicore::biofvm::kernels::openmp_solver;
+using namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver;
 
 namespace {
 auto get_diagonal_layout(const problem_t& problem, index_t n)

@@ -9,7 +9,7 @@
 
 #include "microenvironment.h"
 
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 vtk_serializer::vtk_serializer(std::string_view output_dir, microenvironment& m)
 	: vtk_serializer_base(output_dir, "vtk_microenvironment", "microenvironment.pvd")

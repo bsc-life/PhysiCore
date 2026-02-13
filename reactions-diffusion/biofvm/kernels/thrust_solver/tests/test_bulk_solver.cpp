@@ -15,9 +15,9 @@
 #endif
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
-using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
+using namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 namespace {
 std::unique_ptr<microenvironment> default_microenv(cartesian_mesh mesh)

@@ -19,8 +19,8 @@
 #endif
 
 using namespace physicore;
-using namespace physicore::biofvm;
-using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
+using namespace physicore::reactions_diffusion::biofvm;
+using namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 namespace {
 constexpr index_t no_ballot = std::numeric_limits<index_t>::max();

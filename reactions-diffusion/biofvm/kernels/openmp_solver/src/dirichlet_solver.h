@@ -12,7 +12,7 @@ m.dirichlet_conditions - array of bools specifying if a substrate of a dirichlet
 m.dirichlet_values - array of dirichlet values for each substrate with a dirichlet condition
 */
 
-namespace physicore::biofvm::kernels::openmp_solver {
+namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver {
 
 class dirichlet_solver
 {
@@ -20,4 +20,4 @@ public:
 	static void solve(microenvironment& m, diffusion_solver& d_solver);
 };
 
-} // namespace physicore::biofvm::kernels::openmp_solver
+} // namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver

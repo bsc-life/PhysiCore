@@ -8,7 +8,7 @@
 	#include "thrust_solver/register_solver.h"
 #endif
 
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 bool solver_registry::register_factory(std::string solver_name, solver_factory_func_t&& f)
 {

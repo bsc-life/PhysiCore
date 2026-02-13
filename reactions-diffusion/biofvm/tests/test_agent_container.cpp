@@ -4,7 +4,7 @@
 #include "agent_container.h"
 
 using namespace physicore;
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 
 namespace {
 agent_container make_agent_container()

@@ -11,7 +11,7 @@
 #include "namespace_config.h"
 
 using namespace physicore;
-using namespace physicore::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
+using namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLVER_NAMESPACE;
 
 namespace {
 

@@ -3,7 +3,7 @@
 
 #include "agent_data.h"
 
-using namespace physicore::biofvm;
+using namespace physicore::reactions_diffusion::biofvm;
 using namespace physicore;
 
 namespace {

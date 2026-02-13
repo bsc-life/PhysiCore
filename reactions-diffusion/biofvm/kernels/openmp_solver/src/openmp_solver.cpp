@@ -3,7 +3,7 @@
 #include "dirichlet_solver.h"
 
 using namespace physicore;
-using namespace physicore::biofvm::kernels::openmp_solver;
+using namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver;
 
 void openmp_solver::initialize(biofvm::microenvironment& m)
 {

@@ -4,7 +4,8 @@
 
 #include "openmp_solver.h"
 
-void physicore::biofvm::kernels::openmp_solver::attach_to_registry()
+void physicore::reactions_diffusion::biofvm::kernels::openmp_solver::attach_to_registry()
 {
-	static const physicore::biofvm::registry_adder<openmp_solver> openmp_solver_adder("openmp_solver");
+	static const physicore::reactions_diffusion::biofvm::registry_adder<openmp_solver> openmp_solver_adder(
+		"openmp_solver");
 }

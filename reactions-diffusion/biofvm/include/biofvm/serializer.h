@@ -4,7 +4,7 @@
 #include <biofvm/biofvm_export.h>
 #include <common/types.h>
 
-namespace physicore::biofvm {
+namespace physicore::reactions_diffusion::biofvm {
 
 class microenvironment;
 
@@ -18,4 +18,4 @@ public:
 
 using serializer_ptr = std::unique_ptr<serializer>;
 
-} // namespace physicore::biofvm
+} // namespace physicore::reactions_diffusion::biofvm
