@@ -1,6 +1,7 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <memory>
 #include <vector>
@@ -324,6 +325,8 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleTimesAppendsPvd)
 	serializer.serialize(0.0);
 	serializer.serialize(0.1);
 
+	//test_output_dir = std::filesystem::path("/workspaces/PhysiCore/tmp_vtk_test");
+
 	auto vtk_dir = test_output_dir / "vtk_mechanics_agents";
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_agents_000000.vtu"));
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_agents_000001.vtu"));
@@ -338,4 +341,64 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleTimesAppendsPvd)
 	EXPECT_NE(content.find("mechanics_agents_000001.vtu"), std::string::npos);
 	EXPECT_NE(content.find("timestep=\"0.0"), std::string::npos);
 	EXPECT_NE(content.find("timestep=\"0.1"), std::string::npos);
+}
+
+TEST_F(VtkMechanicsAgentsSerializerTest, SerializeToySimulationPrintsVtk)
+{
+	auto container = make_container(3, 1, 1);
+	for (int i = 0; i < 2; ++i)
+	{
+		container.create();
+	}
+
+	auto& base_data = *std::get<0>(container.agent_datas);
+	auto& mech_data = *std::get<1>(container.agent_datas);
+
+	base_data.positions = { 0.0, 0.0, 0.0, 2.0, 0.0, 0.0 };
+
+	mech_data.radius[0] = 4.0;
+	mech_data.radius[1] = 5.0;
+
+	mech_data.velocity = { 0.5, 0.0, 0.0, -0.25, 0.0, 0.0 };
+
+	mech_data.state_data.agent_type_index[0] = 0;
+	mech_data.state_data.agent_type_index[1] = 0;
+
+	vtk_agents_serializer serializer(test_output_dir.string(), container, { "S1" }, { "typeA" });
+	serializer.serialize(0.0);
+
+	auto vtu_file = test_output_dir / "vtk_mechanics_agents" / "mechanics_agents_000000.vtu";
+
+	auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+	reader->SetFileName(vtu_file.string().c_str());
+	reader->Update();
+
+	auto* grid = reader->GetOutput();
+	ASSERT_NE(grid, nullptr);
+
+	auto* point_data = grid->GetPointData();
+	ASSERT_NE(point_data, nullptr);
+
+	auto* radius = vtkRealArray::SafeDownCast(point_data->GetArray("radius"));
+	auto* velocity = vtkRealArray::SafeDownCast(point_data->GetArray("velocity"));
+	auto* cell_type = vtkRealArray::SafeDownCast(point_data->GetArray("cell_definition_index"));
+
+	ASSERT_NE(radius, nullptr);
+	ASSERT_NE(velocity, nullptr);
+	ASSERT_NE(cell_type, nullptr);
+
+	std::cout << "VTK toy simulation output: " << vtu_file.string() << "\n";
+	std::cout << "points=" << grid->GetNumberOfPoints() << "\n";
+
+	for (vtkIdType i = 0; i < grid->GetNumberOfPoints(); ++i)
+	{
+		std::array<double, 3> pos {};
+		std::array<double, 3> vel {};
+		grid->GetPoint(i, pos.data());
+		velocity->GetTuple(i, vel.data());
+
+		std::cout << "agent " << i << " pos=(" << pos[0] << ", " << pos[1] << ", " << pos[2]
+				  << ") radius=" << radius->GetTuple1(i) << " cell_type=" << cell_type->GetTuple1(i)
+				  << " vel=(" << vel[0] << ", " << vel[1] << ", " << vel[2] << ")\n";
+	}
 }
