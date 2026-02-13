@@ -25,7 +25,6 @@ jobs:
   build-artifacts:
     name: Build Release Artifacts
     runs-on: ${{ matrix.os }}
-    needs: formal-checks
 
     strategy:
       fail-fast: false
@@ -98,7 +97,7 @@ jobs:
 
   release:
     name: Semantic Release
-    needs: build-artifacts
+    needs: [build-artifacts, formal-checks]
     runs-on: ubuntu-slim
 
     steps:
