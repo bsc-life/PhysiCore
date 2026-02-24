@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <vector>
 
+#include <gtest/gtest.h>
 #include <physicell/openmp_solver/position_solver.h>
 #include <physicell/openmp_solver/register_solver.h>
-#include <gtest/gtest.h>
 
 #include "physicell/environment.h"
 

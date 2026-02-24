@@ -325,7 +325,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleTimesAppendsPvd)
 	serializer.serialize(0.0);
 	serializer.serialize(0.1);
 
-	//test_output_dir = std::filesystem::path("/workspaces/PhysiCore/tmp_vtk_test");
+	// test_output_dir = std::filesystem::path("/workspaces/PhysiCore/tmp_vtk_test");
 
 	auto vtk_dir = test_output_dir / "vtk_mechanics_agents";
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_agents_000000.vtu"));
@@ -398,7 +398,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeToySimulationPrintsVtk)
 		velocity->GetTuple(i, vel.data());
 
 		std::cout << "agent " << i << " pos=(" << pos[0] << ", " << pos[1] << ", " << pos[2]
-				  << ") radius=" << radius->GetTuple1(i) << " cell_type=" << cell_type->GetTuple1(i)
-				  << " vel=(" << vel[0] << ", " << vel[1] << ", " << vel[2] << ")\n";
+				  << ") radius=" << radius->GetTuple1(i) << " cell_type=" << cell_type->GetTuple1(i) << " vel=("
+				  << vel[0] << ", " << vel[1] << ", " << vel[2] << ")\n";
 	}
 }

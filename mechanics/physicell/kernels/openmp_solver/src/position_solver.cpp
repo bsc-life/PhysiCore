@@ -567,11 +567,11 @@ void position_solver::update_positions(environment& e)
 }
 
 // Explicit template instantiations for testing
-template void solve_pair<1>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*,
-                            const real_t*, const real_t*, const real_t*, const real_t*, const index_t*);
-template void solve_pair<2>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*,
-                            const real_t*, const real_t*, const real_t*, const real_t*, const index_t*);
-template void solve_pair<3>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*,
-                            const real_t*, const real_t*, const real_t*, const real_t*, const index_t*);
+template void solve_pair<1>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*, const real_t*,
+							const real_t*, const real_t*, const real_t*, const index_t*);
+template void solve_pair<2>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*, const real_t*,
+							const real_t*, const real_t*, const real_t*, const index_t*);
+template void solve_pair<3>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*, const real_t*,
+							const real_t*, const real_t*, const real_t*, const index_t*);
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver

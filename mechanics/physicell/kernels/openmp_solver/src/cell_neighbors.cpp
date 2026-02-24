@@ -50,4 +50,3 @@ void update_cell_neighbors(environment& e)
 }
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver
-

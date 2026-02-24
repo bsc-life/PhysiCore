@@ -24,4 +24,3 @@ TEST(OpenMPSolverTest, CanRunViaEnvironment)
 	ASSERT_NE(env.solver, nullptr);
 	env.run_single_timestep();
 }
-
