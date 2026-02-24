@@ -8,10 +8,11 @@
 	],
 	"remoteEnv": {
 		"VCPKG_ROOT": "${containerWorkspaceFolder}/vcpkg",
-		"PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/vcpkg:/usr/lib/llvm-20/bin"
+		"PATH": "${containerEnv:PATH}:${containerWorkspaceFolder}/vcpkg:/usr/lib/llvm-20/bin",
+		"APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE": "1"
 	},
 	"initializeCommand": "mkdir -p ${localEnv:HOME}/.cache/vcpkg",
-	"onCreateCommand": ".devcontainer/configure.sh",
+	"postCreateCommand": ".devcontainer/configure.sh",
 	"features": {
 		"ghcr.io/devcontainers/features/python:1": {
 			"toolsToInstall": "cmakelang"
