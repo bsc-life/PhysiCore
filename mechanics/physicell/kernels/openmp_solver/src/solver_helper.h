@@ -10,7 +10,7 @@ constexpr physicore::real_t zero_threshold = 1e-16;
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
 
-constexpr void update_membrane_velocity(real_t position, real_t bounding_box, real_t sign, real_t radius,
+void update_membrane_velocity(real_t position, real_t bounding_box, real_t sign, real_t radius,
 										real_t repulsion_strength, real_t& velocity)
 {
 	real_t distance = std::abs(bounding_box - position);
