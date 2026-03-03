@@ -91,6 +91,7 @@
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "cc",
                 "CMAKE_CXX_COMPILER": "c++",
+                "OpenMP_ROOT": "$env{OpenMP_ROOT}",
                 "CMAKE_C_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined",
                 "CMAKE_CXX_FLAGS_DEBUG_INIT": "-Wall -Wextra -Wpedantic -fsanitize=address -fsanitize=leak -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=undefined",
                 "CMAKE_C_FLAGS_RELWITHDEBINFO_INIT": "-Wall -Wextra -Wpedantic -fsanitize=thread",
