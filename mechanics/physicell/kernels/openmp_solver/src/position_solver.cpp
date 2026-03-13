@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <functional>
 #include <random>
+#include <vector>
 
 #include <common/cartesian_mesh.h>
 #include <common/random.h>
@@ -23,7 +24,7 @@ namespace physicore::mechanics::physicell::kernels::openmp_solver {
 constexpr real_t simple_pressure_coefficient = 36.64504274775163; // 1 / (12 * (1 - sqrt(pi/(2*sqrt(3))))^2)
 
 
-void clear_simple_pressure(real_t* __restrict__ simple_pressure, index_t count)
+void clear_simple_pressure(real_t* PHYSICORE_RESTRICT simple_pressure, index_t count)
 {
 #pragma omp for
 	for (index_t i = 0; i < count; i++)
@@ -33,12 +34,13 @@ void clear_simple_pressure(real_t* __restrict__ simple_pressure, index_t count)
 }
 
 template <index_t dims>
-void solve_pair(index_t lhs, index_t rhs, index_t cell_defs_count, real_t* __restrict__ velocity,
-				real_t* __restrict__ simple_pressure, const real_t* __restrict__ position,
-				const real_t* __restrict__ radius, const real_t* __restrict__ cell_cell_repulsion_strength,
-				const real_t* __restrict__ cell_cell_adhesion_strength,
-				const real_t* __restrict__ relative_maximum_adhesion_distance,
-				const real_t* __restrict__ cell_adhesion_affinity, const index_t* __restrict__ cell_definition_index)
+void solve_pair(index_t lhs, index_t rhs, index_t cell_defs_count, real_t* PHYSICORE_RESTRICT velocity,
+				real_t* PHYSICORE_RESTRICT simple_pressure, const real_t* PHYSICORE_RESTRICT position,
+				const real_t* PHYSICORE_RESTRICT radius, const real_t* PHYSICORE_RESTRICT cell_cell_repulsion_strength,
+				const real_t* PHYSICORE_RESTRICT cell_cell_adhesion_strength,
+				const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
+				const real_t* PHYSICORE_RESTRICT cell_adhesion_affinity,
+				const index_t* PHYSICORE_RESTRICT cell_definition_index)
 {
 	real_t position_difference[dims];
 
@@ -91,12 +93,15 @@ void solve_pair(index_t lhs, index_t rhs, index_t cell_defs_count, real_t* __res
 
 
 template <index_t dims>
-void update_cell_forces_single(
-	index_t i, index_t cell_def_count, real_t* __restrict__ velocity, real_t* __restrict__ simple_pressure,
-	const real_t* __restrict__ position, const real_t* __restrict__ radius,
-	const real_t* __restrict__ cell_cell_repulsion_strength, const real_t* __restrict__ cell_cell_adhesion_strength,
-	const real_t* __restrict__ relative_maximum_adhesion_distance, const index_t* __restrict__ cell_definition_index,
-	const real_t* __restrict__ cell_adhesion_affinities, std::vector<index_t>* __restrict__ neighbors)
+void update_cell_forces_single(index_t i, index_t cell_def_count, real_t* PHYSICORE_RESTRICT velocity,
+							   real_t* PHYSICORE_RESTRICT simple_pressure, const real_t* PHYSICORE_RESTRICT position,
+							   const real_t* PHYSICORE_RESTRICT radius,
+							   const real_t* PHYSICORE_RESTRICT cell_cell_repulsion_strength,
+							   const real_t* PHYSICORE_RESTRICT cell_cell_adhesion_strength,
+							   const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
+							   const index_t* PHYSICORE_RESTRICT cell_definition_index,
+							   const real_t* PHYSICORE_RESTRICT cell_adhesion_affinities,
+							   std::vector<index_t>* PHYSICORE_RESTRICT neighbors)
 {
 	for (const index_t j : neighbors[i])
 	{
@@ -107,13 +112,16 @@ void update_cell_forces_single(
 }
 
 template <index_t dims>
-void update_cell_forces_internal(
-	index_t agents_count, index_t cell_def_count, real_t* __restrict__ velocity, real_t* __restrict__ simple_pressure,
-	const real_t* __restrict__ position, const real_t* __restrict__ radius,
-	const real_t* __restrict__ cell_cell_repulsion_strength, const real_t* __restrict__ cell_cell_adhesion_strength,
-	const real_t* __restrict__ relative_maximum_adhesion_distance, const index_t* __restrict__ cell_definition_index,
-	const real_t* __restrict__ cell_adhesion_affinities, const std::uint8_t* __restrict__ is_movable,
-	std::vector<index_t>* __restrict__ neighbors)
+void update_cell_forces_internal(index_t agents_count, index_t cell_def_count, real_t* PHYSICORE_RESTRICT velocity,
+								 real_t* PHYSICORE_RESTRICT simple_pressure, const real_t* PHYSICORE_RESTRICT position,
+								 const real_t* PHYSICORE_RESTRICT radius,
+								 const real_t* PHYSICORE_RESTRICT cell_cell_repulsion_strength,
+								 const real_t* PHYSICORE_RESTRICT cell_cell_adhesion_strength,
+								 const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
+								 const index_t* PHYSICORE_RESTRICT cell_definition_index,
+								 const real_t* PHYSICORE_RESTRICT cell_adhesion_affinities,
+								 const std::uint8_t* PHYSICORE_RESTRICT is_movable,
+								 std::vector<index_t>* PHYSICORE_RESTRICT neighbors)
 {
 #pragma omp for
 	for (index_t i = 0; i < agents_count; i++)
@@ -167,10 +175,10 @@ void position_solver::update_cell_forces(environment& e)
 
 // Code to mantain neighbor lists consistency
 template <index_t dims>
-void update_cell_neighbors_single(environment& e, index_t i, const real_t* __restrict__ position,
-								  const real_t* __restrict__ radius,
-								  const real_t* __restrict__ relative_maximum_adhesion_distance,
-								  std::vector<index_t>* __restrict__ neighbors, const cartesian_mesh& mesh,
+void update_cell_neighbors_single(environment& e, index_t i, const real_t* PHYSICORE_RESTRICT position,
+								  const real_t* PHYSICORE_RESTRICT radius,
+								  const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
+								  std::vector<index_t>* PHYSICORE_RESTRICT neighbors, const cartesian_mesh& mesh,
 								  const std::vector<std::vector<index_t>>& cells_in_voxels)
 {
 	(void)e;
@@ -189,11 +197,11 @@ void update_cell_neighbors_single(environment& e, index_t i, const real_t* __res
 }
 
 template <index_t dims>
-void update_cell_neighbors_internal(environment& e, index_t agents_count, const real_t* __restrict__ position,
-									const real_t* __restrict__ radius,
-									const real_t* __restrict__ relative_maximum_adhesion_distance,
-									const std::uint8_t* __restrict__ is_movable,
-									std::vector<index_t>* __restrict__ neighbors, const cartesian_mesh& mesh,
+void update_cell_neighbors_internal(environment& e, index_t agents_count, const real_t* PHYSICORE_RESTRICT position,
+									const real_t* PHYSICORE_RESTRICT radius,
+									const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
+									const std::uint8_t* PHYSICORE_RESTRICT is_movable,
+									std::vector<index_t>* PHYSICORE_RESTRICT neighbors, const cartesian_mesh& mesh,
 									const std::vector<std::vector<index_t>>& cells_in_voxels)
 {
 #pragma omp for
@@ -245,12 +253,12 @@ void position_solver::update_cell_neighbors(environment& e, const cartesian_mesh
 // Motility update code
 template <index_t dims>
 void update_motility_single(
-	index_t i, real_t time_step, real_t* __restrict__ motility_vector, real_t* __restrict__ velocity,
-	const real_t* __restrict__ persistence_time, const real_t* __restrict__ migration_bias,
-	real_t* __restrict__ migration_bias_direction, const std::uint8_t* __restrict__ restrict_to_2d,
-	const std::uint8_t* __restrict__ is_motile, const real_t* __restrict__ migration_speed,
-	const motility_properties::direction_update_func* __restrict__ update_migration_bias_direction_f,
-	const index_t* __restrict__ cell_definition_index)
+	index_t i, real_t time_step, real_t* PHYSICORE_RESTRICT motility_vector, real_t* PHYSICORE_RESTRICT velocity,
+	const real_t* PHYSICORE_RESTRICT persistence_time, const real_t* PHYSICORE_RESTRICT migration_bias,
+	real_t* PHYSICORE_RESTRICT migration_bias_direction, const std::uint8_t* PHYSICORE_RESTRICT restrict_to_2d,
+	const std::uint8_t* PHYSICORE_RESTRICT is_motile, const real_t* PHYSICORE_RESTRICT migration_speed,
+	const motility_properties::direction_update_func* PHYSICORE_RESTRICT update_migration_bias_direction_f,
+	const index_t* PHYSICORE_RESTRICT cell_definition_index)
 {
 	if (is_motile[i] == 0)
 		return;
@@ -277,12 +285,13 @@ void update_motility_single(
 
 template <index_t dims>
 void update_motility_internal(
-	index_t agents_count, real_t time_step, real_t* __restrict__ motility_vector, real_t* __restrict__ velocity,
-	const real_t* __restrict__ persistence_time, const real_t* __restrict__ migration_bias,
-	real_t* __restrict__ migration_bias_direction, const std::uint8_t* __restrict__ restrict_to_2d,
-	const std::uint8_t* __restrict__ is_motile, const real_t* __restrict__ migration_speed,
-	const motility_properties::direction_update_func* __restrict__ update_migration_bias_direction_f,
-	const index_t* __restrict__ cell_definition_index)
+	index_t agents_count, real_t time_step, real_t* PHYSICORE_RESTRICT motility_vector,
+	real_t* PHYSICORE_RESTRICT velocity, const real_t* PHYSICORE_RESTRICT persistence_time,
+	const real_t* PHYSICORE_RESTRICT migration_bias, real_t* PHYSICORE_RESTRICT migration_bias_direction,
+	const std::uint8_t* PHYSICORE_RESTRICT restrict_to_2d, const std::uint8_t* PHYSICORE_RESTRICT is_motile,
+	const real_t* PHYSICORE_RESTRICT migration_speed,
+	const motility_properties::direction_update_func* PHYSICORE_RESTRICT update_migration_bias_direction_f,
+	const index_t* PHYSICORE_RESTRICT cell_definition_index)
 {
 #pragma omp for
 	for (index_t i = 0; i < agents_count; i++)
@@ -323,10 +332,10 @@ void position_solver::update_motility(environment& e)
 
 // Update basement membrane forces
 template <index_t dims>
-void update_basement_membrane_interactions_single(index_t i, real_t* __restrict__ velocity,
-												  const real_t* __restrict__ position,
-												  const real_t* __restrict__ radius,
-												  const real_t* __restrict__ cell_BM_repulsion_strength,
+void update_basement_membrane_interactions_single(index_t i, real_t* PHYSICORE_RESTRICT velocity,
+												  const real_t* PHYSICORE_RESTRICT position,
+												  const real_t* PHYSICORE_RESTRICT radius,
+												  const real_t* PHYSICORE_RESTRICT cell_BM_repulsion_strength,
 												  const cartesian_mesh& mesh)
 {
 	position_helper<dims>::update_membrane_velocities(velocity + i * dims, position + i * dims, mesh, radius[i],
@@ -334,11 +343,11 @@ void update_basement_membrane_interactions_single(index_t i, real_t* __restrict_
 }
 
 template <index_t dims>
-void update_basement_membrane_interactions_internal(index_t agents_count, real_t* __restrict__ velocity,
-													const real_t* __restrict__ position,
-													const real_t* __restrict__ radius,
-													const real_t* __restrict__ cell_BM_repulsion_strength,
-													const std::uint8_t* __restrict__ is_movable,
+void update_basement_membrane_interactions_internal(index_t agents_count, real_t* PHYSICORE_RESTRICT velocity,
+													const real_t* PHYSICORE_RESTRICT position,
+													const real_t* PHYSICORE_RESTRICT radius,
+													const real_t* PHYSICORE_RESTRICT cell_BM_repulsion_strength,
+													const std::uint8_t* PHYSICORE_RESTRICT is_movable,
 													const cartesian_mesh& mesh)
 {
 #pragma omp for
@@ -376,11 +385,13 @@ void position_solver::update_basement_membrane_interactions(environment& e, cons
 
 // update spring attachments
 template <index_t dims>
-void spring_contract_function(index_t agents_count, index_t cell_defs_count, real_t* __restrict__ velocity,
-							  const index_t* __restrict__ cell_definition_index,
-							  const real_t* __restrict__ attachment_elastic_constant,
-							  const real_t* __restrict__ cell_adhesion_affinity, const real_t* __restrict__ position,
-							  const std::uint8_t* __restrict__ is_movable, std::vector<index_t>* __restrict__ springs)
+void spring_contract_function(index_t agents_count, index_t cell_defs_count, real_t* PHYSICORE_RESTRICT velocity,
+							  const index_t* PHYSICORE_RESTRICT cell_definition_index,
+							  const real_t* PHYSICORE_RESTRICT attachment_elastic_constant,
+							  const real_t* PHYSICORE_RESTRICT cell_adhesion_affinity,
+							  const real_t* PHYSICORE_RESTRICT position,
+							  const std::uint8_t* PHYSICORE_RESTRICT is_movable,
+							  std::vector<index_t>* PHYSICORE_RESTRICT springs)
 {
 #pragma omp for
 	for (index_t this_cell_index = 0; this_cell_index < agents_count; this_cell_index++)
@@ -412,11 +423,14 @@ void spring_contract_function(index_t agents_count, index_t cell_defs_count, rea
 
 constexpr index_t erased_spring = -1;
 
-void update_spring_attachments_internal(
-	index_t agents_count, real_t time_step, index_t cell_defs_count, const real_t* __restrict__ detachment_rate,
-	const real_t* __restrict__ attachment_rate, const real_t* __restrict__ cell_adhesion_affinities,
-	const index_t* __restrict__ maximum_number_of_attachments, const index_t* __restrict__ cell_definition_index,
-	const std::vector<index_t>* __restrict__ neighbors, std::vector<index_t>* __restrict__ springs)
+void update_spring_attachments_internal(index_t agents_count, real_t time_step, index_t cell_defs_count,
+										const real_t* PHYSICORE_RESTRICT detachment_rate,
+										const real_t* PHYSICORE_RESTRICT attachment_rate,
+										const real_t* PHYSICORE_RESTRICT cell_adhesion_affinities,
+										const index_t* PHYSICORE_RESTRICT maximum_number_of_attachments,
+										const index_t* PHYSICORE_RESTRICT cell_definition_index,
+										const std::vector<index_t>* PHYSICORE_RESTRICT neighbors,
+										std::vector<index_t>* PHYSICORE_RESTRICT springs)
 {
 // mark springs for detachment
 #pragma omp for
@@ -523,9 +537,9 @@ void position_solver::update_spring_attachments(environment& e)
 
 // Update positions
 template <index_t dims>
-void update_positions_internal(index_t agents_count, real_t time_step, real_t* __restrict__ position,
-							   real_t* __restrict__ velocity, real_t* __restrict__ previous_velocity,
-							   const std::uint8_t* __restrict__ is_movable)
+void update_positions_internal(index_t agents_count, real_t time_step, real_t* PHYSICORE_RESTRICT position,
+							   real_t* PHYSICORE_RESTRICT velocity, real_t* PHYSICORE_RESTRICT previous_velocity,
+							   const std::uint8_t* PHYSICORE_RESTRICT is_movable)
 {
 #pragma omp for
 	for (index_t i = 0; i < agents_count; i++)

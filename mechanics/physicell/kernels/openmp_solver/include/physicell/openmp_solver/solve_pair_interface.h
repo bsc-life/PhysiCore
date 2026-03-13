@@ -31,12 +31,13 @@ namespace physicore::mechanics::physicell::kernels::openmp_solver {
  */
 template <physicore::index_t dims>
 void solve_pair(physicore::index_t lhs, physicore::index_t rhs, physicore::index_t cell_defs_count,
-				physicore::real_t* __restrict__ velocity, physicore::real_t* __restrict__ simple_pressure,
-				const physicore::real_t* __restrict__ position, const physicore::real_t* __restrict__ radius,
-				const physicore::real_t* __restrict__ cell_cell_repulsion_strength,
-				const physicore::real_t* __restrict__ cell_cell_adhesion_strength,
-				const physicore::real_t* __restrict__ relative_maximum_adhesion_distance,
-				const physicore::real_t* __restrict__ cell_adhesion_affinity,
-				const physicore::index_t* __restrict__ cell_definition_index);
+				physicore::real_t* PHYSICORE_RESTRICT velocity, physicore::real_t* PHYSICORE_RESTRICT simple_pressure,
+				const physicore::real_t* PHYSICORE_RESTRICT position,
+				const physicore::real_t* PHYSICORE_RESTRICT radius,
+				const physicore::real_t* PHYSICORE_RESTRICT cell_cell_repulsion_strength,
+				const physicore::real_t* PHYSICORE_RESTRICT cell_cell_adhesion_strength,
+				const physicore::real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
+				const physicore::real_t* PHYSICORE_RESTRICT cell_adhesion_affinity,
+				const physicore::index_t* PHYSICORE_RESTRICT cell_definition_index);
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver

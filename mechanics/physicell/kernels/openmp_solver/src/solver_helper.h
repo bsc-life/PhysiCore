@@ -11,7 +11,7 @@ namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
 
 inline void update_membrane_velocity(real_t position, real_t bounding_box, real_t sign, real_t radius,
-										real_t repulsion_strength, real_t& velocity)
+									 real_t repulsion_strength, real_t& velocity)
 {
 	real_t distance = bounding_box - position;
 	distance = (distance < 0) ? -distance : distance;
@@ -42,8 +42,8 @@ struct position_helper<1>
 	}
 
 	static inline real_t difference_and_distance(const real_t* PHYSICORE_RESTRICT lhs,
-													const real_t* PHYSICORE_RESTRICT rhs,
-													real_t* PHYSICORE_RESTRICT difference)
+												 const real_t* PHYSICORE_RESTRICT rhs,
+												 real_t* PHYSICORE_RESTRICT difference)
 	{
 		difference[0] = lhs[0] - rhs[0];
 
@@ -51,14 +51,14 @@ struct position_helper<1>
 	}
 
 	static inline void update_velocities(real_t* PHYSICORE_RESTRICT lhs, real_t* PHYSICORE_RESTRICT rhs,
-											const real_t* PHYSICORE_RESTRICT difference, const real_t force)
+										 const real_t* PHYSICORE_RESTRICT difference, const real_t force)
 	{
 		lhs[0] += force * difference[0];
 		rhs[0] -= force * difference[0];
 	}
 
-	static inline void update_velocity(real_t* PHYSICORE_RESTRICT velocity,
-										  const real_t* PHYSICORE_RESTRICT difference, const real_t force)
+	static inline void update_velocity(real_t* PHYSICORE_RESTRICT velocity, const real_t* PHYSICORE_RESTRICT difference,
+									   const real_t force)
 	{
 		velocity[0] += force * difference[0];
 	}
@@ -70,9 +70,9 @@ struct position_helper<1>
 	}
 
 	static inline void update_motility_vector(real_t* PHYSICORE_RESTRICT motility_vector,
-												 const real_t* PHYSICORE_RESTRICT walk,
-												 const real_t* PHYSICORE_RESTRICT migration_bias_direction,
-												 const real_t migration_bias)
+											  const real_t* PHYSICORE_RESTRICT walk,
+											  const real_t* PHYSICORE_RESTRICT migration_bias_direction,
+											  const real_t migration_bias)
 	{
 		motility_vector[0] = (1 - migration_bias) * walk[0] + migration_bias * migration_bias_direction[0];
 	}
@@ -85,21 +85,17 @@ struct position_helper<1>
 	}
 
 	static inline void update_membrane_velocities(real_t* PHYSICORE_RESTRICT velocity,
-													 const real_t* PHYSICORE_RESTRICT position,
-													 const cartesian_mesh& mesh, const real_t radius,
-													 const real_t repulsion_strength)
+												  const real_t* PHYSICORE_RESTRICT position, const cartesian_mesh& mesh,
+												  const real_t radius, const real_t repulsion_strength)
 	{
 		update_membrane_velocity(position[0], mesh.bounding_box_mins[0], 1, radius, repulsion_strength, velocity[0]);
 		update_membrane_velocity(position[0], mesh.bounding_box_maxs[0], -1, radius, repulsion_strength, velocity[0]);
 	}
 
-	static inline void add(real_t* PHYSICORE_RESTRICT lhs, const real_t* PHYSICORE_RESTRICT rhs)
-	{
-		lhs[0] += rhs[0];
-	}
+	static inline void add(real_t* PHYSICORE_RESTRICT lhs, const real_t* PHYSICORE_RESTRICT rhs) { lhs[0] += rhs[0]; }
 
 	static inline void subtract(real_t* PHYSICORE_RESTRICT dst, const real_t* PHYSICORE_RESTRICT lhs,
-								   const real_t* PHYSICORE_RESTRICT rhs)
+								const real_t* PHYSICORE_RESTRICT rhs)
 	{
 		dst[0] = lhs[0] - rhs[0];
 	}
@@ -114,8 +110,8 @@ struct position_helper<2>
 	}
 
 	static inline real_t difference_and_distance(const real_t* PHYSICORE_RESTRICT lhs,
-													const real_t* PHYSICORE_RESTRICT rhs,
-													real_t* PHYSICORE_RESTRICT difference)
+												 const real_t* PHYSICORE_RESTRICT rhs,
+												 real_t* PHYSICORE_RESTRICT difference)
 	{
 		difference[0] = lhs[0] - rhs[0];
 		difference[1] = lhs[1] - rhs[1];
@@ -124,7 +120,7 @@ struct position_helper<2>
 	}
 
 	static inline void update_velocities(real_t* PHYSICORE_RESTRICT lhs, real_t* PHYSICORE_RESTRICT rhs,
-											const real_t* PHYSICORE_RESTRICT difference, const real_t force)
+										 const real_t* PHYSICORE_RESTRICT difference, const real_t force)
 	{
 		lhs[0] += force * difference[0];
 		lhs[1] += force * difference[1];
@@ -133,8 +129,8 @@ struct position_helper<2>
 		rhs[1] -= force * difference[1];
 	}
 
-	static inline void update_velocity(real_t* PHYSICORE_RESTRICT velocity,
-										  const real_t* PHYSICORE_RESTRICT difference, const real_t force)
+	static inline void update_velocity(real_t* PHYSICORE_RESTRICT velocity, const real_t* PHYSICORE_RESTRICT difference,
+									   const real_t force)
 	{
 		velocity[0] += force * difference[0];
 		velocity[1] += force * difference[1];
@@ -148,9 +144,9 @@ struct position_helper<2>
 	}
 
 	static inline void update_motility_vector(real_t* PHYSICORE_RESTRICT motility_vector,
-												 const real_t* PHYSICORE_RESTRICT walk,
-												 const real_t* PHYSICORE_RESTRICT migration_bias_direction,
-												 const real_t migration_bias)
+											  const real_t* PHYSICORE_RESTRICT walk,
+											  const real_t* PHYSICORE_RESTRICT migration_bias_direction,
+											  const real_t migration_bias)
 	{
 		motility_vector[0] = (1 - migration_bias) * walk[0] + migration_bias * migration_bias_direction[0];
 		motility_vector[1] = (1 - migration_bias) * walk[1] + migration_bias * migration_bias_direction[1];
@@ -165,9 +161,8 @@ struct position_helper<2>
 	}
 
 	static inline void update_membrane_velocities(real_t* PHYSICORE_RESTRICT velocity,
-													 const real_t* PHYSICORE_RESTRICT position,
-													 const cartesian_mesh& mesh, const real_t radius,
-													 const real_t repulsion_strength)
+												  const real_t* PHYSICORE_RESTRICT position, const cartesian_mesh& mesh,
+												  const real_t radius, const real_t repulsion_strength)
 	{
 		update_membrane_velocity(position[0], mesh.bounding_box_mins[0], 1, radius, repulsion_strength, velocity[0]);
 		update_membrane_velocity(position[0], mesh.bounding_box_maxs[0], -1, radius, repulsion_strength, velocity[0]);
@@ -182,7 +177,7 @@ struct position_helper<2>
 	}
 
 	static inline void subtract(real_t* PHYSICORE_RESTRICT dst, const real_t* PHYSICORE_RESTRICT lhs,
-								   const real_t* PHYSICORE_RESTRICT rhs)
+								const real_t* PHYSICORE_RESTRICT rhs)
 	{
 		dst[0] = lhs[0] - rhs[0];
 		dst[1] = lhs[1] - rhs[1];
@@ -199,8 +194,8 @@ struct position_helper<3>
 	}
 
 	static inline real_t difference_and_distance(const real_t* PHYSICORE_RESTRICT lhs,
-													const real_t* PHYSICORE_RESTRICT rhs,
-													real_t* PHYSICORE_RESTRICT difference)
+												 const real_t* PHYSICORE_RESTRICT rhs,
+												 real_t* PHYSICORE_RESTRICT difference)
 	{
 		difference[0] = lhs[0] - rhs[0];
 		difference[1] = lhs[1] - rhs[1];
@@ -210,7 +205,7 @@ struct position_helper<3>
 	}
 
 	static inline void update_velocities(real_t* PHYSICORE_RESTRICT lhs, real_t* PHYSICORE_RESTRICT rhs,
-											const real_t* PHYSICORE_RESTRICT difference, const real_t force)
+										 const real_t* PHYSICORE_RESTRICT difference, const real_t force)
 	{
 		lhs[0] += force * difference[0];
 		lhs[1] += force * difference[1];
@@ -221,8 +216,8 @@ struct position_helper<3>
 		rhs[2] -= force * difference[2];
 	}
 
-	static inline void update_velocity(real_t* PHYSICORE_RESTRICT velocity,
-										  const real_t* PHYSICORE_RESTRICT difference, const real_t force)
+	static inline void update_velocity(real_t* PHYSICORE_RESTRICT velocity, const real_t* PHYSICORE_RESTRICT difference,
+									   const real_t force)
 	{
 		velocity[0] += force * difference[0];
 		velocity[1] += force * difference[1];
@@ -249,9 +244,9 @@ struct position_helper<3>
 	}
 
 	static inline void update_motility_vector(real_t* PHYSICORE_RESTRICT motility_vector,
-												 const real_t* PHYSICORE_RESTRICT walk,
-												 const real_t* PHYSICORE_RESTRICT migration_bias_direction,
-												 const real_t migration_bias)
+											  const real_t* PHYSICORE_RESTRICT walk,
+											  const real_t* PHYSICORE_RESTRICT migration_bias_direction,
+											  const real_t migration_bias)
 	{
 		motility_vector[0] = (1 - migration_bias) * walk[0] + migration_bias * migration_bias_direction[0];
 		motility_vector[1] = (1 - migration_bias) * walk[1] + migration_bias * migration_bias_direction[1];
@@ -268,9 +263,8 @@ struct position_helper<3>
 	}
 
 	static inline void update_membrane_velocities(real_t* PHYSICORE_RESTRICT velocity,
-													 const real_t* PHYSICORE_RESTRICT position,
-													 const cartesian_mesh& mesh, const real_t radius,
-													 const real_t repulsion_strength)
+												  const real_t* PHYSICORE_RESTRICT position, const cartesian_mesh& mesh,
+												  const real_t radius, const real_t repulsion_strength)
 	{
 		update_membrane_velocity(position[0], mesh.bounding_box_mins[0], 1, radius, repulsion_strength, velocity[0]);
 		update_membrane_velocity(position[0], mesh.bounding_box_maxs[0], -1, radius, repulsion_strength, velocity[0]);
@@ -288,7 +282,7 @@ struct position_helper<3>
 	}
 
 	static inline void subtract(real_t* PHYSICORE_RESTRICT dst, const real_t* PHYSICORE_RESTRICT lhs,
-								   const real_t* PHYSICORE_RESTRICT rhs)
+								const real_t* PHYSICORE_RESTRICT rhs)
 	{
 		dst[0] = lhs[0] - rhs[0];
 		dst[1] = lhs[1] - rhs[1];
