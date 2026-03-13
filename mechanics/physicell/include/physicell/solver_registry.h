@@ -4,7 +4,7 @@
 
 #include "solver.h"
 
-namespace physicore::biofvm {
+namespace physicore::mechanics::physicell {
 
 class solver_registry : public physicore::common::factory_registry<solver>
 {
@@ -19,4 +19,4 @@ public:
 template <typename SolverT>
 using registry_adder = physicore::common::registry_adder<SolverT, solver_registry, solver>;
 
-} // namespace physicore::biofvm
+} // namespace physicore::mechanics::physicell
