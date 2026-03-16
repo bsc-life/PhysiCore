@@ -45,6 +45,13 @@ jobs:
         brew install libomp
         echo "OpenMP_ROOT=$(brew --prefix libomp)" >> "$GITHUB_ENV"
 
+    - name: Install Ninja (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        choco install ninja -y --no-progress
+        ninja --version
+
     - name: Install CUDA Toolkit
       uses: ./.github/actions/cuda-toolkit
 
