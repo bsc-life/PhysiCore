@@ -13,7 +13,7 @@ class generic_agent_impl_container;
 template <derived_from_base_agent AgentType>
 class generic_agent_solver
 {
-public:
+protected:
 	typename AgentType::DataType& retrieve_agent_data(
 		generic_agent_interface_container<typename AgentType::InterfaceType>& container)
 	{

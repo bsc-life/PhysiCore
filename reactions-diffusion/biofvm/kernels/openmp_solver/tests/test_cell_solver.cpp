@@ -391,7 +391,10 @@ TEST_P(RecomputeTest, Simple3D)
 }
 
 class agent_retriever : public generic_agent_solver<agent>
-{};
+{
+public:
+	using generic_agent_solver<agent>::retrieve_agent_data;
+};
 
 TEST_P(RecomputeTest, Conflict)
 {

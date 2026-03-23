@@ -360,7 +360,7 @@ Solvers receive containers through polymorphic `container_ptr` (or a `container_
 template <derived_from_base_agent AgentType>
 class generic_agent_solver
 {
-public:
+protected:
     typename AgentType::DataType& retrieve_agent_data(
         generic_agent_interface_container<typename AgentType::InterfaceType>& container)
     {
@@ -373,12 +373,14 @@ public:
 **Usage inside a solver:**
 
 ```cpp
-// Inside a BioFVM solver that holds a container_ptr
-void biofvm_solver::run_single_timestep() {
-    physicore::generic_agent_solver<physicore::biofvm::agent> accessor;
-    physicore::biofvm::agent_data& data = accessor.retrieve_agent_data(*container_);
-    // data.secretion_rates, data.volumes, etc. are now directly accessible
-}
+// Solvers inherit from generic_agent_solver to gain access to retrieve_agent_data
+class biofvm_solver : private physicore::generic_agent_solver<physicore::biofvm::agent>
+{
+    void run_single_timestep() {
+        physicore::biofvm::agent_data& data = retrieve_agent_data(*container_);
+        // data.secretion_rates, data.volumes, etc. are now directly accessible
+    }
+};
 ```
 
 The `dynamic_cast` is safe because any object implementing `generic_agent_interface_container<agent_interface>` is always constructed as a `generic_agent_and_data_container<base_agent, agent>`, which inherits from `generic_agent_impl_container<biofvm::agent>` — the type relationship is established at construction time.
