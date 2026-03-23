@@ -14,10 +14,6 @@ namespace physicore::mechanics::physicell {
 class environment : public timestep_executor
 {
 public:
-	explicit environment(real_t timestep, index_t agent_types_count = 1, index_t substrates_count = 1)
-		: environment(timestep, 3, agent_types_count, substrates_count)
-	{}
-
 	environment(real_t timestep, index_t dims, index_t agent_types_count, index_t substrates_count);
 
 	void run_single_timestep() override;

@@ -115,7 +115,7 @@ TEST_F(SolvePairTest, RepulsiveForce1D_Overlapping)
 {
 	// Two cells overlapping (distance < sum of radii)
 	setup_cells_1d(5.0); // distance = 5, r1+r2 = 10, so overlap
-	real_t vel_0_before = velocity[0];
+	const real_t vel_0_before = velocity[0];
 
 	// Call solve_pair for 1D
 	solve_pair<1>(0, 1, CELL_DEFS, velocity.data(), simple_pressure.data(), position.data(), radius.data(),
@@ -143,7 +143,7 @@ TEST_F(SolvePairTest, NoForce1D_FarApart)
 	// The RHS (cell 1) velocity is updated when solve_pair(j, i, ...) is called
 	// This maintains Newton's 3rd law at the system level
 	setup_cells_1d(100.0); // distance = 100, far beyond adhesion range (15)
-	real_t vel_0_before = velocity[0];
+	const real_t vel_0_before = velocity[0];
 
 	// Debug: check the actual values
 	// position_difference = pos[1] - pos[0] = 100 - 0 = 100
@@ -176,8 +176,8 @@ TEST_F(SolvePairTest, AdhesiveForce1D_InAdhesionRange)
 {
 	// Two cells at adhesion distance (within adhesion_distance but not overlapping)
 	setup_cells_1d(12.5); // distance = 12.5, adhesion_distance = 1.5 * (5+5) = 15
-	real_t vel_0_before = velocity[0];
-	real_t vel_1_before = velocity[1];
+	const real_t vel_0_before = velocity[0];
+	const real_t vel_1_before = velocity[1];
 
 	solve_pair<1>(0, 1, CELL_DEFS, velocity.data(), simple_pressure.data(), position.data(), radius.data(),
 				  cell_cell_repulsion_strength.data(), cell_cell_adhesion_strength.data(),
@@ -209,8 +209,8 @@ TEST_F(SolvePairTest, NewtonsThirdLaw1D_ForceSymmetry)
 				  relative_maximum_adhesion_distance.data(), cell_adhesion_affinities.data(),
 				  cell_definition_index.data());
 
-	real_t delta_vel_0 = velocity[0] - vel_before[0];
-	real_t delta_vel_1 = velocity[1] - vel_before[1];
+	const real_t delta_vel_0 = velocity[0] - vel_before[0];
+	const real_t delta_vel_1 = velocity[1] - vel_before[1];
 
 	// Forces should be opposite
 	// Allow small tolerance for floating point arithmetic
@@ -252,7 +252,7 @@ TEST_F(SolvePairTest, ZeroRepulsion1D_NoRepulsiveForce)
 	setup_cells_1d(6.0); // Overlapping
 	cell_cell_repulsion_strength[0] = 0.0;
 	cell_cell_repulsion_strength[1] = 0.0;
-	real_t vel_0_before_without_repulsion = velocity[0];
+	const real_t vel_0_before_without_repulsion = velocity[0];
 
 	solve_pair<1>(0, 1, CELL_DEFS, velocity.data(), simple_pressure.data(), position.data(), radius.data(),
 				  cell_cell_repulsion_strength.data(), cell_cell_adhesion_strength.data(),
@@ -274,8 +274,8 @@ TEST_F(SolvePairTest, ZeroRepulsion1D_NoRepulsiveForce)
 TEST_F(SolvePairTest, RepulsiveForce2D_Overlapping)
 {
 	setup_cells_2d(5.0, 5.0); // Diagonal distance = sqrt(50) ≈ 7.07, r1+r2=10, overlap
-	std::array<real_t, NUM_CELLS * 2> vel_before;
-	std::copy(velocity.begin(), velocity.end(), vel_before.begin());
+	std::array<real_t, NUM_CELLS * 2> vel_before {};
+	std::ranges::copy(velocity, vel_before.begin());
 	cell_cell_adhesion_strength[0] = 0.0; // Deactivate adhesion strength
 	cell_cell_adhesion_strength[1] = 0.0; // Deactivate adhesion strength
 
@@ -296,8 +296,8 @@ TEST_F(SolvePairTest, RepulsiveForce2D_Overlapping)
 TEST_F(SolvePairTest, AdhesiveForce2D_InAdhesionRange)
 {
 	setup_cells_2d(12.0, 3.0); // distance ≈ 12.37, within adhesion range
-	std::array<real_t, NUM_CELLS * 2> vel_before;
-	std::copy(velocity.begin(), velocity.end(), vel_before.begin());
+	std::array<real_t, NUM_CELLS * 2> vel_before {};
+	std::ranges::copy(velocity, vel_before.begin());
 
 	solve_pair<2>(0, 1, CELL_DEFS, velocity.data(), simple_pressure.data(), position.data(), radius.data(),
 				  cell_cell_repulsion_strength.data(), cell_cell_adhesion_strength.data(),
@@ -313,8 +313,8 @@ TEST_F(SolvePairTest, AdhesiveForce2D_InAdhesionRange)
 TEST_F(SolvePairTest, NewtonsThirdLaw2D_ForceSymmetry)
 {
 	setup_cells_2d(8.0, 6.0);
-	std::array<real_t, NUM_CELLS * 2> vel_before;
-	std::copy(velocity.begin(), velocity.end(), vel_before.begin());
+	std::array<real_t, NUM_CELLS * 2> vel_before {};
+	std::ranges::copy(velocity, vel_before.begin());
 
 	solve_pair<2>(0, 1, CELL_DEFS, velocity.data(), simple_pressure.data(), position.data(), radius.data(),
 				  cell_cell_repulsion_strength.data(), cell_cell_adhesion_strength.data(),
@@ -327,10 +327,10 @@ TEST_F(SolvePairTest, NewtonsThirdLaw2D_ForceSymmetry)
 				  cell_definition_index.data());
 
 	// Force on cell 0 = -Force on cell 1
-	real_t force_0_x = velocity[0] - vel_before[0];
-	real_t force_0_y = velocity[1] - vel_before[1];
-	real_t force_1_x = velocity[2] - vel_before[2];
-	real_t force_1_y = velocity[3] - vel_before[3];
+	const real_t force_0_x = velocity[0] - vel_before[0];
+	const real_t force_0_y = velocity[1] - vel_before[1];
+	const real_t force_1_x = velocity[2] - vel_before[2];
+	const real_t force_1_y = velocity[3] - vel_before[3];
 
 	EXPECT_NEAR(force_0_x, -force_1_x, EPSILON * 10) << "X-component forces should be equal and opposite";
 	EXPECT_NEAR(force_0_y, -force_1_y, EPSILON * 10) << "Y-component forces should be equal and opposite";
@@ -343,8 +343,8 @@ TEST_F(SolvePairTest, NewtonsThirdLaw2D_ForceSymmetry)
 TEST_F(SolvePairTest, RepulsiveForce3D_Overlapping)
 {
 	setup_cells_3d(4.0, 4.0, 4.0); // distance ≈ 6.93, r1+r2=10, overlap
-	std::array<real_t, NUM_CELLS * 3> vel_before;
-	std::copy(velocity.begin(), velocity.end(), vel_before.begin());
+	std::array<real_t, NUM_CELLS * 3> vel_before {};
+	std::ranges::copy(velocity, vel_before.begin());
 
 	cell_cell_adhesion_strength[0] = 0.0;
 	cell_cell_adhesion_strength[1] = 0.0;
@@ -366,8 +366,8 @@ TEST_F(SolvePairTest, RepulsiveForce3D_Overlapping)
 TEST_F(SolvePairTest, AdhesiveForce3D_DirectionalAccuracy)
 {
 	setup_cells_3d(10.0, 0.0, 0.0); // Pure x-direction separation
-	std::array<real_t, NUM_CELLS * 3> vel_before;
-	std::copy(velocity.begin(), velocity.end(), vel_before.begin());
+	std::array<real_t, NUM_CELLS * 3> vel_before {};
+	std::ranges::copy(velocity, vel_before.begin());
 
 	solve_pair<3>(0, 1, CELL_DEFS, velocity.data(), simple_pressure.data(), position.data(), radius.data(),
 				  cell_cell_repulsion_strength.data(), cell_cell_adhesion_strength.data(),
@@ -375,9 +375,9 @@ TEST_F(SolvePairTest, AdhesiveForce3D_DirectionalAccuracy)
 				  cell_definition_index.data());
 
 	// Force should be primarily in x direction
-	real_t force_x = std::abs(velocity[0] - vel_before[0]);
-	real_t force_y = std::abs(velocity[1] - vel_before[1]);
-	real_t force_z = std::abs(velocity[2] - vel_before[2]);
+	const real_t force_x = std::abs(velocity[0] - vel_before[0]);
+	const real_t force_y = std::abs(velocity[1] - vel_before[1]);
+	const real_t force_z = std::abs(velocity[2] - vel_before[2]);
 
 	EXPECT_GT(force_x, force_y) << "X-component should dominate";
 	EXPECT_GT(force_x, force_z) << "X-component should dominate";
@@ -386,8 +386,8 @@ TEST_F(SolvePairTest, AdhesiveForce3D_DirectionalAccuracy)
 TEST_F(SolvePairTest, NewtonsThirdLaw3D_ForceSymmetry)
 {
 	setup_cells_3d(7.0, 3.0, 5.0);
-	std::array<real_t, NUM_CELLS * 3> vel_before;
-	std::copy(velocity.begin(), velocity.end(), vel_before.begin());
+	std::array<real_t, NUM_CELLS * 3> vel_before {};
+	std::ranges::copy(velocity, vel_before.begin());
 
 	solve_pair<3>(0, 1, CELL_DEFS, velocity.data(), simple_pressure.data(), position.data(), radius.data(),
 				  cell_cell_repulsion_strength.data(), cell_cell_adhesion_strength.data(),
@@ -399,11 +399,12 @@ TEST_F(SolvePairTest, NewtonsThirdLaw3D_ForceSymmetry)
 				  relative_maximum_adhesion_distance.data(), cell_adhesion_affinities.data(),
 				  cell_definition_index.data());
 
-	real_t force_0_mag_sq = 0.0, force_1_mag_sq = 0.0;
+	real_t force_0_mag_sq = 0.0;
+	real_t force_1_mag_sq = 0.0;
 	for (index_t d = 0; d < 3; ++d)
 	{
-		real_t f0 = velocity[d] - vel_before[d];
-		real_t f1 = velocity[3 + d] - vel_before[3 + d];
+		const real_t f0 = velocity[d] - vel_before[d];
+		const real_t f1 = velocity[3 + d] - vel_before[3 + d];
 		EXPECT_NEAR(f0, -f1, EPSILON * 10) << "Force component " << d << " not symmetric";
 		force_0_mag_sq += f0 * f0;
 		force_1_mag_sq += f1 * f1;

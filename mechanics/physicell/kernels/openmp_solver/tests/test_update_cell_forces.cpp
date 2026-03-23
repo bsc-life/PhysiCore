@@ -44,9 +44,9 @@ void add_agent(environment& env, std::initializer_list<real_t> pos, real_t radiu
 void clear_kinematics_and_pressure(environment& env)
 {
 	auto& data = env.get_agent_data();
-	std::fill(data.velocity.begin(), data.velocity.end(), static_cast<real_t>(0));
-	std::fill(data.previous_velocity.begin(), data.previous_velocity.end(), static_cast<real_t>(0));
-	std::fill(data.state_data.simple_pressure.begin(), data.state_data.simple_pressure.end(), static_cast<real_t>(0));
+	std::ranges::fill(data.velocity, static_cast<real_t>(0));
+	std::ranges::fill(data.previous_velocity, static_cast<real_t>(0));
+	std::ranges::fill(data.state_data.simple_pressure, static_cast<real_t>(0));
 }
 
 } // namespace

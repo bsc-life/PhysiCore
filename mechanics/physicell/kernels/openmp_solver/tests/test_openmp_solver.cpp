@@ -18,7 +18,7 @@ TEST(OpenMPSolverTest, CanRunViaEnvironment)
 {
 	kernels::openmp_solver::attach_to_registry();
 
-	environment env(0.1);
+	environment env(0.1, 2, 1, 1);
 	env.solver = solver_registry::instance().get("openmp_solver");
 
 	ASSERT_NE(env.solver, nullptr);

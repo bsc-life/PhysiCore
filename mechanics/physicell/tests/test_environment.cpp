@@ -10,6 +10,11 @@ using namespace physicore::mechanics::physicell;
 
 namespace {
 
+constexpr real_t test_timestep = 0.1;
+constexpr index_t test_dims = 2;
+constexpr index_t test_agent_types = 1;
+constexpr index_t test_substrates = 1;
+
 class TestSolver final : public solver
 {
 public:
@@ -44,13 +49,13 @@ public:
 
 TEST(EnvironmentTest, RunSingleTimestepWithoutSolver)
 {
-	environment env(0.1);
+	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
 	EXPECT_NO_THROW(env.run_single_timestep());
 }
 
 TEST(EnvironmentTest, RunSingleTimestepUsesSolverWhenProvided)
 {
-	environment env(0.1);
+	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
 	auto solver = std::make_unique<TestSolver>();
 	auto* solver_ptr = solver.get();
 	env.solver = std::move(solver);
@@ -64,13 +69,13 @@ TEST(EnvironmentTest, RunSingleTimestepUsesSolverWhenProvided)
 
 TEST(EnvironmentTest, SerializeStateWithoutSerializer)
 {
-	environment env(0.1);
+	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
 	EXPECT_NO_THROW(env.serialize_state(2.5));
 }
 
 TEST(EnvironmentTest, SerializeStateUsesSerializerWhenProvided)
 {
-	environment env(0.1);
+	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
 	auto serializer = std::make_unique<TestSerializer>();
 	auto* serializer_ptr = serializer.get();
 	env.serializer = std::move(serializer);
@@ -97,7 +102,7 @@ TEST(EnvironmentTest, GetAgentDataReturnsContainerData)
 
 TEST(EnvironmentTest, GetAgentDataThrowsWhenAgentsMissing)
 {
-	environment env(0.1);
+	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
 	env.agents.reset();
 
 	EXPECT_THROW(env.get_agent_data(), std::runtime_error);

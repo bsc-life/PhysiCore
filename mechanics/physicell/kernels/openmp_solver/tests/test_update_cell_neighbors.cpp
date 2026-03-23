@@ -44,7 +44,7 @@ void add_agent(environment& env, std::initializer_list<real_t> pos, real_t radiu
 std::vector<index_t> sorted_neighbors(environment& env, index_t i)
 {
 	auto neighbors = env.get_agent_data().state_data.neighbors[i];
-	std::sort(neighbors.begin(), neighbors.end());
+	std::ranges::sort(neighbors);
 	return neighbors;
 }
 
@@ -121,7 +121,7 @@ TEST(UpdateCellNeighborsTest, ClearsPreviousNeighborsAndRespectsMovableFlag)
 	EXPECT_TRUE(env.get_agent_data().state_data.neighbors[2].empty());
 
 	// Integration: neighbor list should drive a non-zero force.
-	std::fill(data.velocity.begin(), data.velocity.end(), static_cast<real_t>(0));
+	std::ranges::fill(data.velocity, static_cast<real_t>(0));
 	kernels::openmp_solver::position_solver::update_cell_forces(env);
 	EXPECT_NEAR(data.velocity[0], -data.velocity[2], 1e-6);
 }

@@ -7,7 +7,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace physicore::common {
+namespace physicore {
 template <class Base>
 class factory_registry
 {
@@ -43,14 +43,13 @@ typename factory_registry<Base>::ptr_t factory_registry<Base>::get(const std::st
 	return it->second();
 }
 
-template <class Derived, class Registry, class Base>
-	requires std::derived_from<Derived, Base>
-struct registry_adder
+template <class Derived, class Registry>
+struct generic_registry_adder
 {
-	explicit registry_adder(std::string name)
+	explicit generic_registry_adder(std::string name)
 	{
 		Registry::instance().register_factory(std::move(name), []() { return std::make_unique<Derived>(); });
 	}
 };
 
-} // namespace physicore::common
+} // namespace physicore

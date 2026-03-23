@@ -448,8 +448,7 @@ void update_spring_attachments_internal(index_t agents_count, real_t time_step, 
 					{
 						springs[this_cell_index][j] = erased_spring;
 
-						*std::find(springs[other_cell_index].begin(), springs[other_cell_index].end(),
-								   this_cell_index) = erased_spring;
+						*std::ranges::find(springs[other_cell_index], this_cell_index) = erased_spring;
 					}
 				}
 			}
@@ -460,9 +459,9 @@ void update_spring_attachments_internal(index_t agents_count, real_t time_step, 
 #pragma omp for
 	for (index_t this_cell_index = 0; this_cell_index < agents_count; this_cell_index++)
 	{
-		auto it = std::remove(springs[this_cell_index].begin(), springs[this_cell_index].end(), erased_spring);
+		auto removed = std::ranges::remove(springs[this_cell_index], erased_spring);
 
-		springs[this_cell_index].erase(it, springs[this_cell_index].end());
+		springs[this_cell_index].erase(removed.begin(), removed.end());
 	}
 
 	// attach cells to springs

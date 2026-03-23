@@ -6,17 +6,18 @@
 
 namespace physicore::mechanics::physicell {
 
-class solver_registry : public physicore::common::factory_registry<solver>
+class solver_registry : public physicore::factory_registry<solver>
 {
 public:
-	using base_t = physicore::common::factory_registry<solver>;
-	using solver_factory_func_t = typename base_t::factory_func_t;
-	using registry_map_t = typename base_t::map_t;
+	using base_t = physicore::factory_registry<solver>;
 
 	static solver_registry& instance();
 };
 
-template <typename SolverT>
-using registry_adder = physicore::common::registry_adder<SolverT, solver_registry, solver>;
+template <typename T>
+concept derived_from_solver = std::derived_from<T, solver>;
+
+template <derived_from_solver SolverT>
+using registry_adder = physicore::generic_registry_adder<SolverT, solver_registry>;
 
 } // namespace physicore::mechanics::physicell
