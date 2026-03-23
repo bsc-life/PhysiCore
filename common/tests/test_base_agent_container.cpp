@@ -156,15 +156,15 @@ public:
 
 TEST(BaseAgentContainerTest, Instantiation)
 {
-	generic_agent_and_data_container<base_agent> base_container(std::make_unique<base_agent_data>());
+	const generic_agent_and_data_container<base_agent> base_container(std::make_unique<base_agent_data>());
 
 	// Instantiate diffusion container
 	{
 		auto base_data = std::make_unique<physicore::base_agent_data>();
 		auto diffusion_data = std::make_unique<diffusion_agent_data>(*base_data);
 
-		generic_agent_and_data_container<base_agent, diffusion_agent> container(std::move(base_data),
-																				std::move(diffusion_data));
+		const generic_agent_and_data_container<base_agent, diffusion_agent> container(std::move(base_data),
+																					  std::move(diffusion_data));
 	}
 
 	// Instantiate mechanics container
@@ -172,8 +172,8 @@ TEST(BaseAgentContainerTest, Instantiation)
 		auto base_data = std::make_unique<physicore::base_agent_data>();
 		auto mechanics_data = std::make_unique<mechanics_agent_data>(*base_data);
 
-		generic_agent_and_data_container<base_agent, mechanics_agent> container(std::move(base_data),
-																				std::move(mechanics_data));
+		const generic_agent_and_data_container<base_agent, mechanics_agent> container(std::move(base_data),
+																					  std::move(mechanics_data));
 	}
 
 	// Instantiate big (union of diffusion and mechanics) container
@@ -193,11 +193,11 @@ TEST(BaseAgentContainerTest, Instantiation)
 		// Data can be accessed
 		{
 			physicore::generic_agent_solver<diffusion_agent> diff_accessor;
-			diffusion_agent_data& d_accessed = diff_accessor.retrieve_agent_data(container);
+			const diffusion_agent_data& d_accessed = diff_accessor.retrieve_agent_data(container);
 			(void)d_accessed;
 
 			physicore::generic_agent_solver<mechanics_agent> mech_accessor;
-			mechanics_agent_data& m_accessed = mech_accessor.retrieve_agent_data(container);
+			const mechanics_agent_data& m_accessed = mech_accessor.retrieve_agent_data(container);
 			(void)m_accessed;
 		}
 
