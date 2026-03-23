@@ -5,10 +5,31 @@ inputs:
   os:
     description: 'Operating system identifier for cache key (e.g., ubuntu-22.04, macos-latest)'
     required: true
+  triplet:
+    description: 'vcpkg triplet to differentiate caches (e.g., x64-osx, x64-osx-gcc, arm64-osx-gcc)'
+    required: false
+    default: 'default'
 
 runs:
   using: 'composite'
   steps:
+    - name: Capture compiler info for cache key
+      id: compiler-info
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "macOS" ]; then
+          if [ -f "/opt/homebrew/bin/gcc-15" ]; then
+            COMPILER_HASH=$(/opt/homebrew/bin/gcc-15 --version | shasum -a 256 | cut -d' ' -f1)
+          elif [ -f "/usr/local/bin/gcc-15" ]; then
+            COMPILER_HASH=$(/usr/local/bin/gcc-15 --version | shasum -a 256 | cut -d' ' -f1)
+          else
+            COMPILER_HASH="no-gcc"
+          fi
+        else
+          COMPILER_HASH="default"
+        fi
+        echo "hash=$COMPILER_HASH" >> $GITHUB_OUTPUT
+
     - name: Set up vcpkg
       uses: lukka/run-vcpkg@v11
       env:
@@ -18,8 +39,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
-        # Invalidate cache when vcpkg manifests or overlay ports change
-        key: ${{ inputs.os }}-${{ runner.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**', 'triplets-overlays/**', 'CMakePresets.json') }}
+        # Invalidate cache when vcpkg manifests, overlay ports, or compiler changes
+        key: ${{ inputs.os }}-${{ runner.arch }}-${{ inputs.triplet }}-${{ steps.compiler-info.outputs.hash }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**', 'triplets-overlays/**', 'CMakePresets.json') }}
         restore-keys: |
-          ${{ inputs.os }}-${{ runner.arch }}-vcpkg-binary-cache-
-          ${{ runner.os }}-${{ runner.arch }}-vcpkg-binary-cache-
+          ${{ inputs.os }}-${{ runner.arch }}-${{ inputs.triplet }}-${{ steps.compiler-info.outputs.hash }}-vcpkg-binary-cache-

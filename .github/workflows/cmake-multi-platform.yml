@@ -19,12 +19,16 @@ jobs:
         include:
           - os: ubuntu-latest
             preset: gcc-release-no-cuda
+            triplet: x64-linux
           - os: ubuntu-latest
             preset: llvm-release-no-cuda
+            triplet: x64-linux
           - os: macos-latest
             preset: appleclang-release
+            triplet: x64-osx
           - os: windows-latest
             preset: msvc-release-no-cuda
+            triplet: x64-windows-static-md
 
     steps:
     - name: Checkout
@@ -46,6 +50,7 @@ jobs:
       uses: ./.github/actions/setup-vcpkg
       with:
         os: ${{ matrix.os }}
+        triplet: ${{ matrix.triplet }}
 
     - name: Run CMake consuming CMakePreset.json and run vcpkg to build packages
       uses: lukka/run-cmake@v10

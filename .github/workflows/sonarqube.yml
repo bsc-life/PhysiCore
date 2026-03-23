@@ -26,6 +26,7 @@ jobs:
         uses: ./.github/actions/setup-vcpkg
         with:
           os: ubuntu-latest
+          triplet: x64-linux
       - name: Install Build Wrapper
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
       - name: Run Build Wrapper

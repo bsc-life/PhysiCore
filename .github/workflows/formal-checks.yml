@@ -59,6 +59,7 @@ jobs:
         uses: ./.github/actions/setup-vcpkg
         with:
           os: ubuntu-latest
+          triplet: x64-linux
 
       - name: Configure project for clang-tidy
         uses: lukka/run-cmake@v10

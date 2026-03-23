@@ -43,6 +43,7 @@ jobs:
       uses: ./.github/actions/setup-vcpkg
       with:
         os: ${{ matrix.os }}
+        triplet: x64-linux
 
     - name: Run CMake Workflow
       uses: lukka/run-cmake@v10
