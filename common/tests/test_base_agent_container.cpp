@@ -154,6 +154,18 @@ public:
 	{}
 };
 
+class diff_retriever : public generic_agent_solver<diffusion_agent>
+{
+public:
+	using generic_agent_solver<diffusion_agent>::retrieve_agent_data;
+};
+
+class mech_retriever : public generic_agent_solver<mechanics_agent>
+{
+public:
+	using generic_agent_solver<mechanics_agent>::retrieve_agent_data;
+};
+
 TEST(BaseAgentContainerTest, Instantiation)
 {
 	const generic_agent_and_data_container<base_agent> base_container(std::make_unique<base_agent_data>());
@@ -192,12 +204,10 @@ TEST(BaseAgentContainerTest, Instantiation)
 
 		// Data can be accessed
 		{
-			physicore::generic_agent_solver<diffusion_agent> diff_accessor;
-			const diffusion_agent_data& d_accessed = diff_accessor.retrieve_agent_data(container);
+			const diffusion_agent_data& d_accessed = diff_retriever().retrieve_agent_data(container);
 			(void)d_accessed;
 
-			physicore::generic_agent_solver<mechanics_agent> mech_accessor;
-			const mechanics_agent_data& m_accessed = mech_accessor.retrieve_agent_data(container);
+			const mechanics_agent_data& m_accessed = mech_retriever().retrieve_agent_data(container);
 			(void)m_accessed;
 		}
 
