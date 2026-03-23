@@ -192,13 +192,13 @@ TEST(BaseAgentContainerTest, Instantiation)
 
 		// Data can be accessed
 		{
-			// physicore::generic_agent_solver<diffusion_agent> diff_accessor;
-			// diffusion_agent_data& d_accessed = diff_accessor.retrieve_agent_data(container);
-			// (void)d_accessed;
+			physicore::generic_agent_solver<diffusion_agent> diff_accessor;
+			diffusion_agent_data& d_accessed = diff_accessor.retrieve_agent_data(container);
+			(void)d_accessed;
 
-			// physicore::generic_agent_solver<mechanics_agent> mech_accessor;
-			// mechanics_agent_data& m_accessed = mech_accessor.retrieve_agent_data(container);
-			// (void)m_accessed;
+			physicore::generic_agent_solver<mechanics_agent> mech_accessor;
+			mechanics_agent_data& m_accessed = mech_accessor.retrieve_agent_data(container);
+			(void)m_accessed;
 		}
 
 		mechanics_container.create();
