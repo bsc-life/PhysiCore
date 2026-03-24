@@ -14,7 +14,7 @@ jobs:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: recursive
           fetch-depth: 0
@@ -27,7 +27,7 @@ jobs:
         with:
           os: ubuntu-latest
       - name: Install Build Wrapper
-        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v6
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v7
       - name: Run Build Wrapper
         run: |
           cmake --preset llvm-cov-debug
@@ -46,7 +46,7 @@ jobs:
         run: |
           llvm-cov-18 show --show-branches=count --instr-profile merged.profdata build/llvm-cov-debug/common/tests/common.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/tests/reactions-diffusion.biofvm.tests -object build/llvm-cov-debug/mechanics/micromechanics/tests/mechanics.micromechanics.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/openmp_solver/tests/reactions-diffusion.biofvm.kernels.openmp_solver.tests -object build/llvm-cov-debug/reactions-diffusion/biofvm/kernels/thrust_solver/tests/reactions-diffusion.biofvm.kernels.tbb_thrust_solver.tests > coverage.txt
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:

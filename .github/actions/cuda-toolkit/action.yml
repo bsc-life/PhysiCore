@@ -6,7 +6,7 @@ runs:
   steps:
     - name: Install CUDA Toolkit
       if: runner.os == 'Linux' || (runner.os == 'Windows' && runner.arch != 'ARM64')
-      uses: jimver/cuda-toolkit@v0.2.29
+      uses: jimver/cuda-toolkit@v0.2.30
       with:
         method: 'network'
         sub-packages: ${{ runner.os == 'Linux' && '["nvcc"]' || '["crt", "cudart", "nvcc", "nvvm"]' }}
