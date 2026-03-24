@@ -39,12 +39,8 @@ jobs:
           sudo ln -sf /usr/bin/clang++-20 /usr/bin/clang++
           sudo ln -sf /usr/bin/clang-20 /usr/bin/clang
 
-    - name: Set up vcpkg with cache
-      uses: ./.github/actions/setup-vcpkg
+    - name: Build and test with CMake
+      uses: ./.github/actions/setup-build-env
       with:
         os: ${{ matrix.os }}
-
-    - name: Run CMake Workflow
-      uses: lukka/run-cmake@v10
-      with:
-        workflowPreset: ${{ matrix.workflow }}
+        workflow-preset: ${{ matrix.workflow }}

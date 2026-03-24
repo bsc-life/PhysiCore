@@ -59,15 +59,11 @@ jobs:
       - name: Install CUDA Toolkit
         uses: ./.github/actions/cuda-toolkit
 
-      - name: Set up vcpkg with cache
-        uses: ./.github/actions/setup-vcpkg
+      - name: Set up build environment
+        uses: ./.github/actions/setup-build-env
         with:
           os: ${{ matrix.os }}
-
-      - name: Build with CMake
-        uses: lukka/run-cmake@v10
-        with:
-          workflowPreset: ${{ matrix.preset }}
+          workflow-preset: ${{ matrix.preset }}
 
       - name: Install to staging directory
         run: |

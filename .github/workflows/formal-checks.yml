@@ -55,15 +55,11 @@ jobs:
 
           echo "All files are properly formatted."
 
-      - name: Set up vcpkg with cache
-        uses: ./.github/actions/setup-vcpkg
+      - name: Configure with CMake
+        uses: ./.github/actions/setup-build-env
         with:
           os: ubuntu-latest
-
-      - name: Configure project for clang-tidy
-        uses: lukka/run-cmake@v10
-        with:
-          configurePreset: "llvm-debug"
+          configure-preset: llvm-debug
 
       - name: Run clang-tidy analysis
         shell: bash

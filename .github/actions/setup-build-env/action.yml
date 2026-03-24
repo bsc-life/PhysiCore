@@ -1,0 +1,51 @@
+name: 'Set up build environment and run CMake'
+description: 'Sets up vcpkg with binary caching and optionally runs CMake'
+
+inputs:
+  os:
+    description: 'Operating system identifier for cache key (e.g., ubuntu-22.04, macos-latest)'
+    required: true
+  workflow-preset:
+    description: 'CMake workflow preset to run (configure + build + test). Mutually exclusive with configure-preset.'
+    required: false
+    default: ''
+  configure-preset:
+    description: 'CMake configure-only preset to run. Mutually exclusive with workflow-preset.'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up vcpkg
+      uses: lukka/run-vcpkg@v11
+      env:
+        VCPKG_BINARY_SOURCES: default,readwrite
+
+    - name: Restore binary cache
+      id: vcpkg-restore
+      uses: actions/cache/restore@v5
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ inputs.os }}-${{ runner.arch }}-vcpkg-binary-cache-${{ hashFiles('vcpkg*.json', 'ports-overlays/**', 'triplets-overlays/**', 'CMakePresets.json') }}
+        restore-keys: |
+          ${{ inputs.os }}-${{ runner.arch }}-vcpkg-binary-cache-
+
+    - name: Run CMake workflow
+      if: ${{ inputs.workflow-preset != '' }}
+      uses: lukka/run-cmake@v10
+      with:
+        workflowPreset: ${{ inputs.workflow-preset }}
+
+    - name: Run CMake configure
+      if: ${{ inputs.configure-preset != '' }}
+      uses: lukka/run-cmake@v10
+      with:
+        configurePreset: ${{ inputs.configure-preset }}
+
+    - name: Save binary cache
+      if: always()
+      uses: actions/cache/save@v5
+      with:
+        path: ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+        key: ${{ steps.vcpkg-restore.outputs.cache-primary-key }}
