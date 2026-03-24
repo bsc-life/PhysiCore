@@ -13,11 +13,6 @@ class position_solver
 {
 private:
 public:
-	// void prepare(const microenvironment& m, index_t iterations);
-
-	// void initialize();
-
-	// void solve();
 
 	static void update_cell_forces(environment& e);
 

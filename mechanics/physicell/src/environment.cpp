@@ -44,3 +44,12 @@ mechanical_agent_data& environment::get_agent_data()
 	auto& data_ptr = std::get<std::unique_ptr<mechanical_agent_data>>(agents->agent_datas);
 	return *data_ptr;
 }
+
+const physicore::cartesian_mesh& environment::get_mesh() const
+{
+	if (!mesh_)
+	{
+		throw std::runtime_error("environment has no mesh");
+	}
+	return *mesh_;
+}
