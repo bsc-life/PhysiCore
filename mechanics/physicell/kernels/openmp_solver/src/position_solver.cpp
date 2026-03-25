@@ -134,7 +134,7 @@ void update_cell_forces_internal(index_t agents_count, index_t cell_def_count, r
 
 void position_solver::update_cell_forces(environment& e)
 {
-	auto& data = e.get_agent_data(); // mechanical_agent_data
+	auto& data = retrieve_agent_data(*e.agents);
 	const index_t dims = data.base_data.dims;
 
 	clear_simple_pressure(data.state_data.simple_pressure.data(), data.agents_count);
@@ -213,7 +213,7 @@ void update_cell_neighbors_internal(environment& e, index_t agents_count, const 
 
 void position_solver::update_cell_neighbors(environment& e, const cartesian_mesh& mesh)
 {
-	auto& data = e.get_agent_data();
+	auto& data = retrieve_agent_data(*e.agents);
 	const index_t dims = data.base_data.dims;
 
 	std::vector<std::vector<index_t>> cells_in_voxels(mesh.voxel_count());
@@ -301,7 +301,7 @@ void update_motility_internal(
 
 void position_solver::update_motility(environment& e)
 {
-	auto& data = e.get_agent_data(); // get
+	auto& data = retrieve_agent_data(*e.agents);
 
 	if (data.base_data.dims == 1)
 		update_motility_internal<1>(
@@ -362,7 +362,7 @@ void position_solver::update_basement_membrane_interactions(environment& e, cons
 	if (!e.virtual_wall_at_domain_edges) // note: where do we include this
 		return;
 
-	auto& data = e.get_agent_data();
+	auto& data = retrieve_agent_data(*e.agents);
 
 	if (data.base_data.dims == 1)
 		update_basement_membrane_interactions_internal<1>(
@@ -503,7 +503,7 @@ void position_solver::update_spring_attachments(environment& e)
 	if (!e.automated_spring_adhesion)
 		return;
 
-	auto& data = e.get_agent_data();
+	auto& data = retrieve_agent_data(*e.agents);
 	const index_t dims = data.base_data.dims;
 
 	update_spring_attachments_internal(
@@ -558,7 +558,7 @@ void update_positions_internal(index_t agents_count, real_t time_step, real_t* P
 
 void position_solver::update_positions(environment& e)
 {
-	auto& data = e.get_agent_data();
+	auto& data = retrieve_agent_data(*e.agents);
 	const index_t dims = data.base_data.dims;
 
 	if (dims == 1)

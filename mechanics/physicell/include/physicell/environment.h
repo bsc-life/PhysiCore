@@ -22,7 +22,6 @@ public:
 
 	void serialize_state(real_t current_time) override;
 
-	mechanical_agent_data& get_agent_data();
 
 	real_t timestep;
 	bool automated_spring_adhesion;

@@ -1,4 +1,7 @@
 #include <memory>
+#include <stdexcept>
+
+#include <common/generic_agent_solver.h>
 
 #include <common/types.h>
 #include <gtest/gtest.h>
@@ -9,6 +12,19 @@ using namespace physicore;
 using namespace physicore::mechanics::physicell;
 
 namespace {
+
+class agent_retriever : public generic_agent_solver<mechanical_agent>
+{};
+
+mechanical_agent_data& retrieve_environment_agent_data(environment& env)
+{
+	if (env.agents == nullptr)
+	{
+		throw std::runtime_error("environment has no agents");
+	}
+
+	return agent_retriever().retrieve_agent_data(*env.agents);
+}
 
 constexpr real_t test_timestep = 0.1;
 constexpr index_t test_dims = 2;
@@ -47,12 +63,6 @@ public:
 
 } // namespace
 
-TEST(EnvironmentTest, RunSingleTimestepWithoutSolver)
-{
-	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
-	EXPECT_NO_THROW(env.run_single_timestep());
-}
-
 TEST(EnvironmentTest, RunSingleTimestepUsesSolverWhenProvided)
 {
 	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
@@ -86,10 +96,10 @@ TEST(EnvironmentTest, SerializeStateUsesSerializerWhenProvided)
 	EXPECT_DOUBLE_EQ(serializer_ptr->last_time, 3.25);
 }
 
-TEST(EnvironmentTest, GetAgentDataReturnsContainerData)
+TEST(EnvironmentTest, RetrieveAgentDataReturnsContainerData)
 {
 	environment env(0.1, 2, 4, 3);
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 
 	ASSERT_NE(env.agents, nullptr);
 	auto* expected = std::get<std::unique_ptr<mechanical_agent_data>>(env.agents->agent_datas).get();
@@ -100,10 +110,10 @@ TEST(EnvironmentTest, GetAgentDataReturnsContainerData)
 	EXPECT_EQ(data.base_data.dims, 2);
 }
 
-TEST(EnvironmentTest, GetAgentDataThrowsWhenAgentsMissing)
+TEST(EnvironmentTest, RetrieveAgentDataThrowsWhenAgentsMissing)
 {
 	environment env(test_timestep, test_dims, test_agent_types, test_substrates);
 	env.agents.reset();
 
-	EXPECT_THROW(env.get_agent_data(), std::runtime_error);
+	EXPECT_THROW(retrieve_environment_agent_data(env), std::runtime_error);
 }

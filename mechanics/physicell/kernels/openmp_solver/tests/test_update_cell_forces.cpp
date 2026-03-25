@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <vector>
 
+#include <stdexcept>
+
+#include <common/generic_agent_solver.h>
 #include <gtest/gtest.h>
 #include <physicell/openmp_solver/position_solver.h>
 #include <physicell/openmp_solver/register_solver.h>
@@ -18,7 +21,26 @@ using physicore::sindex_t;
 
 namespace {
 
+class agent_retriever : public physicore::generic_agent_solver<mechanical_agent>
+{};
+
+mechanical_agent_data& retrieve_environment_agent_data(environment& env)
+{
+	if (env.agents == nullptr)
+	{
+		throw std::runtime_error("environment has no agents");
+	}
+
+	return agent_retriever().retrieve_agent_data(*env.agents);
+}
+
 constexpr real_t kTolerance = static_cast<real_t>(1e-6);
+
+kernels::openmp_solver::position_solver& position_solver_instance()
+{
+	static kernels::openmp_solver::position_solver solver;
+	return solver;
+}
 
 //Helpers for test orchestration
 void add_agent(environment& env, std::initializer_list<real_t> pos, real_t radius = 1, index_t type = 0,
@@ -27,7 +49,7 @@ void add_agent(environment& env, std::initializer_list<real_t> pos, real_t radiu
 	ASSERT_TRUE(env.agents != nullptr);
 	env.agents->create();
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	const index_t dims = data.base_data.dims;
 	const index_t idx = data.agents_count - 1;
 
@@ -50,7 +72,7 @@ void add_agent(environment& env, std::initializer_list<real_t> pos, real_t radiu
 
 void clear_kinematics_and_pressure(environment& env)
 {
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	std::ranges::fill(data.velocity, static_cast<real_t>(0));
 	std::ranges::fill(data.previous_velocity, static_cast<real_t>(0));
 	std::ranges::fill(data.state_data.simple_pressure, static_cast<real_t>(0));
@@ -58,7 +80,7 @@ void clear_kinematics_and_pressure(environment& env)
 
 void connect_pair(environment& env)
 {
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.state_data.neighbors[0] = { 1 };
 	data.state_data.neighbors[1] = { 0 };
 }
@@ -66,18 +88,18 @@ void connect_pair(environment& env)
 void run_update_cell_forces(environment& env)
 {
 	clear_kinematics_and_pressure(env);
-	kernels::openmp_solver::position_solver::update_cell_forces(env);
+	position_solver_instance().update_cell_forces(env);
 }
 
 real_t velocity_component(environment& env, index_t agent, index_t dim)
 {
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	return data.velocity[agent * data.base_data.dims + dim];
 }
 
 void set_uniform_affinity(environment& env, real_t value)
 {
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	for (index_t agent = 0; agent < data.agents_count; ++agent)
 		for (index_t type = 0; type < data.agent_types_count; ++type)
 			data.mechanics_data.cell_adhesion_affinities[agent * data.agent_types_count + type] = value;
@@ -85,7 +107,7 @@ void set_uniform_affinity(environment& env, real_t value)
 
 void set_uniform_position(environment& env, index_t agent, real_t value)
 {
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	const index_t dims = data.base_data.dims;
 	for (index_t dim = 0; dim < dims; ++dim)
 		data.base_data.positions[agent * dims + dim] = value;
@@ -105,7 +127,7 @@ cartesian_mesh make_mesh(index_t dims)
 
 std::vector<real_t> compute_expected_velocities(environment& env)
 {
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	const index_t dims = data.base_data.dims;
 	std::vector<real_t> expected_velocities(static_cast<std::size_t>(data.agents_count * dims), 0);
 
@@ -174,9 +196,9 @@ TEST(UpdateCellForcesTest, NoAgentsDoesNotCrash)
 {
 	environment env(0.1, 2, 1, 1);
 	clear_kinematics_and_pressure(env);
-	kernels::openmp_solver::position_solver::update_cell_forces(env);
+	position_solver_instance().update_cell_forces(env);
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	EXPECT_EQ(data.agents_count, 0);
 	EXPECT_TRUE(data.velocity.empty());
 	EXPECT_TRUE(data.state_data.simple_pressure.empty());
@@ -188,9 +210,9 @@ TEST(UpdateCellForcesTest, SingleAgentNoNeighborsLeavesZeroForces)
 	add_agent(env, { 0, 0 });
 	clear_kinematics_and_pressure(env);
 
-	kernels::openmp_solver::position_solver::update_cell_forces(env);
+	position_solver_instance().update_cell_forces(env);
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	EXPECT_EQ(data.agents_count, 1);
 	EXPECT_FLOAT_EQ(data.velocity[0], 0);
 	EXPECT_FLOAT_EQ(data.velocity[1], 0);
@@ -203,7 +225,7 @@ TEST(UpdateCellForcesTest, TwoAgentsRepelSymmetrically)
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0.5, 0 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.radius[0] = 1;
 	data.radius[1] = 1;
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
@@ -212,7 +234,7 @@ TEST(UpdateCellForcesTest, TwoAgentsRepelSymmetrically)
 	data.state_data.neighbors[1] = { 0 };
 
 	clear_kinematics_and_pressure(env);
-	kernels::openmp_solver::position_solver::update_cell_forces(env);
+	position_solver_instance().update_cell_forces(env);
 
 	EXPECT_LT(data.velocity[0], 0);
 	EXPECT_GT(data.velocity[2], 0);
@@ -229,7 +251,7 @@ TEST(UpdateCellForcesTest, OverlappingAgentsProduceFiniteVelocities)
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0, 0 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.radius[0] = 1;
 	data.radius[1] = 1;
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
@@ -237,7 +259,7 @@ TEST(UpdateCellForcesTest, OverlappingAgentsProduceFiniteVelocities)
 	data.state_data.neighbors[0] = { 1 };
 
 	clear_kinematics_and_pressure(env);
-	kernels::openmp_solver::position_solver::update_cell_forces(env);
+	position_solver_instance().update_cell_forces(env);
 
 	for (real_t v : data.velocity)
 		EXPECT_TRUE(std::isfinite(v));
@@ -251,7 +273,7 @@ TEST(UpdateCellForcesTest, AdhesionDependsOnAffinities)
 	add_agent(env, { 0, 0 }, 1, 0);
 	add_agent(env, { 1, 0 }, 1, 1);
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_repulsion_strength[0] = 0;
 	data.mechanics_data.cell_cell_repulsion_strength[1] = 0;
 	data.mechanics_data.relative_maximum_adhesion_distance[0] = 2;
@@ -262,13 +284,13 @@ TEST(UpdateCellForcesTest, AdhesionDependsOnAffinities)
 	data.mechanics_data.cell_adhesion_affinities[0 * 2 + 1] = 1;
 	data.mechanics_data.cell_adhesion_affinities[1 * 2 + 0] = 1;
 	clear_kinematics_and_pressure(env);
-	kernels::openmp_solver::position_solver::update_cell_forces(env);
+	position_solver_instance().update_cell_forces(env);
 	EXPECT_GT(data.velocity[0], 0);
 	EXPECT_LT(data.velocity[2], 0);
 
 	data.mechanics_data.cell_adhesion_affinities[0 * 2 + 1] = 0;
 	clear_kinematics_and_pressure(env);
-	kernels::openmp_solver::position_solver::update_cell_forces(env);
+	position_solver_instance().update_cell_forces(env);
 	EXPECT_NEAR(data.velocity[0], 0, kTolerance);
 	EXPECT_NEAR(data.velocity[2], 0, kTolerance);
 }
@@ -283,7 +305,7 @@ TEST(SolvePair, RepulsiveForce1D_Overlapping)
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -306,7 +328,7 @@ TEST(SolvePair, NoForce1D_FarApart)
 
 	run_update_cell_forces(env);
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	EXPECT_NEAR(velocity_component(env, 0, 0), 0, kTolerance);
 	EXPECT_NEAR(velocity_component(env, 1, 0), 0, kTolerance);
 	EXPECT_NEAR(data.state_data.simple_pressure[0], 0, kTolerance);
@@ -319,7 +341,7 @@ TEST(SolvePair, AdhesiveForce1D_InAdhesionRange)
 	add_agent(env, { 0 });
 	add_agent(env, { 3 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.relative_maximum_adhesion_distance[0] = 2;
 	data.mechanics_data.relative_maximum_adhesion_distance[1] = 2;
 	connect_pair(env);
@@ -339,7 +361,7 @@ TEST(SolvePair, NewtonsThirdLaw1D_ForceSymmetry)
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -355,7 +377,7 @@ TEST(SolvePair, SimplePressure1D_Accumulates)
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -373,7 +395,7 @@ TEST(SolvePair, ZeroRepulsion1D_NoRepulsiveForce)
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_repulsion_strength[0] = 0;
 	data.mechanics_data.cell_cell_repulsion_strength[1] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
@@ -394,7 +416,7 @@ TEST(SolvePair, RepulsiveForce2D_Overlapping)
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0.5, 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -415,7 +437,7 @@ TEST(SolvePair, AdhesiveForce2D_InAdhesionRange)
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 3, 4 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.relative_maximum_adhesion_distance[0] = 3;
 	data.mechanics_data.relative_maximum_adhesion_distance[1] = 3;
 	connect_pair(env);
@@ -434,7 +456,7 @@ TEST(SolvePair, NewtonsThirdLaw2D_ForceSymmetry)
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0.5, 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -451,7 +473,7 @@ TEST(SolvePair, RepulsiveForce3D_Overlapping)
 	add_agent(env, { 0, 0, 0 });
 	add_agent(env, { 0.5, 0.5, 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -472,7 +494,7 @@ TEST(SolvePair, AdhesiveForce3D_DirectionalAccuracy)
 	add_agent(env, { 0, 0, 0 });
 	add_agent(env, { 1, 2, 2 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.relative_maximum_adhesion_distance[0] = 2;
 	data.mechanics_data.relative_maximum_adhesion_distance[1] = 2;
 	connect_pair(env);
@@ -495,7 +517,7 @@ TEST(SolvePair, NewtonsThirdLaw3D_ForceSymmetry)
 	add_agent(env, { 0, 0, 0 });
 	add_agent(env, { 0.5, 0.5, 0.5 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -513,7 +535,7 @@ TEST(SolvePair, ZeroDistance1D_Minimum)
 	add_agent(env, { 0 });
 	add_agent(env, { 0 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.cell_cell_adhesion_strength[0] = 0;
 	data.mechanics_data.cell_cell_adhesion_strength[1] = 0;
 	connect_pair(env);
@@ -533,7 +555,7 @@ TEST(SolvePair, ZeroAffinity1D_NoAdhesion)
 	add_agent(env, { 0 });
 	add_agent(env, { 3 });
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.relative_maximum_adhesion_distance[0] = 2;
 	data.mechanics_data.relative_maximum_adhesion_distance[1] = 2;
 	set_uniform_affinity(env, 0);
@@ -553,7 +575,7 @@ TEST(SolvePair, DifferentCellTypes1D_AffinityLookup)
 	add_agent(env, { 0 }, 1, 0);
 	add_agent(env, { 3 }, 1, 1);
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	data.mechanics_data.relative_maximum_adhesion_distance[0] = 2;
 	data.mechanics_data.relative_maximum_adhesion_distance[1] = 2;
 	set_uniform_affinity(env, 0);
@@ -580,7 +602,7 @@ TEST_P(SolvePairComplexTest, Complex)
 	add_agent(env, {}, radius, 1);
 	add_agent(env, {}, radius, 0);
 
-	auto& data = env.get_agent_data();
+	auto& data = retrieve_environment_agent_data(env);
 	for (index_t agent = 0; agent < data.agents_count; ++agent)
 		data.mechanics_data.relative_maximum_adhesion_distance[agent] = 1;
 
@@ -592,8 +614,8 @@ TEST_P(SolvePairComplexTest, Complex)
 
 #pragma omp parallel
 	{
-		kernels::openmp_solver::position_solver::update_cell_neighbors(env, mesh);
-		kernels::openmp_solver::position_solver::update_cell_forces(env);
+		position_solver_instance().update_cell_neighbors(env, mesh);
+		position_solver_instance().update_cell_forces(env);
 	}
 
 	EXPECT_EQ(data.state_data.neighbors[0].size(), static_cast<std::size_t>(1));

@@ -17,19 +17,21 @@ void openmp_solver::solve(environment& e, index_t iterations)
 		initialize(e);
 	}
 
+	position_solver mechanics_position_solver;
+
 	for (index_t i = 0; i < iterations; ++i)
 	{
-		position_solver::update_cell_neighbors(e, e.get_mesh());
+		mechanics_position_solver.update_cell_neighbors(e, e.get_mesh());
 
-		position_solver::update_cell_forces(e);
+		mechanics_position_solver.update_cell_forces(e);
 
-		position_solver::update_motility(e);
+		mechanics_position_solver.update_motility(e);
 
-		position_solver::update_basement_membrane_interactions(e, e.get_mesh());
+		mechanics_position_solver.update_basement_membrane_interactions(e, e.get_mesh());
 
-		position_solver::update_spring_attachments(e);
+		mechanics_position_solver.update_spring_attachments(e);
 
-		position_solver::update_positions(e);
+		mechanics_position_solver.update_positions(e);
 	}
 
 }

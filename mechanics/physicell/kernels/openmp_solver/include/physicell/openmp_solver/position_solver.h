@@ -4,27 +4,26 @@
 
 #include <common/cartesian_mesh.h>
 #include <common/types.h>
+#include <common/generic_agent_solver.h>
 #include <physicell/environment.h>
 
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
-class position_solver
+class position_solver : private generic_agent_solver<mechanical_agent>
 {
-private:
 public:
+	void update_cell_forces(environment& e);
 
-	static void update_cell_forces(environment& e);
+	void update_cell_neighbors(environment& e, const cartesian_mesh& mesh);
 
-	static void update_cell_neighbors(environment& e, const cartesian_mesh& mesh);
+	void update_motility(environment& e);
 
-	static void update_motility(environment& e);
+	void update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh);
 
-	static void update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh);
+	void update_spring_attachments(environment& e);
 
-	static void update_spring_attachments(environment& e);
-
-	static void update_positions(environment& e);
+	void update_positions(environment& e);
 };
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver

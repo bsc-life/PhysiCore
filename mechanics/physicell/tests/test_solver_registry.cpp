@@ -55,6 +55,12 @@ TEST(SolverRegistryTest, RegisterFactoryRejectsDuplicate)
 	ASSERT_NE(solver_instance, nullptr);
 }
 
+TEST(SolverRegistryTest, OpenMPSolverIsRegistered)
+{
+	auto solver_instance = solver_registry::instance().get("openmp_solver");
+	ASSERT_NE(solver_instance, nullptr);
+}
+
 #ifdef NDEBUG
 TEST(SolverRegistryTest, GetReturnsNullptrForMissingKeyInRelease)
 {
