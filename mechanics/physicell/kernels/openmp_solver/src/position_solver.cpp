@@ -13,10 +13,6 @@
 #include "common_solver.h"
 #include "solver_helper.h"
 
-// Forward declaration - environment is from biofvm
-namespace physicore::biofvm {
-class environment;
-} // namespace physicore::biofvm
 
 using namespace physicore::mechanics::physicell;
 
