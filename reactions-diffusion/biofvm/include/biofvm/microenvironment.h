@@ -8,10 +8,10 @@
 #include <biofvm/biofvm_export.h>
 #include <common/timestep_executor.h>
 #include <common/types.h>
+#include <common/cartesian_mesh.h>
 
 #include "agent_container.h"
 #include "bulk_functor.h"
-#include "mesh.h"
 #include "serializer.h"
 #include "solver.h"
 
@@ -52,7 +52,7 @@ public:
 	std::string name, time_units, space_units;
 	real_t diffusion_timestep;
 	real_t simulation_time = 0.0;
-	cartesian_mesh mesh;
+	physicore::cartesian_mesh mesh;
 
 	// diffusion-decay configuration parameters
 	index_t substrates_count;

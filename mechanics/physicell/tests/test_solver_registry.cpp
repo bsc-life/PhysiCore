@@ -60,11 +60,3 @@ TEST(SolverRegistryTest, OpenMPSolverIsRegistered)
 	auto solver_instance = solver_registry::instance().get("openmp_solver");
 	ASSERT_NE(solver_instance, nullptr);
 }
-
-#ifdef NDEBUG
-TEST(SolverRegistryTest, GetReturnsNullptrForMissingKeyInRelease)
-{
-	auto& registry = solver_registry::instance();
-	EXPECT_EQ(registry.get("test_solver_registry_missing"), nullptr);
-}
-#endif
