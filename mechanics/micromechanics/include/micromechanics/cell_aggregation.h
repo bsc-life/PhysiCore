@@ -11,9 +11,7 @@ namespace physicore::mechanics::micromechanics {
 void reset_cell_aggregates(cell_data& cells);
 
 /// Aggregate COM position/velocity, per-compartment counts, and a pressure proxy from agent forces.
-void aggregate_cell_data_from_agents(const physicore::base_agent_data& base,
-								 const agent_data& agents,
-								 cell_data& cells);
+void aggregate_cell_data_from_agents(const physicore::base_agent_data& base, const agent_data& agents,
+									 cell_data& cells);
 
 } // namespace physicore::mechanics::micromechanics
-

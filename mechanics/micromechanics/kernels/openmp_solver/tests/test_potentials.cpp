@@ -3,7 +3,6 @@
 
 #include <common/base_agent_data.h>
 #include <gtest/gtest.h>
-
 #include <micromechanics/agent_container.h>
 #include <micromechanics/agent_data.h>
 #include <micromechanics/environment.h>
@@ -158,4 +157,3 @@ TEST_F(PotentialTest, KelvinVoigtSpringForceCompression)
 	real_t force = pot.calculate_pairwise_force(*env, 0, 1, 1.0, 1.0, 0.0, 0.0);
 	EXPECT_DOUBLE_EQ(force, -2.0);
 }
-
