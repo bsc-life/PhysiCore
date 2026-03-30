@@ -29,7 +29,7 @@ public:
 	 * 2. Form new springs between nearby cells based on attachment_rate
 	 * 3. Calculate spring contraction forces
 	 */
-	static void update_spring_attachments(environment& e);
+	void update_spring_attachments(environment& e);
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
