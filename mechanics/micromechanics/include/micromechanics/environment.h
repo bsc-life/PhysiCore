@@ -6,13 +6,13 @@
 #include <common/timestep_executor.h>
 #include <common/types.h>
 
+#include "agent_container.h"
 #include "cell_data.h"
 #include "simulation_parameters.h"
 #include "spatial_index.h"
 
 namespace physicore::mechanics::micromechanics {
 
-class agent_container;
 class solver;
 
 /**
@@ -24,13 +24,13 @@ class solver;
 class environment : public timestep_executor
 {
 public:
+	/// Agent-level container (positions, velocities, forces, etc.)
+	std::unique_ptr<agent_container> agents;
+
 	/// Mechanics timestep
 	real_t timestep;
 
-	/// Agent container with all agent data
-	std::unique_ptr<agent_container> agents;
-
-	/// Cell-level data (pressure, etc.) aggregated from agents
+	/// Cell-level data aggregated from agents (flat SoA, one value per cell)
 	cell_data cells;
 
 	/// Simulation parameters including type-based interactions
@@ -61,7 +61,8 @@ public:
 	void run_single_timestep() override;
 	void serialize_state(real_t current_time) override;
 
-	// TODO cell definition class + vector of cell definitions
+	// Note: definitions live here because they are global simulation configuration
+	// shared across solver backends.
 };
 
 } // namespace physicore::mechanics::micromechanics

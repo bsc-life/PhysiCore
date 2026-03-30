@@ -17,8 +17,8 @@ namespace physicore::mechanics::micromechanics {
  */
 struct interaction_config
 {
-	/// Name of the potential to use: "standard", "morse", "kelvin_voigt"
-	std::string potential_name = "standard";
+	/// Name of the potential to use: "morse", "kelvin_voigt"
+	std::string potential_name = "morse";
 
 	// === Common parameters (used by most potentials) ===
 

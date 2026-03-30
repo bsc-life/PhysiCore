@@ -45,10 +45,13 @@ void basement_membrane_solver::update_interactions(environment& e)
 #pragma omp parallel for
 	for (index_t i = 0; i < count; ++i)
 	{
-		if (!mech_data.is_movable[i])
+		// Look up cell-level movability and radius
+		index_t const cell_id = mech_data.cell_ids[static_cast<std::size_t>(i)];
+		if (cell_id != cell_data::invalid_cell_id && !e.cells.is_movable[static_cast<std::size_t>(cell_id)])
 			continue;
 
-		real_t const radius = mech_data.radii[i];
+		real_t const radius =
+			(cell_id != cell_data::invalid_cell_id) ? e.cells.radii[static_cast<std::size_t>(cell_id)] : 1.0;
 		real_t const x = base_data.positions[i * 3];
 		real_t const y = base_data.positions[i * 3 + 1];
 		real_t const z = base_data.positions[i * 3 + 2];

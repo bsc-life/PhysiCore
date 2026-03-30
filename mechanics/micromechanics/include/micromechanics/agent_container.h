@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include <common/base_agent.h>
 #include <common/generic_agent_container.h>
 
@@ -9,10 +7,6 @@
 
 namespace physicore::mechanics::micromechanics {
 
-class agent_container : public generic_agent_and_data_container<base_agent, agent>
-{
-public:
-	using generic_agent_and_data_container<base_agent, agent>::generic_agent_and_data_container;
-};
+using agent_container = generic_agent_and_data_container<base_agent, agent>;
 
 } // namespace physicore::mechanics::micromechanics

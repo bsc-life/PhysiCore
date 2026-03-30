@@ -20,21 +20,17 @@ namespace internal {
 class agent_interface : public virtual base_agent_interface
 {
 public:
+	// Agent Classification
+	virtual std::uint8_t& compartment_type() = 0;
+	virtual index_t& cell_id() = 0;
+
 	// Kinematics
 	virtual std::span<real_t> velocity() = 0;
 	virtual std::span<real_t> previous_velocity() = 0;
+	virtual std::span<real_t> force() = 0;
 
-	// Geometry
-	virtual real_t& radius() = 0;
-	virtual std::uint8_t& is_movable() = 0;
-
-	// Per-agent interaction strengths (can vary within a cell type)
-	virtual real_t& cell_cell_adhesion_strength() = 0;
-	virtual real_t& cell_cell_repulsion_strength() = 0;
-	virtual real_t& relative_maximum_adhesion_distance() = 0;
-
-	// Topology
-	virtual std::span<index_t> neighbors() = 0;
+	// Topology (Kelvin-Voigt)
+	virtual std::span<index_t> spring_attachments() = 0;
 };
 
 } // namespace internal
@@ -73,6 +69,9 @@ public:
 	{}
 
 	// Kinematics
+	std::uint8_t& compartment_type() override { return data.compartment_types[this->index]; }
+	index_t& cell_id() override { return data.cell_ids[this->index]; }
+
 	std::span<real_t> velocity() override
 	{
 		const index_t dims = data.base_data.dims;
@@ -85,20 +84,16 @@ public:
 		return std::span<real_t>(&data.previous_velocities[this->index * dims], dims);
 	}
 
-	// Geometry
-	real_t& radius() override { return data.radii[this->index]; }
-	std::uint8_t& is_movable() override { return data.is_movable[this->index]; }
-
-	// Per-agent interaction strengths
-	real_t& cell_cell_adhesion_strength() override { return data.cell_cell_adhesion_strength[this->index]; }
-	real_t& cell_cell_repulsion_strength() override { return data.cell_cell_repulsion_strength[this->index]; }
-	real_t& relative_maximum_adhesion_distance() override
+	std::span<real_t> force() override
 	{
-		return data.relative_maximum_adhesion_distance[this->index];
+		const index_t dims = data.base_data.dims;
+		return std::span<real_t>(&data.forces[this->index * dims], dims);
 	}
 
-	// Topology
-	std::span<index_t> neighbors() override { return std::span<index_t>(data.neighbors[this->index]); }
+	std::span<index_t> spring_attachments() override
+	{
+		return std::span<index_t>(data.spring_attachments[this->index]);
+	}
 };
 
 #ifdef _MSC_VER

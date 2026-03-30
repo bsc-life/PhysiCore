@@ -29,21 +29,18 @@ TEST(UniformGridSpatialIndex, BuildAndQuery)
 	base_data_ref.positions[0] = 0.0;
 	base_data_ref.positions[1] = 0.0;
 	base_data_ref.positions[2] = 0.0;
-	mech_data_ref.radii[0] = 10.0;
 
 	// Agent 1 at (15,0,0) - should be neighbor of 0 (dist 15 < 20)
 	agents.create();
 	base_data_ref.positions[3] = 15.0;
 	base_data_ref.positions[4] = 0.0;
 	base_data_ref.positions[5] = 0.0;
-	mech_data_ref.radii[1] = 10.0;
 
 	// Agent 2 at (100,0,0) - far away
 	agents.create();
 	base_data_ref.positions[6] = 100.0;
 	base_data_ref.positions[7] = 0.0;
 	base_data_ref.positions[8] = 0.0;
-	mech_data_ref.radii[2] = 10.0;
 
 	// Build index
 	uniform_grid_spatial_index index;

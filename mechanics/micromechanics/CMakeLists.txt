@@ -8,7 +8,7 @@ file(GLOB PUBLIC_INC "include/micromechanics/*.h")
 target_sources(
   physicore.mechanics.micromechanics
   PRIVATE src/environment.cpp src/simulation_parameters.cpp
-          src/uniform_grid_spatial_index.cpp
+          src/uniform_grid_spatial_index.cpp src/cell_aggregation.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
          ${PUBLIC_INC})
 
@@ -28,6 +28,8 @@ target_link_libraries(physicore.mechanics.micromechanics
 target_include_directories(
   physicore.mechanics.micromechanics
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+add_subdirectory(kernels/openmp_solver)
 
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)

@@ -31,28 +31,22 @@ void motility_solver::update_motility(environment& e)
 	auto& mech_data = *std::get<std::unique_ptr<agent_data>>(agents.agent_datas);
 	index_t const count = agents.size();
 	real_t const dt = e.timestep;
+	auto& cells = e.cells;
 
-	// Thread-local random generators for parallel execution
-#pragma omp parallel
+	// --- Phase 1: update motility directions per cell ---
 	{
-		// Each thread gets its own random generator
 		std::random_device rd;
 		std::mt19937 gen(rd());
 		std::uniform_real_distribution<real_t> uniform(0.0, 1.0);
-		std::normal_distribution<real_t> const normal(0.0, 1.0);
 
-#pragma omp for
-		for (index_t i = 0; i < count; ++i)
+		for (index_t c = 0; c < cells.cells_count; ++c)
 		{
-			if (!mech_data.is_motile[i])
+			if (!cells.is_motile[static_cast<std::size_t>(c)])
 				continue;
 
-			real_t const persistence_time = mech_data.persistence_times[i];
-			real_t const migration_speed = mech_data.migration_speeds[i];
-			real_t const migration_bias = mech_data.migration_biases[i];
+			real_t const persistence_time = cells.persistence_times[static_cast<std::size_t>(c)];
+			real_t const migration_bias = cells.migration_biases[static_cast<std::size_t>(c)];
 
-			// Check if we should update motility direction
-			// Probability of update = dt / persistence_time
 			if (persistence_time > 0.0 && uniform(gen) < dt / persistence_time)
 			{
 				// Generate random direction on unit sphere
@@ -63,12 +57,12 @@ void motility_solver::update_motility(environment& e)
 				real_t const rand_y = std::sin(phi) * std::sin(theta);
 				real_t const rand_z = std::cos(phi);
 
-				// Get bias direction
-				real_t const bias_x = mech_data.migration_bias_directions[i * 3];
-				real_t const bias_y = mech_data.migration_bias_directions[i * 3 + 1];
-				real_t const bias_z = mech_data.migration_bias_directions[i * 3 + 2];
+				// Get bias direction from cell data
+				real_t const bias_x = cells.migration_bias_directions[cells.cell_offset(c, 0)];
+				real_t const bias_y = cells.migration_bias_directions[cells.cell_offset(c, 1)];
+				real_t const bias_z = cells.migration_bias_directions[cells.cell_offset(c, 2)];
 
-				// Combine random and bias: direction = (1-bias)*random + bias*bias_direction
+				// Combine random and bias
 				real_t dir_x = (1.0 - migration_bias) * rand_x + migration_bias * bias_x;
 				real_t dir_y = (1.0 - migration_bias) * rand_y + migration_bias * bias_y;
 				real_t dir_z = (1.0 - migration_bias) * rand_z + migration_bias * bias_z;
@@ -82,17 +76,28 @@ void motility_solver::update_motility(environment& e)
 					dir_z /= mag;
 				}
 
-				// Store new motility direction
-				mech_data.motility_directions[i * 3] = dir_x;
-				mech_data.motility_directions[i * 3 + 1] = dir_y;
-				mech_data.motility_directions[i * 3 + 2] = dir_z;
+				cells.motility_directions[cells.cell_offset(c, 0)] = dir_x;
+				cells.motility_directions[cells.cell_offset(c, 1)] = dir_y;
+				cells.motility_directions[cells.cell_offset(c, 2)] = dir_z;
 			}
-
-			// Add motility force = speed * direction
-			mech_data.forces[i * 3] += migration_speed * mech_data.motility_directions[i * 3];
-			mech_data.forces[i * 3 + 1] += migration_speed * mech_data.motility_directions[i * 3 + 1];
-			mech_data.forces[i * 3 + 2] += migration_speed * mech_data.motility_directions[i * 3 + 2];
 		}
+	}
+
+	// --- Phase 2: apply motility force to each agent ---
+#pragma omp parallel for
+	for (index_t i = 0; i < count; ++i)
+	{
+		index_t const cell_id = mech_data.cell_ids[static_cast<std::size_t>(i)];
+		if (cell_id == cell_data::invalid_cell_id || cell_id >= cells.cells_count)
+			continue;
+		if (!cells.is_motile[static_cast<std::size_t>(cell_id)])
+			continue;
+
+		real_t const speed = cells.migration_speeds[static_cast<std::size_t>(cell_id)];
+
+		mech_data.forces[i * 3] += speed * cells.motility_directions[cells.cell_offset(cell_id, 0)];
+		mech_data.forces[i * 3 + 1] += speed * cells.motility_directions[cells.cell_offset(cell_id, 1)];
+		mech_data.forces[i * 3 + 2] += speed * cells.motility_directions[cells.cell_offset(cell_id, 2)];
 	}
 }
 

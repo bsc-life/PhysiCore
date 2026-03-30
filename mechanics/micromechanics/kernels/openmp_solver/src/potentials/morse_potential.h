@@ -6,19 +6,23 @@
 namespace physicore::mechanics::micromechanics::kernels::openmp_solver {
 
 /**
- * @brief Morse potential for soft cell-cell interactions.
+ * @brief Morse potential for soft cell-cell interactions (r²/r₀² form).
  *
- * The Morse potential provides a smooth repulsion-attraction curve:
- *   V(r) = D * (exp(2*a*(1-r/r0)) - 2*exp(a*(1-r/r0)))
+ * Uses a modified Morse potential with squared-distance exponent:
+ *   V(r) = D * [ exp(2·a·(1 − r²/r₀²)) − 2·exp(a·(1 − r²/r₀²)) ]
  *
  * Where:
- *   D = potential well depth (derived from stiffness and scaling_factor)
- *   a = scaling_factor
- *   r0 = equilibrium_distance
+ *   D  = potential well depth = (k · r₀²) / (8 · a²)
+ *   a  = scaling_factor  (controls well width)
+ *   r₀ = equilibrium_distance
+ *   k  = stiffness
  *
- * Force is derivative of potential with sign for attraction/repulsion.
+ * The force (−dV/dr) evaluates to:
+ *   F(r) = (4·a·r·D / r₀²) · [ exp(2P) − exp(P) ]
+ *   with  P = a · (1 − r²/r₀²)
  *
- * Recycled from legacy_src/src/solver/host/kelvin_voigt_solver.cpp (solve_pair_inter)
+ * The r²/r₀² form is intentional: it gives a steeper repulsive wall
+ * and smoother adhesion tail than the standard r/r₀ Morse potential.
  */
 class morse_potential : public potential_interface
 {
@@ -27,8 +31,8 @@ class morse_potential : public potential_interface
 public:
 	explicit morse_potential(interaction_config config);
 
-	void calculate_pairwise_force(const environment& env, index_t agent_i, index_t agent_j, real_t distance, real_t dx,
-								  real_t dy, real_t dz, real_t& force_out) const override;
+	real_t calculate_pairwise_force(const environment& env, index_t agent_i, index_t agent_j, real_t distance,
+									real_t dx, real_t dy, real_t dz) const override;
 
 	std::string name() const override;
 

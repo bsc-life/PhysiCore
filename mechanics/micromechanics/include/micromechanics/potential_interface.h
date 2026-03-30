@@ -30,13 +30,13 @@ public:
 	 * @param agent_i Index of first agent
 	 * @param agent_j Index of second agent
 	 * @param distance Pre-calculated distance between agents
-	 * @param dx X-component of normalized direction vector (j - i)
-	 * @param dy Y-component of normalized direction vector
-	 * @param dz Z-component of normalized direction vector
-	 * @param force_out Output: force magnitude (positive = repulsion, negative = attraction)
+	 * @param dx X-component of direction vector (j - i)
+	 * @param dy Y-component of direction vector
+	 * @param dz Z-component of direction vector
+	 * @return Force magnitude (positive = repulsion, negative = attraction)
 	 */
-	virtual void calculate_pairwise_force(const environment& env, index_t agent_i, index_t agent_j, real_t distance,
-										  real_t dx, real_t dy, real_t dz, real_t& force_out) const = 0;
+	virtual real_t calculate_pairwise_force(const environment& env, index_t agent_i, index_t agent_j, real_t distance,
+											real_t dx, real_t dy, real_t dz) const = 0;
 
 	/// Get the name of this potential type
 	virtual std::string name() const = 0;

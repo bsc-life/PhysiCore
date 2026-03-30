@@ -49,7 +49,9 @@ void spring_solver::update_spring_attachments(environment& e)
 #pragma omp parallel for
 	for (index_t i = 0; i < count; ++i)
 	{
-		if (!mech_data.is_movable[i])
+		// Look up cell-level movability
+		index_t const cell_id_i = mech_data.cell_ids[static_cast<std::size_t>(i)];
+		if (cell_id_i != cell_data::invalid_cell_id && !e.cells.is_movable[static_cast<std::size_t>(cell_id_i)])
 			continue;
 
 		// Get spring attachments for this agent
@@ -69,8 +71,13 @@ void spring_solver::update_spring_attachments(environment& e)
 			if (distance < 1e-16)
 				continue;
 
-			// Rest length is sum of radii (touching)
-			real_t const rest_length = mech_data.radii[i] + mech_data.radii[j];
+			// Rest length is sum of radii (touching) — look up from cell_data
+			index_t const cell_id_j = mech_data.cell_ids[static_cast<std::size_t>(j)];
+			real_t const r_i =
+				(cell_id_i != cell_data::invalid_cell_id) ? e.cells.radii[static_cast<std::size_t>(cell_id_i)] : 1.0;
+			real_t const r_j =
+				(cell_id_j != cell_data::invalid_cell_id) ? e.cells.radii[static_cast<std::size_t>(cell_id_j)] : 1.0;
+			real_t const rest_length = r_i + r_j;
 
 			// Spring force: F = k * (distance - rest_length)
 			// Positive when stretched (pulls together), negative when compressed

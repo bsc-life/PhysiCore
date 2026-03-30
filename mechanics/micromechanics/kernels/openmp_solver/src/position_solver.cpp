@@ -39,7 +39,9 @@ void position_solver::update_positions(environment& e)
 #pragma omp parallel for
 	for (index_t i = 0; i < count; ++i)
 	{
-		if (!mech_data.is_movable[i])
+		// Look up cell-level movability
+		index_t const cell_id = mech_data.cell_ids[static_cast<std::size_t>(i)];
+		if (cell_id != cell_data::invalid_cell_id && !e.cells.is_movable[static_cast<std::size_t>(cell_id)])
 			continue;
 
 		// Current velocity = force / drag (assuming unit mass, overdamped)

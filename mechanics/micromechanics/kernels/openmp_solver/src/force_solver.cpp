@@ -11,7 +11,6 @@
 
 #include "potentials/kelvin_voigt_potential.h"
 #include "potentials/morse_potential.h"
-#include "potentials/standard_potential.h"
 
 #ifdef _OPENMP
 	#include <omp.h>
@@ -38,18 +37,12 @@ void force_solver::initialize(environment& e)
 
 std::unique_ptr<potential_interface> force_solver::create_potential(const interaction_config& config)
 {
-	if (config.potential_name == "morse")
-	{
-		return std::make_unique<morse_potential>(config);
-	}
 	if (config.potential_name == "kelvin_voigt")
 	{
 		return std::make_unique<kelvin_voigt_potential>(config);
 	}
-	else // default to standard
-	{
-		return std::make_unique<standard_potential>(config);
-	}
+	// Default to Morse
+	return std::make_unique<morse_potential>(config);
 }
 
 const potential_interface& force_solver::get_potential(std::uint8_t type_a, std::uint8_t type_b) const
@@ -83,11 +76,13 @@ void force_solver::calculate_forces(environment& e)
 #pragma omp parallel for
 	for (index_t i = 0; i < count; ++i)
 	{
-		if (!mech_data.is_movable[i])
+		// Look up cell-level movability
+		index_t const cell_id_i = mech_data.cell_ids[static_cast<std::size_t>(i)];
+		if (cell_id_i != cell_data::invalid_cell_id && !e.cells.is_movable[static_cast<std::size_t>(cell_id_i)])
 			continue;
 
-		// Get agent type from agent_data
-		std::uint8_t const type_i = mech_data.agent_types[i];
+		// Get agent compartment type
+		std::uint8_t const type_i = mech_data.compartment_types[static_cast<std::size_t>(i)];
 
 		// Determine max interaction distance from default potential
 		real_t const max_dist = default_potential_->max_interaction_distance(e, i);
@@ -97,7 +92,7 @@ void force_solver::calculate_forces(environment& e)
 
 		for (index_t const j : neighbors)
 		{
-			std::uint8_t const type_j = mech_data.agent_types[j];
+			std::uint8_t const type_j = mech_data.compartment_types[static_cast<std::size_t>(j)];
 
 			// Calculate position difference (j - i, so positive = j is ahead of i)
 			// Legacy uses this convention: position_difference points from i to j
@@ -112,11 +107,8 @@ void force_solver::calculate_forces(environment& e)
 			// Get appropriate potential for this type pair
 			const auto& potential = get_potential(type_i, type_j);
 
-			// Calculate force coefficient (already divided by distance in potential)
-			// Legacy: force = (repulsion - adhesion) / distance
-			// Then: velocity += position_difference * force
-			real_t force_coeff = 0.0;
-			potential.calculate_pairwise_force(e, i, j, distance, dx, dy, dz, force_coeff);
+			// Calculate force magnitude from potential
+			real_t const force_coeff = potential.calculate_pairwise_force(e, i, j, distance, dx, dy, dz);
 
 			// Accumulate force using position difference
 			// dx points from i toward j (dx = pos_j - pos_i)

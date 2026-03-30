@@ -15,7 +15,6 @@ target_sources(
           src/basement_membrane_solver.cpp
           src/spring_solver.cpp
           src/register_solver.cpp
-          src/potentials/standard_potential.cpp
           src/potentials/morse_potential.cpp
           src/potentials/kelvin_voigt_potential.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")

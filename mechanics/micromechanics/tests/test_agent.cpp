@@ -66,58 +66,44 @@ TEST_F(AgentTest, Position)
 	EXPECT_DOUBLE_EQ(test_agent.position()[2], 30.0);
 }
 
-TEST_F(AgentTest, Radius)
+TEST_F(AgentTest, CompartmentType)
 {
 	agent test_agent(0, data);
-	test_agent.radius() = 8.5;
-	EXPECT_DOUBLE_EQ(test_agent.radius(), 8.5);
+	test_agent.compartment_type() = 7;
+	EXPECT_EQ(test_agent.compartment_type(), 7);
 }
 
-TEST_F(AgentTest, IsMovable)
+TEST_F(AgentTest, CellId)
 {
 	agent test_agent(0, data);
-	// Default should be 1 (movable)
-	EXPECT_EQ(test_agent.is_movable(), 1);
-
-	test_agent.is_movable() = 0;
-	EXPECT_EQ(test_agent.is_movable(), 0);
+	test_agent.cell_id() = 123;
+	EXPECT_EQ(test_agent.cell_id(), 123);
 }
 
-TEST_F(AgentTest, CellCellAdhesionStrength)
+TEST_F(AgentTest, Force)
 {
 	agent test_agent(0, data);
-	test_agent.cell_cell_adhesion_strength() = 0.4;
-	EXPECT_DOUBLE_EQ(test_agent.cell_cell_adhesion_strength(), 0.4);
+	auto f = test_agent.force();
+	ASSERT_EQ(f.size(), 3);
+	f[0] = 0.1;
+	f[1] = 0.2;
+	f[2] = 0.3;
+	EXPECT_DOUBLE_EQ(test_agent.force()[0], 0.1);
+	EXPECT_DOUBLE_EQ(test_agent.force()[1], 0.2);
+	EXPECT_DOUBLE_EQ(test_agent.force()[2], 0.3);
 }
 
-TEST_F(AgentTest, CellCellRepulsionStrength)
+TEST_F(AgentTest, SpringAttachments)
 {
 	agent test_agent(0, data);
-	test_agent.cell_cell_repulsion_strength() = 10.0;
-	EXPECT_DOUBLE_EQ(test_agent.cell_cell_repulsion_strength(), 10.0);
-}
+	EXPECT_TRUE(test_agent.spring_attachments().empty());
+	data.spring_attachments[0].push_back(1);
+	data.spring_attachments[0].push_back(2);
 
-TEST_F(AgentTest, RelativeMaximumAdhesionDistance)
-{
-	agent test_agent(0, data);
-	test_agent.relative_maximum_adhesion_distance() = 1.25;
-	EXPECT_DOUBLE_EQ(test_agent.relative_maximum_adhesion_distance(), 1.25);
-}
-
-TEST_F(AgentTest, Neighbors)
-{
-	agent test_agent(0, data);
-	// Initially empty
-	EXPECT_TRUE(test_agent.neighbors().empty());
-
-	// Add neighbors to the underlying data
-	data.neighbors[0].push_back(1);
-	data.neighbors[0].push_back(2);
-
-	auto neighbors = test_agent.neighbors();
-	ASSERT_EQ(neighbors.size(), 2);
-	EXPECT_EQ(neighbors[0], 1);
-	EXPECT_EQ(neighbors[1], 2);
+	auto att = test_agent.spring_attachments();
+	ASSERT_EQ(att.size(), 2);
+	EXPECT_EQ(att[0], 1);
+	EXPECT_EQ(att[1], 2);
 }
 
 TEST_F(AgentTest, MultipleAgents)
@@ -131,19 +117,19 @@ TEST_F(AgentTest, MultipleAgents)
 
 	// Set unique values
 	agent0.velocity()[0] = 1.0;
-	agent0.radius() = 5.0;
-	agent0.cell_cell_repulsion_strength() = 10.0;
+	agent0.compartment_type() = 3;
+	agent0.cell_id() = 10;
 
 	agent1.velocity()[0] = 2.0;
-	agent1.radius() = 7.0;
-	agent1.cell_cell_repulsion_strength() = 15.0;
+	agent1.compartment_type() = 4;
+	agent1.cell_id() = 11;
 
 	// Verify isolation
 	EXPECT_DOUBLE_EQ(agent0.velocity()[0], 1.0);
-	EXPECT_DOUBLE_EQ(agent0.radius(), 5.0);
-	EXPECT_DOUBLE_EQ(agent0.cell_cell_repulsion_strength(), 10.0);
+	EXPECT_EQ(agent0.compartment_type(), 3);
+	EXPECT_EQ(agent0.cell_id(), 10);
 
 	EXPECT_DOUBLE_EQ(agent1.velocity()[0], 2.0);
-	EXPECT_DOUBLE_EQ(agent1.radius(), 7.0);
-	EXPECT_DOUBLE_EQ(agent1.cell_cell_repulsion_strength(), 15.0);
+	EXPECT_EQ(agent1.compartment_type(), 4);
+	EXPECT_EQ(agent1.cell_id(), 11);
 }

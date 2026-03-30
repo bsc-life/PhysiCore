@@ -56,21 +56,18 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	auto* agent2 = container.create();
 
 	// Set unique values for each agent to verify correct data management
-	agent0->radius() = 1.0;
-	agent0->cell_cell_repulsion_strength() = 0.1;
-	agent0->cell_cell_adhesion_strength() = 0.2;
+	agent0->compartment_type() = 1;
+	agent0->cell_id() = 10;
 	agent0->position()[0] = 0.8;
 	agent0->velocity()[0] = 0.9;
 
-	agent1->radius() = 2.0;
-	agent1->cell_cell_repulsion_strength() = 1.1;
-	agent1->cell_cell_adhesion_strength() = 1.2;
+	agent1->compartment_type() = 2;
+	agent1->cell_id() = 20;
 	agent1->position()[0] = 1.8;
 	agent1->velocity()[0] = 1.9;
 
-	agent2->radius() = 3.0;
-	agent2->cell_cell_repulsion_strength() = 2.1;
-	agent2->cell_cell_adhesion_strength() = 2.2;
+	agent2->compartment_type() = 3;
+	agent2->cell_id() = 30;
 	agent2->position()[0] = 2.8;
 	agent2->velocity()[0] = 2.9;
 
@@ -85,25 +82,22 @@ TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 	// Verify remaining agents maintain their values
 	if (remove_idx != 0)
 	{
-		EXPECT_DOUBLE_EQ(agent0->radius(), 1.0);
-		EXPECT_DOUBLE_EQ(agent0->cell_cell_repulsion_strength(), 0.1);
-		EXPECT_DOUBLE_EQ(agent0->cell_cell_adhesion_strength(), 0.2);
+		EXPECT_EQ(agent0->compartment_type(), 1);
+		EXPECT_EQ(agent0->cell_id(), 10);
 		EXPECT_DOUBLE_EQ(agent0->position()[0], 0.8);
 		EXPECT_DOUBLE_EQ(agent0->velocity()[0], 0.9);
 	}
 	if (remove_idx != 1)
 	{
-		EXPECT_DOUBLE_EQ(agent1->radius(), 2.0);
-		EXPECT_DOUBLE_EQ(agent1->cell_cell_repulsion_strength(), 1.1);
-		EXPECT_DOUBLE_EQ(agent1->cell_cell_adhesion_strength(), 1.2);
+		EXPECT_EQ(agent1->compartment_type(), 2);
+		EXPECT_EQ(agent1->cell_id(), 20);
 		EXPECT_DOUBLE_EQ(agent1->position()[0], 1.8);
 		EXPECT_DOUBLE_EQ(agent1->velocity()[0], 1.9);
 	}
 	if (remove_idx != 2)
 	{
-		EXPECT_DOUBLE_EQ(agent2->radius(), 3.0);
-		EXPECT_DOUBLE_EQ(agent2->cell_cell_repulsion_strength(), 2.1);
-		EXPECT_DOUBLE_EQ(agent2->cell_cell_adhesion_strength(), 2.2);
+		EXPECT_EQ(agent2->compartment_type(), 3);
+		EXPECT_EQ(agent2->cell_id(), 30);
 		EXPECT_DOUBLE_EQ(agent2->position()[0], 2.8);
 		EXPECT_DOUBLE_EQ(agent2->velocity()[0], 2.9);
 	}
@@ -122,32 +116,32 @@ TEST(AgentContainerTest, GetAgentAt)
 	auto* agent2 = container.create();
 
 	// Set distinctive values for each agent
-	agent0->radius() = 1.5;
-	agent0->cell_cell_repulsion_strength() = 0.1;
+	agent0->compartment_type() = 11;
+	agent0->cell_id() = 101;
 
-	agent1->radius() = 2.5;
-	agent1->cell_cell_repulsion_strength() = 0.2;
+	agent1->compartment_type() = 22;
+	agent1->cell_id() = 202;
 
-	agent2->radius() = 3.5;
-	agent2->cell_cell_repulsion_strength() = 0.3;
+	agent2->compartment_type() = 33;
+	agent2->cell_id() = 303;
 
 	// Test get_agent_at for each position
 	auto* retrieved0 = container.get_agent_at(0);
 	ASSERT_NE(retrieved0, nullptr);
-	EXPECT_DOUBLE_EQ(retrieved0->radius(), 1.5);
-	EXPECT_DOUBLE_EQ(retrieved0->cell_cell_repulsion_strength(), 0.1);
+	EXPECT_EQ(retrieved0->compartment_type(), 11);
+	EXPECT_EQ(retrieved0->cell_id(), 101);
 	EXPECT_EQ(retrieved0, agent0);
 
 	auto* retrieved1 = container.get_agent_at(1);
 	ASSERT_NE(retrieved1, nullptr);
-	EXPECT_DOUBLE_EQ(retrieved1->radius(), 2.5);
-	EXPECT_DOUBLE_EQ(retrieved1->cell_cell_repulsion_strength(), 0.2);
+	EXPECT_EQ(retrieved1->compartment_type(), 22);
+	EXPECT_EQ(retrieved1->cell_id(), 202);
 	EXPECT_EQ(retrieved1, agent1);
 
 	auto* retrieved2 = container.get_agent_at(2);
 	ASSERT_NE(retrieved2, nullptr);
-	EXPECT_DOUBLE_EQ(retrieved2->radius(), 3.5);
-	EXPECT_DOUBLE_EQ(retrieved2->cell_cell_repulsion_strength(), 0.3);
+	EXPECT_EQ(retrieved2->compartment_type(), 33);
+	EXPECT_EQ(retrieved2->cell_id(), 303);
 	EXPECT_EQ(retrieved2, agent2);
 
 #ifdef NDEBUG
