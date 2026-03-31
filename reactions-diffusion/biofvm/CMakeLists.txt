@@ -11,7 +11,6 @@ target_sources(
           src/microenvironment_builder.cpp
           src/mesh.cpp
           src/vtk_serializer.cpp
-          src/vtk_serializer_base.cpp
           src/config_reader.cpp
           src/vtk_agents_serializer.cpp
           src/solver_registry.cpp
@@ -34,8 +33,9 @@ target_link_libraries(physicore.reactions-diffusion.biofvm_internal_iface
 find_package(VTK CONFIG REQUIRED)
 find_package(pugixml CONFIG REQUIRED)
 
-target_link_libraries(physicore.reactions-diffusion.biofvm_internal_iface
-                      INTERFACE VTK::IOXML pugixml::pugixml)
+target_link_libraries(
+  physicore.reactions-diffusion.biofvm_internal_iface
+  INTERFACE physicore::common::vtk_serializer VTK::IOXML pugixml::pugixml)
 
 target_link_libraries(
   physicore.reactions-diffusion.biofvm
