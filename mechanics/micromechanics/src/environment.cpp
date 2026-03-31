@@ -7,15 +7,13 @@
 
 namespace physicore::mechanics::micromechanics {
 
-environment::environment(real_t timestep) : timestep(timestep)
+environment::environment(real_t timestep)
+	: timestep(timestep), domain_min { -500.0, -500.0, -500.0 }, domain_max { 500.0, 500.0, 500.0 }
 {
 	auto base_data = std::make_unique<physicore::base_agent_data>(3);
 	auto mech_data = std::make_unique<agent_data>(*base_data);
 	agents = std::make_unique<agent_container>(std::move(base_data), std::move(mech_data));
 	index = std::make_unique<uniform_grid_spatial_index>();
-
-	domain_min = { -500.0, -500.0, -500.0 };
-	domain_max = { 500.0, 500.0, 500.0 };
 }
 
 environment::~environment() = default;

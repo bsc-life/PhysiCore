@@ -3,15 +3,16 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <ranges>
 
 namespace physicore::mechanics::micromechanics {
 
 void reset_cell_aggregates(cell_data& cells)
 {
-	std::fill(cells.positions.begin(), cells.positions.end(), static_cast<real_t>(0.0));
-	std::fill(cells.velocities.begin(), cells.velocities.end(), static_cast<real_t>(0.0));
-	std::fill(cells.agent_counts.begin(), cells.agent_counts.end(), static_cast<index_t>(0));
-	std::fill(cells.pressures.begin(), cells.pressures.end(), static_cast<real_t>(0.0));
+	std::ranges::fill(cells.positions, static_cast<real_t>(0.0));
+	std::ranges::fill(cells.velocities, static_cast<real_t>(0.0));
+	std::ranges::fill(cells.agent_counts, static_cast<index_t>(0));
+	std::ranges::fill(cells.pressures, static_cast<real_t>(0.0));
 }
 
 void aggregate_cell_data_from_agents(const physicore::base_agent_data& base, const agent_data& agents, cell_data& cells)

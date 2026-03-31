@@ -69,11 +69,11 @@ std::vector<index_t> uniform_grid_spatial_index::query_neighbors(const environme
 	real_t const y = base_data.positions[agent_index * 3 + 1];
 	real_t const z = base_data.positions[agent_index * 3 + 2];
 
-	int const cx = static_cast<int>(std::floor(x / cell_size));
-	int const cy = static_cast<int>(std::floor(y / cell_size));
-	int const cz = static_cast<int>(std::floor(z / cell_size));
+	auto const cx = static_cast<int>(std::floor(x / cell_size));
+	auto const cy = static_cast<int>(std::floor(y / cell_size));
+	auto const cz = static_cast<int>(std::floor(z / cell_size));
 
-	int const search_radius = static_cast<int>(std::ceil(radius / cell_size));
+	auto const search_radius = static_cast<int>(std::ceil(radius / cell_size));
 	real_t const radius_sq = radius * radius;
 
 	for (int dx = -search_radius; dx <= search_radius; ++dx)
