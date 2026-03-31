@@ -31,11 +31,8 @@ void spring_solver::update_spring_attachments(environment& e)
 	auto& mech_data = *std::get<std::unique_ptr<agent_data>>(agents.agent_datas);
 	auto& base_data = mech_data.base_data;
 	index_t const count = agents.size();
-	real_t const dt = e.timestep;
 
 	real_t const elastic_constant = e.params.attachment_elastic_constant;
-	real_t const attachment_rate = e.params.attachment_rate;
-	real_t const detachment_rate = e.params.detachment_rate;
 
 	// Note: Spring attachment management is complex and requires careful
 	// synchronization. For now, we implement a simplified version that

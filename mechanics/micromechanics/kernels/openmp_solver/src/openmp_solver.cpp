@@ -38,11 +38,14 @@ void openmp_solver::calculate_cell_data(environment& e)
 	aggregate_cell_data_from_agents(base_data, mech_data, e.cells);
 }
 
-void openmp_solver::update_motility(environment& e) { m_solver_.update_motility(e); }
+void openmp_solver::update_motility(environment& e) { motility_solver::update_motility(e); }
 
-void openmp_solver::update_basement_membrane_interactions(environment& e) { bm_solver_.update_interactions(e); }
+void openmp_solver::update_basement_membrane_interactions(environment& e)
+{
+	basement_membrane_solver::update_interactions(e);
+}
 
-void openmp_solver::update_spring_attachments(environment& e) { s_solver_.update_spring_attachments(e); }
+void openmp_solver::update_spring_attachments(environment& e) { spring_solver::update_spring_attachments(e); }
 
 void openmp_solver::update_positions(environment& e) { position_solver::update_positions(e); }
 

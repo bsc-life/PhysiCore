@@ -11,10 +11,12 @@ void attach_to_registry()
 	solver_registry::instance().register_factory("openmp_solver", []() { return std::make_unique<openmp_solver>(); });
 }
 
+namespace {
 // Static registration - solver is registered when the library is loaded
-static bool registered = []() {
+const bool registered = []() {
 	attach_to_registry();
 	return true;
 }();
+} // namespace
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
