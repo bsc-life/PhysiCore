@@ -84,10 +84,11 @@ std::vector<index_t> uniform_grid_spatial_index::query_neighbors(const environme
 			{
 				grid_key const key { .x = cx + dx, .y = cy + dy, .z = cz + dz };
 				auto it = grid.find(key);
-				if (it != grid.end())
+				if (it == grid.end())
 				{
-					collect_neighbors_in_cell(it->second, agent_index, base_data, x, y, z, radius_sq, neighbors);
+					continue;
 				}
+				collect_neighbors_in_cell(it->second, agent_index, base_data, x, y, z, radius_sq, neighbors);
 			}
 		}
 	}
