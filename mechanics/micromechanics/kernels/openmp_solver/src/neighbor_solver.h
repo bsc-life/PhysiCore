@@ -27,7 +27,7 @@ public:
 	 * Rebuilds the spatial index and populates neighbor lists
 	 * for each agent based on interaction distances.
 	 */
-	void update_neighbors(environment& e);
+	static void update_neighbors(environment& e);
 };
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
