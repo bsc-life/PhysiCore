@@ -8,12 +8,14 @@
 using namespace physicore;
 using namespace physicore::mechanics::micromechanics;
 
-static agent_container make_agent_container()
+namespace {
+agent_container make_agent_container()
 {
 	auto base_data = std::make_unique<base_agent_data>(3);
 	auto mech_data = std::make_unique<agent_data>(*base_data);
 	return agent_container(std::move(base_data), std::move(mech_data));
 }
+} // namespace
 
 TEST(AgentContainerTest, CreateIncreasesSize)
 {
@@ -46,6 +48,7 @@ TEST(AgentContainerTest, CreateAndRemove)
 class RemoveAgentTest : public ::testing::TestWithParam<std::tuple<int, bool>>
 {};
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST_P(RemoveAgentTest, RemoveAgentsAndCheckProperties)
 {
 	agent_container container = make_agent_container();

@@ -29,7 +29,7 @@ TEST(CellDataTest, PressureAndAgentCount)
 {
 	cell_data data;
 	data.resize(1, 3);
-	cell c0(0, data);
+	const cell c0(0, data);
 
 	// Initially zero
 	EXPECT_DOUBLE_EQ(c0.pressure(), 0.0);
