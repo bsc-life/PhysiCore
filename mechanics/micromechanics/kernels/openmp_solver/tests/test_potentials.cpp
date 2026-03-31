@@ -64,12 +64,12 @@ TEST_F(PotentialTest, MorseForceZeroAtEquilibrium)
 	config.morse_equilibrium_distance = 2.0;
 	config.morse_stiffness = 1.0;
 
-	morse_potential pot(config);
+	const morse_potential pot(config);
 
 	auto env = create_env_with_two_agents(0.0, 2.0);
 	// At r = r0, exp_power = a*(1 - r²/r₀²) = 1*(1 - 4/4) = 0
 	// exp(0) = 1, so (exp(2*0) - exp(0)) = (1 - 1) = 0 → force = 0
-	real_t force = pot.calculate_pairwise_force(*env, 0, 1, 2.0, 2.0, 0.0, 0.0);
+	const real_t force = pot.calculate_pairwise_force(*env, 0, 1, 2.0, 2.0, 0.0, 0.0);
 	EXPECT_NEAR(force, 0.0, 1e-12);
 }
 
@@ -80,11 +80,11 @@ TEST_F(PotentialTest, MorseForceRepulsiveWhenClose)
 	config.morse_equilibrium_distance = 2.0;
 	config.morse_stiffness = 1.0;
 
-	morse_potential pot(config);
+	const morse_potential pot(config);
 
 	auto env = create_env_with_two_agents(0.0, 0.5);
 	// r=0.5 < r0=2.0, so r²/r₀² < 1, P > 0, exp(2P) > exp(P) → force > 0 (repulsive)
-	real_t force = pot.calculate_pairwise_force(*env, 0, 1, 0.5, 0.5, 0.0, 0.0);
+	const real_t force = pot.calculate_pairwise_force(*env, 0, 1, 0.5, 0.5, 0.0, 0.0);
 	EXPECT_GT(force, 0.0);
 }
 
@@ -95,11 +95,11 @@ TEST_F(PotentialTest, MorseForceAttractiveWhenFar)
 	config.morse_equilibrium_distance = 2.0;
 	config.morse_stiffness = 1.0;
 
-	morse_potential pot(config);
+	const morse_potential pot(config);
 
 	auto env = create_env_with_two_agents(0.0, 3.0);
 	// r=3.0 > r0=2.0, so r²/r₀² > 1, P < 0, exp(2P) < exp(P) → force < 0 (attractive)
-	real_t force = pot.calculate_pairwise_force(*env, 0, 1, 3.0, 3.0, 0.0, 0.0);
+	const real_t force = pot.calculate_pairwise_force(*env, 0, 1, 3.0, 3.0, 0.0, 0.0);
 	EXPECT_LT(force, 0.0);
 }
 
@@ -110,10 +110,10 @@ TEST_F(PotentialTest, MorseForceZeroWhenParamsZero)
 	config.morse_equilibrium_distance = 2.0;
 	config.morse_stiffness = 1.0;
 
-	morse_potential pot(config);
+	const morse_potential pot(config);
 
 	auto env = create_env_with_two_agents(0.0, 1.0);
-	real_t force = pot.calculate_pairwise_force(*env, 0, 1, 1.0, 1.0, 0.0, 0.0);
+	const real_t force = pot.calculate_pairwise_force(*env, 0, 1, 1.0, 1.0, 0.0, 0.0);
 	EXPECT_DOUBLE_EQ(force, 0.0);
 }
 
@@ -122,7 +122,7 @@ TEST_F(PotentialTest, MorseMaxInteractionDistance)
 	interaction_config config;
 	config.morse_equilibrium_distance = 2.0;
 
-	morse_potential pot(config);
+	const morse_potential pot(config);
 	auto env = create_env_with_two_agents(0.0, 1.0);
 	EXPECT_DOUBLE_EQ(pot.max_interaction_distance(*env, 0), 5.0); // 2.0 * 2.5
 }
@@ -135,12 +135,12 @@ TEST_F(PotentialTest, KelvinVoigtSpringForceAtRest)
 	config.spring_constant = 1.0;
 	config.damping_coefficient = 0.0; // no damping
 
-	kelvin_voigt_potential pot(config);
+	const kelvin_voigt_potential pot(config);
 
 	// radius=1.0, rest_length = 2*radius = 2.0
 	auto env = create_env_with_two_agents(0.0, 2.0);
 	// At rest length, spring force = k * (distance - rest) = 1.0 * (2.0 - 2.0) = 0
-	real_t force = pot.calculate_pairwise_force(*env, 0, 1, 2.0, 2.0, 0.0, 0.0);
+	const real_t force = pot.calculate_pairwise_force(*env, 0, 1, 2.0, 2.0, 0.0, 0.0);
 	EXPECT_NEAR(force, 0.0, 1e-12);
 }
 
@@ -150,10 +150,10 @@ TEST_F(PotentialTest, KelvinVoigtSpringForceCompression)
 	config.spring_constant = 2.0;
 	config.damping_coefficient = 0.0;
 
-	kelvin_voigt_potential pot(config);
+	const kelvin_voigt_potential pot(config);
 
 	// radius=1.0, rest_length=2.0, distance=1.0 → F = 2.0*(1.0 - 2.0) = -2.0
 	auto env = create_env_with_two_agents(0.0, 1.0);
-	real_t force = pot.calculate_pairwise_force(*env, 0, 1, 1.0, 1.0, 0.0, 0.0);
+	const real_t force = pot.calculate_pairwise_force(*env, 0, 1, 1.0, 1.0, 0.0, 0.0);
 	EXPECT_DOUBLE_EQ(force, -2.0);
 }

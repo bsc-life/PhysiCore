@@ -5,11 +5,13 @@
 using namespace physicore;
 using namespace physicore::mechanics::micromechanics;
 
-static void add_agent(base_agent_data& base, agent_data& mech)
+namespace {
+void add_agent(base_agent_data& base, agent_data& mech)
 {
 	base.add();
 	mech.add();
 }
+} // namespace
 
 TEST(CellAggregationTest, AggregatesCOMCountsAndPressureProxy)
 {
