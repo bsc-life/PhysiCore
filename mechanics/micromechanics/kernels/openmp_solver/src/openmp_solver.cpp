@@ -25,7 +25,7 @@ void openmp_solver::initialize(environment& e)
 	initialized_ = true;
 }
 
-void openmp_solver::update_cell_neighbors(environment& e) { n_solver_.update_neighbors(e); }
+void openmp_solver::update_cell_neighbors(environment& e) { neighbor_solver::update_neighbors(e); }
 
 void openmp_solver::update_cell_forces(environment& e) { f_solver_.calculate_forces(e); }
 
@@ -44,6 +44,6 @@ void openmp_solver::update_basement_membrane_interactions(environment& e) { bm_s
 
 void openmp_solver::update_spring_attachments(environment& e) { s_solver_.update_spring_attachments(e); }
 
-void openmp_solver::update_positions(environment& e) { p_solver_.update_positions(e); }
+void openmp_solver::update_positions(environment& e) { position_solver::update_positions(e); }
 
 } // namespace physicore::mechanics::micromechanics::kernels::openmp_solver
