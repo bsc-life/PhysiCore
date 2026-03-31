@@ -141,15 +141,15 @@ void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_
 
 	// Write the file
 	std::ostringstream ss;
-	ss << "agents_" << std::setw(6) << std::setfill('0') << iteration << ".vtu";
+	ss << "agents_" << std::setw(6) << std::setfill('0') << iteration() << ".vtu";
 
 	auto file_name = ss.str();
-	auto file_path = std::filesystem::path(vtks_dir) / file_name;
+	auto file_path = std::filesystem::path(vtks_dir()) / file_name;
 
 	writer->SetFileName(file_path.string().c_str());
 	writer->Write();
 
 	append_to_pvd(file_name, current_time);
 
-	iteration++;
+	advance_iteration();
 }

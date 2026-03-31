@@ -14,13 +14,18 @@ using vtkRealArray = std::conditional_t<std::is_same_v<real_t, float>, vtkFloatA
 
 class vtk_serializer_base
 {
-protected:
-	std::size_t iteration = 0;
-	std::string output_dir;
-	std::string vtks_dir;
-	std::string pvd_file_name;
+	std::size_t iteration_ = 0;
+	std::string output_dir_;
+	std::string vtks_dir_;
+	std::string pvd_file_name_;
 
-	std::string pvd_contents;
+	std::string pvd_contents_;
+
+protected:
+	[[nodiscard]] std::size_t iteration() const { return iteration_; }
+	void advance_iteration() { ++iteration_; }
+
+	[[nodiscard]] const std::string& vtks_dir() const { return vtks_dir_; }
 
 	void append_to_pvd(std::string_view vtk_file_name, real_t current_time);
 
