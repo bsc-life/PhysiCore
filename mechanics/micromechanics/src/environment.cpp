@@ -7,8 +7,7 @@
 
 namespace physicore::mechanics::micromechanics {
 
-environment::environment(real_t timestep)
-	: timestep(timestep), domain_min { -500.0, -500.0, -500.0 }, domain_max { 500.0, 500.0, 500.0 }
+environment::environment(real_t timestep) : timestep(timestep)
 {
 	auto base_data = std::make_unique<physicore::base_agent_data>(3);
 	auto mech_data = std::make_unique<agent_data>(*base_data);
