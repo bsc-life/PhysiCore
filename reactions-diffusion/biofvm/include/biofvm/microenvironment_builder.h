@@ -17,7 +17,7 @@ class BIOFVM_EXPORT microenvironment_builder
 
 	real_t timestep = 0.01;
 	real_t simulation_time = 0.0;
-	std::optional<physicore::cartesian_mesh> mesh;
+	std::optional<cartesian_mesh> mesh;
 
 	std::vector<std::string> substrates_names;
 	std::vector<std::string> substrates_units;

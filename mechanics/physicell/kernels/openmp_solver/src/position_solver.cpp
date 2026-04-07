@@ -305,21 +305,21 @@ void position_solver::update_motility(environment& e)
 
 	if (data.base_data.dims == 1)
 		update_motility_internal<1>(
-			data.agents_count, e.timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
 			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
 			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
 			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
 			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
 	else if (data.base_data.dims == 2)
 		update_motility_internal<2>(
-			data.agents_count, e.timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
 			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
 			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
 			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
 			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
 	else if (data.base_data.dims == 3)
 		update_motility_internal<3>(
-			data.agents_count, e.timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
 			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
 			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
 			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
@@ -507,7 +507,7 @@ void position_solver::update_spring_attachments(environment& e)
 	const index_t dims = data.base_data.dims;
 
 	update_spring_attachments_internal(
-		data.agents_count, e.timestep, data.agent_types_count, data.mechanics_data.detachment_rate.data(),
+		data.agents_count, e.mechanics_timestep, data.agent_types_count, data.mechanics_data.detachment_rate.data(),
 		data.mechanics_data.attachment_rate.data(), data.mechanics_data.cell_adhesion_affinities.data(),
 		data.mechanics_data.maximum_number_of_attachments.data(), data.state_data.agent_type_index.data(),
 		data.state_data.neighbors.data(), data.state_data.springs.data());
@@ -562,15 +562,15 @@ void position_solver::update_positions(environment& e)
 	const index_t dims = data.base_data.dims;
 
 	if (dims == 1)
-		update_positions_internal<1>(data.agents_count, e.timestep, data.base_data.positions.data(),
+		update_positions_internal<1>(data.agents_count, e.mechanics_timestep, data.base_data.positions.data(),
 									 data.velocity.data(), data.previous_velocity.data(),
 									 data.state_data.is_movable.data());
 	else if (dims == 2)
-		update_positions_internal<2>(data.agents_count, e.timestep, data.base_data.positions.data(),
+		update_positions_internal<2>(data.agents_count, e.mechanics_timestep, data.base_data.positions.data(),
 									 data.velocity.data(), data.previous_velocity.data(),
 									 data.state_data.is_movable.data());
 	else if (dims == 3)
-		update_positions_internal<3>(data.agents_count, e.timestep, data.base_data.positions.data(),
+		update_positions_internal<3>(data.agents_count, e.mechanics_timestep, data.base_data.positions.data(),
 									 data.velocity.data(), data.previous_velocity.data(),
 									 data.state_data.is_movable.data());
 }

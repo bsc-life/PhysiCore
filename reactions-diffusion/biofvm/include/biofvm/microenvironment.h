@@ -52,7 +52,7 @@ public:
 	std::string name, time_units, space_units;
 	real_t diffusion_timestep;
 	real_t simulation_time = 0.0;
-	physicore::cartesian_mesh mesh;
+	cartesian_mesh mesh;
 
 	// diffusion-decay configuration parameters
 	index_t substrates_count;

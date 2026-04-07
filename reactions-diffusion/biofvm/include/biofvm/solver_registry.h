@@ -9,11 +9,8 @@ namespace physicore::biofvm {
 class solver_registry : public physicore::factory_registry<solver>
 {
 public:
-	using base_t = physicore::factory_registry<solver>;
-
 	static solver_registry& instance();
 };
-
 
 template <typename T>
 concept derived_from_solver = std::derived_from<T, solver>;

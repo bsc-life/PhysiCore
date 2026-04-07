@@ -3,7 +3,6 @@
 #endif
 
 #include <random>
-#include <vector>
 
 #include <common/random.h>
 

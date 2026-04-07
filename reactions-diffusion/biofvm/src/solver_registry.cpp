@@ -14,7 +14,6 @@ solver_registry& solver_registry::instance()
 	return r;
 }
 
-
 struct attachment_point
 {
 	attachment_point()
