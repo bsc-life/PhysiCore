@@ -3,8 +3,8 @@
 #include <optional>
 
 #include <biofvm/biofvm_export.h>
-#include <common/types.h>
 #include <common/cartesian_mesh.h>
+#include <common/types.h>
 
 #include "bulk_functor.h"
 #include "microenvironment.h"

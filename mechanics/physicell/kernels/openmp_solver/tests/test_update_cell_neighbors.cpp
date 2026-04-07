@@ -1,7 +1,6 @@
 #include <algorithm>
-#include <vector>
-
 #include <stdexcept>
+#include <vector>
 
 #include <common/generic_agent_solver.h>
 #include <gtest/gtest.h>

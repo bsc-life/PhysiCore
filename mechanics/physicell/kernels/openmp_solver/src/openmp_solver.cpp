@@ -1,4 +1,5 @@
 #include "openmp_solver.h"
+
 #include <physicell/openmp_solver/position_solver.h>
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
@@ -11,7 +12,6 @@ void openmp_solver::initialize(environment& e)
 
 void openmp_solver::solve(environment& e, index_t iterations)
 {
-
 	if (!initialized)
 	{
 		initialize(e);
@@ -33,7 +33,6 @@ void openmp_solver::solve(environment& e, index_t iterations)
 
 		mechanics_position_solver.update_positions(e);
 	}
-
 }
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver

@@ -340,4 +340,3 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleTimesAppendsPvd)
 	EXPECT_NE(content.find("timestep=\"0.0"), std::string::npos);
 	EXPECT_NE(content.find("timestep=\"0.1"), std::string::npos);
 }
-

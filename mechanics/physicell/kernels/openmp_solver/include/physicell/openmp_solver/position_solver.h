@@ -3,8 +3,8 @@
 #include <memory>
 
 #include <common/cartesian_mesh.h>
-#include <common/types.h>
 #include <common/generic_agent_solver.h>
+#include <common/types.h>
 #include <physicell/environment.h>
 
 

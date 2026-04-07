@@ -12,11 +12,7 @@ solver_registry& solver_registry::instance()
 
 struct attachment_point
 {
-	attachment_point()
-	{
-		kernels::openmp_solver::attach_to_registry();
-
-	}
+	attachment_point() { kernels::openmp_solver::attach_to_registry(); }
 };
 
 static const attachment_point ap;

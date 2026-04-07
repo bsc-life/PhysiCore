@@ -6,9 +6,9 @@
 #include <vector>
 
 #include <biofvm/biofvm_export.h>
+#include <common/cartesian_mesh.h>
 #include <common/timestep_executor.h>
 #include <common/types.h>
-#include <common/cartesian_mesh.h>
 
 #include "agent_container.h"
 #include "bulk_functor.h"

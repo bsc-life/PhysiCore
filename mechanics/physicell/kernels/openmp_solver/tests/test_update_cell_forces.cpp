@@ -1,10 +1,9 @@
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
-#include <vector>
-
 #include <stdexcept>
+#include <vector>
 
 #include <common/generic_agent_solver.h>
 #include <gtest/gtest.h>
@@ -42,9 +41,9 @@ kernels::openmp_solver::position_solver& position_solver_instance()
 	return solver;
 }
 
-//Helpers for test orchestration
+// Helpers for test orchestration
 void add_agent(environment& env, std::initializer_list<real_t> pos, real_t radius = 1, index_t type = 0,
-               std::uint8_t movable = 1)
+			   std::uint8_t movable = 1)
 {
 	ASSERT_TRUE(env.agents != nullptr);
 	env.agents->create();
@@ -157,7 +156,7 @@ std::vector<real_t> compute_expected_velocities(environment& env)
 				repulsion = repulsion < 0 ? 0 : repulsion;
 				repulsion *= repulsion;
 				repulsion *= std::sqrt(data.mechanics_data.cell_cell_repulsion_strength[i]
-								   * data.mechanics_data.cell_cell_repulsion_strength[j]);
+									   * data.mechanics_data.cell_cell_repulsion_strength[j]);
 			}
 
 			real_t adhesion;
@@ -173,11 +172,11 @@ std::vector<real_t> compute_expected_velocities(environment& env)
 				const index_t lhs_type = data.state_data.agent_type_index[i];
 				const index_t rhs_type = data.state_data.agent_type_index[j];
 
-				adhesion *= std::sqrt(
-					data.mechanics_data.cell_cell_adhesion_strength[i]
-					* data.mechanics_data.cell_cell_adhesion_strength[j]
-					* data.mechanics_data.cell_adhesion_affinities[i * data.agent_types_count + rhs_type]
-					* data.mechanics_data.cell_adhesion_affinities[j * data.agent_types_count + lhs_type]);
+				adhesion *=
+					std::sqrt(data.mechanics_data.cell_cell_adhesion_strength[i]
+							  * data.mechanics_data.cell_cell_adhesion_strength[j]
+							  * data.mechanics_data.cell_adhesion_affinities[i * data.agent_types_count + rhs_type]
+							  * data.mechanics_data.cell_adhesion_affinities[j * data.agent_types_count + lhs_type]);
 			}
 
 			const real_t force = (repulsion - adhesion) / distance;
@@ -190,7 +189,7 @@ std::vector<real_t> compute_expected_velocities(environment& env)
 	return expected_velocities;
 }
 
-}  // namespace
+} // namespace
 
 TEST(UpdateCellForcesTest, NoAgentsDoesNotCrash)
 {
@@ -296,8 +295,7 @@ TEST(UpdateCellForcesTest, AdhesionDependsOnAffinities)
 }
 
 class SolvePairComplexTest : public ::testing::TestWithParam<index_t>
-{
-};
+{};
 
 TEST(SolvePair, RepulsiveForce1D_Overlapping)
 {
@@ -635,4 +633,3 @@ TEST_P(SolvePairComplexTest, Complex)
 }
 
 INSTANTIATE_TEST_SUITE_P(AllDims, SolvePairComplexTest, ::testing::Values<index_t>(1, 2, 3));
-
