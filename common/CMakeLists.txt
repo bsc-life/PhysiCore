@@ -1,5 +1,9 @@
 add_library(common)
 
+if(${BUILD_SHARED_LIBS})
+  set_target_properties(common PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
 file(GLOB PUBLIC_INC "include/common/*.h")
 file(GLOB SOURCES "src/*.cpp")
 

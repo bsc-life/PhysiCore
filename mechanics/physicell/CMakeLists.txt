@@ -2,11 +2,23 @@ add_library(mechanics.physicell)
 add_library(physicore::mechanics::physicell ALIAS mechanics.physicell)
 add_library(mechanics.physicell_internal_iface INTERFACE)
 
+if(${BUILD_SHARED_LIBS})
+  set_target_properties(
+    mechanics.physicell
+    PROPERTIES CXX_VISIBILITY_PRESET hidden
+               VISIBILITY_INLINES_HIDDEN ON
+               POSITION_INDEPENDENT_CODE ON
+               INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
 file(GLOB PUBLIC_INC "include/physicell/*.h")
 target_sources(
   mechanics.physicell
-  PRIVATE src/environment.cpp src/config_reader.cpp src/agent_data.cpp
-          src/mechanical_agent.cpp src/vtk_serializer_base.cpp
+  PRIVATE src/environment.cpp
+          src/config_reader.cpp
+          src/agent_data.cpp
+          src/mechanical_agent.cpp
+          src/vtk_serializer_base.cpp
           src/vtk_agents_serializer.cpp
           src/solver_registry.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include" FILES
