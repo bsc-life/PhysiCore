@@ -1,4 +1,4 @@
-add_library(common)
+add_library(common OBJECT)
 
 if(${BUILD_SHARED_LIBS})
   set_target_properties(common PROPERTIES POSITION_INDEPENDENT_CODE ON)
