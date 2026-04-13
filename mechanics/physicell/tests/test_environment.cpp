@@ -30,8 +30,7 @@ public:
 };
 
 class EnvironmentTest : public ::testing::Test
-{
-};
+{};
 
 // Test constructor and basic initialization
 TEST_F(EnvironmentTest, ConstructorInitializesEnvironment)
