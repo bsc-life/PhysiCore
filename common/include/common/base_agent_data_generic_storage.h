@@ -10,11 +10,16 @@
 namespace physicore {
 
 template <typename T, typename ValueType>
-concept VectorLike = requires(T t, ValueType val, std::size_t n) {
+concept VectorLike = requires(T t, ValueType val, std::size_t n)
+{
 	typename T::value_type;
 	{ t.push_back(val) };
-	{ t.size() } -> std::convertible_to<std::size_t>;
-	{ t[n] } -> std::convertible_to<ValueType&>;
+	{
+		t.size()
+		} -> std::convertible_to<std::size_t>;
+	{
+		t[n]
+		} -> std::convertible_to<ValueType&>;
 	{ t.resize(n) };
 };
 
