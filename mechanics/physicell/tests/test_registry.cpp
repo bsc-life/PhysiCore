@@ -9,8 +9,7 @@ using namespace physicore;
 using namespace physicore::mechanics::physicell;
 
 class RegistryTest : public ::testing::Test
-{
-};
+{};
 
 // Test registry covers the if body in registry.h::37 (key not found case)
 TEST_F(RegistryTest, GetNonExistentSolverReturnsNullptr)

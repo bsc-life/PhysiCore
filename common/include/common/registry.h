@@ -36,7 +36,6 @@ typename factory_registry<Base>::ptr_t factory_registry<Base>::get(const std::st
 	auto it = factories_.find(name);
 	if (it == factories_.end())
 	{
-		assert(false);
 		return nullptr;
 	}
 
