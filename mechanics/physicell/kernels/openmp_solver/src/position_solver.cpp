@@ -6,11 +6,11 @@
 #include <vector>
 
 #include <common/cartesian_mesh.h>
-#include <common/random.h>
 #include <common/types.h>
 #include <physicell/mechanical_agent_container.h>
 
 #include "common_solver.h"
+#include "random.h"
 #include "solver_helper.h"
 
 using namespace physicore::mechanics::physicell;

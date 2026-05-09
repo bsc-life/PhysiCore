@@ -4,7 +4,7 @@
 
 #include <random>
 
-#include <common/random.h>
+#include "random.h"
 
 namespace {
 std::mt19937& thread_local_generator()
@@ -13,12 +13,6 @@ std::mt19937& thread_local_generator()
 	return generator;
 }
 } // namespace
-
-physicore::random& physicore::random::instance()
-{
-	static random instance;
-	return instance;
-}
 
 physicore::real_t physicore::random::uniform(const physicore::real_t min, const physicore::real_t max)
 {

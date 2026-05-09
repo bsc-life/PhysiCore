@@ -3,7 +3,7 @@
 #include <cmath>
 #include <numbers>
 
-#include <common/random.h>
+#include "random.h"
 
 constexpr physicore::real_t zero_threshold = 1e-16;
 
@@ -65,7 +65,7 @@ struct position_helper<1>
 
 	static void random_walk(bool, real_t* PHYSICORE_RESTRICT walk)
 	{
-		real_t rand = random::instance().uniform();
+		real_t rand = random::uniform();
 		walk[0] = rand < 0.5 ? -1 : 1;
 	}
 
@@ -138,7 +138,7 @@ struct position_helper<2>
 
 	static void random_walk(bool, real_t* PHYSICORE_RESTRICT walk)
 	{
-		real_t theta = random::instance().uniform(0, 2 * std::numbers::pi_v<real_t>);
+		real_t theta = random::uniform(0, 2 * std::numbers::pi_v<real_t>);
 		walk[0] = std::cos(theta);
 		walk[1] = std::sin(theta);
 	}
@@ -233,8 +233,8 @@ struct position_helper<3>
 		}
 		else
 		{
-			const real_t theta = random::instance().uniform(0, 2 * std::numbers::pi_v<real_t>);
-			const real_t z = random::instance().uniform(-1, 1);
+			const real_t theta = random::uniform(0, 2 * std::numbers::pi_v<real_t>);
+			const real_t z = random::uniform(-1, 1);
 			const real_t r = std::sqrt(1 - z * z);
 
 			walk[0] = std::cos(theta) * r;
