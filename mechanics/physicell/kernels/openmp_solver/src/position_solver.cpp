@@ -1,8 +1,8 @@
 #include "../include/physicell/openmp_solver/position_solver.h"
 
 #include <algorithm>
-#include <functional>
-#include <random>
+#include <array>
+#include <cmath>
 #include <vector>
 
 #include <common/cartesian_mesh.h>
@@ -13,12 +13,12 @@
 #include "common_solver.h"
 #include "solver_helper.h"
 
-
 using namespace physicore::mechanics::physicell;
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 constexpr real_t simple_pressure_coefficient = 36.64504274775163; // 1 / (12 * (1 - sqrt(pi/(2*sqrt(3))))^2)
 
+namespace {
 
 void clear_simple_pressure(real_t* PHYSICORE_RESTRICT simple_pressure, index_t count)
 {
@@ -38,14 +38,15 @@ void solve_pair(index_t lhs, index_t rhs, index_t cell_defs_count, real_t* PHYSI
 				const real_t* PHYSICORE_RESTRICT cell_adhesion_affinity,
 				const index_t* PHYSICORE_RESTRICT cell_definition_index)
 {
-	real_t position_difference[dims];
+	std::array<real_t, dims> position_difference {};
 
-	const real_t distance = std::max<real_t>(position_helper<dims>::difference_and_distance(
-												 position + lhs * dims, position + rhs * dims, position_difference),
-											 0.00001);
+	const real_t distance =
+		std::max<real_t>(position_helper<dims>::difference_and_distance(position + lhs * dims, position + rhs * dims,
+																		position_difference.data()),
+						 0.00001);
 
 	// compute repulsion
-	real_t repulsion;
+	real_t repulsion {};
 	{
 		const real_t repulsive_distance = radius[lhs] + radius[rhs];
 
@@ -63,7 +64,7 @@ void solve_pair(index_t lhs, index_t rhs, index_t cell_defs_count, real_t* PHYSI
 	}
 
 	// compute adhesion
-	real_t adhesion;
+	real_t adhesion {};
 	{
 		const real_t adhesion_distance = relative_maximum_adhesion_distance[lhs] * radius[lhs]
 										 + relative_maximum_adhesion_distance[rhs] * radius[rhs];
@@ -82,11 +83,10 @@ void solve_pair(index_t lhs, index_t rhs, index_t cell_defs_count, real_t* PHYSI
 							  * cell_adhesion_affinity[rhs * cell_defs_count + lhs_cell_def_index]);
 	}
 
-	real_t force = (repulsion - adhesion) / distance;
+	real_t const force = (repulsion - adhesion) / distance;
 
-	position_helper<dims>::update_velocity(velocity + lhs * dims, position_difference, force);
+	position_helper<dims>::update_velocity(velocity + lhs * dims, position_difference.data(), force);
 }
-
 
 template <index_t dims>
 void update_cell_forces_single(index_t i, index_t cell_def_count, real_t* PHYSICORE_RESTRICT velocity,
@@ -132,44 +132,6 @@ void update_cell_forces_internal(index_t agents_count, index_t cell_def_count, r
 	}
 }
 
-void position_solver::update_cell_forces(environment& e)
-{
-	auto& data = retrieve_agent_data(*e.agents);
-	const index_t dims = data.base_data.dims;
-
-	clear_simple_pressure(data.state_data.simple_pressure.data(), data.agents_count);
-
-	if (dims == 1)
-		update_cell_forces_internal<1>(data.agents_count, data.agent_types_count, data.velocity.data(),
-									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
-									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
-									   data.mechanics_data.cell_cell_adhesion_strength.data(),
-									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
-									   data.state_data.agent_type_index.data(),
-									   data.mechanics_data.cell_adhesion_affinities.data(),
-									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
-	else if (dims == 2)
-		update_cell_forces_internal<2>(data.agents_count, data.agent_types_count, data.velocity.data(),
-									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
-									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
-									   data.mechanics_data.cell_cell_adhesion_strength.data(),
-									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
-									   data.state_data.agent_type_index.data(),
-									   data.mechanics_data.cell_adhesion_affinities.data(),
-									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
-	else if (dims == 3)
-		update_cell_forces_internal<3>(data.agents_count, data.agent_types_count, data.velocity.data(),
-									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
-									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
-									   data.mechanics_data.cell_cell_adhesion_strength.data(),
-									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
-									   data.state_data.agent_type_index.data(),
-									   data.mechanics_data.cell_adhesion_affinities.data(),
-									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
-}
-
-
-// Code to mantain neighbor lists consistency
 template <index_t dims>
 void update_cell_neighbors_single(environment& e, index_t i, const real_t* PHYSICORE_RESTRICT position,
 								  const real_t* PHYSICORE_RESTRICT radius,
@@ -211,42 +173,6 @@ void update_cell_neighbors_internal(environment& e, index_t agents_count, const 
 	}
 }
 
-void position_solver::update_cell_neighbors(environment& e, const cartesian_mesh& mesh)
-{
-	auto& data = retrieve_agent_data(*e.agents);
-	const index_t dims = data.base_data.dims;
-
-	std::vector<std::vector<index_t>> cells_in_voxels(mesh.voxel_count());
-	for (index_t i = 0; i < data.agents_count; i++)
-	{
-		const auto voxel_pos = common_solver::get_mesh_position(data.base_data.positions.data() + dims * i, mesh);
-		const auto voxel_idx = common_solver::get_mesh_index(voxel_pos, mesh);
-		cells_in_voxels[voxel_idx].push_back(i);
-	}
-
-	// clear neighbors
-#pragma omp for
-	for (index_t i = 0; i < data.agents_count; i++)
-		data.state_data.neighbors[i].clear();
-
-	if (dims == 1)
-		update_cell_neighbors_internal<1>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
-										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
-										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
-										  cells_in_voxels);
-	else if (dims == 2)
-		update_cell_neighbors_internal<2>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
-										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
-										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
-										  cells_in_voxels);
-	else if (dims == 3)
-		update_cell_neighbors_internal<3>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
-										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
-										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
-										  cells_in_voxels);
-}
-
-// Motility update code
 template <index_t dims>
 void update_motility_single(
 	index_t i, real_t time_step, real_t* PHYSICORE_RESTRICT motility_vector, real_t* PHYSICORE_RESTRICT velocity,
@@ -259,18 +185,18 @@ void update_motility_single(
 	if (is_motile[i] == 0)
 		return;
 
-	if (random::instance().uniform() < time_step / persistence_time[i])
+	if (physicore::random::uniform() < time_step / persistence_time[i])
 	{
-		real_t random_walk[dims];
+		std::array<real_t, dims> random_walk {};
 
-		position_helper<dims>::random_walk(restrict_to_2d, random_walk);
+		position_helper<dims>::random_walk(restrict_to_2d, random_walk.data());
 
 		if (update_migration_bias_direction_f != nullptr && update_migration_bias_direction_f[i])
 		{
 			update_migration_bias_direction_f[i](cell_definition_index[i]);
 		}
 
-		position_helper<dims>::update_motility_vector(motility_vector + i * dims, random_walk,
+		position_helper<dims>::update_motility_vector(motility_vector + i * dims, random_walk.data(),
 													  migration_bias_direction + i * dims, migration_bias[i]);
 
 		position_helper<dims>::normalize_and_scale(motility_vector + i * dims, migration_speed[i]);
@@ -298,35 +224,6 @@ void update_motility_internal(
 	}
 }
 
-
-void position_solver::update_motility(environment& e)
-{
-	auto& data = retrieve_agent_data(*e.agents);
-
-	if (data.base_data.dims == 1)
-		update_motility_internal<1>(
-			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
-			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
-			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
-			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
-			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
-	else if (data.base_data.dims == 2)
-		update_motility_internal<2>(
-			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
-			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
-			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
-			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
-			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
-	else if (data.base_data.dims == 3)
-		update_motility_internal<3>(
-			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
-			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
-			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
-			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
-			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
-}
-
-// Update basement membrane forces
 template <index_t dims>
 void update_basement_membrane_interactions_single(index_t i, real_t* PHYSICORE_RESTRICT velocity,
 												  const real_t* PHYSICORE_RESTRICT position,
@@ -357,29 +254,6 @@ void update_basement_membrane_interactions_internal(index_t agents_count, real_t
 	}
 }
 
-void position_solver::update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh)
-{
-	if (!e.virtual_wall_at_domain_edges) // note: where do we include this
-		return;
-
-	auto& data = retrieve_agent_data(*e.agents);
-
-	if (data.base_data.dims == 1)
-		update_basement_membrane_interactions_internal<1>(
-			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
-			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
-	else if (data.base_data.dims == 2)
-		update_basement_membrane_interactions_internal<2>(
-			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
-			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
-	else if (data.base_data.dims == 3)
-		update_basement_membrane_interactions_internal<3>(
-			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
-			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
-}
-
-
-// update spring attachments
 template <index_t dims>
 void spring_contract_function(index_t agents_count, index_t cell_defs_count, real_t* PHYSICORE_RESTRICT velocity,
 							  const index_t* PHYSICORE_RESTRICT cell_definition_index,
@@ -407,12 +281,12 @@ void spring_contract_function(index_t agents_count, index_t cell_defs_count, rea
 					 * cell_adhesion_affinity[this_cell_index * cell_defs_count + other_cell_def_index]
 					 * cell_adhesion_affinity[other_cell_index * cell_defs_count + this_cell_def_index]);
 
-			real_t difference[dims];
+			std::array<real_t, dims> difference {};
 
-			position_helper<dims>::subtract(difference, position + other_cell_index * dims,
+			position_helper<dims>::subtract(difference.data(), position + other_cell_index * dims,
 											position + this_cell_index * dims);
 
-			position_helper<dims>::update_velocity(velocity + this_cell_index * dims, difference, adhesion);
+			position_helper<dims>::update_velocity(velocity + this_cell_index * dims, difference.data(), adhesion);
 		}
 	}
 }
@@ -434,7 +308,7 @@ void update_spring_attachments_internal(index_t agents_count, real_t time_step, 
 	{
 		for (index_t j = 0; j < (index_t)springs[this_cell_index].size(); j++)
 		{
-			if (random::instance().uniform() <= detachment_rate[this_cell_index] * time_step)
+			if (physicore::random::uniform() <= detachment_rate[this_cell_index] * time_step)
 			{
 #pragma omp critical
 				{
@@ -482,7 +356,7 @@ void update_spring_attachments_internal(index_t agents_count, real_t time_step, 
 
 			const real_t attachment_prob_r = attachment_rate[other_cell_index] * time_step * affinity_r;
 
-			if (random::instance().uniform() <= attachment_prob_l || random::instance().uniform() <= attachment_prob_r)
+			if (physicore::random::uniform() <= attachment_prob_l || physicore::random::uniform() <= attachment_prob_r)
 			{
 #pragma omp critical
 				{
@@ -496,6 +370,152 @@ void update_spring_attachments_internal(index_t agents_count, real_t time_step, 
 			}
 		}
 	}
+}
+
+template <index_t dims>
+void update_positions_internal(index_t agents_count, real_t time_step, real_t* PHYSICORE_RESTRICT position,
+							   real_t* PHYSICORE_RESTRICT velocity, real_t* PHYSICORE_RESTRICT previous_velocity,
+							   const std::uint8_t* PHYSICORE_RESTRICT is_movable)
+{
+#pragma omp for
+	for (index_t i = 0; i < agents_count; i++)
+	{
+		if (!is_movable[i])
+			continue;
+
+		const real_t factor = time_step * 1.5;
+		const real_t previous_factor = time_step * -0.5;
+
+		for (index_t d = 0; d < dims; d++)
+		{
+			position[i * dims + d] +=
+				velocity[i * dims + d] * factor + previous_velocity[i * dims + d] * previous_factor;
+
+			previous_velocity[i * dims + d] = velocity[i * dims + d];
+			velocity[i * dims + d] = 0;
+		}
+	}
+}
+
+} // namespace
+
+void position_solver::update_cell_forces(environment& e)
+{
+	auto& data = retrieve_agent_data(*e.agents);
+	const index_t dims = data.base_data.dims;
+
+	clear_simple_pressure(data.state_data.simple_pressure.data(), data.agents_count);
+
+	if (dims == 1)
+		update_cell_forces_internal<1>(data.agents_count, data.agent_types_count, data.velocity.data(),
+									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
+									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
+									   data.mechanics_data.cell_cell_adhesion_strength.data(),
+									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
+									   data.state_data.agent_type_index.data(),
+									   data.mechanics_data.cell_adhesion_affinities.data(),
+									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
+	else if (dims == 2)
+		update_cell_forces_internal<2>(data.agents_count, data.agent_types_count, data.velocity.data(),
+									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
+									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
+									   data.mechanics_data.cell_cell_adhesion_strength.data(),
+									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
+									   data.state_data.agent_type_index.data(),
+									   data.mechanics_data.cell_adhesion_affinities.data(),
+									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
+	else if (dims == 3)
+		update_cell_forces_internal<3>(data.agents_count, data.agent_types_count, data.velocity.data(),
+									   data.state_data.simple_pressure.data(), data.base_data.positions.data(),
+									   data.radius.data(), data.mechanics_data.cell_cell_repulsion_strength.data(),
+									   data.mechanics_data.cell_cell_adhesion_strength.data(),
+									   data.mechanics_data.relative_maximum_adhesion_distance.data(),
+									   data.state_data.agent_type_index.data(),
+									   data.mechanics_data.cell_adhesion_affinities.data(),
+									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
+}
+
+void position_solver::update_cell_neighbors(environment& e, const cartesian_mesh& mesh)
+{
+	auto& data = retrieve_agent_data(*e.agents);
+	const index_t dims = data.base_data.dims;
+
+	std::vector<std::vector<index_t>> cells_in_voxels(mesh.voxel_count());
+	for (index_t i = 0; i < data.agents_count; i++)
+	{
+		const auto voxel_pos = common_solver::get_mesh_position(data.base_data.positions.data() + dims * i, mesh);
+		const auto voxel_idx = common_solver::get_mesh_index(voxel_pos, mesh);
+		cells_in_voxels[voxel_idx].push_back(i);
+	}
+
+	// clear neighbors
+#pragma omp for
+	for (index_t i = 0; i < data.agents_count; i++)
+		data.state_data.neighbors[i].clear();
+
+	if (dims == 1)
+		update_cell_neighbors_internal<1>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
+										  cells_in_voxels);
+	else if (dims == 2)
+		update_cell_neighbors_internal<2>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
+										  cells_in_voxels);
+	else if (dims == 3)
+		update_cell_neighbors_internal<3>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
+										  cells_in_voxels);
+}
+
+void position_solver::update_motility(environment& e)
+{
+	auto& data = retrieve_agent_data(*e.agents);
+
+	if (data.base_data.dims == 1)
+		update_motility_internal<1>(
+			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
+			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
+			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
+			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
+	else if (data.base_data.dims == 2)
+		update_motility_internal<2>(
+			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
+			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
+			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
+			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
+	else if (data.base_data.dims == 3)
+		update_motility_internal<3>(
+			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
+			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
+			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
+			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
+			data.motility_data.direction_update_funcs.data(), data.state_data.agent_type_index.data());
+}
+
+void position_solver::update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh)
+{
+	if (!e.virtual_wall_at_domain_edges) // note: where do we include this
+		return;
+
+	auto& data = retrieve_agent_data(*e.agents);
+
+	if (data.base_data.dims == 1)
+		update_basement_membrane_interactions_internal<1>(
+			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
+	else if (data.base_data.dims == 2)
+		update_basement_membrane_interactions_internal<2>(
+			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
+	else if (data.base_data.dims == 3)
+		update_basement_membrane_interactions_internal<3>(
+			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
 }
 
 void position_solver::update_spring_attachments(environment& e)
@@ -529,33 +549,6 @@ void position_solver::update_spring_attachments(environment& e)
 			data.base_data.positions.data(), data.state_data.is_movable.data(), data.state_data.springs.data());
 }
 
-
-// Update positions
-template <index_t dims>
-void update_positions_internal(index_t agents_count, real_t time_step, real_t* PHYSICORE_RESTRICT position,
-							   real_t* PHYSICORE_RESTRICT velocity, real_t* PHYSICORE_RESTRICT previous_velocity,
-							   const std::uint8_t* PHYSICORE_RESTRICT is_movable)
-{
-#pragma omp for
-	for (index_t i = 0; i < agents_count; i++)
-	{
-		if (!is_movable[i])
-			continue;
-
-		const real_t factor = time_step * 1.5;
-		const real_t previous_factor = time_step * -0.5;
-
-		for (index_t d = 0; d < dims; d++)
-		{
-			position[i * dims + d] +=
-				velocity[i * dims + d] * factor + previous_velocity[i * dims + d] * previous_factor;
-
-			previous_velocity[i * dims + d] = velocity[i * dims + d];
-			velocity[i * dims + d] = 0;
-		}
-	}
-}
-
 void position_solver::update_positions(environment& e)
 {
 	auto& data = retrieve_agent_data(*e.agents);
@@ -574,13 +567,5 @@ void position_solver::update_positions(environment& e)
 									 data.velocity.data(), data.previous_velocity.data(),
 									 data.state_data.is_movable.data());
 }
-
-// Explicit template instantiations for testing
-template void solve_pair<1>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*, const real_t*,
-							const real_t*, const real_t*, const real_t*, const index_t*);
-template void solve_pair<2>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*, const real_t*,
-							const real_t*, const real_t*, const real_t*, const index_t*);
-template void solve_pair<3>(index_t, index_t, index_t, real_t*, real_t*, const real_t*, const real_t*, const real_t*,
-							const real_t*, const real_t*, const real_t*, const index_t*);
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver

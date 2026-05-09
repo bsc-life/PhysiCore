@@ -148,7 +148,7 @@ std::vector<real_t> compute_expected_velocities(environment& env)
 
 			const real_t distance = std::max<real_t>(std::sqrt(distance_squared), static_cast<real_t>(0.00001));
 
-			real_t repulsion;
+			real_t repulsion {};
 			{
 				const real_t repulsive_distance = data.radius[i] + data.radius[j];
 
@@ -159,7 +159,7 @@ std::vector<real_t> compute_expected_velocities(environment& env)
 									   * data.mechanics_data.cell_cell_repulsion_strength[j]);
 			}
 
-			real_t adhesion;
+			real_t adhesion {};
 			{
 				const real_t adhesion_distance =
 					data.mechanics_data.relative_maximum_adhesion_distance[i] * data.radius[i]
@@ -260,9 +260,9 @@ TEST(UpdateCellForcesTest, OverlappingAgentsProduceFiniteVelocities)
 	clear_kinematics_and_pressure(env);
 	position_solver_instance().update_cell_forces(env);
 
-	for (real_t v : data.velocity)
+	for (real_t const v : data.velocity)
 		EXPECT_TRUE(std::isfinite(v));
-	for (real_t p : data.state_data.simple_pressure)
+	for (real_t const p : data.state_data.simple_pressure)
 		EXPECT_TRUE(std::isfinite(p));
 }
 
