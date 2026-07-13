@@ -50,7 +50,10 @@ target_compile_definitions(reactions-diffusion.biofvm_iface
                            INTERFACE BIOFVM_STATIC_DEFINE)
 
 target_link_libraries(reactions-diffusion.biofvm_internal_iface
-                      INTERFACE common)
+                      INTERFACE common reactions-diffusion.interface)
+
+target_link_libraries(reactions-diffusion.biofvm_iface
+                      INTERFACE common reactions-diffusion.interface)
 
 find_package(VTK CONFIG REQUIRED)
 find_package(pugixml CONFIG REQUIRED)
@@ -61,7 +64,7 @@ target_link_libraries(reactions-diffusion.biofvm_internal_iface
 target_link_libraries(
   reactions-diffusion.biofvm
   PRIVATE reactions-diffusion.biofvm_internal_iface
-  PUBLIC common)
+  PUBLIC common reactions-diffusion.interface)
 
 # Thrust is only supported on Windows and Linux
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Linux")

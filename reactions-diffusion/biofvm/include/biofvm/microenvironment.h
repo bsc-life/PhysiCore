@@ -7,8 +7,8 @@
 
 #include <biofvm/biofvm_export.h>
 #include <common/mesh.h>
-#include <common/timestep_executor.h>
 #include <common/types.h>
+#include <reactions_diffusion/reaction_diffusion_interface.h>
 
 #include "agent_container.h"
 #include "bulk_functor.h"
@@ -17,7 +17,7 @@
 
 namespace physicore::reactions_diffusion::biofvm {
 
-class BIOFVM_EXPORT microenvironment : public timestep_executor
+class BIOFVM_EXPORT microenvironment : public reaction_diffusion_interface
 {
 public:
 	microenvironment(const cartesian_mesh& mesh, index_t substrates_count, real_t timestep);
@@ -26,13 +26,14 @@ public:
 	microenvironment(const microenvironment&) = delete;
 	microenvironment& operator=(const microenvironment&) = delete;
 	microenvironment& operator=(microenvironment&&) = delete;
+	~microenvironment() override = default;
 
 	static std::unique_ptr<microenvironment> create_from_config(const std::filesystem::path& config_file);
 
 	void run_single_timestep() override;
 	void serialize_state(real_t current_time) override;
 
-	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const;
+	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const override;
 
 	void print_info(std::ostream& os) const;
 
