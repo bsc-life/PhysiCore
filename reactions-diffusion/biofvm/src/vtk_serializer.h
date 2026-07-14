@@ -1,9 +1,9 @@
 #pragma once
 
+#include <array>
+#include <string>
 #include <string_view>
-#include <vtkImageData.h>
-#include <vtkSmartPointer.h>
-#include <vtkXMLImageDataWriter.h>
+#include <vector>
 
 #include <common/types.h>
 
@@ -14,9 +14,10 @@ namespace physicore::biofvm {
 
 class vtk_serializer : public vtk_serializer_base, public serializer
 {
-	vtkSmartPointer<vtkXMLImageDataWriter> writer = vtkSmartPointer<vtkXMLImageDataWriter>::New();
-	vtkSmartPointer<vtkImageData> image_data = vtkSmartPointer<vtkImageData>::New();
-	std::vector<vtkSmartPointer<vtkRealArray>> data_arrays;
+	std::array<int, 6> extent_; // xmin xmax ymin ymax zmin zmax
+	std::array<double, 3> spacing_;
+	index_t substrates_count_;
+	std::vector<std::string> substrate_names_;
 
 public:
 	vtk_serializer(std::string_view output_dir, microenvironment& m);

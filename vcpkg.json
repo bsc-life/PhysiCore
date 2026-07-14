@@ -11,7 +11,6 @@
     {
       "name": "tbb",
       "platform": "!osx"
-    },
-    "vtk-ioxml"
+    }
   ]
 }

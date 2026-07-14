@@ -1,155 +1,108 @@
 #include "vtk_agents_serializer.h"
 
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
+#include <limits>
 #include <sstream>
-#include <vtkCellArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkSmartPointer.h>
 
 #include "agent_container.h"
 #include "microenvironment.h"
 
 using namespace physicore::biofvm;
 
-vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir, const microenvironment& m)
-	: vtk_serializer_base(output_dir, "vtk_agents", "agents.pvd"), substrate_count(m.substrates_count)
+namespace {
+using physicore::real_t;
+constexpr const char* vtk_real_type_name()
 {
-	// Initialize volumes array
-	volumes_array = vtkSmartPointer<vtkRealArray>::New();
-	volumes_array->SetNumberOfComponents(1);
-	volumes_array->SetName("volume");
-	unstructured_grid->GetPointData()->AddArray(volumes_array);
+	return std::is_same_v<real_t, float> ? "Float32" : "Float64";
+}
+} // namespace
 
-	// Initialize substrate-related arrays (one array per substrate)
-	for (index_t i = 0; i < substrate_count; ++i)
-	{
-		auto secretion_array = vtkSmartPointer<vtkRealArray>::New();
-		secretion_array->SetNumberOfComponents(1);
-		secretion_array->SetName((m.substrates_names[i] + "_secretion_rate").c_str());
-		secretion_rates_arrays.push_back(secretion_array);
-		unstructured_grid->GetPointData()->AddArray(secretion_array);
-
-		auto saturation_array = vtkSmartPointer<vtkRealArray>::New();
-		saturation_array->SetNumberOfComponents(1);
-		saturation_array->SetName((m.substrates_names[i] + "_saturation_density").c_str());
-		saturation_densities_arrays.push_back(saturation_array);
-		unstructured_grid->GetPointData()->AddArray(saturation_array);
-
-		auto uptake_array = vtkSmartPointer<vtkRealArray>::New();
-		uptake_array->SetNumberOfComponents(1);
-		uptake_array->SetName((m.substrates_names[i] + "_uptake_rate").c_str());
-		uptake_rates_arrays.push_back(uptake_array);
-		unstructured_grid->GetPointData()->AddArray(uptake_array);
-
-		auto net_export_array = vtkSmartPointer<vtkRealArray>::New();
-		net_export_array->SetNumberOfComponents(1);
-		net_export_array->SetName((m.substrates_names[i] + "_net_export_rate").c_str());
-		net_export_rates_arrays.push_back(net_export_array);
-		unstructured_grid->GetPointData()->AddArray(net_export_array);
-
-		auto internalized_array = vtkSmartPointer<vtkRealArray>::New();
-		internalized_array->SetNumberOfComponents(1);
-		internalized_array->SetName((m.substrates_names[i] + "_internalized_substrate").c_str());
-		internalized_substrates_arrays.push_back(internalized_array);
-		unstructured_grid->GetPointData()->AddArray(internalized_array);
-
-		auto fraction_released_array = vtkSmartPointer<vtkRealArray>::New();
-		fraction_released_array->SetNumberOfComponents(1);
-		fraction_released_array->SetName((m.substrates_names[i] + "_fraction_released_at_death").c_str());
-		fraction_released_at_death_arrays.push_back(fraction_released_array);
-		unstructured_grid->GetPointData()->AddArray(fraction_released_array);
-
-		auto fraction_transferred_array = vtkSmartPointer<vtkRealArray>::New();
-		fraction_transferred_array->SetNumberOfComponents(1);
-		fraction_transferred_array->SetName((m.substrates_names[i] + "_fraction_transferred_when_ingested").c_str());
-		fraction_transferred_when_ingested_arrays.push_back(fraction_transferred_array);
-		unstructured_grid->GetPointData()->AddArray(fraction_transferred_array);
-	}
-
-	writer->SetInputData(unstructured_grid);
-	writer->SetCompressorTypeToNone();
+vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir, const microenvironment& m)
+	: vtk_serializer_base(output_dir, "vtk_agents", "agents.pvd"),
+	  substrate_count_(m.substrates_count),
+	  substrate_names_(m.substrates_names)
+{
 }
 
 void vtk_agents_serializer::serialize(const microenvironment& m, real_t current_time)
 {
 	const auto& biofvm_data = retrieve_agent_data(*m.agents);
 	const auto& base_data = biofvm_data.base_data;
-
 	const index_t agent_count = biofvm_data.agents_count;
 
-	// Create points for agent positions
-	auto points = vtkSmartPointer<vtkPoints>::New();
-	points->SetNumberOfPoints(static_cast<vtkIdType>(agent_count));
+	std::ostringstream name_ss;
+	name_ss << "agents_" << std::setw(6) << std::setfill('0') << iteration << ".vtu";
+	const auto file_name = name_ss.str();
+	const auto file_path = std::filesystem::path(vtks_dir) / file_name;
 
-	// Set point positions from agent data
+	std::ofstream out(file_path);
+	out << std::setprecision(std::numeric_limits<real_t>::max_digits10);
+
+	out << "<?xml version=\"1.0\"?>\n"
+		<< "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n"
+		<< "  <UnstructuredGrid>\n"
+		<< "    <Piece NumberOfPoints=\"" << agent_count << "\" NumberOfCells=\"" << agent_count << "\">\n";
+
+	// Points
+	out << "      <Points>\n"
+		<< "        <DataArray type=\"Float64\" Name=\"Points\" NumberOfComponents=\"3\" format=\"ascii\">\n"
+		<< "          ";
 	for (index_t i = 0; i < agent_count; ++i)
 	{
 		std::array<double, 3> pos = { 0.0, 0.0, 0.0 };
 		for (index_t d = 0; d < base_data.dims && d < 3; ++d)
-		{
 			pos[d] = base_data.positions[i * base_data.dims + d];
-		}
-		points->SetPoint(static_cast<vtkIdType>(i), pos.data());
+		out << pos[0] << " " << pos[1] << " " << pos[2] << " ";
 	}
-	unstructured_grid->SetPoints(points);
+	out << "\n        </DataArray>\n      </Points>\n";
 
-	// Create vertex cells (one per agent)
-	auto cells = vtkSmartPointer<vtkCellArray>::New();
-	for (index_t i = 0; i < agent_count; ++i)
+	// Cells — one VTK_VERTEX (type=1) per agent
+	out << "      <Cells>\n"
+		<< "        <DataArray type=\"Int64\" Name=\"connectivity\" format=\"ascii\">\n          ";
+	for (index_t i = 0; i < agent_count; ++i) out << i << " ";
+	out << "\n        </DataArray>\n"
+		<< "        <DataArray type=\"Int64\" Name=\"offsets\" format=\"ascii\">\n          ";
+	for (index_t i = 0; i < agent_count; ++i) out << (i + 1) << " ";
+	out << "\n        </DataArray>\n"
+		<< "        <DataArray type=\"UInt8\" Name=\"types\" format=\"ascii\">\n          ";
+	for (index_t i = 0; i < agent_count; ++i) out << "1 ";
+	out << "\n        </DataArray>\n      </Cells>\n";
+
+	// PointData arrays
+	out << "      <PointData>\n";
+
+	auto write_array = [&](const std::string& name, auto get_value) {
+		out << "        <DataArray type=\"" << vtk_real_type_name() << "\" Name=\"" << name
+			<< "\" NumberOfComponents=\"1\" NumberOfTuples=\"" << agent_count << "\" format=\"ascii\">\n          ";
+		for (index_t i = 0; i < agent_count; ++i) out << get_value(i) << " ";
+		out << "\n        </DataArray>\n";
+	};
+
+	write_array("volume", [&](index_t i) { return biofvm_data.volumes[i]; });
+
+	for (index_t s = 0; s < substrate_count_; ++s)
 	{
-		cells->InsertNextCell(1);
-		cells->InsertCellPoint(static_cast<vtkIdType>(i));
-	}
-	unstructured_grid->SetCells(VTK_VERTEX, cells);
-
-	// Set array sizes
-	volumes_array->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-	for (index_t s = 0; s < substrate_count; ++s)
-	{
-		secretion_rates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-		saturation_densities_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-		uptake_rates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-		net_export_rates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-		internalized_substrates_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-		fraction_released_at_death_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-		fraction_transferred_when_ingested_arrays[s]->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-	}
-
-	// Fill in the data
-	for (index_t i = 0; i < agent_count; ++i)
-	{
-		volumes_array->SetValue(static_cast<vtkIdType>(i), biofvm_data.volumes[i]);
-
-		for (index_t s = 0; s < substrate_count; ++s)
-		{
-			const index_t idx = i * substrate_count + s;
-			secretion_rates_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.secretion_rates[idx]);
-			saturation_densities_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.saturation_densities[idx]);
-			uptake_rates_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.uptake_rates[idx]);
-			net_export_rates_arrays[s]->SetValue(static_cast<vtkIdType>(i), biofvm_data.net_export_rates[idx]);
-			internalized_substrates_arrays[s]->SetValue(static_cast<vtkIdType>(i),
-														biofvm_data.internalized_substrates[idx]);
-			fraction_released_at_death_arrays[s]->SetValue(static_cast<vtkIdType>(i),
-														   biofvm_data.fraction_released_at_death[idx]);
-			fraction_transferred_when_ingested_arrays[s]->SetValue(static_cast<vtkIdType>(i),
-																   biofvm_data.fraction_transferred_when_ingested[idx]);
-		}
+		const auto& sname = substrate_names_[s];
+		write_array(sname + "_secretion_rate",
+					[&](index_t i) { return biofvm_data.secretion_rates[i * substrate_count_ + s]; });
+		write_array(sname + "_saturation_density",
+					[&](index_t i) { return biofvm_data.saturation_densities[i * substrate_count_ + s]; });
+		write_array(sname + "_uptake_rate",
+					[&](index_t i) { return biofvm_data.uptake_rates[i * substrate_count_ + s]; });
+		write_array(sname + "_net_export_rate",
+					[&](index_t i) { return biofvm_data.net_export_rates[i * substrate_count_ + s]; });
+		write_array(sname + "_internalized_substrate",
+					[&](index_t i) { return biofvm_data.internalized_substrates[i * substrate_count_ + s]; });
+		write_array(sname + "_fraction_released_at_death",
+					[&](index_t i) { return biofvm_data.fraction_released_at_death[i * substrate_count_ + s]; });
+		write_array(sname + "_fraction_transferred_when_ingested",
+					[&](index_t i) { return biofvm_data.fraction_transferred_when_ingested[i * substrate_count_ + s]; });
 	}
 
-	// Write the file
-	std::ostringstream ss;
-	ss << "agents_" << std::setw(6) << std::setfill('0') << iteration << ".vtu";
-
-	auto file_name = ss.str();
-	auto file_path = std::filesystem::path(vtks_dir) / file_name;
-
-	writer->SetFileName(file_path.string().c_str());
-	writer->Write();
+	out << "      </PointData>\n    </Piece>\n  </UnstructuredGrid>\n</VTKFile>\n";
 
 	append_to_pvd(file_name, current_time);
-
 	iteration++;
 }

@@ -1,14 +1,10 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkSmartPointer.h>
-#include <vtkType.h>
-#include <vtkUnstructuredGrid.h>
-#include <vtkXMLUnstructuredGridReader.h>
+#include <pugixml.hpp>
 
 #include <gtest/gtest.h>
 
@@ -68,6 +64,39 @@ protected:
 	}
 
 	std::filesystem::path test_output_dir;
+
+	// Parse all values from a named PointData DataArray in a .vtu file.
+	static std::vector<real_t> read_point_array(const std::filesystem::path& vtu_path, const char* array_name)
+	{
+		pugi::xml_document doc;
+		if (!doc.load_file(vtu_path.string().c_str())) return {};
+		auto point_data =
+			doc.child("VTKFile").child("UnstructuredGrid").child("Piece").child("PointData");
+		for (auto da : point_data.children("DataArray"))
+			if (std::string(da.attribute("Name").value()) == array_name)
+			{
+				std::vector<real_t> vals;
+				std::istringstream ss(da.text().get());
+				real_t v;
+				while (ss >> v) vals.push_back(v);
+				return vals;
+			}
+		return {};
+	}
+
+	// Parse agent positions (3-component Points DataArray) from a .vtu file.
+	static std::vector<std::array<double, 3>> read_points(const std::filesystem::path& vtu_path)
+	{
+		pugi::xml_document doc;
+		if (!doc.load_file(vtu_path.string().c_str())) return {};
+		auto points_da =
+			doc.child("VTKFile").child("UnstructuredGrid").child("Piece").child("Points").child("DataArray");
+		std::vector<std::array<double, 3>> pts;
+		std::istringstream ss(points_da.text().get());
+		double x, y, z;
+		while (ss >> x >> y >> z) pts.push_back({ x, y, z });
+		return pts;
+	}
 };
 
 TEST_F(VtkAgentsSerializerTest, ConstructorInitialization)
@@ -129,53 +158,44 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithSingleAgent)
 	vtk_agents_serializer serializer(test_output_dir.string(), *m);
 	serializer.serialize(*m, 0.0);
 
-	// Read and validate VTK file structure
+	// Read and validate VTK file structure via pugixml
 	auto vtk_dir = test_output_dir / "vtk_agents";
 	auto vtu_file = vtk_dir / "agents_000000.vtu";
 
-	auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-	reader->SetFileName(vtu_file.string().c_str());
-	reader->Update();
-
-	auto* unstructured_grid = reader->GetOutput();
-	ASSERT_NE(unstructured_grid, nullptr);
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vtu_file.string().c_str()));
+	auto piece = doc.child("VTKFile").child("UnstructuredGrid").child("Piece");
 
 	// Check number of points
-	EXPECT_EQ(unstructured_grid->GetNumberOfPoints(), 1);
+	EXPECT_EQ(std::stoi(piece.attribute("NumberOfPoints").value()), 1);
 
 	// Check point position
-	std::array<double, 3> pos {};
-	unstructured_grid->GetPoint(0, pos.data());
-	EXPECT_DOUBLE_EQ(pos[0], 10.0);
-	EXPECT_DOUBLE_EQ(pos[1], 20.0);
-	EXPECT_DOUBLE_EQ(pos[2], 30.0);
+	auto pts = read_points(vtu_file);
+	ASSERT_EQ(pts.size(), 1u);
+	EXPECT_DOUBLE_EQ(pts[0][0], 10.0);
+	EXPECT_DOUBLE_EQ(pts[0][1], 20.0);
+	EXPECT_DOUBLE_EQ(pts[0][2], 30.0);
 
-	// Check point data arrays
-	auto* point_data = unstructured_grid->GetPointData();
-	ASSERT_NE(point_data, nullptr);
+	// Check PointData arrays
+	auto vol = read_point_array(vtu_file, "volume");
+	ASSERT_EQ(vol.size(), 1u);
+	EXPECT_DOUBLE_EQ(static_cast<double>(vol[0]), 100.0);
 
-	// Check volume array
-	auto* volume_array = point_data->GetArray("volume");
-	ASSERT_NE(volume_array, nullptr);
-	EXPECT_EQ(volume_array->GetNumberOfTuples(), 1);
-	EXPECT_DOUBLE_EQ(volume_array->GetTuple1(0), 100.0);
+	auto o2_sec = read_point_array(vtu_file, "O2_secretion_rate");
+	ASSERT_EQ(o2_sec.size(), 1u);
+	EXPECT_DOUBLE_EQ(static_cast<double>(o2_sec[0]), 1.0);
 
-	// Check substrate arrays
-	auto* o2_secretion_array = point_data->GetArray("O2_secretion_rate");
-	ASSERT_NE(o2_secretion_array, nullptr);
-	EXPECT_DOUBLE_EQ(o2_secretion_array->GetTuple1(0), 1.0);
+	auto glc_sec = read_point_array(vtu_file, "Glucose_secretion_rate");
+	ASSERT_EQ(glc_sec.size(), 1u);
+	EXPECT_DOUBLE_EQ(static_cast<double>(glc_sec[0]), 2.0);
 
-	auto* glucose_secretion_array = point_data->GetArray("Glucose_secretion_rate");
-	ASSERT_NE(glucose_secretion_array, nullptr);
-	EXPECT_DOUBLE_EQ(glucose_secretion_array->GetTuple1(0), 2.0);
+	auto o2_sat = read_point_array(vtu_file, "O2_saturation_density");
+	ASSERT_EQ(o2_sat.size(), 1u);
+	EXPECT_DOUBLE_EQ(static_cast<double>(o2_sat[0]), 3.0);
 
-	auto* o2_saturation_array = point_data->GetArray("O2_saturation_density");
-	ASSERT_NE(o2_saturation_array, nullptr);
-	EXPECT_DOUBLE_EQ(o2_saturation_array->GetTuple1(0), 3.0);
-
-	auto* glucose_saturation_array = point_data->GetArray("Glucose_saturation_density");
-	ASSERT_NE(glucose_saturation_array, nullptr);
-	EXPECT_DOUBLE_EQ(glucose_saturation_array->GetTuple1(0), 4.0);
+	auto glc_sat = read_point_array(vtu_file, "Glucose_saturation_density");
+	ASSERT_EQ(glc_sat.size(), 1u);
+	EXPECT_DOUBLE_EQ(static_cast<double>(glc_sat[0]), 4.0);
 }
 
 TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
@@ -221,67 +241,61 @@ TEST_F(VtkAgentsSerializerTest, SerializeWithMultipleAgents)
 	vtk_agents_serializer serializer(test_output_dir.string(), *m);
 	serializer.serialize(*m, 0.0);
 
-	// Read and validate VTK file
+	// Read and validate VTK file via pugixml
 	auto vtk_dir = test_output_dir / "vtk_agents";
 	auto vtu_file = vtk_dir / "agents_000000.vtu";
 
-	auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-	reader->SetFileName(vtu_file.string().c_str());
-	reader->Update();
-
-	auto* unstructured_grid = reader->GetOutput();
-	ASSERT_NE(unstructured_grid, nullptr);
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vtu_file.string().c_str()));
+	auto piece = doc.child("VTKFile").child("UnstructuredGrid").child("Piece");
 
 	// Check number of points
-	EXPECT_EQ(unstructured_grid->GetNumberOfPoints(), num_agents);
+	EXPECT_EQ(std::stoi(piece.attribute("NumberOfPoints").value()), num_agents);
 
-	// Check point positions and data for each agent
+	// Check point positions
+	auto pts = read_points(vtu_file);
+	ASSERT_EQ((int)pts.size(), num_agents);
 	for (int i = 0; i < num_agents; ++i)
 	{
-		std::array<double, 3> pos {};
-		unstructured_grid->GetPoint(i, pos.data());
-		EXPECT_DOUBLE_EQ(pos[0], i * 10.0);
-		EXPECT_DOUBLE_EQ(pos[1], i * 20.0);
-		EXPECT_DOUBLE_EQ(pos[2], i * 30.0);
+		EXPECT_DOUBLE_EQ(pts[i][0], i * 10.0);
+		EXPECT_DOUBLE_EQ(pts[i][1], i * 20.0);
+		EXPECT_DOUBLE_EQ(pts[i][2], i * 30.0);
+	}
 
-		auto* point_data = unstructured_grid->GetPointData();
-		auto* volume_array = point_data->GetArray("volume");
-		EXPECT_DOUBLE_EQ(volume_array->GetTuple1(i), (i + 1) * 100.0);
+	// Check per-agent data arrays
+	auto vol = read_point_array(vtu_file, "volume");
+	ASSERT_EQ((int)vol.size(), num_agents);
+	for (int i = 0; i < num_agents; ++i)
+		EXPECT_DOUBLE_EQ(static_cast<double>(vol[i]), (i + 1) * 100.0);
 
-		// Check substrate-related data for each agent
-		for (index_t s = 0; s < m->substrates_count; ++s)
+	for (index_t s = 0; s < m->substrates_count; ++s)
+	{
+		const std::string sname = m->substrates_names[s];
+
+		auto sec = read_point_array(vtu_file, (sname + "_secretion_rate").c_str());
+		ASSERT_EQ((int)sec.size(), num_agents);
+		auto sat = read_point_array(vtu_file, (sname + "_saturation_density").c_str());
+		ASSERT_EQ((int)sat.size(), num_agents);
+		auto upt = read_point_array(vtu_file, (sname + "_uptake_rate").c_str());
+		ASSERT_EQ((int)upt.size(), num_agents);
+		auto net = read_point_array(vtu_file, (sname + "_net_export_rate").c_str());
+		ASSERT_EQ((int)net.size(), num_agents);
+		auto intern = read_point_array(vtu_file, (sname + "_internalized_substrate").c_str());
+		ASSERT_EQ((int)intern.size(), num_agents);
+		auto frd = read_point_array(vtu_file, (sname + "_fraction_released_at_death").c_str());
+		ASSERT_EQ((int)frd.size(), num_agents);
+		auto fti = read_point_array(vtu_file, (sname + "_fraction_transferred_when_ingested").c_str());
+		ASSERT_EQ((int)fti.size(), num_agents);
+
+		for (int i = 0; i < num_agents; ++i)
 		{
-			const std::string substrate_name = m->substrates_names[s];
-
-			auto* secretion_array = point_data->GetArray((substrate_name + "_secretion_rate").c_str());
-			ASSERT_NE(secretion_array, nullptr);
-			EXPECT_DOUBLE_EQ(secretion_array->GetTuple1(i), i + s + 1.0);
-
-			auto* saturation_array = point_data->GetArray((substrate_name + "_saturation_density").c_str());
-			ASSERT_NE(saturation_array, nullptr);
-			EXPECT_DOUBLE_EQ(saturation_array->GetTuple1(i), (i + 1) * (s + 1) * 10.0);
-
-			auto* uptake_array = point_data->GetArray((substrate_name + "_uptake_rate").c_str());
-			ASSERT_NE(uptake_array, nullptr);
-			EXPECT_DOUBLE_EQ(uptake_array->GetTuple1(i), (i + 1) * 0.5);
-
-			auto* net_export_array = point_data->GetArray((substrate_name + "_net_export_rate").c_str());
-			ASSERT_NE(net_export_array, nullptr);
-			EXPECT_DOUBLE_EQ(net_export_array->GetTuple1(i), (i + 1) * 0.1);
-
-			auto* internalized_array = point_data->GetArray((substrate_name + "_internalized_substrate").c_str());
-			ASSERT_NE(internalized_array, nullptr);
-			EXPECT_DOUBLE_EQ(internalized_array->GetTuple1(i), i * 5.0);
-
-			auto* fraction_released_array =
-				point_data->GetArray((substrate_name + "_fraction_released_at_death").c_str());
-			ASSERT_NE(fraction_released_array, nullptr);
-			EXPECT_DOUBLE_EQ(fraction_released_array->GetTuple1(i), 0.5 + i * 0.1);
-
-			auto* fraction_transferred_array =
-				point_data->GetArray((substrate_name + "_fraction_transferred_when_ingested").c_str());
-			ASSERT_NE(fraction_transferred_array, nullptr);
-			EXPECT_DOUBLE_EQ(fraction_transferred_array->GetTuple1(i), 0.3 + i * 0.05);
+			EXPECT_DOUBLE_EQ(static_cast<double>(sec[i]), i + static_cast<int>(s) + 1.0);
+			EXPECT_DOUBLE_EQ(static_cast<double>(sat[i]), (i + 1) * (static_cast<int>(s) + 1) * 10.0);
+			EXPECT_DOUBLE_EQ(static_cast<double>(upt[i]), (i + 1) * 0.5);
+			EXPECT_DOUBLE_EQ(static_cast<double>(net[i]), (i + 1) * 0.1);
+			EXPECT_DOUBLE_EQ(static_cast<double>(intern[i]), i * 5.0);
+			EXPECT_DOUBLE_EQ(static_cast<double>(frd[i]), 0.5 + i * 0.1);
+			EXPECT_DOUBLE_EQ(static_cast<double>(fti[i]), 0.3 + i * 0.05);
 		}
 	}
 }
@@ -356,16 +370,13 @@ TEST_F(VtkAgentsSerializerTest, AllSubstrateArraysPresent)
 	vtk_agents_serializer serializer(test_output_dir.string(), *m);
 	serializer.serialize(*m, 0.0);
 
-	// Read VTK file
+	// Read VTK file via pugixml
 	auto vtk_dir = test_output_dir / "vtk_agents";
 	auto vtu_file = vtk_dir / "agents_000000.vtu";
 
-	auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-	reader->SetFileName(vtu_file.string().c_str());
-	reader->Update();
-
-	auto* unstructured_grid = reader->GetOutput();
-	auto* point_data = unstructured_grid->GetPointData();
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vtu_file.string().c_str()));
+	auto point_data = doc.child("VTKFile").child("UnstructuredGrid").child("Piece").child("PointData");
 
 	// Check that all expected arrays are present for each substrate
 	const std::vector<std::string> substrates = { "O2", "Glucose" };
@@ -382,12 +393,18 @@ TEST_F(VtkAgentsSerializerTest, AllSubstrateArraysPresent)
 		for (const auto& suffix : array_suffixes)
 		{
 			const std::string array_name = substrate + suffix;
-			EXPECT_NE(point_data->GetArray(array_name.c_str()), nullptr) << "Missing array: " << array_name;
+			bool found = false;
+			for (auto da : point_data.children("DataArray"))
+				if (std::string(da.attribute("Name").value()) == array_name) { found = true; break; }
+			EXPECT_TRUE(found) << "Missing array: " << array_name;
 		}
 	}
 
 	// Also check volume array
-	EXPECT_NE(point_data->GetArray("volume"), nullptr);
+	bool has_volume = false;
+	for (auto da : point_data.children("DataArray"))
+		if (std::string(da.attribute("Name").value()) == "volume") { has_volume = true; break; }
+	EXPECT_TRUE(has_volume);
 }
 
 TEST_F(VtkAgentsSerializerTest, IntegrationWithMicroenvironment)
@@ -432,12 +449,9 @@ TEST_F(VtkAgentsSerializerTest, IntegrationWithMicroenvironment)
 	auto vtu_file = vtk_dir / "agents_000000.vtu";
 	EXPECT_TRUE(std::filesystem::exists(vtu_file));
 
-	// Read and verify the file
-	auto reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-	reader->SetFileName(vtu_file.string().c_str());
-	reader->Update();
-
-	auto* unstructured_grid = reader->GetOutput();
-	ASSERT_NE(unstructured_grid, nullptr);
-	EXPECT_EQ(unstructured_grid->GetNumberOfPoints(), num_agents);
+	// Read and verify the file via pugixml
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vtu_file.string().c_str()));
+	auto piece = doc.child("VTKFile").child("UnstructuredGrid").child("Piece");
+	EXPECT_EQ(std::stoi(piece.attribute("NumberOfPoints").value()), num_agents);
 }

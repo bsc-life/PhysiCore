@@ -52,11 +52,10 @@ target_compile_definitions(reactions-diffusion.biofvm_iface INTERFACE BIOFVM_STA
 target_link_libraries(reactions-diffusion.biofvm_internal_iface
                       INTERFACE common)
 
-find_package(VTK CONFIG REQUIRED)
 find_package(pugixml CONFIG REQUIRED)
 
 target_link_libraries(reactions-diffusion.biofvm_internal_iface
-                      INTERFACE VTK::IOXML pugixml::pugixml)
+                      INTERFACE pugixml::pugixml)
 
 target_link_libraries(
   reactions-diffusion.biofvm

@@ -1,14 +1,10 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <vtkCellData.h>
-#include <vtkDataArray.h>
-#include <vtkImageData.h>
-#include <vtkSmartPointer.h>
-#include <vtkType.h>
-#include <vtkXMLImageDataReader.h>
+#include <pugixml.hpp>
 
 #include <gtest/gtest.h>
 
@@ -75,6 +71,24 @@ protected:
 	}
 
 	std::filesystem::path test_output_dir;
+
+	// Parse all values from a named CellData DataArray in a .vti file.
+	static std::vector<real_t> read_cell_array(const std::filesystem::path& vti_path, const char* array_name)
+	{
+		pugi::xml_document doc;
+		if (!doc.load_file(vti_path.string().c_str())) return {};
+		auto cell_data = doc.child("VTKFile").child("ImageData").child("Piece").child("CellData");
+		for (auto da : cell_data.children("DataArray"))
+			if (std::string(da.attribute("Name").value()) == array_name)
+			{
+				std::vector<real_t> vals;
+				std::istringstream ss(da.text().get());
+				real_t v;
+				while (ss >> v) vals.push_back(v);
+				return vals;
+			}
+		return {};
+	}
 };
 
 TEST_F(VtkSerializerTest, ConstructorInitialization)
@@ -165,46 +179,50 @@ TEST_F(VtkSerializerTest, VtkFileStructure)
 
 	serializer.serialize(*m, 0.0);
 
-	// Read and validate VTK file structure using VTK reader
+	// Read and validate VTK file structure using pugixml
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
 	auto vti_file = vtk_dir / "microenvironment_000000.vti";
 
-	auto reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-	reader->SetFileName(vti_file.string().c_str());
-	reader->Update();
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vti_file.string().c_str()));
 
-	auto* image_data = reader->GetOutput();
-	ASSERT_NE(image_data, nullptr);
+	auto image_data_node = doc.child("VTKFile").child("ImageData");
 
-	// Check dimensions
-	std::array<int, 3> dims {};
-	image_data->GetDimensions(dims.data());
-	EXPECT_EQ(dims[0], 4); // grid_shape[0] + 1
-	EXPECT_EQ(dims[1], 4); // grid_shape[1] + 1
-	EXPECT_EQ(dims[2], 4); // grid_shape[2] + 1
+	// Check dimensions from WholeExtent (dims = extent[2i+1] - extent[2i] + 1)
+	std::string extent_str = image_data_node.attribute("WholeExtent").value();
+	int e0, e1, e2, e3, e4, e5;
+	std::istringstream(extent_str) >> e0 >> e1 >> e2 >> e3 >> e4 >> e5;
+	EXPECT_EQ(e1 - e0 + 1, 4);
+	EXPECT_EQ(e3 - e2 + 1, 4);
+	EXPECT_EQ(e5 - e4 + 1, 4);
 
 	// Check spacing
-	std::array<double, 3> spacing {};
-	image_data->GetSpacing(spacing.data());
-	EXPECT_DOUBLE_EQ(spacing[0], 20.0);
-	EXPECT_DOUBLE_EQ(spacing[1], 20.0);
-	EXPECT_DOUBLE_EQ(spacing[2], 20.0);
+	std::string spacing_str = image_data_node.attribute("Spacing").value();
+	double sx, sy, sz;
+	std::istringstream(spacing_str) >> sx >> sy >> sz;
+	EXPECT_DOUBLE_EQ(sx, 20.0);
+	EXPECT_DOUBLE_EQ(sy, 20.0);
+	EXPECT_DOUBLE_EQ(sz, 20.0);
 
-	// Check that arrays exist for substrates
-	auto* cell_data = image_data->GetCellData();
-	ASSERT_NE(cell_data, nullptr);
+	// Check CellData arrays exist and have correct metadata
+	auto cell_data = image_data_node.child("Piece").child("CellData");
+	ASSERT_FALSE(cell_data.empty());
 
-	EXPECT_NE(cell_data->GetArray("O2"), nullptr);
-	EXPECT_NE(cell_data->GetArray("Glucose"), nullptr);
+	auto find_array = [&](const char* name) -> pugi::xml_node {
+		for (auto da : cell_data.children("DataArray"))
+			if (std::string(da.attribute("Name").value()) == name) return da;
+		return {};
+	};
 
-	// Check array properties
-	auto* o2_array = cell_data->GetArray("O2");
-	EXPECT_EQ(o2_array->GetNumberOfComponents(), 1);
-	EXPECT_EQ(o2_array->GetNumberOfTuples(), 27); // 3x3x3 = 27 voxels
+	auto o2_node = find_array("O2");
+	ASSERT_FALSE(o2_node.empty()) << "O2 array not found";
+	EXPECT_EQ(std::stoi(o2_node.attribute("NumberOfComponents").value()), 1);
+	EXPECT_EQ(std::stoull(o2_node.attribute("NumberOfTuples").value()), 27u);
 
-	auto* glucose_array = cell_data->GetArray("Glucose");
-	EXPECT_EQ(glucose_array->GetNumberOfComponents(), 1);
-	EXPECT_EQ(glucose_array->GetNumberOfTuples(), 27); // 3x3x3 = 27 voxels
+	auto glucose_node = find_array("Glucose");
+	ASSERT_FALSE(glucose_node.empty()) << "Glucose array not found";
+	EXPECT_EQ(std::stoi(glucose_node.attribute("NumberOfComponents").value()), 1);
+	EXPECT_EQ(std::stoull(glucose_node.attribute("NumberOfTuples").value()), 27u);
 }
 
 TEST_F(VtkSerializerTest, HandleDifferentMeshDimensions)
@@ -250,19 +268,22 @@ TEST_F(VtkSerializerTest, SingleSubstrate)
 
 	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
-	// Verify single substrate array
+	// Verify single substrate array via pugixml
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
 	auto vti_file = vtk_dir / "microenvironment_000000.vti";
 
-	auto reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-	reader->SetFileName(vti_file.string().c_str());
-	reader->Update();
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vti_file.string().c_str()));
+	auto cell_data = doc.child("VTKFile").child("ImageData").child("Piece").child("CellData");
 
-	auto* image_data = reader->GetOutput();
-	auto* cell_data = image_data->GetCellData();
+	int n_arrays = 0;
+	for (auto da : cell_data.children("DataArray")) { ++n_arrays; (void)da; }
+	EXPECT_EQ(n_arrays, 1);
 
-	EXPECT_EQ(cell_data->GetNumberOfArrays(), 1);
-	EXPECT_NE(cell_data->GetArray("O2"), nullptr);
+	bool found_o2 = false;
+	for (auto da : cell_data.children("DataArray"))
+		if (std::string(da.attribute("Name").value()) == "O2") { found_o2 = true; break; }
+	EXPECT_TRUE(found_o2);
 }
 
 TEST_F(VtkSerializerTest, ManySubstrates)
@@ -297,22 +318,24 @@ TEST_F(VtkSerializerTest, ManySubstrates)
 
 	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
-	// Verify all substrate arrays
+	// Verify all substrate arrays via pugixml
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
 	auto vti_file = vtk_dir / "microenvironment_000000.vti";
 
-	auto reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-	reader->SetFileName(vti_file.string().c_str());
-	reader->Update();
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vti_file.string().c_str()));
+	auto cell_data = doc.child("VTKFile").child("ImageData").child("Piece").child("CellData");
 
-	auto* image_data = reader->GetOutput();
-	auto* cell_data = image_data->GetCellData();
-
-	EXPECT_EQ(cell_data->GetNumberOfArrays(), substrate_names.size());
+	int n_arrays = 0;
+	for (auto da : cell_data.children("DataArray")) { ++n_arrays; (void)da; }
+	EXPECT_EQ(n_arrays, (int)substrate_names.size());
 
 	for (const auto& name : substrate_names)
 	{
-		EXPECT_NE(cell_data->GetArray(name.c_str()), nullptr) << "Substrate array '" << name << "' not found";
+		bool found = false;
+		for (auto da : cell_data.children("DataArray"))
+			if (std::string(da.attribute("Name").value()) == name) { found = true; break; }
+		EXPECT_TRUE(found) << "Substrate array '" << name << "' not found";
 	}
 }
 
@@ -338,26 +361,25 @@ TEST_F(VtkSerializerTest, NonZeroBoundingBoxMins)
 
 	EXPECT_NO_THROW(serializer.serialize(*m, 0.0));
 
-	// Verify extent calculation with non-zero bounding box mins
+	// Verify extent calculation with non-zero bounding box mins via pugixml
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
 	auto vti_file = vtk_dir / "microenvironment_000000.vti";
 
-	auto reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-	reader->SetFileName(vti_file.string().c_str());
-	reader->Update();
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vti_file.string().c_str()));
+	auto image_data_node = doc.child("VTKFile").child("ImageData");
 
-	auto* image_data = reader->GetOutput();
-
-	std::array<int, 6> extent {};
-	image_data->GetExtent(extent.data());
+	std::string extent_str = image_data_node.attribute("WholeExtent").value();
+	int e0, e1, e2, e3, e4, e5;
+	std::istringstream(extent_str) >> e0 >> e1 >> e2 >> e3 >> e4 >> e5;
 
 	// Check extent calculation: bounding_box_mins / voxel_shape
-	EXPECT_EQ(extent[0], 5);  // 100/20
-	EXPECT_EQ(extent[1], 8);  // 5 + 3 grid cells
-	EXPECT_EQ(extent[2], 10); // 200/20
-	EXPECT_EQ(extent[3], 13); // 10 + 3 grid cells
-	EXPECT_EQ(extent[4], 15); // 300/20
-	EXPECT_EQ(extent[5], 18); // 15 + 3 grid cells
+	EXPECT_EQ(e0, 5);  // 100/20
+	EXPECT_EQ(e1, 8);  // 5 + 3 grid cells
+	EXPECT_EQ(e2, 10); // 200/20
+	EXPECT_EQ(e3, 13); // 10 + 3 grid cells
+	EXPECT_EQ(e4, 15); // 300/20
+	EXPECT_EQ(e5, 18); // 15 + 3 grid cells
 }
 
 TEST_F(VtkSerializerTest, VtkRealArrayTypeConsistency)
@@ -370,19 +392,22 @@ TEST_F(VtkSerializerTest, VtkRealArrayTypeConsistency)
 	auto vtk_dir = test_output_dir / "vtk_microenvironment";
 	auto vti_file = vtk_dir / "microenvironment_000000.vti";
 
-	auto reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-	reader->SetFileName(vti_file.string().c_str());
-	reader->Update();
+	pugi::xml_document doc;
+	ASSERT_TRUE(doc.load_file(vti_file.string().c_str()));
+	auto cell_data = doc.child("VTKFile").child("ImageData").child("Piece").child("CellData");
 
-	auto* image_data = reader->GetOutput();
-	auto* cell_data = image_data->GetCellData();
-	auto* array = cell_data->GetArray("O2");
-
-	// Check that array type matches real_t (double in this case)
-	if (std::is_same_v<real_t, float>)
-		EXPECT_EQ(array->GetDataType(), VTK_FLOAT);
-	else
-		EXPECT_EQ(array->GetDataType(), VTK_DOUBLE);
+	for (auto da : cell_data.children("DataArray"))
+	{
+		if (std::string(da.attribute("Name").value()) == "O2")
+		{
+			const char* type_str = da.attribute("type").value();
+			if (std::is_same_v<real_t, float>)
+				EXPECT_STREQ(type_str, "Float32");
+			else
+				EXPECT_STREQ(type_str, "Float64");
+			break;
+		}
+	}
 }
 
 TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
@@ -414,28 +439,19 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 	auto vti_file = vtk_dir / "microenvironment_000000.vti";
 	EXPECT_TRUE(std::filesystem::exists(vti_file));
 
-	// Read back the VTI file and check specific voxel values
-	auto reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-	reader->SetFileName(vti_file.string().c_str());
-	reader->Update();
+	// Read back and check specific voxel values via pugixml
+	auto o2_vals = read_cell_array(vti_file, "O2");
+	ASSERT_EQ(o2_vals.size(), m->mesh.voxel_count());
 
-	auto* image_data = reader->GetOutput();
-	ASSERT_NE(image_data, nullptr);
-
-	auto* cell_data = image_data->GetCellData();
-	ASSERT_NE(cell_data, nullptr);
-
-	auto* o2_array = cell_data->GetArray("O2");
-	ASSERT_NE(o2_array, nullptr);
-
-	EXPECT_EQ(o2_array->GetNumberOfTuples(), m->mesh.voxel_count());
+	auto glucose_vals = read_cell_array(vti_file, "Glucose");
+	ASSERT_EQ(glucose_vals.size(), m->mesh.voxel_count());
 
 	for (index_t z = 0; z < m->mesh.grid_shape[2]; ++z)
 		for (index_t y = 0; y < m->mesh.grid_shape[1]; ++y)
 			for (index_t x = 0; x < m->mesh.grid_shape[0]; ++x)
 			{
 				const std::size_t voxel_idx = m->mesh.linearize(x, y, z);
-				const real_t value = o2_array->GetTuple1(static_cast<vtkIdType>(voxel_idx));
+				const real_t value = o2_vals[voxel_idx];
 
 				if (x == 0)
 					EXPECT_EQ(value, 100.0); // High boundary
@@ -444,8 +460,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 				else
 					EXPECT_EQ(value, 20.0);
 
-				const real_t value2 = cell_data->GetArray("Glucose")->GetTuple1(static_cast<vtkIdType>(voxel_idx));
-				EXPECT_EQ(value2, m->get_substrate_density(1, x, y, z));
+				EXPECT_EQ(glucose_vals[voxel_idx], m->get_substrate_density(1, x, y, z));
 			}
 
 	m->solver->solve(*m, 1);
@@ -454,28 +469,14 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 	auto vti_file2 = vtk_dir / "microenvironment_000001.vti";
 	EXPECT_TRUE(std::filesystem::exists(vti_file2));
 
-	// Read back the VTI file and check specific voxel values
-	reader = vtkSmartPointer<vtkXMLImageDataReader>::New();
-	reader->SetFileName(vti_file2.string().c_str());
-	reader->Update();
-
-	image_data = reader->GetOutput();
-	ASSERT_NE(image_data, nullptr);
-
-	cell_data = image_data->GetCellData();
-	ASSERT_NE(cell_data, nullptr);
-
-	auto* glucose_array = cell_data->GetArray("Glucose");
-	ASSERT_NE(glucose_array, nullptr);
-
-	EXPECT_EQ(glucose_array->GetNumberOfTuples(), m->mesh.voxel_count());
+	auto glucose_vals2 = read_cell_array(vti_file2, "Glucose");
+	ASSERT_EQ(glucose_vals2.size(), m->mesh.voxel_count());
 
 	for (index_t z = 0; z < m->mesh.grid_shape[2]; ++z)
 		for (index_t y = 0; y < m->mesh.grid_shape[1]; ++y)
 			for (index_t x = 0; x < m->mesh.grid_shape[0]; ++x)
 			{
 				const std::size_t voxel_idx = m->mesh.linearize(x, y, z);
-				const real_t value = glucose_array->GetTuple1(static_cast<vtkIdType>(voxel_idx));
-				EXPECT_EQ(value, m->get_substrate_density(1, x, y, z));
+				EXPECT_EQ(glucose_vals2[voxel_idx], m->get_substrate_density(1, x, y, z));
 			}
 }
