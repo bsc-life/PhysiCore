@@ -41,7 +41,7 @@ void physicore::random::set_seed(unsigned int seed)
 
 	#pragma omp parallel
 	{
-		int id = omp_get_thread_num();
+		const int id = omp_get_thread_num();
 		thread_local_generator().seed(seeds[id]);
 	}
 #else

@@ -13,7 +13,7 @@ class UpdateMotilityTest : public ::testing::TestWithParam<index_t>
 
 TEST_P(UpdateMotilityTest, SimpleEdge)
 {
-	index_t dims = GetParam();
+	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
 	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
 
@@ -44,7 +44,7 @@ TEST_P(UpdateMotilityTest, SimpleEdge)
 
 TEST_P(UpdateMotilityTest, MultipleEdge)
 {
-	index_t dims = GetParam();
+	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
 	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
 
@@ -89,7 +89,7 @@ TEST_P(UpdateMotilityTest, MultipleEdge)
 
 TEST_P(UpdateMotilityTest, SimpleCenter)
 {
-	index_t dims = GetParam();
+	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
 	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
 
@@ -115,7 +115,7 @@ TEST_P(UpdateMotilityTest, SimpleCenter)
 
 TEST_P(UpdateMotilityTest, SimpleOneOff)
 {
-	index_t dims = GetParam();
+	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
 	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
 
@@ -146,7 +146,7 @@ TEST_P(UpdateMotilityTest, SimpleOneOff)
 
 TEST_P(UpdateMotilityTest, NoMove)
 {
-	index_t dims = GetParam();
+	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
 	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
 
