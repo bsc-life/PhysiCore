@@ -6,7 +6,6 @@
 #include <common/types.h>
 
 #include "bulk_functor.h"
-#include "mesh.h"
 #include "microenvironment.h"
 
 namespace physicore::reactions_diffusion::biofvm {
