@@ -12,7 +12,6 @@
 #include "namespace_config.h"
 
 #if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
-	#include <cuda/std/array>
 	#include <cuda/std/atomic>
 #else
 	#include <atomic>
@@ -26,25 +25,21 @@ namespace {
 constexpr index_t no_ballot = std::numeric_limits<index_t>::max();
 
 template <index_t dims>
-constexpr auto fix_dims(const real_t* cell_position, const sindex_t* bounding_box_mins, const index_t* voxel_shape)
+constexpr auto fix_dims(const real_t* cell_position, const cartesian_mesh mesh)
 {
-	index_t voxel_index[3];
 	if constexpr (dims == 1)
 	{
-		voxel_index[0] = (index_t)((cell_position[0] - (real_t)bounding_box_mins[0]) / (real_t)voxel_shape[0]);
+		auto voxel_index = mesh.voxel_position(std::span<const real_t>(cell_position, dims));
 		return noarr::fix<'x'>(voxel_index[0]);
 	}
 	else if constexpr (dims == 2)
 	{
-		voxel_index[0] = (index_t)((cell_position[0] - (real_t)bounding_box_mins[0]) / (real_t)voxel_shape[0]);
-		voxel_index[1] = (index_t)((cell_position[1] - (real_t)bounding_box_mins[1]) / (real_t)voxel_shape[1]);
+		auto voxel_index = mesh.voxel_position(std::span<const real_t>(cell_position, dims));
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]);
 	}
 	else if constexpr (dims == 3)
 	{
-		voxel_index[0] = (index_t)((cell_position[0] - (real_t)bounding_box_mins[0]) / (real_t)voxel_shape[0]);
-		voxel_index[1] = (index_t)((cell_position[1] - (real_t)bounding_box_mins[1]) / (real_t)voxel_shape[1]);
-		voxel_index[2] = (index_t)((cell_position[2] - (real_t)bounding_box_mins[2]) / (real_t)voxel_shape[2]);
+		auto voxel_index = mesh.voxel_position(std::span<const real_t>(cell_position, dims));
 		return noarr::fix<'x'>(voxel_index[0]) ^ noarr::fix<'y'>(voxel_index[1]) ^ noarr::fix<'z'>(voxel_index[2]);
 	}
 }
@@ -53,38 +48,32 @@ template <index_t dims, typename ballot_layout_t>
 void clear_ballots(const ballot_layout_t ballot_l, const real_t* _CCCL_RESTRICT cell_positions,
 				   const uint8_t* _CCCL_RESTRICT is_active, index_t* _CCCL_RESTRICT ballots,
 				   real_t* _CCCL_RESTRICT reduced_numerators, real_t* _CCCL_RESTRICT reduced_denominators,
-				   real_t* _CCCL_RESTRICT reduced_factors, index_t n, const cartesian_mesh& m,
+				   real_t* _CCCL_RESTRICT reduced_factors, index_t n, const cartesian_mesh m,
 				   index_t substrate_densities)
 {
-	const PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
-																		 m.bounding_box_mins[2] };
-	const PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1],
-																  m.voxel_shape[2] };
+	thrust::for_each(thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
+					 [ballot_l, cell_positions, is_active, ballots, reduced_numerators, reduced_denominators,
+					  reduced_factors, m, substrate_densities] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
+						 if (!is_active[i])
+							 return;
 
-	thrust::for_each(
-		thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
-		[ballot_l, cell_positions, is_active, ballots, reduced_numerators, reduced_denominators, reduced_factors,
-		 bounding_box_mins, voxel_shape, substrate_densities] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
-			if (!is_active[i])
-				return;
+						 auto b_l = ballot_l ^ fix_dims<dims>(cell_positions + dims * i, m);
 
-			auto b_l =
-				ballot_l ^ fix_dims<dims>(cell_positions + dims * i, bounding_box_mins.data(), voxel_shape.data());
+						 auto& b = b_l | noarr::get_at(ballots);
 
-			auto& b = b_l | noarr::get_at(ballots);
+						 PHYSICORE_THRUST_STD::atomic_ref(b).store(no_ballot,
+																   PHYSICORE_THRUST_STD::memory_order_relaxed);
 
-			PHYSICORE_THRUST_STD::atomic_ref(b).store(no_ballot, PHYSICORE_THRUST_STD::memory_order_relaxed);
-
-			for (index_t s = 0; s < substrate_densities; s++)
-			{
-				PHYSICORE_THRUST_STD::atomic_ref(reduced_numerators[i * substrate_densities + s])
-					.store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
-				PHYSICORE_THRUST_STD::atomic_ref(reduced_denominators[i * substrate_densities + s])
-					.store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
-				PHYSICORE_THRUST_STD::atomic_ref(reduced_factors[i * substrate_densities + s])
-					.store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
-			}
-		});
+						 for (index_t s = 0; s < substrate_densities; s++)
+						 {
+							 PHYSICORE_THRUST_STD::atomic_ref(reduced_numerators[i * substrate_densities + s])
+								 .store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
+							 PHYSICORE_THRUST_STD::atomic_ref(reduced_denominators[i * substrate_densities + s])
+								 .store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
+							 PHYSICORE_THRUST_STD::atomic_ref(reduced_factors[i * substrate_densities + s])
+								 .store(0, PHYSICORE_THRUST_STD::memory_order_relaxed);
+						 }
+					 });
 }
 
 void compute_intermediates(real_t* _CCCL_RESTRICT numerators, real_t* _CCCL_RESTRICT denominators,
@@ -123,23 +112,16 @@ void ballot_and_sum(const ballot_layout_t ballot_l, real_t* _CCCL_RESTRICT reduc
 					const real_t* _CCCL_RESTRICT numerators, const real_t* _CCCL_RESTRICT denominators,
 					const real_t* _CCCL_RESTRICT factors, const real_t* _CCCL_RESTRICT cell_positions,
 					const uint8_t* _CCCL_RESTRICT is_active, index_t* _CCCL_RESTRICT ballots, index_t n,
-					index_t substrates_count, const cartesian_mesh& m, bool* _CCCL_RESTRICT is_conflict)
+					index_t substrates_count, const cartesian_mesh m, bool* _CCCL_RESTRICT is_conflict)
 {
-	const PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { m.bounding_box_mins[0], m.bounding_box_mins[1],
-																		 m.bounding_box_mins[2] };
-	const PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { m.voxel_shape[0], m.voxel_shape[1],
-																  m.voxel_shape[2] };
-
 	thrust::for_each(
 		thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(n),
 		[ballot_l, reduced_numerators, reduced_denominators, reduced_factors, numerators, denominators, factors,
-		 cell_positions, is_active, ballots, substrates_count, bounding_box_mins, voxel_shape,
-		 is_conflict] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
+		 cell_positions, is_active, ballots, substrates_count, m, is_conflict] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
 			if (!is_active[i])
 				return;
 
-			auto b_l =
-				ballot_l ^ fix_dims<dims>(cell_positions + dims * i, bounding_box_mins.data(), voxel_shape.data());
+			auto b_l = ballot_l ^ fix_dims<dims>(cell_positions + dims * i, m);
 
 			auto& b = b_l | noarr::get_at(ballots);
 
@@ -234,7 +216,7 @@ constexpr void compute_fused(real_t* _CCCL_RESTRICT substrate_densities, real_t*
 }
 
 template <index_t dims, typename density_layout_t, typename ballot_layout_t>
-void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_l, const cartesian_mesh& mesh,
+void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_l, const cartesian_mesh mesh,
 					real_t* substrates, const real_t* reduced_numerators, const real_t* reduced_denominators,
 					const real_t* reduced_factors, const real_t* numerators, const real_t* denominators,
 					const real_t* factors, const index_t* ballots, const real_t* positions,
@@ -243,11 +225,6 @@ void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 
-	PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0], mesh.bounding_box_mins[1],
-																   mesh.bounding_box_mins[2] };
-	PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
-															mesh.voxel_shape[2] };
-
 	bool is_conflict {};
 	thrust::copy_n(is_conflict_ptr, 1, &is_conflict);
 
@@ -255,14 +232,13 @@ void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_
 	{
 		thrust::for_each(
 			thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(agents_count),
-			[dens_l, internalized_substrates, positions, bounding_box_mins, voxel_shape, substrates, reduced_numerators,
-			 reduced_denominators, reduced_factors, is_active,
-			 voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
+			[dens_l, internalized_substrates, positions, mesh, substrates, reduced_numerators, reduced_denominators,
+			 reduced_factors, is_active, voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
 				if (!is_active[i])
 					return;
 
 				const index_t substrates_count = dens_l | noarr::get_length<'s'>();
-				auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
+				auto fixed_dims = fix_dims<dims>(positions + i * dims, mesh);
 
 				compute_fused(substrates, internalized_substrates + i * substrates_count,
 							  reduced_numerators + i * substrates_count, reduced_denominators + i * substrates_count,
@@ -274,13 +250,13 @@ void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_
 
 	thrust::for_each(
 		thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(agents_count),
-		[dens_l, ballot_l, bounding_box_mins, voxel_shape, substrates, reduced_numerators, reduced_denominators,
-		 reduced_factors, positions, ballots, is_active] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
+		[dens_l, ballot_l, mesh, substrates, reduced_numerators, reduced_denominators, reduced_factors, positions,
+		 ballots, is_active] PHYSICORE_THRUST_DEVICE_FN(index_t i) {
 			if (!is_active[i])
 				return;
 
 			const index_t substrates_count = dens_l | noarr::get_length<'s'>();
-			auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
+			auto fixed_dims = fix_dims<dims>(positions + i * dims, mesh);
 
 			auto ballot = PHYSICORE_THRUST_STD::atomic_ref((ballot_l ^ fixed_dims) | noarr::get_at(ballots))
 							  .load(PHYSICORE_THRUST_STD::memory_order_relaxed);
@@ -293,13 +269,13 @@ void compute_result(const density_layout_t dens_l, const ballot_layout_t ballot_
 	{
 		thrust::for_each(
 			thrust::device, thrust::make_counting_iterator<index_t>(0), thrust::make_counting_iterator(agents_count),
-			[dens_l, internalized_substrates, positions, bounding_box_mins, voxel_shape, substrates, numerators,
-			 denominators, factors, is_active, voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
+			[dens_l, internalized_substrates, positions, mesh, substrates, numerators, denominators, factors, is_active,
+			 voxel_volume] PHYSICORE_THRUST_DEVICE_FN(index_t i) mutable {
 				if (!is_active[i])
 					return;
 
 				const index_t substrates_count = dens_l | noarr::get_length<'s'>();
-				auto fixed_dims = fix_dims<dims>(positions + i * dims, bounding_box_mins.data(), voxel_shape.data());
+				auto fixed_dims = fix_dims<dims>(positions + i * dims, mesh);
 
 				compute_internalized(internalized_substrates + i * substrates_count, substrates,
 									 numerators + i * substrates_count, denominators + i * substrates_count,
@@ -355,27 +331,21 @@ constexpr void release_internal(real_t* _CCCL_RESTRICT substrate_densities,
 }
 
 template <index_t dims, typename density_layout_t>
-void release_dim(const density_layout_t dens_l, data_manager& data, const cartesian_mesh& mesh, real_t* substrates,
+void release_dim(const density_layout_t dens_l, data_manager& data, const cartesian_mesh mesh, real_t* substrates,
 				 index_t index_begin, index_t index_end)
 {
 	auto voxel_volume = (real_t)mesh.voxel_volume(); // expecting that voxel volume is the same for all voxels
 	const index_t substrates_count = dens_l | noarr::get_length<'s'>();
 
-	const PHYSICORE_THRUST_STD::array<sindex_t, 3> bounding_box_mins = { mesh.bounding_box_mins[0],
-																		 mesh.bounding_box_mins[1],
-																		 mesh.bounding_box_mins[2] };
-	const PHYSICORE_THRUST_STD::array<index_t, 3> voxel_shape = { mesh.voxel_shape[0], mesh.voxel_shape[1],
-																  mesh.voxel_shape[2] };
-	thrust::for_each(
-		thrust::device, thrust::make_counting_iterator(index_begin), thrust::make_counting_iterator(index_end),
-		[substrates, internalized_substrates = data.internalized_substrates, substrates_count,
-		 fraction_released_at_death = data.fraction_released_at_death, voxel_volume, dens_l, positions = data.positions,
-		 bounding_box_mins, voxel_shape] PHYSICORE_THRUST_DEVICE_FN(index_t index) {
-			release_internal(
-				substrates, internalized_substrates + index * substrates_count,
-				fraction_released_at_death + index * substrates_count, voxel_volume,
-				dens_l ^ fix_dims<dims>(positions + index * dims, bounding_box_mins.data(), voxel_shape.data()));
-		});
+	thrust::for_each(thrust::device, thrust::make_counting_iterator(index_begin),
+					 thrust::make_counting_iterator(index_end),
+					 [substrates, internalized_substrates = data.internalized_substrates, substrates_count,
+					  fraction_released_at_death = data.fraction_released_at_death, voxel_volume, dens_l,
+					  positions = data.positions, mesh] PHYSICORE_THRUST_DEVICE_FN(index_t index) {
+						 release_internal(substrates, internalized_substrates + index * substrates_count,
+										  fraction_released_at_death + index * substrates_count, voxel_volume,
+										  dens_l ^ fix_dims<dims>(positions + index * dims, mesh));
+					 });
 }
 } // namespace
 
