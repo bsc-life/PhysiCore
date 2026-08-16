@@ -22,7 +22,6 @@ target_sources(
   reactions-diffusion.biofvm
   PRIVATE src/microenvironment.cpp
           src/microenvironment_builder.cpp
-          src/mesh.cpp
           src/vtk_serializer.cpp
           src/vtk_serializer_base.cpp
           src/config_reader.cpp
@@ -47,7 +46,8 @@ target_sources(
   INTERFACE FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
             "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-target_compile_definitions(reactions-diffusion.biofvm_iface INTERFACE BIOFVM_STATIC_DEFINE)
+target_compile_definitions(reactions-diffusion.biofvm_iface
+                           INTERFACE BIOFVM_STATIC_DEFINE)
 
 target_link_libraries(reactions-diffusion.biofvm_internal_iface
                       INTERFACE common)

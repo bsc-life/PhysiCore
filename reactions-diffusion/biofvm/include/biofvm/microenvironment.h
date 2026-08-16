@@ -6,12 +6,12 @@
 #include <vector>
 
 #include <biofvm/biofvm_export.h>
+#include <common/mesh.h>
 #include <common/timestep_executor.h>
 #include <common/types.h>
 
 #include "agent_container.h"
 #include "bulk_functor.h"
-#include "mesh.h"
 #include "serializer.h"
 #include "solver.h"
 
