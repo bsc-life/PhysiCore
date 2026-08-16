@@ -23,7 +23,7 @@ public:
 	void serialize_state(real_t current_time) override;
 
 	real_t mechanics_timestep;
-	bool automated_spring_adhesion = false;
+	bool automated_spring_adhesion = true;
 	bool virtual_wall_at_domain_edges = true;
 
 	serializer_ptr serializer;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include <common/cartesian_mesh.h>
 #include <common/generic_agent_solver.h>
 #include <common/types.h>
