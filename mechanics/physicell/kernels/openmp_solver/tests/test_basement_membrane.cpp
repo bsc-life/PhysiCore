@@ -8,10 +8,10 @@
 using namespace physicore;
 using namespace physicore::mechanics::physicell;
 
-class UpdateMotilityTest : public ::testing::TestWithParam<index_t>
+class UpdateBasementMembraneTest : public ::testing::TestWithParam<index_t>
 {};
 
-TEST_P(UpdateMotilityTest, SimpleEdge)
+TEST_P(UpdateBasementMembraneTest, SimpleEdge)
 {
 	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
@@ -42,7 +42,7 @@ TEST_P(UpdateMotilityTest, SimpleEdge)
 	}
 }
 
-TEST_P(UpdateMotilityTest, MultipleEdge)
+TEST_P(UpdateBasementMembraneTest, MultipleEdge)
 {
 	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
@@ -87,7 +87,7 @@ TEST_P(UpdateMotilityTest, MultipleEdge)
 	}
 }
 
-TEST_P(UpdateMotilityTest, SimpleCenter)
+TEST_P(UpdateBasementMembraneTest, SimpleCenter)
 {
 	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
@@ -113,7 +113,7 @@ TEST_P(UpdateMotilityTest, SimpleCenter)
 	}
 }
 
-TEST_P(UpdateMotilityTest, SimpleOneOff)
+TEST_P(UpdateBasementMembraneTest, SimpleOneOff)
 {
 	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
@@ -144,7 +144,7 @@ TEST_P(UpdateMotilityTest, SimpleOneOff)
 	}
 }
 
-TEST_P(UpdateMotilityTest, NoMove)
+TEST_P(UpdateBasementMembraneTest, NoMove)
 {
 	const index_t dims = GetParam();
 	environment env(0.1, dims, 1, 1);
@@ -175,4 +175,4 @@ TEST_P(UpdateMotilityTest, NoMove)
 		EXPECT_FLOAT_EQ(a1->position()[d], -500);
 }
 
-INSTANTIATE_TEST_SUITE_P(Dimensions, UpdateMotilityTest, ::testing::Values(index_t(1), index_t(2), index_t(3)));
+INSTANTIATE_TEST_SUITE_P(Dimensions, UpdateBasementMembraneTest, ::testing::Values(index_t(1), index_t(2), index_t(3)));
