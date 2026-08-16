@@ -204,11 +204,9 @@ TEST(BaseAgentContainerTest, Instantiation)
 
 		// Data can be accessed
 		{
-			const diffusion_agent_data& d_accessed = diff_retriever().retrieve_agent_data(container);
-			(void)d_accessed;
+			diff_retriever().retrieve_agent_data(container);
 
-			const mechanics_agent_data& m_accessed = mech_retriever().retrieve_agent_data(container);
-			(void)m_accessed;
+			mech_retriever().retrieve_agent_data(container);
 		}
 
 		mechanics_container.create();
