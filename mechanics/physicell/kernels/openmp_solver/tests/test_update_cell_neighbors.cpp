@@ -18,7 +18,10 @@ using physicore::sindex_t;
 namespace {
 
 class agent_retriever : public physicore::generic_agent_solver<mechanical_agent>
-{};
+{
+public:
+	using physicore::generic_agent_solver<mechanical_agent>::retrieve_agent_data;
+};
 
 mechanical_agent_data& retrieve_environment_agent_data(environment& env)
 {

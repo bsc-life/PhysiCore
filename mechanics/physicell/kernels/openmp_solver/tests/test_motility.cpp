@@ -7,7 +7,10 @@ using namespace physicore;
 using namespace physicore::mechanics::physicell;
 
 class agent_retriever : public generic_agent_solver<mechanical_agent>
-{};
+{
+public:
+	using generic_agent_solver<mechanical_agent>::retrieve_agent_data;
+};
 
 class UpdateMotilityTest : public ::testing::TestWithParam<index_t>
 {};

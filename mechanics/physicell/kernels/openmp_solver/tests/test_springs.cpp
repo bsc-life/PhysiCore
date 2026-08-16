@@ -11,7 +11,10 @@ class UpdateSpringAttachmentsComplexTest : public ::testing::TestWithParam<index
 {};
 
 class agent_retriever : public physicore::generic_agent_solver<mechanical_agent>
-{};
+{
+public:
+	using physicore::generic_agent_solver<mechanical_agent>::retrieve_agent_data;
+};
 
 TEST(UpdateSpringAttachmentsTest, Simple2D)
 {
