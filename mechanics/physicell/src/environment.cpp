@@ -1,13 +1,21 @@
 #include "environment.h"
 
+#include <memory>
+#include <stdexcept>
+
+#include <common/base_agent_data.h>
+
 using namespace physicore::mechanics::physicell;
 
-void environment::run_single_timestep()
+environment::environment(real_t timestep, index_t dims, index_t agent_types_count, index_t substrates_count)
+	: mechanics_timestep(timestep)
 {
-	// Implementation of the single timestep logic
-	// This is a placeholder; actual implementation will depend on the specific requirements
-	(void)timestep;
+	auto base_data = std::make_unique<physicore::base_agent_data>(dims);
+	auto data = std::make_unique<mechanical_agent_data>(*base_data, agent_types_count, substrates_count);
+	agents = std::make_unique<mechanical_agent_container>(std::move(base_data), std::move(data));
 }
+
+void environment::run_single_timestep() { solver->solve(*this, 1); }
 
 void environment::serialize_state(real_t current_time)
 {
@@ -15,4 +23,13 @@ void environment::serialize_state(real_t current_time)
 	{
 		serializer->serialize(current_time);
 	}
+}
+
+const physicore::cartesian_mesh& environment::get_mesh() const
+{
+	if (!mesh_)
+	{
+		throw std::runtime_error("environment has no mesh");
+	}
+	return *mesh_;
 }

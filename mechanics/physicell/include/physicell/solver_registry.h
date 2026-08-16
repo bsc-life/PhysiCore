@@ -4,11 +4,13 @@
 
 #include "solver.h"
 
-namespace physicore::reactions_diffusion::biofvm {
+namespace physicore::mechanics::physicell {
 
 class solver_registry : public physicore::factory_registry<solver>
 {
 public:
+	using base_t = physicore::factory_registry<solver>;
+
 	static solver_registry& instance();
 };
 
@@ -17,4 +19,5 @@ concept derived_from_solver = std::derived_from<T, solver>;
 
 template <derived_from_solver SolverT>
 using registry_adder = physicore::generic_registry_adder<SolverT, solver_registry>;
-} // namespace physicore::reactions_diffusion::biofvm
+
+} // namespace physicore::mechanics::physicell
