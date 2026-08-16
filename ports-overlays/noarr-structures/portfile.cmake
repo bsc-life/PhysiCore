@@ -1,7 +1,7 @@
 vcpkg_from_git(
   OUT_SOURCE_PATH SOURCE_PATH URL
   https://github.com/ParaCoToUl/noarr-structures.git REF
-  4bdf239b6e407e9c939b80e7718da2009962bac4)
+  914846c383f90e64c1c9ccf0a327170e07c3fcac)
 
 vcpkg_cmake_configure(SOURCE_PATH ${SOURCE_PATH})
 
