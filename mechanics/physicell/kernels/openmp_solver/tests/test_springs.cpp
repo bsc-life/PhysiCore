@@ -66,6 +66,48 @@ TEST(UpdateSpringAttachmentsTest, Simple2D)
 	EXPECT_FLOAT_EQ(a3->position()[1], 0.4973);
 }
 
+TEST(UpdateSpringAttachmentsTest, Complex2D)
+{
+	const index_t dims = 2;
+	environment env(0.1, dims, 2, 1);
+	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+
+	auto create_agent = [&](real_t x, real_t y, index_t type) {
+		auto* agent = env.agents->create();
+		agent->radius() = 9;
+		agent->is_movable() = 1;
+		agent->attachment_elastic_constant() = type == 0 ? 0.01 : 0.02;
+		agent->detachment_rate() = 0;
+		agent->cell_adhesion_affinities()[0] = (real_t)type * 2 + 2;
+		agent->cell_adhesion_affinities()[1] = (real_t)type * 2 + 3;
+		agent->position()[0] = x;
+		agent->position()[1] = y;
+		agent->agent_type_index() = type;
+		return agent;
+	};
+	auto* a1 = create_agent(0, 0, 0);
+	auto* a2 = create_agent(0, 100, 0);
+	auto* a3 = create_agent(100, 0, 1);
+
+	auto& data = agent_retriever().retrieve_agent_data(*env.agents);
+	data.state_data.springs[0] = { 1, 2 };
+	data.state_data.springs[1] = { 0, 2 };
+	data.state_data.springs[2] = { 0, 1 };
+
+	kernels::openmp_solver::position_solver solver;
+	solver.update_spring_attachments(env);
+	solver.update_positions(env);
+
+	EXPECT_FLOAT_EQ(a1->position()[0], 0.734847);
+	EXPECT_FLOAT_EQ(a1->position()[1], 0.3);
+
+	EXPECT_FLOAT_EQ(a2->position()[0], 0.734847);
+	EXPECT_FLOAT_EQ(a2->position()[1], 98.96515);
+
+	EXPECT_FLOAT_EQ(a3->position()[0], 98.5303);
+	EXPECT_FLOAT_EQ(a3->position()[1], 0.734847);
+}
+
 TEST(UpdateSpringAttachmentsTest, Simple3D)
 {
 	const index_t dims = 3;
