@@ -1,5 +1,5 @@
 add_library(mechanics.physicell)
-add_library(physicore::mechanics::physicell ALIAS mechanics.physicell)
+add_library(mechanics::physicell ALIAS mechanics.physicell)
 add_library(mechanics.physicell_internal_iface INTERFACE)
 
 if(${BUILD_SHARED_LIBS})
