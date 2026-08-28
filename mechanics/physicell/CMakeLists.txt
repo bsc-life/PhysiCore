@@ -43,6 +43,10 @@ target_link_libraries(
 
 add_subdirectory(kernels/openmp_solver)
 
+if(PHYSICORE_BUILD_EXAMPLES AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples")
+  add_subdirectory(examples)
+endif()
+
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
 endif()

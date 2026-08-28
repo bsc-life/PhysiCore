@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "mechanical_parameters.h"
+#include <physicell/mechanical_parameters.h>
 
 namespace physicore::mechanics::physicell {
 
