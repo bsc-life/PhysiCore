@@ -18,7 +18,7 @@ class UpdateMotilityTest : public ::testing::TestWithParam<index_t>
 TEST_P(UpdateMotilityTest, AddsMotilityVectorToVelocity)
 {
 	const index_t dims = GetParam();
-	environment env(0, dims, 1, 1);
+	environment env({ dims, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 } }, 1, 1, 0);
 	auto* agent = env.agents->create();
 	agent->is_motile() = 1;
 
@@ -38,7 +38,7 @@ TEST_P(UpdateMotilityTest, AddsMotilityVectorToVelocity)
 TEST_P(UpdateMotilityTest, NonMotileAgentIsUnchanged)
 {
 	const index_t dims = GetParam();
-	environment env(0, dims, 1, 1);
+	environment env({ dims, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 } }, 1, 1, 0);
 	auto* agent = env.agents->create();
 
 	for (index_t d = 0; d < dims; ++d)
@@ -60,7 +60,7 @@ TEST_P(UpdateMotilityTest, NonMotileAgentIsUnchanged)
 TEST(UpdateMotilityTest, RefreshesBiasedDirectionAndCallsCallback)
 {
 	const index_t dims = 2;
-	environment env(2, dims, 1, 1);
+	environment env({ dims, { 0, 0, 0 }, { 10, 10, 10 }, { 1, 1, 1 } }, 1, 1, 2);
 	auto* agent = env.agents->create();
 	agent->is_motile() = 1;
 	agent->persistence_time() = 1;

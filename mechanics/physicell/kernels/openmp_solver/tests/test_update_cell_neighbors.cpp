@@ -82,7 +82,7 @@ cartesian_mesh make_mesh(index_t dims)
 
 TEST(UpdateCellNeighborsTest, NoAgentsDoesNotCrash)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	auto mesh = make_mesh(2);
 	position_solver_instance().update_cell_neighbors(env, mesh);
 	EXPECT_EQ(retrieve_environment_agent_data(env).agents_count, 0);
@@ -90,7 +90,7 @@ TEST(UpdateCellNeighborsTest, NoAgentsDoesNotCrash)
 
 TEST(UpdateCellNeighborsTest, SingleAgentHasNoNeighbors)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 
 	auto mesh = make_mesh(2);
@@ -102,7 +102,7 @@ TEST(UpdateCellNeighborsTest, SingleAgentHasNoNeighbors)
 
 TEST(UpdateCellNeighborsTest, DistanceEqualThresholdCountsAsNeighbor)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 }, 1, 1, 1);
 	add_agent(env, { 2, 0 }, 1, 1, 1); // adhesion_distance = 1*1 + 1*1 = 2
 
@@ -115,7 +115,7 @@ TEST(UpdateCellNeighborsTest, DistanceEqualThresholdCountsAsNeighbor)
 
 TEST(UpdateCellNeighborsTest, DistanceAboveThresholdIsNotNeighbor)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 }, 1, 1, 1);
 	add_agent(env, { 2.0001, 0 }, 1, 1, 1);
 
@@ -128,7 +128,7 @@ TEST(UpdateCellNeighborsTest, DistanceAboveThresholdIsNotNeighbor)
 
 TEST(UpdateCellNeighborsTest, ClearsPreviousNeighborsAndRespectsMovableFlag)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 }, 1, 1, 1); // movable
 	add_agent(env, { 1, 0 }, 1, 0, 1); // immovable but within threshold
 	add_agent(env, { 10, 0 }, 1, 1, 1);

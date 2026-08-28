@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <optional>
 
 #include <common/mesh.h>
 #include <common/timestep_executor.h>
@@ -16,7 +15,7 @@ namespace physicore::mechanics::physicell {
 class environment : public timestep_executor
 {
 public:
-	environment(real_t timestep, index_t dims, index_t agent_types_count, index_t substrates_count);
+	environment(const cartesian_mesh& mesh, index_t agent_types_count, index_t substrates_count, real_t timestep);
 
 	void run_single_timestep() override;
 
@@ -31,13 +30,7 @@ public:
 
 	std::unique_ptr<mechanical_agent_container> agents;
 
-	// Mesh data for spatial queries
-	void set_mesh(cartesian_mesh mesh) { this->mesh_ = std::move(mesh); }
-	const cartesian_mesh& get_mesh() const;
-	bool has_mesh() const { return mesh_.has_value(); }
-
-private:
-	std::optional<cartesian_mesh> mesh_;
+	cartesian_mesh mesh;
 };
 
 } // namespace physicore::mechanics::physicell

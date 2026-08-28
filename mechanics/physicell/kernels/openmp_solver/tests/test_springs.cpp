@@ -19,8 +19,7 @@ public:
 TEST(UpdateSpringAttachmentsTest, Simple2D)
 {
 	const index_t dims = 2;
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x, real_t y) {
 		auto* agent = env.agents->create();
@@ -71,8 +70,7 @@ TEST(UpdateSpringAttachmentsTest, Simple2D)
 TEST(UpdateSpringAttachmentsTest, Complex2D)
 {
 	const index_t dims = 2;
-	environment env(0.1, dims, 2, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 2, 1, 0.1);
 
 	auto create_agent = [&](real_t x, real_t y, index_t type) {
 		auto* agent = env.agents->create();
@@ -113,8 +111,7 @@ TEST(UpdateSpringAttachmentsTest, Complex2D)
 TEST(UpdateSpringAttachmentsTest, Simple3D)
 {
 	const index_t dims = 3;
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x, real_t y, real_t z) {
 		auto* agent = env.agents->create();
@@ -182,8 +179,7 @@ TEST(UpdateSpringAttachmentsTest, Simple3D)
 TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
 {
 	const index_t dims = GetParam();
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x) {
 		auto* agent = env.agents->create();
@@ -232,8 +228,7 @@ TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
 TEST_P(UpdateSpringAttachmentsComplexTest, AttachAndDetach)
 {
 	const index_t dims = GetParam();
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x) {
 		auto* agent = env.agents->create();
@@ -293,8 +288,7 @@ TEST_P(UpdateSpringAttachmentsComplexTest, AttachAndDetach)
 TEST_P(UpdateSpringAttachmentsComplexTest, MaxAttachmentsLimit)
 {
 	const index_t dims = GetParam();
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x) {
 		auto* agent = env.agents->create();

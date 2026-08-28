@@ -134,9 +134,9 @@ int main()
 	}
 
 	const index_t dims = config.is_2D ? 2 : 3;
-	environment env(config.overall.dt_mechanics, dims, static_cast<index_t>(config.cell_types.size()), 0);
-	env.set_mesh(cartesian_mesh { dims, to_min_bounds(config.domain), to_max_bounds(config.domain),
-								  to_voxel_shape(config.domain) });
+	const cartesian_mesh mesh { dims, to_min_bounds(config.domain), to_max_bounds(config.domain),
+								to_voxel_shape(config.domain) };
+	environment env(mesh, static_cast<index_t>(config.cell_types.size()), 0, config.overall.dt_mechanics);
 
 	auto solver = solver_registry::instance().get("openmp_solver");
 	if (!solver)
@@ -219,8 +219,7 @@ int main()
 
 	env.serialize_state(current_time);
 
-	std::cout << "\n[mechanize] Running simulation for " << config.overall.max_time << " time units..."
-			  << std::endl;
+	std::cout << "\n[mechanize] Running simulation for " << config.overall.max_time << " time units..." << std::endl;
 
 	while (current_time < config.overall.max_time - 1e-12)
 	{
@@ -238,9 +237,8 @@ int main()
 			env.serialize_state(current_time);
 			serialize_runtime = std::chrono::steady_clock::now() - serialize_start;
 
-			std::cout << "[mechanize] t=" << current_time << " mechanics runtime: " << mechanics_runtime.count()
-				  << " s"
-				  << " serialization runtime: " << serialize_runtime.count() << " s" << std::endl;
+			std::cout << "[mechanize] t=" << current_time << " mechanics runtime: " << mechanics_runtime.count() << " s"
+					  << " serialization runtime: " << serialize_runtime.count() << " s" << std::endl;
 
 			mechanics_runtime = std::chrono::duration<double> { 0.0 };
 		}

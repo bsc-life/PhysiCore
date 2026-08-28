@@ -21,13 +21,13 @@ void openmp_solver::solve(environment& e, index_t iterations)
 
 	for (index_t i = 0; i < iterations; ++i)
 	{
-		mechanics_position_solver.update_cell_neighbors(e, e.get_mesh());
+		mechanics_position_solver.update_cell_neighbors(e, e.mesh);
 
 		mechanics_position_solver.update_cell_forces(e);
 
 		mechanics_position_solver.update_motility(e);
 
-		mechanics_position_solver.update_basement_membrane_interactions(e, e.get_mesh());
+		mechanics_position_solver.update_basement_membrane_interactions(e, e.mesh);
 
 		mechanics_position_solver.update_spring_attachments(e);
 
