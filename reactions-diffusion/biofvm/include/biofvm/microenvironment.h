@@ -44,6 +44,9 @@ public:
 	void update_dirichlet_boundary_max(char dimension, index_t substrate_idx, real_t value, bool condition);
 	void update_dirichlet_conditions();
 
+	std::span<const std::string> get_substrate_names() const override;
+	std::span<const std::string> get_substrate_units() const override;
+
 	container_ptr agents;
 	solver_ptr solver;
 	serializer_ptr serializer;

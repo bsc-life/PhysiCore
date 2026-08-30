@@ -253,3 +253,13 @@ void microenvironment::update_dirichlet_boundary_max(char dimension, index_t sub
 }
 
 void microenvironment::update_dirichlet_conditions() { solver->reinitialize_dirichlet(*this); }
+
+std::span<const std::string> microenvironment::get_substrate_names() const
+{
+	return { substrates_names.data(), substrates_names.size() };
+}
+
+std::span<const std::string> microenvironment::get_substrate_units() const
+{
+	return { substrates_units.data(), substrates_units.size() };
+}
