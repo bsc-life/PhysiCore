@@ -24,7 +24,7 @@ public:
 class MockSerializer : public serializer
 {
 public:
-	void serialize(real_t /* current_time */) override { serialize_called = true; }
+	void serialize(const environment& /* env */, real_t /* current_time */) override { serialize_called = true; }
 	bool serialize_called = false;
 };
 

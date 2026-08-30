@@ -15,7 +15,7 @@ foreach(example ${ALL_EXAMPLES})
   add_executable(mechanics.physicell.${example} ${example}.cpp)
 
   target_link_libraries(mechanics.physicell.${example}
-                        PRIVATE mechanics.physicell VTK::IOXML)
+                        PRIVATE mechanics.physicell)
 
   add_dependencies(mechanics.physicell.${example} mechanics.physicell.copy_xml)
 endforeach()

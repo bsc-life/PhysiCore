@@ -9,9 +9,10 @@
 
 #include <common/generic_agent_solver.h>
 #include <common/types.h>
+#include <reactions_diffusion/reactions_diffusion_interface.h>
 
+#include "environment.h"
 #include "mechanical_agent.h"
-#include "mechanical_agent_container.h"
 #include "serializer.h"
 #include "vtk_serializer_base.h"
 
@@ -23,7 +24,6 @@ class vtk_agents_serializer : public vtk_serializer_base,
 {
 	vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
 	vtkSmartPointer<vtkUnstructuredGrid> unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
-	mechanical_agent_container_interface& container;
 
 	vtkSmartPointer<vtkRealArray> radius_array;
 	vtkSmartPointer<vtkRealArray> cell_cell_adhesion_array;
@@ -57,7 +57,7 @@ class vtk_agents_serializer : public vtk_serializer_base,
 	std::vector<vtkSmartPointer<vtkRealArray>> chemotactic_sensitivity_arrays;
 
 	std::vector<std::string> substrate_names;
-	std::vector<std::string> cell_type_names;
+	std::vector<std::string> agent_type_names;
 
 	index_t stored_agent_types = 0;
 	index_t stored_substrates = 0;
@@ -68,10 +68,9 @@ class vtk_agents_serializer : public vtk_serializer_base,
 	std::string make_cell_type_name(index_t index) const;
 
 public:
-	vtk_agents_serializer(std::string_view output_dir, mechanical_agent_container_interface& container,
-						  std::vector<std::string> substrate_names = {}, std::vector<std::string> cell_type_names = {});
+	vtk_agents_serializer(std::string_view output_dir, environment& e, std::vector<std::string> substrate_names);
 
-	void serialize(real_t current_time) override;
+	void serialize(const environment& e, real_t current_time) override;
 };
 
 } // namespace physicore::mechanics::physicell

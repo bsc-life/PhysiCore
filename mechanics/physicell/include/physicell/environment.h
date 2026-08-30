@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 
 #include <common/mesh.h>
@@ -21,16 +22,21 @@ public:
 
 	void serialize_state(real_t current_time) override;
 
-	real_t mechanics_timestep;
-	bool automated_spring_adhesion = true;
-	bool virtual_wall_at_domain_edges = true;
-
-	serializer_ptr serializer;
-	solver_ptr solver;
+	static std::unique_ptr<environment> create_from_config(const std::filesystem::path& config_file);
 
 	std::unique_ptr<mechanical_agent_container> agents;
+	solver_ptr solver;
+	serializer_ptr serializer;
 
+	real_t mechanics_timestep;
+	real_t simulation_time = 0.0;
 	cartesian_mesh mesh;
+
+	index_t agent_types_count;
+	std::vector<std::string> agent_type_names;
+
+	bool automated_spring_adhesion = true;
+	bool virtual_wall_at_domain_edges = true;
 };
 
 } // namespace physicore::mechanics::physicell

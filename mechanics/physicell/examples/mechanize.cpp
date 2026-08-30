@@ -10,10 +10,6 @@
 
 #include <common/mesh.h>
 #include <physicell/environment.h>
-#include <physicell/solver_registry.h>
-#include <physicell/vtk_agents_serializer.h>
-
-#include "../src/config_reader.h"
 
 using namespace physicore;
 using namespace physicore::mechanics::physicell;
@@ -30,25 +26,6 @@ struct agent_group
 	real_t relative_max_adhesion_distance;
 	index_t count;
 };
-
-std::array<sindex_t, 3> to_min_bounds(const domain_config& domain)
-{
-	return { static_cast<sindex_t>(std::lround(domain.x_min)), static_cast<sindex_t>(std::lround(domain.y_min)),
-			 static_cast<sindex_t>(std::lround(domain.z_min)) };
-}
-
-std::array<sindex_t, 3> to_max_bounds(const domain_config& domain)
-{
-	return { static_cast<sindex_t>(std::lround(domain.x_max)), static_cast<sindex_t>(std::lround(domain.y_max)),
-			 static_cast<sindex_t>(std::lround(domain.z_max)) };
-}
-
-std::array<index_t, 3> to_voxel_shape(const domain_config& domain)
-{
-	return { static_cast<index_t>(std::max<real_t>(1.0, domain.dx)),
-			 static_cast<index_t>(std::max<real_t>(1.0, domain.dy)),
-			 static_cast<index_t>(std::max<real_t>(1.0, domain.dz)) };
-}
 
 void configure_agent(mechanical_agent* agent, const agent_group& group, std::mt19937& rng)
 {
@@ -94,58 +71,20 @@ void configure_agent(mechanical_agent* agent, const agent_group& group, std::mt1
 
 int main()
 {
-	auto resolve_config = []() -> std::filesystem::path {
-		const std::array<std::filesystem::path, 4> candidates = {
-			std::filesystem::path { "settings.xml" },
-			std::filesystem::path { "mechanics/physicell/examples/settings.xml" },
-			std::filesystem::path { "/workspaces/PhysiCore/mechanics/physicell/examples/settings.xml" },
-			std::filesystem::current_path() / "mechanics/physicell/examples/settings.xml"
-		};
-
-		for (const auto& candidate : candidates)
+	std::unique_ptr<environment> env;
+	{
+		const std::filesystem::path config_file = "settings.xml";
+		try
 		{
-			if (std::filesystem::exists(candidate))
-			{
-				return candidate;
-			}
+			std::cout << "[mechanize] Loading configuration from: " << config_file << std::endl;
+			env = environment::create_from_config(config_file);
 		}
-
-		std::filesystem::path executable_dir = std::filesystem::path { "/proc/self/exe" }.parent_path();
-		if (std::filesystem::exists(executable_dir / "settings.xml"))
+		catch (const std::exception& e)
 		{
-			return executable_dir / "settings.xml";
+			std::cerr << "[mechanize] Error: " << e.what() << std::endl;
+			return 1;
 		}
-
-		return "settings.xml";
-	};
-
-	const std::filesystem::path config_file = resolve_config();
-	mechanics_config config;
-
-	try
-	{
-		std::cout << "[mechanize] Loading configuration from: " << config_file << std::endl;
-		config = parse_simulation_parameters(config_file);
 	}
-	catch (const std::exception& e)
-	{
-		std::cerr << "[mechanize] Error: " << e.what() << std::endl;
-		return 1;
-	}
-
-	const index_t dims = config.is_2D ? 2 : 3;
-	const cartesian_mesh mesh { dims, to_min_bounds(config.domain), to_max_bounds(config.domain),
-								to_voxel_shape(config.domain) };
-	environment env(mesh, static_cast<index_t>(config.cell_types.size()), 0, config.overall.dt_mechanics);
-
-	auto solver = solver_registry::instance().get("openmp_solver");
-	if (!solver)
-	{
-		std::cerr << "[mechanize] Error: openmp_solver not registered" << std::endl;
-		return 2;
-	}
-	env.solver = std::move(solver);
-	env.solver->initialize(env);
 
 	std::mt19937 rng(42);
 	std::uniform_real_distribution<real_t> offset(-1.0, 1.0);
@@ -185,10 +124,10 @@ int main()
 	{
 		for (index_t i = 0; i < group.count; ++i)
 		{
-			auto* agent = env.agents->create();
+			auto* agent = env->agents->create();
 			configure_agent(agent, group, rng);
 
-			if (dims == 2)
+			if (env->mesh.dims == 2)
 			{
 				agent->position()[0] += offset(rng) * group.radius * 0.25;
 				agent->position()[1] += offset(rng) * group.radius * 0.25;
@@ -202,14 +141,8 @@ int main()
 		}
 	}
 
-	std::cout << "[mechanize] Created " << env.agents->size() << " cells across " << groups.size()
+	std::cout << "[mechanize] Created " << env->agents->size() << " cells across " << groups.size()
 			  << " dense groups to stress cell-cell and wall interactions." << std::endl;
-
-	const std::vector<std::string> substrate_names = { "oxygen", "necrotic debris", "apoptotic debris" };
-	const std::vector<std::string> cell_type_names = { "malignant epithelial" };
-	env.serializer = std::make_unique<vtk_agents_serializer>(
-		"mechanics_vtk_output", *static_cast<mechanical_agent_container_interface*>(env.agents.get()), substrate_names,
-		cell_type_names);
 
 	const real_t output_interval = 0.1;
 	real_t current_time = 0.0;
@@ -217,16 +150,16 @@ int main()
 	std::chrono::duration<double> mechanics_runtime { 0.0 };
 	std::chrono::duration<double> serialize_runtime { 0.0 };
 
-	env.serialize_state(current_time);
+	env->serialize_state(current_time);
 
-	std::cout << "\n[mechanize] Running simulation for " << config.overall.max_time << " time units..." << std::endl;
+	std::cout << "\n[mechanize] Running simulation for " << env->simulation_time << " time units..." << std::endl;
 
-	while (current_time < config.overall.max_time - 1e-12)
+	while (current_time < env->simulation_time - 1e-12)
 	{
-		current_time += config.overall.dt_mechanics;
+		current_time += env->mechanics_timestep;
 
 		auto run_start = std::chrono::steady_clock::now();
-		env.run_single_timestep();
+		env->run_single_timestep();
 		mechanics_runtime += std::chrono::steady_clock::now() - run_start;
 
 		if (current_time + 1e-12 >= next_output_time)
@@ -234,7 +167,7 @@ int main()
 			next_output_time += output_interval;
 
 			auto serialize_start = std::chrono::steady_clock::now();
-			env.serialize_state(current_time);
+			env->serialize_state(current_time);
 			serialize_runtime = std::chrono::steady_clock::now() - serialize_start;
 
 			std::cout << "[mechanize] t=" << current_time << " mechanics runtime: " << mechanics_runtime.count() << " s"

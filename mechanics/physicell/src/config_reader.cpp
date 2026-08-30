@@ -1,6 +1,5 @@
 #include "config_reader.h"
 
-#include <algorithm>
 #include <pugixml.hpp>
 #include <stdexcept>
 #include <string>

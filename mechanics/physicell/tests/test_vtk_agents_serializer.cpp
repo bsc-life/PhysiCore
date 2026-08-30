@@ -1,8 +1,6 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
-#include <iterator>
 #include <memory>
 #include <vector>
 #include <vtkPointData.h>
@@ -10,9 +8,8 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridReader.h>
 
-#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-#include "physicell/mechanical_agent_container.h"
 #include "physicell/vtk_agents_serializer.h"
 
 using namespace physicore;
@@ -20,20 +17,21 @@ using namespace physicore::mechanics::physicell;
 
 namespace {
 
-mechanical_agent_container make_container(int dims, int agent_types, int substrates)
+std::unique_ptr<environment> make_environment(index_t dims, index_t agent_types, index_t substrates)
 {
 	auto base = std::make_unique<base_agent_data>(dims);
 	auto data = std::make_unique<mechanical_agent_data>(*base, agent_types, substrates);
-	return mechanical_agent_container(std::move(base), std::move(data));
+	return std::make_unique<environment>(
+		cartesian_mesh { dims, { -100, -100, -100 }, { 100, 100, 100 }, { 20, 20, 20 } }, agent_types, substrates, 0.1);
 }
 
-mechanical_agent_container make_single_agent_container()
+std::unique_ptr<environment> make_single_agent_environment()
 {
-	auto container = make_container(3, 2, 2);
-	container.create();
+	auto env = make_environment(3, 2, 2);
+	env->agents->create();
 
-	auto& base_data = *std::get<0>(container.agent_datas);
-	auto& mech_data = *std::get<1>(container.agent_datas);
+	auto& base_data = *std::get<0>(env->agents->agent_datas);
+	auto& mech_data = *std::get<1>(env->agents->agent_datas);
 
 	base_data.positions = { 1.0, 2.0, 3.0 };
 
@@ -68,7 +66,7 @@ mechanical_agent_container make_single_agent_container()
 	mech_data.state_data.agent_type_index[0] = 1;
 	mech_data.state_data.is_movable[0] = 1;
 
-	return container;
+	return env;
 }
 
 vtkRealArray* arr(vtkPointData* point_data, const char* name)
@@ -182,9 +180,9 @@ protected:
 
 TEST_F(VtkMechanicsAgentsSerializerTest, ConstructorCreatesOutputDirectories)
 {
-	auto container = make_container(3, 1, 1);
+	auto e = make_environment(3, 1, 1);
 
-	EXPECT_NO_THROW({ const vtk_agents_serializer serializer(test_output_dir.string(), container); });
+	EXPECT_NO_THROW({ const vtk_agents_serializer serializer(test_output_dir.string(), *e, { "O2", "" }); });
 
 	auto vtk_dir = test_output_dir / "vtk_mechanics_agents";
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir));
@@ -192,10 +190,10 @@ TEST_F(VtkMechanicsAgentsSerializerTest, ConstructorCreatesOutputDirectories)
 
 TEST_F(VtkMechanicsAgentsSerializerTest, SerializeWithNoAgentsCreatesFiles)
 {
-	auto container = make_container(3, 1, 1);
-	vtk_agents_serializer serializer(test_output_dir.string(), container);
+	auto e = make_environment(3, 1, 1);
+	vtk_agents_serializer serializer(test_output_dir.string(), *e, { "O2", "" });
 
-	EXPECT_NO_THROW(serializer.serialize(0.0));
+	EXPECT_NO_THROW(serializer.serialize(*e, 0.0));
 
 	auto vtk_dir = test_output_dir / "vtk_mechanics_agents";
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_agents_000000.vtu"));
@@ -204,10 +202,14 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeWithNoAgentsCreatesFiles)
 
 TEST_F(VtkMechanicsAgentsSerializerTest, SerializeSingleAgentWritesExpectedArrays)
 {
-	auto container = make_single_agent_container();
+	auto e = make_single_agent_environment();
 
-	vtk_agents_serializer serializer(test_output_dir.string(), container, { "O2", "" }, { "immune", "" });
-	serializer.serialize(0.0);
+	std::vector<std::string> substrate_names { "O2", "" };
+	e->agent_type_names = { "immune", "" };
+
+
+	vtk_agents_serializer serializer(test_output_dir.string(), *e, substrate_names);
+	serializer.serialize(*e, 0.0);
 
 	auto vtk_dir = test_output_dir / "vtk_mechanics_agents";
 	auto vtu_file = vtk_dir / "mechanics_agents_000000.vtu";
@@ -234,37 +236,35 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeSingleAgentWritesExpectedArray
 TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
 {
 	const int agent_count = 3;
-	auto container = make_container(3, 2, 2);
-	for (int i = 0; i < agent_count; ++i)
-	{
-		container.create();
-	}
-
-	auto& base_data = *std::get<0>(container.agent_datas);
-	auto& mech_data = *std::get<1>(container.agent_datas);
+	auto e = make_environment(3, 2, 2);
 
 	for (int i = 0; i < agent_count; ++i)
 	{
-		base_data.positions[i * 3 + 0] = 1.0 + i;
-		base_data.positions[i * 3 + 1] = 2.0 + i;
-		base_data.positions[i * 3 + 2] = 3.0 + i;
+		auto* agent = e->agents->create();
 
-		mech_data.radius[i] = 1.0 + i;
-		mech_data.state_data.agent_type_index[i] = static_cast<index_t>(i);
+		agent->position()[0] = 1.0 + i;
+		agent->position()[1] = 2.0 + i;
+		agent->position()[2] = 3.0 + i;
 
-		mech_data.velocity[i * 3 + 0] = 0.1 * (i + 1);
-		mech_data.velocity[i * 3 + 1] = 0.2 * (i + 1);
-		mech_data.velocity[i * 3 + 2] = 0.3 * (i + 1);
+		agent->radius() = 1.0 + i;
+		agent->agent_type_index() = static_cast<index_t>(i);
 
-		mech_data.motility_data.chemotactic_sensitivities[i * 2 + 0] = 0.01 * (i + 1);
-		mech_data.motility_data.chemotactic_sensitivities[i * 2 + 1] = 0.02 * (i + 1);
+		agent->velocity()[0] = 0.1 * (i + 1);
+		agent->velocity()[1] = 0.2 * (i + 1);
+		agent->velocity()[2] = 0.3 * (i + 1);
 
-		mech_data.mechanics_data.cell_adhesion_affinities[i * 2 + 0] = 0.1 * (i + 1);
-		mech_data.mechanics_data.cell_adhesion_affinities[i * 2 + 1] = 0.2 * (i + 1);
+		agent->chemotactic_sensitivities()[0] = 0.01 * (i + 1);
+		agent->chemotactic_sensitivities()[1] = 0.02 * (i + 1);
+
+		agent->cell_adhesion_affinities()[0] = 0.1 * (i + 1);
+		agent->cell_adhesion_affinities()[1] = 0.2 * (i + 1);
 	}
 
-	vtk_agents_serializer serializer(test_output_dir.string(), container, { "S1", "S2" }, { "typeA", "typeB" });
-	serializer.serialize(0.0);
+	std::vector<std::string> substrate_names { "S1", "S2" };
+	e->agent_type_names = { "typeA", "typeB" };
+
+	vtk_agents_serializer serializer(test_output_dir.string(), *e, substrate_names);
+	serializer.serialize(*e, 0.0);
 
 	auto vtu_file = test_output_dir / "vtk_mechanics_agents" / "mechanics_agents_000000.vtu";
 
@@ -314,16 +314,17 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
 
 TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleTimesAppendsPvd)
 {
-	auto container = make_container(3, 1, 1);
-	container.create();
+	auto e = make_environment(3, 1, 1);
+	auto* agent = e->agents->create();
 
-	auto& base_data = *std::get<0>(container.agent_datas);
-	base_data.positions = { 0.0, 0.0, 0.0 };
+	agent->position()[0] = 0.0;
+	agent->position()[1] = 0.0;
+	agent->position()[2] = 0.0;
 
-	vtk_agents_serializer serializer(test_output_dir.string(), container);
+	vtk_agents_serializer serializer(test_output_dir.string(), *e, {});
 
-	serializer.serialize(0.0);
-	serializer.serialize(0.1);
+	serializer.serialize(*e, 0.0);
+	serializer.serialize(*e, 0.1);
 
 	auto vtk_dir = test_output_dir / "vtk_mechanics_agents";
 	EXPECT_TRUE(std::filesystem::exists(vtk_dir / "mechanics_agents_000000.vtu"));

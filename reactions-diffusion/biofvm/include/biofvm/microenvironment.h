@@ -8,7 +8,7 @@
 #include <biofvm/biofvm_export.h>
 #include <common/mesh.h>
 #include <common/types.h>
-#include <reactions_diffusion/reaction_diffusion_interface.h>
+#include <reactions_diffusion/reactions_diffusion_interface.h>
 
 #include "agent_container.h"
 #include "bulk_functor.h"
@@ -17,7 +17,7 @@
 
 namespace physicore::reactions_diffusion::biofvm {
 
-class BIOFVM_EXPORT microenvironment : public reaction_diffusion_interface
+class BIOFVM_EXPORT microenvironment : public reactions_diffusion_interface
 {
 public:
 	microenvironment(const cartesian_mesh& mesh, index_t substrates_count, real_t timestep);

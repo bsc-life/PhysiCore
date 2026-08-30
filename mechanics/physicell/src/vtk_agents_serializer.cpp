@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <iomanip>
 #include <sstream>
-#include <utility>
 #include <vtkCellArray.h>
 #include <vtkCellType.h>
 #include <vtkPointData.h>
@@ -13,14 +12,11 @@
 
 using namespace physicore::mechanics::physicell;
 
-vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir,
-											 mechanical_agent_container_interface& container,
-											 std::vector<std::string> substrate_names,
-											 std::vector<std::string> cell_type_names)
+vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir, environment& e,
+											 std::vector<std::string> substrate_names)
 	: vtk_serializer_base(output_dir, "vtk_mechanics_agents", "mechanics_agents.pvd"),
-	  container(container),
 	  substrate_names(std::move(substrate_names)),
-	  cell_type_names(std::move(cell_type_names))
+	  agent_type_names(e.agent_type_names)
 {
 	writer->SetInputData(unstructured_grid);
 	writer->SetCompressorTypeToNone();
@@ -38,8 +34,8 @@ std::string vtk_agents_serializer::make_substrate_name(index_t index) const
 
 std::string vtk_agents_serializer::make_cell_type_name(index_t index) const
 {
-	if (index < cell_type_names.size() && !cell_type_names[index].empty())
-		return cell_type_names[index];
+	if (index < agent_type_names.size() && !agent_type_names[index].empty())
+		return agent_type_names[index];
 
 	std::ostringstream ss;
 	ss << "cell_type_" << index;
@@ -200,9 +196,9 @@ void vtk_agents_serializer::initialize_arrays(index_t agent_types_count, index_t
 	initialized = true;
 }
 
-void vtk_agents_serializer::serialize(real_t current_time)
+void vtk_agents_serializer::serialize(const environment& e, real_t current_time)
 {
-	auto& data = retrieve_agent_data(container);
+	auto& data = retrieve_agent_data(*e.agents);
 	const index_t agent_count = data.agents_count;
 	const index_t dims = data.base_data.dims;
 
