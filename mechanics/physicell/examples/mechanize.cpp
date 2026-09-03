@@ -25,6 +25,7 @@ struct agent_group
 	real_t repulsion_strength;
 	real_t relative_max_adhesion_distance;
 	index_t count;
+	std::array<real_t, 3> motility_vector;
 };
 
 void configure_agent(mechanical_agent* agent, const agent_group& group, std::mt19937& rng)
@@ -33,17 +34,17 @@ void configure_agent(mechanical_agent* agent, const agent_group& group, std::mt1
 	auto pos = agent->position();
 	for (index_t dim = 0; dim < pos.size(); ++dim)
 	{
-		real_t displacement = offset(rng) * group.radius;
+		real_t const displacement = offset(rng) * group.radius;
 		pos[dim] = group.center[dim] + displacement;
 	}
 
 	agent->radius() = group.cell_radius;
 	agent->is_movable() = 1;
-	agent->is_motile() = 0;
+	agent->is_motile() = 1;
 	agent->cell_cell_adhesion_strength() = group.adhesion_strength;
 	agent->cell_cell_repulsion_strength() = group.repulsion_strength;
 	agent->cell_BM_adhesion_strength() = 0.0;
-	agent->cell_BM_repulsion_strength() = 30.0;
+	agent->cell_BM_repulsion_strength() = 100.0;
 	agent->relative_maximum_adhesion_distance() = group.relative_max_adhesion_distance;
 	agent->maximum_number_of_attachments() = 12;
 	agent->attachment_elastic_constant() = 0.01;
@@ -51,14 +52,14 @@ void configure_agent(mechanical_agent* agent, const agent_group& group, std::mt1
 	agent->detachment_rate() = 0.0;
 	agent->migration_speed() = 0.0;
 	agent->migration_bias() = 0.0;
-	agent->persistence_time() = 0.0;
+	agent->persistence_time() = 100000.0;
 
 	auto velocity = agent->velocity();
 	std::ranges::fill(velocity, 0.0);
 	auto previous_velocity = agent->previous_velocity();
 	std::ranges::fill(previous_velocity, 0.0);
 	auto motility_vector = agent->motility_vector();
-	std::ranges::fill(motility_vector, 0.0);
+	std::ranges::copy_n(group.motility_vector.begin(), (int)motility_vector.size(), motility_vector.begin());
 	auto migration_bias_direction = agent->migration_bias_direction();
 	std::ranges::fill(migration_bias_direction, 0.0);
 	auto orientation = agent->orientation();
@@ -96,28 +97,32 @@ int main()
 		  .adhesion_strength = 0.6,
 		  .repulsion_strength = 60.0,
 		  .relative_max_adhesion_distance = 1.35,
-		  .count = 24 },
+		  .count = 240,
+		  .motility_vector = { 0, 0, 0 } },
 		{ .center = { 0.0, 0.0, 0.0 },
 		  .radius = 120.0,
 		  .cell_radius = 11.0,
 		  .adhesion_strength = 0.8,
 		  .repulsion_strength = 75.0,
 		  .relative_max_adhesion_distance = 1.45,
-		  .count = 32 },
+		  .count = 320,
+		  .motility_vector = { 0, 0, 0 } },
 		{ .center = { 350.0, 150.0, 0.0 },
 		  .radius = 70.0,
 		  .cell_radius = 9.5,
 		  .adhesion_strength = 0.7,
 		  .repulsion_strength = 65.0,
 		  .relative_max_adhesion_distance = 1.30,
-		  .count = 20 },
+		  .count = 200,
+		  .motility_vector = { 0, 0, 0 } },
 		{ .center = { 0.0, -300.0, 0.0 },
 		  .radius = 80.0,
 		  .cell_radius = 10.5,
 		  .adhesion_strength = 0.9,
 		  .repulsion_strength = 80.0,
 		  .relative_max_adhesion_distance = 1.40,
-		  .count = 18 },
+		  .count = 180,
+		  .motility_vector = { 0, 0, 0 } },
 	};
 
 	for (const auto& group : groups)

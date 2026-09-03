@@ -204,7 +204,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeSingleAgentWritesExpectedArray
 {
 	auto e = make_single_agent_environment();
 
-	std::vector<std::string> substrate_names { "O2", "" };
+	std::vector<std::string> const substrate_names { "O2", "" };
 	e->agent_type_names = { "immune", "" };
 
 
@@ -260,7 +260,7 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
 		agent->cell_adhesion_affinities()[1] = 0.2 * (i + 1);
 	}
 
-	std::vector<std::string> substrate_names { "S1", "S2" };
+	std::vector<std::string> const substrate_names { "S1", "S2" };
 	e->agent_type_names = { "typeA", "typeB" };
 
 	vtk_agents_serializer serializer(test_output_dir.string(), *e, substrate_names);

@@ -14,10 +14,7 @@ inline void update_membrane_velocity(real_t position, real_t bounding_box, real_
 									 real_t repulsion_strength, real_t& velocity)
 {
 	real_t distance = bounding_box - position;
-	distance = (distance < 0) ? -distance : distance;
-
-	// BITHACK VERSION: TO BE TESTED
-	// distance = (distance ^ (distance >> 63)) - (distance >> 63);
+	distance *= -sign;
 
 	real_t repulsion = 1 - distance / radius;
 	repulsion = repulsion < 0 ? 0 : repulsion;

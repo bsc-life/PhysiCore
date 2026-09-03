@@ -40,6 +40,8 @@ std::unique_ptr<environment> environment_builder::build()
 
 	e->agent_type_names = std::move(agent_type_names);
 
+	e->simulation_time = simulation_time;
+
 	auto solver = solver_registry::instance().get(solver_name);
 
 	if (!solver)
