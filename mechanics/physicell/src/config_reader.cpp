@@ -1,5 +1,6 @@
 #include "config_reader.h"
 
+#include <cmath>
 #include <pugixml.hpp>
 #include <stdexcept>
 #include <string>
@@ -64,6 +65,36 @@ void parse_cell_affinities(const pugi::xml_node& mechanics_node, mechanical_para
 	}
 }
 
+void parse_volume_params(const pugi::xml_node& volume_node, mechanical_parameters& params)
+{
+	const real_t total_volume = parse_real(volume_node, "total");
+	params.radius = std::cbrt(total_volume / (4.0 / 3.0 * M_PI));
+}
+
+void set_relative_maximum_adhesion_distance(mechanical_parameters& params, real_t value)
+{
+	double temp1 = value;
+	temp1 /= 2.0;
+
+	double temp2 = 1.0;
+	temp2 -= temp1; // 1 - s_relative/2.0
+
+	temp1 /= params.relative_maximum_adhesion_distance; // s_relative/(2*relative_maximum_adhesion_distance);
+	temp1 *= -1.0;										// -s_relative/(2*relative_maximum_adhesion_distance);
+	temp1 += 1.0;										// 1.0 -s_relative/(2*relative_maximum_adhesion_distance);
+
+	temp2 /= temp1;
+	temp2 *= temp2;
+
+	params.cell_cell_adhesion_strength = params.cell_cell_repulsion_strength;
+	params.cell_cell_adhesion_strength *= temp2;
+}
+
+void set_absolute_maximum_adhesion_distance(mechanical_parameters& params, real_t value)
+{
+	set_relative_maximum_adhesion_distance(params, value / params.radius);
+}
+
 // Parse mechanics parameters from XML
 void parse_mechanics_params(const pugi::xml_node& mechanics_node, mechanical_parameters& params,
 							const std::unordered_map<std::string, std::size_t>& cell_name_to_id)
@@ -91,14 +122,14 @@ void parse_mechanics_params(const pugi::xml_node& mechanics_node, mechanical_par
 		{
 			if (rel.attribute("enabled").as_bool())
 			{
-				params.set_relative_maximum_adhesion_distance = static_cast<real_t>(rel.text().as_double());
+				set_relative_maximum_adhesion_distance(params, static_cast<real_t>(rel.text().as_double()));
 			}
 		}
 		if (const pugi::xml_node abs_node = options_node.child("set_absolute_equilibrium_distance"); abs_node)
 		{
 			if (abs_node.attribute("enabled").as_bool())
 			{
-				params.set_absolute_maximum_adhesion_distance = static_cast<real_t>(abs_node.text().as_double());
+				set_absolute_maximum_adhesion_distance(params, static_cast<real_t>(abs_node.text().as_double()));
 			}
 		}
 	}
@@ -122,24 +153,31 @@ void parse_chemotaxis_options(const pugi::xml_node& options_node, mechanical_par
 		const std::string substrate = chemotaxis_node.child("substrate").text().as_string();
 		auto it = substrate_index.find(substrate);
 
-		if (chem_enabled && it == substrate_index.end())
+		if (!chem_enabled)
+		{
+			params.simple_chemotaxis_direction = chemotaxis_direction_kind::NONE;
+			return;
+		}
+
+		if (it == substrate_index.end())
 		{
 			throw std::runtime_error("Unknown substrate in <chemotaxis>: " + substrate);
 		}
 
-		if (it != substrate_index.end())
+		params.simple_chemotaxis_substrate = it->second;
+
+		const int direction = chemotaxis_node.child("direction").text().as_int();
+
+		if (direction != -1 && direction != 1)
 		{
-			params.chemotaxis_enabled[it->second] = chem_enabled;
-			if (chem_enabled)
-			{
-				params.chemotaxis_sensitivity[it->second] =
-					static_cast<real_t>(chemotaxis_node.child("direction").text().as_double());
-			}
+			throw std::runtime_error("Invalid direction in <chemotaxis>: " + std::to_string(direction));
 		}
+		params.simple_chemotaxis_direction = direction == -1 ? chemotaxis_direction_kind::AWAY_FROM_GRADIENT
+															 : chemotaxis_direction_kind::TOWARD_GRADIENT;
 	}
 }
 
-void parse_advanced_chemotaxis_sensitivities(const pugi::xml_node& sensitivities_node, const bool advanced_enabled,
+void parse_advanced_chemotaxis_sensitivities(const pugi::xml_node& sensitivities_node,
 											 const std::unordered_map<std::string, std::size_t>& substrate_index,
 											 mechanical_parameters& params)
 {
@@ -149,19 +187,12 @@ void parse_advanced_chemotaxis_sensitivities(const pugi::xml_node& sensitivities
 		const std::string substrate = sens.attribute("substrate").as_string();
 		auto it = substrate_index.find(substrate);
 
-		if (advanced_enabled && it == substrate_index.end())
+		if (it == substrate_index.end())
 		{
 			throw std::runtime_error("Unknown substrate in <advanced_chemotaxis>: " + substrate);
 		}
-		if (!advanced_enabled || it == substrate_index.end())
-		{
-			continue;
-		}
 
-		const real_t value = static_cast<real_t>(sens.text().as_double());
-		params.chemotaxis_advanced_enabled[it->second] = value;
-		params.chemotaxis_enabled[it->second] = true;
-		params.chemotaxis_sensitivity[it->second] = value;
+		params.chemotaxis_sensitivities[it->second] = static_cast<real_t>(sens.text().as_double());
 	}
 }
 
@@ -171,15 +202,19 @@ void parse_advanced_chemotaxis_options(const pugi::xml_node& options_node, mecha
 {
 	if (const pugi::xml_node advanced_node = options_node.child("advanced_chemotaxis"); advanced_node)
 	{
-		const bool advanced_enabled = advanced_node.child("enabled") && advanced_node.child("enabled").text().as_bool();
-		params.normalize_each_gradient = advanced_enabled
-										 && (advanced_node.child("normalize_each_gradient")
-											 && advanced_node.child("normalize_each_gradient").text().as_bool());
+		params.advanced_chemotaxis_enabled =
+			advanced_node.child("enabled") && advanced_node.child("enabled").text().as_bool();
+		if (!params.advanced_chemotaxis_enabled)
+			return;
+
+		params.advanced_chemotaxis_normalize_each_gradient =
+			advanced_node.child("normalize_each_gradient")
+			&& advanced_node.child("normalize_each_gradient").text().as_bool();
 
 		if (const pugi::xml_node sensitivities_node = advanced_node.child("chemotactic_sensitivities");
 			sensitivities_node)
 		{
-			parse_advanced_chemotaxis_sensitivities(sensitivities_node, advanced_enabled, substrate_index, params);
+			parse_advanced_chemotaxis_sensitivities(sensitivities_node, substrate_index, params);
 		}
 	}
 }
@@ -194,8 +229,8 @@ void parse_motility_params(const pugi::xml_node& motility_node, mechanical_param
 
 	if (const pugi::xml_node options_node = motility_node.child("options"); options_node)
 	{
-		const bool enabled = options_node.child("enabled") && options_node.child("enabled").text().as_bool();
-		params.is_movable = enabled;
+		params.is_motile = options_node.child("enabled") && options_node.child("enabled").text().as_bool();
+		params.use_2D = options_node.child("use_2D") && options_node.child("use_2D").text().as_bool();
 
 		parse_chemotaxis_options(options_node, params, substrate_index);
 		parse_advanced_chemotaxis_options(options_node, params, substrate_index);
@@ -214,11 +249,12 @@ void parse_cell_definition(pugi::xml_node cell_def, mechanical_parameters& param
 	params.id = id;
 	params.name = name;
 	params.cell_adhesion_affinity.assign(agent_type_count, 0.0);
-	params.chemotaxis_sensitivity.assign(substrate_index.size(), 0.0);
-	params.chemotaxis_enabled.assign(substrate_index.size(), false);
-	params.chemotaxis_advanced_enabled.assign(substrate_index.size(), 0.0);
+	params.chemotaxis_sensitivities.assign(substrate_index.size(), 0.0);
 
 	const pugi::xml_node phenotype_node = get_required_child(cell_def, "phenotype");
+
+	const pugi::xml_node volume_node = get_required_child(phenotype_node, "volume");
+	parse_volume_params(volume_node, params);
 
 	const pugi::xml_node mechanics_node = get_required_child(phenotype_node, "mechanics");
 	parse_mechanics_params(mechanics_node, params, cell_name_to_id);
@@ -277,13 +313,19 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 	}
 
 	mechanics_config config {};
-	config.is_2D = false;
 
 	// Parse domain configuration
 	if (const pugi::xml_node domain_node = root.child("domain"); domain_node)
 	{
 		config.domain = parse_domain(domain_node);
-		config.is_2D = config.domain.use_2D;
+	}
+
+	// Parse options configuration
+	if (const pugi::xml_node options_node = root.child("options"); options_node)
+	{
+		config.options.virtual_wall_at_domain_edge = parse_bool(options_node, "virtual_wall_at_domain_edge");
+		config.options.disable_automated_spring_adhesions =
+			parse_bool(options_node, "disable_automated_spring_adhesions");
 	}
 
 	// Parse overall configuration

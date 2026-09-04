@@ -23,6 +23,11 @@
         <dt_phenotype units="min">6</dt_phenotype>
     </overall>
 
+    <options>
+        <virtual_wall_at_domain_edge>true</virtual_wall_at_domain_edge>
+        <disable_automated_spring_adhesions>false</disable_automated_spring_adhesions>
+    </options>
+
     <cell_definitions>
         <cell_definition name="malignant epithelial" ID="0">
             <phenotype>

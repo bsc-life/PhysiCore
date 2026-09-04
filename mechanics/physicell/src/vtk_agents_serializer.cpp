@@ -3,6 +3,7 @@
 #include <array>
 #include <filesystem>
 #include <iomanip>
+#include <ranges>
 #include <sstream>
 #include <vtkCellArray.h>
 #include <vtkCellType.h>
@@ -15,9 +16,11 @@ using namespace physicore::mechanics::physicell;
 vtk_agents_serializer::vtk_agents_serializer(std::string_view output_dir, environment& e,
 											 std::vector<std::string> substrate_names)
 	: vtk_serializer_base(output_dir, "vtk_mechanics_agents", "mechanics_agents.pvd"),
-	  substrate_names(std::move(substrate_names)),
-	  agent_type_names(e.agent_type_names)
+	  substrate_names(std::move(substrate_names))
 {
+	std::ranges::copy(e.agent_types
+						  | std::ranges::views::transform([](const mechanical_parameters& type) { return type.name; }),
+					  std::back_inserter(agent_type_names));
 	writer->SetInputData(unstructured_grid);
 	writer->SetCompressorTypeToNone();
 }

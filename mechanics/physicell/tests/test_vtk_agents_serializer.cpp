@@ -205,8 +205,10 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeSingleAgentWritesExpectedArray
 	auto e = make_single_agent_environment();
 
 	std::vector<std::string> const substrate_names { "O2", "" };
-	e->agent_type_names = { "immune", "" };
-
+	e->agent_types.emplace_back();
+	e->agent_types.emplace_back();
+	e->agent_types[0].name = "immune";
+	e->agent_types[1].name = "";
 
 	vtk_agents_serializer serializer(test_output_dir.string(), *e, substrate_names);
 	serializer.serialize(*e, 0.0);
@@ -261,7 +263,10 @@ TEST_F(VtkMechanicsAgentsSerializerTest, SerializeMultipleAgentsWritesAllData)
 	}
 
 	std::vector<std::string> const substrate_names { "S1", "S2" };
-	e->agent_type_names = { "typeA", "typeB" };
+	e->agent_types.emplace_back();
+	e->agent_types.emplace_back();
+	e->agent_types[0].name = "typeA";
+	e->agent_types[1].name = "typeB";
 
 	vtk_agents_serializer serializer(test_output_dir.string(), *e, substrate_names);
 	serializer.serialize(*e, 0.0);

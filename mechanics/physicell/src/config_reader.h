@@ -30,12 +30,18 @@ struct overall_config
 	real_t dt_mechanics;
 };
 
+struct options_config
+{
+	bool virtual_wall_at_domain_edge;
+	bool disable_automated_spring_adhesions;
+};
+
 struct mechanics_config
 {
 	domain_config domain;
 	overall_config overall;
+	options_config options;
 	std::vector<mechanical_parameters> cell_types; // One entry per cell type, indexed by ID
-	bool is_2D;									   // Global domain setting
 };
 
 /**

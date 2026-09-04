@@ -33,7 +33,7 @@ public:
 	cartesian_mesh mesh;
 
 	index_t agent_types_count;
-	std::vector<std::string> agent_type_names;
+	std::vector<mechanical_parameters> agent_types;
 
 	bool automated_spring_adhesion = true;
 	bool virtual_wall_at_domain_edges = true;

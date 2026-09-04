@@ -1,6 +1,7 @@
 #include "environment.h"
 
 #include <memory>
+#include <ranges>
 
 #include <common/base_agent_data.h>
 
@@ -31,7 +32,7 @@ void environment::serialize_state(real_t current_time)
 std::unique_ptr<environment> environment::create_from_config(const std::filesystem::path& config_file)
 {
 	// Parse the XML configuration file
-	const mechanics_config config = parse_simulation_parameters(config_file);
+	mechanics_config config = parse_simulation_parameters(config_file);
 
 	// Create builder
 	environment_builder builder;
@@ -62,9 +63,9 @@ std::unique_ptr<environment> environment::create_from_config(const std::filesyst
 
 	builder.resize(dims, bounding_box_mins, bounding_box_maxs, voxel_shape);
 
-	for (const auto& type : config.cell_types)
+	for (auto&& type : config.cell_types)
 	{
-		builder.add_agent_type(type.name);
+		builder.add_agent_type(std::move(type));
 	}
 
 	// Build and return

@@ -98,6 +98,9 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_ParsesAllFields)
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
@@ -136,7 +139,6 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_ParsesAllFields)
 	EXPECT_DOUBLE_EQ(config.domain.dy, 25.0);
 	EXPECT_DOUBLE_EQ(config.domain.dz, 25.0);
 	EXPECT_FALSE(config.domain.use_2D);
-	EXPECT_FALSE(config.is_2D); // Should match domain.use_2D
 }
 
 TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
@@ -164,6 +166,9 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -192,7 +197,6 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
 	auto config = parse_simulation_parameters(test_config_file);
 
 	EXPECT_TRUE(config.domain.use_2D);
-	EXPECT_TRUE(config.is_2D);
 }
 
 // ============================================================================
@@ -218,6 +222,9 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_ParsesAllFields)
 <cell_definitions>
 <cell_definition name="default" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -271,6 +278,9 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_DifferentTimeUnits)
 <cell_definitions>
 <cell_definition name="cell" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -318,6 +328,9 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
@@ -362,65 +375,10 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 	EXPECT_DOUBLE_EQ(params.detachment_rate, 0.1);
 
 	// Motility parameters
-	EXPECT_TRUE(params.is_movable);
+	EXPECT_TRUE(params.is_motile);
 	EXPECT_DOUBLE_EQ(params.motility_speed, 2.0);
 	EXPECT_DOUBLE_EQ(params.motility_persistence_time, 5.0);
 	EXPECT_DOUBLE_EQ(params.motility_bias, 0.5);
-}
-
-TEST_F(MechanicsConfigReaderTest, CornerCase_DefaultDomain2DFalse)
-{
-	// When domain section is missing, should default to use_2D = false
-	const std::string no_domain = R"(
-<overall>
-<max_time>14400</max_time>
-<time_units>min</time_units>
-<space_units>micron</space_units>
-<dt_mechanics>0.1</dt_mechanics>
-</overall>)";
-
-	const std::string microenv = R"(
-<microenvironment_setup>
-<variable name="v1" ID="0" />
-</microenvironment_setup>)";
-
-	const std::string cells = R"(
-<cell_definitions>
-<cell_definition name="default" ID="0">
-<phenotype>
-<mechanics>
-<cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
-<cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
-<relative_maximum_adhesion_distance>1.0</relative_maximum_adhesion_distance>
-<cell_adhesion_affinities>
-<cell_adhesion_affinity name="default">1.0</cell_adhesion_affinity>
-</cell_adhesion_affinities>
-<attachment_elastic_constant>0.0</attachment_elastic_constant>
-<attachment_rate>0.0</attachment_rate>
-<detachment_rate>0.0</detachment_rate>
-</mechanics>
-<motility>
-<speed>0</speed>
-<persistence_time>0</persistence_time>
-<migration_bias>0</migration_bias>
-<options>
-<enabled>false</enabled>
-<use_2D>false</use_2D>
-</options>
-</motility>
-</phenotype>
-</cell_definition>
-</cell_definitions>)";
-
-	const std::string xml = R"(<?xml version="1.0"?>
-<PhysiCell_settings version="devel-version">)"
-							+ no_domain + microenv + cells + R"(
-</PhysiCell_settings>)";
-
-	write_config(xml);
-	auto config = parse_simulation_parameters(test_config_file);
-
-	EXPECT_FALSE(config.is_2D);
 }
 
 TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
@@ -433,6 +391,9 @@ TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -479,6 +440,9 @@ TEST_F(MechanicsConfigReaderTest, Negative_MissingRequiredElement)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <!-- Missing cell_cell_adhesion_strength (required) -->
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -520,6 +484,9 @@ TEST_F(MechanicsConfigReaderTest, Negative_UnknownCellTypeInAffinity)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
