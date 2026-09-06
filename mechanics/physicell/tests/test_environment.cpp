@@ -34,7 +34,7 @@ class EnvironmentTest : public ::testing::Test
 // Test constructor and basic initialization
 TEST_F(EnvironmentTest, ConstructorInitializesEnvironment)
 {
-	environment env({ 3, { -100, -100, -100 }, { 100, 100, 100 }, { 20, 20, 20 } }, 2, 3, 0.1);
+	const environment env({ 3, { -100, -100, -100 }, { 100, 100, 100 }, { 20, 20, 20 } }, 2, 3, 0.1);
 	EXPECT_DOUBLE_EQ(env.mechanics_timestep, 0.1);
 	EXPECT_TRUE(env.automated_spring_adhesion);
 	EXPECT_TRUE(env.virtual_wall_at_domain_edges);

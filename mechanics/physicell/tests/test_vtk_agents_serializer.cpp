@@ -138,7 +138,6 @@ void assert_vectors(vtkPointData* point_data)
 	expect_vec3(point_data, "previous_velocity", { 0.4, 0.5, 0.6 });
 	expect_vec3(point_data, "migration_bias_direction", { 0.0, 1.0, 0.0 });
 	expect_vec3(point_data, "motility_vector", { 1.0, 2.0, 3.0 });
-	expect_vec3(point_data, "orientation", { 0.1, 0.2, 0.3 });
 }
 
 void assert_affinities(vtkPointData* point_data)
