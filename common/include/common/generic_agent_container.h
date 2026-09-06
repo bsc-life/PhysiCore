@@ -17,6 +17,12 @@ protected:
 	index_t& get_agent_index(base_agent_interface* agent) { return agent->index; }
 
 public:
+	generic_agent_interface_container() = default;
+	generic_agent_interface_container(const generic_agent_interface_container&) = delete;
+	generic_agent_interface_container& operator=(const generic_agent_interface_container&) = delete;
+	generic_agent_interface_container(generic_agent_interface_container&&) = delete;
+	generic_agent_interface_container& operator=(generic_agent_interface_container&&) = delete;
+
 	virtual AgentType* create() = 0;
 
 	virtual AgentType* get_agent_at(index_t position) = 0;

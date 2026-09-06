@@ -60,7 +60,7 @@ void parse_cell_affinities(const pugi::xml_node& mechanics_node, mechanical_para
 			{
 				throw std::runtime_error("Unknown cell type in <cell_adhesion_affinity>: " + other_name);
 			}
-			params.cell_adhesion_affinity[it->second] = static_cast<real_t>(affinity.text().as_double());
+			params.cell_adhesion_affinities[it->second] = static_cast<real_t>(affinity.text().as_double());
 		}
 	}
 }
@@ -134,7 +134,7 @@ void parse_mechanics_params(const pugi::xml_node& mechanics_node, mechanical_par
 		}
 	}
 
-	params.attachment_elastic_coefficient = parse_real(mechanics_node, "attachment_elastic_constant");
+	params.attachment_elastic_constant = parse_real(mechanics_node, "attachment_elastic_constant");
 	params.attachment_rate = parse_real(mechanics_node, "attachment_rate");
 	params.detachment_rate = parse_real(mechanics_node, "detachment_rate");
 	if (const pugi::xml_node max_attach = mechanics_node.child("maximum_number_of_attachments"); max_attach)
@@ -223,14 +223,14 @@ void parse_advanced_chemotaxis_options(const pugi::xml_node& options_node, mecha
 void parse_motility_params(const pugi::xml_node& motility_node, mechanical_parameters& params,
 						   const std::unordered_map<std::string, std::size_t>& substrate_index)
 {
-	params.motility_speed = parse_real(motility_node, "speed");
-	params.motility_persistence_time = parse_real(motility_node, "persistence_time");
-	params.motility_bias = parse_real(motility_node, "migration_bias");
+	params.migration_speed = parse_real(motility_node, "speed");
+	params.persistence_time = parse_real(motility_node, "persistence_time");
+	params.migration_bias = parse_real(motility_node, "migration_bias");
 
 	if (const pugi::xml_node options_node = motility_node.child("options"); options_node)
 	{
 		params.is_motile = options_node.child("enabled") && options_node.child("enabled").text().as_bool();
-		params.use_2D = options_node.child("use_2D") && options_node.child("use_2D").text().as_bool();
+		params.restrict_to_2d = options_node.child("use_2D") && options_node.child("use_2D").text().as_bool();
 
 		parse_chemotaxis_options(options_node, params, substrate_index);
 		parse_advanced_chemotaxis_options(options_node, params, substrate_index);
@@ -248,7 +248,7 @@ void parse_cell_definition(pugi::xml_node cell_def, mechanical_parameters& param
 
 	params.id = id;
 	params.name = name;
-	params.cell_adhesion_affinity.assign(agent_type_count, 0.0);
+	params.cell_adhesion_affinities.assign(agent_type_count, 0.0);
 	params.chemotaxis_sensitivities.assign(substrate_index.size(), 0.0);
 
 	const pugi::xml_node phenotype_node = get_required_child(cell_def, "phenotype");
@@ -334,7 +334,7 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 		if (const pugi::xml_node cell_positions_node = initial_conditions_node.child("cell_positions");
 			cell_positions_node)
 		{
-			const bool enabled = parse_bool(cell_positions_node, "enabled");
+			const bool enabled = cell_positions_node.attribute("enabled").as_bool(true);
 			if (enabled)
 			{
 				const std::filesystem::path folder =

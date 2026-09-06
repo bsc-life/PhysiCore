@@ -25,6 +25,8 @@ public:
 
 	static std::unique_ptr<environment> create_from_config(const std::filesystem::path& config_file);
 
+	mechanical_agent_interface* create_with_type(index_t agent_type_index);
+
 	mechanical_container_ptr agents;
 	solver_ptr solver;
 	serializer_ptr serializer;

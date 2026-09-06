@@ -12,6 +12,12 @@ class environment;
 class PHYSICELL_EXPORT solver
 {
 public:
+	solver() = default;
+	solver(const solver&) = delete;
+	solver& operator=(const solver&) = delete;
+	solver(solver&&) = delete;
+	solver& operator=(solver&&) = delete;
+
 	virtual void initialize(environment& e) = 0;
 
 	virtual void solve(environment& e, index_t iterations) = 0;

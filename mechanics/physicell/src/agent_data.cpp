@@ -1,11 +1,6 @@
 #include "physicell/agent_data.h"
 
-#include <algorithm>
 #include <cassert>
-#include <memory>
-
-#include "physicell/mechanical_agent.h"
-#include "physicell/mechanical_parameters.h"
 
 namespace physicore::mechanics::physicell {
 

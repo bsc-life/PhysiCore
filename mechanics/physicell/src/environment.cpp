@@ -1,7 +1,7 @@
 #include "environment.h"
 
+#include <algorithm>
 #include <memory>
-#include <ranges>
 
 #include <common/base_agent_data.h>
 
@@ -70,4 +70,56 @@ std::unique_ptr<environment> environment::create_from_config(const std::filesyst
 
 	// Build and return
 	return builder.build();
+}
+
+mechanical_agent_interface* environment::create_with_type(index_t agent_type_index)
+{
+	if (!agents)
+	{
+		throw std::runtime_error("Agent container is not initialized");
+	}
+	auto* agent = agents->create();
+
+	if (agent_type_index >= agent_types.size())
+	{
+		throw std::out_of_range("Invalid agent type index");
+	}
+
+	const auto& type = agent_types[agent_type_index];
+
+	std::ranges::fill(agent->velocity(), 0.0);
+	std::ranges::fill(agent->previous_velocity(), 0.0);
+	agent->radius() = type.radius;
+
+	agent->cell_cell_adhesion_strength() = type.cell_cell_adhesion_strength;
+	agent->cell_cell_repulsion_strength() = type.cell_cell_repulsion_strength;
+	agent->cell_BM_adhesion_strength() = type.cell_BM_adhesion_strength;
+	agent->cell_BM_repulsion_strength() = type.cell_BM_repulsion_strength;
+
+	std::ranges::copy(type.cell_adhesion_affinities, agent->cell_adhesion_affinities().begin());
+	agent->relative_maximum_adhesion_distance() = type.relative_maximum_adhesion_distance;
+	agent->maximum_number_of_attachments() = type.maximum_number_of_attachments;
+	agent->attachment_elastic_constant() = type.attachment_elastic_constant;
+	agent->attachment_rate() = type.attachment_rate;
+	agent->detachment_rate() = type.detachment_rate;
+
+	agent->is_motile() = type.is_motile;
+	agent->persistence_time() = type.persistence_time;
+	agent->migration_speed() = type.migration_speed;
+	std::ranges::fill(agent->migration_bias_direction(), 0.0);
+	agent->migration_bias() = type.migration_bias;
+	std::ranges::fill(agent->motility_vector(), 0.0);
+	agent->restrict_to_2d() = type.restrict_to_2d;
+
+	agent->chemotaxis_index() = type.simple_chemotaxis_substrate;
+	agent->chemotaxis_direction() = (int)type.simple_chemotaxis_direction;
+	std::ranges::copy(type.chemotaxis_sensitivities, agent->chemotactic_sensitivities().begin());
+
+	std::ranges::fill(agent->orientation(), 0.0);
+
+	agent->simple_pressure() = 0.0;
+	agent->agent_type_index() = agent_type_index;
+	agent->is_movable() = 1;
+
+	return agent;
 }

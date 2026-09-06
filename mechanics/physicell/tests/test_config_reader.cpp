@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <stdexcept>
 
 #include <common/types.h>
@@ -13,7 +14,8 @@ using namespace physicore::mechanics::physicell;
 namespace {
 // Helper to create a complete test XML with domain and overall sections
 std::string create_complete_xml(const std::string& microenv_section, const std::string& cell_defs_section,
-								const std::string& domain_section = "", const std::string& overall_section = "")
+								const std::string& domain_section = "", const std::string& overall_section = "",
+								const std::string& initial_conditions_section = "")
 {
 	const std::string domain = domain_section.empty() ? R"(
 	<domain>
@@ -41,7 +43,7 @@ std::string create_complete_xml(const std::string& microenv_section, const std::
 
 	return R"(<?xml version="1.0"?>
 <PhysiCell_settings version="devel-version">)"
-		   + domain + overall + microenv_section + cell_defs_section + R"(
+		   + domain + overall + microenv_section + cell_defs_section + initial_conditions_section + R"(
 	</PhysiCell_settings>)";
 }
 } // namespace
@@ -370,15 +372,15 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 	EXPECT_DOUBLE_EQ(params.relative_maximum_adhesion_distance, 1.25);
 
 	// Attachment parameters
-	EXPECT_DOUBLE_EQ(params.attachment_elastic_coefficient, 0.5);
+	EXPECT_DOUBLE_EQ(params.attachment_elastic_constant, 0.5);
 	EXPECT_DOUBLE_EQ(params.attachment_rate, 10.0);
 	EXPECT_DOUBLE_EQ(params.detachment_rate, 0.1);
 
 	// Motility parameters
 	EXPECT_TRUE(params.is_motile);
-	EXPECT_DOUBLE_EQ(params.motility_speed, 2.0);
-	EXPECT_DOUBLE_EQ(params.motility_persistence_time, 5.0);
-	EXPECT_DOUBLE_EQ(params.motility_bias, 0.5);
+	EXPECT_DOUBLE_EQ(params.migration_speed, 2.0);
+	EXPECT_DOUBLE_EQ(params.persistence_time, 5.0);
+	EXPECT_DOUBLE_EQ(params.migration_bias, 0.5);
 }
 
 TEST_F(MechanicsConfigReaderTest, ParseOptions)
@@ -442,6 +444,15 @@ TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsFalse)
 <variable name="glucose" ID="1" />
 </microenvironment_setup>)";
 
+	const std::string initial_conditions = R"(
+<initial_conditions>
+<cell_positions type="csv" enabled="false">
+<folder>./config</folder>
+<filename>cells.csv</filename>
+</cell_positions>
+</initial_conditions>
+)";
+
 	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
@@ -472,15 +483,9 @@ TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsFalse)
 </phenotype>
 </cell_definition>
 </cell_definitions>
-<initial_conditions>
-<cell_positions type="csv" enabled="false">
-<folder>./config</folder>
-<filename>cells.csv</filename>
-</cell_positions>
-</initial_conditions>
 )";
 
-	write_config(create_complete_xml(microenv, cells));
+	write_config(create_complete_xml(microenv, cells, initial_conditions));
 
 	auto config = parse_simulation_parameters(test_config_file);
 
@@ -496,6 +501,15 @@ TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsTrue)
 <variable name="glucose" ID="1" />
 </microenvironment_setup>)";
 
+	const std::string initial_conditions = R"(
+<initial_conditions>
+<cell_positions type="csv" enabled="true">
+<folder>./config</folder>
+<filename>cells.csv</filename>
+</cell_positions>
+</initial_conditions>
+)";
+
 	const std::string cells = R"(
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
@@ -526,15 +540,9 @@ TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsTrue)
 </phenotype>
 </cell_definition>
 </cell_definitions>
-<initial_conditions>
-<cell_positions type="csv" enabled="true">
-<folder>./config</folder>
-<filename>cells.csv</filename>
-</cell_positions>
-</initial_conditions>
 )";
 
-	write_config(create_complete_xml(microenv, cells));
+	write_config(create_complete_xml(microenv, cells, initial_conditions));
 
 	auto config = parse_simulation_parameters(test_config_file);
 

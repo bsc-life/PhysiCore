@@ -14,11 +14,11 @@
 */
 namespace physicore::mechanics::physicell {
 
-enum class chemotaxis_direction_kind
+enum class chemotaxis_direction_kind : sindex_t
 {
-	TOWARD_GRADIENT,
-	AWAY_FROM_GRADIENT,
-	NONE
+	TOWARD_GRADIENT = 1,
+	NONE = 0,
+	AWAY_FROM_GRADIENT = -1,
 };
 
 struct mechanical_parameters
@@ -34,20 +34,20 @@ struct mechanical_parameters
 	real_t cell_cell_adhesion_strength;
 	real_t cell_cell_repulsion_strength;
 	real_t relative_maximum_adhesion_distance;
-	std::vector<real_t> cell_adhesion_affinity;
+	std::vector<real_t> cell_adhesion_affinities;
 	index_t maximum_number_of_attachments;
 	real_t cell_BM_adhesion_strength;
 	real_t cell_BM_repulsion_strength;
-	real_t attachment_elastic_coefficient;
+	real_t attachment_elastic_constant;
 	real_t attachment_rate;
 	real_t detachment_rate;
 
 	// Motility parameters
-	real_t motility_speed;
-	real_t motility_persistence_time;
-	real_t motility_bias;
+	real_t migration_speed;
+	real_t persistence_time;
+	real_t migration_bias;
 	bool is_motile;
-	bool use_2D;
+	bool restrict_to_2d;
 
 	// Chemotaxis parameters
 	chemotaxis_direction_kind simple_chemotaxis_direction;
