@@ -381,6 +381,168 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 	EXPECT_DOUBLE_EQ(params.motility_bias, 0.5);
 }
 
+TEST_F(MechanicsConfigReaderTest, ParseOptions)
+{
+	const std::string microenv = R"(
+<microenvironment_setup>
+<variable name="oxygen" ID="0" />
+<variable name="glucose" ID="1" />
+</microenvironment_setup>)";
+
+	const std::string cells = R"(
+<cell_definitions>
+<cell_definition name="default cell" ID="0">
+<phenotype>
+<volume>
+<total>1000</total>
+</volume>
+<mechanics>
+<cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
+<cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
+<relative_maximum_adhesion_distance>1.25</relative_maximum_adhesion_distance>
+<cell_adhesion_affinities>
+<cell_adhesion_affinity name="default cell">1.0</cell_adhesion_affinity>
+</cell_adhesion_affinities>
+<attachment_elastic_constant>0.5</attachment_elastic_constant>
+<attachment_rate>10.0</attachment_rate>
+<detachment_rate>0.1</detachment_rate>
+</mechanics>
+<motility>
+<speed>2.0</speed>
+<persistence_time>5.0</persistence_time>
+<migration_bias>0.5</migration_bias>
+<options>
+<enabled>true</enabled>
+<use_2D>true</use_2D>
+</options>
+</motility>
+</phenotype>
+</cell_definition>
+</cell_definitions>
+<options>
+<virtual_wall_at_domain_edge>true</virtual_wall_at_domain_edge>
+<disable_automated_spring_adhesions>false</disable_automated_spring_adhesions>
+</options>
+)";
+
+	write_config(create_complete_xml(microenv, cells));
+
+	auto config = parse_simulation_parameters(test_config_file);
+
+	// Options verification
+	EXPECT_TRUE(config.options.virtual_wall_at_domain_edge);
+	EXPECT_FALSE(config.options.disable_automated_spring_adhesions);
+}
+
+TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsFalse)
+{
+	const std::string microenv = R"(
+<microenvironment_setup>
+<variable name="oxygen" ID="0" />
+<variable name="glucose" ID="1" />
+</microenvironment_setup>)";
+
+	const std::string cells = R"(
+<cell_definitions>
+<cell_definition name="default cell" ID="0">
+<phenotype>
+<volume>
+<total>1000</total>
+</volume>
+<mechanics>
+<cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
+<cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
+<relative_maximum_adhesion_distance>1.25</relative_maximum_adhesion_distance>
+<cell_adhesion_affinities>
+<cell_adhesion_affinity name="default cell">1.0</cell_adhesion_affinity>
+</cell_adhesion_affinities>
+<attachment_elastic_constant>0.5</attachment_elastic_constant>
+<attachment_rate>10.0</attachment_rate>
+<detachment_rate>0.1</detachment_rate>
+</mechanics>
+<motility>
+<speed>2.0</speed>
+<persistence_time>5.0</persistence_time>
+<migration_bias>0.5</migration_bias>
+<options>
+<enabled>true</enabled>
+<use_2D>true</use_2D>
+</options>
+</motility>
+</phenotype>
+</cell_definition>
+</cell_definitions>
+<initial_conditions>
+<cell_positions type="csv" enabled="false">
+<folder>./config</folder>
+<filename>cells.csv</filename>
+</cell_positions>
+</initial_conditions>
+)";
+
+	write_config(create_complete_xml(microenv, cells));
+
+	auto config = parse_simulation_parameters(test_config_file);
+
+	// Initial conditions verification
+	EXPECT_FALSE(config.initial_conditions.cell_positions_file.has_value());
+}
+
+TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsTrue)
+{
+	const std::string microenv = R"(
+<microenvironment_setup>
+<variable name="oxygen" ID="0" />
+<variable name="glucose" ID="1" />
+</microenvironment_setup>)";
+
+	const std::string cells = R"(
+<cell_definitions>
+<cell_definition name="default cell" ID="0">
+<phenotype>
+<volume>
+<total>1000</total>
+</volume>
+<mechanics>
+<cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
+<cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
+<relative_maximum_adhesion_distance>1.25</relative_maximum_adhesion_distance>
+<cell_adhesion_affinities>
+<cell_adhesion_affinity name="default cell">1.0</cell_adhesion_affinity>
+</cell_adhesion_affinities>
+<attachment_elastic_constant>0.5</attachment_elastic_constant>
+<attachment_rate>10.0</attachment_rate>
+<detachment_rate>0.1</detachment_rate>
+</mechanics>
+<motility>
+<speed>2.0</speed>
+<persistence_time>5.0</persistence_time>
+<migration_bias>0.5</migration_bias>
+<options>
+<enabled>true</enabled>
+<use_2D>true</use_2D>
+</options>
+</motility>
+</phenotype>
+</cell_definition>
+</cell_definitions>
+<initial_conditions>
+<cell_positions type="csv" enabled="true">
+<folder>./config</folder>
+<filename>cells.csv</filename>
+</cell_positions>
+</initial_conditions>
+)";
+
+	write_config(create_complete_xml(microenv, cells));
+
+	auto config = parse_simulation_parameters(test_config_file);
+
+	// Initial conditions verification
+	ASSERT_TRUE(config.initial_conditions.cell_positions_file.has_value());
+	EXPECT_EQ(config.initial_conditions.cell_positions_file.value(), "./config/cells.csv");
+}
+
 TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
 {
 	const std::string microenv = R"(

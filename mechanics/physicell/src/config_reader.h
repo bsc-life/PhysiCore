@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -36,11 +37,17 @@ struct options_config
 	bool disable_automated_spring_adhesions;
 };
 
+struct initial_conditions_config
+{
+	std::optional<std::filesystem::path> cell_positions_file;
+};
+
 struct mechanics_config
 {
 	domain_config domain;
 	overall_config overall;
 	options_config options;
+	initial_conditions_config initial_conditions;
 	std::vector<mechanical_parameters> cell_types; // One entry per cell type, indexed by ID
 };
 

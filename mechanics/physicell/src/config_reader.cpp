@@ -328,6 +328,23 @@ mechanics_config parse_simulation_parameters(const std::filesystem::path& config
 			parse_bool(options_node, "disable_automated_spring_adhesions");
 	}
 
+	// Parse initial conditions configuration
+	if (const pugi::xml_node initial_conditions_node = root.child("initial_conditions"); initial_conditions_node)
+	{
+		if (const pugi::xml_node cell_positions_node = initial_conditions_node.child("cell_positions");
+			cell_positions_node)
+		{
+			const bool enabled = parse_bool(cell_positions_node, "enabled");
+			if (enabled)
+			{
+				const std::filesystem::path folder =
+					get_required_child(cell_positions_node, "folder").text().as_string();
+				const std::string filename = get_required_child(cell_positions_node, "filename").text().as_string();
+				config.initial_conditions.cell_positions_file = folder / filename;
+			}
+		}
+	}
+
 	// Parse overall configuration
 	if (const pugi::xml_node overall_node = root.child("overall"); overall_node)
 	{

@@ -86,6 +86,13 @@
         </cell_definition>
     </cell_definitions>
 
+    <initial_conditions>
+        <cell_positions type="csv" enabled="false">
+            <folder>./config</folder>
+            <filename>cells.csv</filename>
+        </cell_positions>
+    </initial_conditions>
+
     <solver>
         <name>openmp_solver</name>
     </solver>
