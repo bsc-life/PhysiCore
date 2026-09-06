@@ -8,6 +8,7 @@
 #include <common/types.h>
 
 #include "mechanical_agent_container.h"
+#include "mechanical_parameters.h"
 #include "serializer.h"
 #include "solver.h"
 
@@ -24,7 +25,7 @@ public:
 
 	static std::unique_ptr<environment> create_from_config(const std::filesystem::path& config_file);
 
-	std::unique_ptr<mechanical_agent_container> agents;
+	mechanical_container_ptr agents;
 	solver_ptr solver;
 	serializer_ptr serializer;
 

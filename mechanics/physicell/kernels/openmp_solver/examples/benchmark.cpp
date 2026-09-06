@@ -13,7 +13,7 @@ using namespace physicore::mechanics::physicell;
 using namespace physicore::mechanics::physicell::kernels::openmp_solver;
 
 namespace {
-void configure_agent(mechanical_agent* agent, real_t radius)
+void configure_agent(mechanical_agent_interface* agent, real_t radius)
 {
 	agent->radius() = radius;
 	agent->is_movable() = 1;

@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <span>
-#include <vector>
 
 #include <common/base_agent_interface.h>
 #include <common/types.h>

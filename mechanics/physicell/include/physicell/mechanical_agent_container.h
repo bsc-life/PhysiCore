@@ -3,7 +3,6 @@
 #include <common/base_agent.h>
 #include <common/generic_agent_container.h>
 
-#include "agent_data.h"
 #include "mechanical_agent.h"
 
 namespace physicore::mechanics::physicell {

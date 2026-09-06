@@ -3,7 +3,6 @@
 #include <memory>
 #include <span>
 #include <tuple>
-#include <vector>
 
 #include <common/base_agent_data.h>
 #include <common/base_agent_generic_storage.h>
@@ -11,7 +10,6 @@
 
 #include "agent_data.h"
 #include "agent_interface.h"
-#include "mechanical_parameters.h"
 
 namespace physicore::mechanics::physicell {
 

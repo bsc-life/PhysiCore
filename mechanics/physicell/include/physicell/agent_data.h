@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <vector>
@@ -10,8 +9,6 @@
 #include <common/types.h>
 
 namespace physicore::mechanics::physicell {
-
-struct mechanical_parameters;
 
 /**
  * @brief Mechanics-related properties for agents

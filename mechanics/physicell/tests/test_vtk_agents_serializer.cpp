@@ -30,8 +30,10 @@ std::unique_ptr<environment> make_single_agent_environment()
 	auto env = make_environment(3, 2, 2);
 	env->agents->create();
 
-	auto& base_data = *std::get<0>(env->agents->agent_datas);
-	auto& mech_data = *std::get<1>(env->agents->agent_datas);
+	auto* mech_agents = dynamic_cast<mechanical_agent_container*>(env->agents.get());
+
+	auto& base_data = *std::get<0>(mech_agents->agent_datas);
+	auto& mech_data = *std::get<1>(mech_agents->agent_datas);
 
 	base_data.positions = { 1.0, 2.0, 3.0 };
 

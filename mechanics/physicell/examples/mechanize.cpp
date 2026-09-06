@@ -28,7 +28,7 @@ struct agent_group
 	std::array<real_t, 3> motility_vector;
 };
 
-void configure_agent(mechanical_agent* agent, const agent_group& group, std::mt19937& rng)
+void configure_agent(mechanical_agent_interface* agent, const agent_group& group, std::mt19937& rng)
 {
 	std::uniform_real_distribution<real_t> offset(-1.0, 1.0);
 	auto pos = agent->position();
