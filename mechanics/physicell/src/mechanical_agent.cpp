@@ -1,4 +1,4 @@
-#include "physicell/mechanical_agent.h"
+#include "mechanical_agent.h"
 
 namespace physicore::mechanics::physicell {
 
