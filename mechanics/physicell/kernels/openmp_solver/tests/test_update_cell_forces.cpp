@@ -1,16 +1,8 @@
-#include <algorithm>
-#include <array>
 #include <cmath>
-#include <cstdint>
-#include <stdexcept>
-#include <vector>
 
-#include <common/generic_agent_solver.h>
 #include <gtest/gtest.h>
-#include <physicell/openmp_solver/position_solver.h>
-#include <physicell/openmp_solver/register_solver.h>
 
-#include "physicell/environment.h"
+#include "position_solver.h"
 
 using namespace physicore::mechanics::physicell;
 using physicore::cartesian_mesh;
@@ -196,7 +188,7 @@ std::vector<real_t> compute_expected_velocities(environment& env)
 
 TEST(UpdateCellForcesTest, NoAgentsDoesNotCrash)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	clear_kinematics_and_pressure(env);
 	position_solver_instance().update_cell_forces(env);
 
@@ -208,7 +200,7 @@ TEST(UpdateCellForcesTest, NoAgentsDoesNotCrash)
 
 TEST(UpdateCellForcesTest, SingleAgentNoNeighborsLeavesZeroForces)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 	clear_kinematics_and_pressure(env);
 
@@ -223,7 +215,7 @@ TEST(UpdateCellForcesTest, SingleAgentNoNeighborsLeavesZeroForces)
 
 TEST(UpdateCellForcesTest, TwoAgentsRepelSymmetrically)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0.5, 0 });
 
@@ -249,7 +241,7 @@ TEST(UpdateCellForcesTest, TwoAgentsRepelSymmetrically)
 
 TEST(UpdateCellForcesTest, OverlappingAgentsProduceFiniteVelocities)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0, 0 });
 
@@ -271,7 +263,7 @@ TEST(UpdateCellForcesTest, OverlappingAgentsProduceFiniteVelocities)
 
 TEST(UpdateCellForcesTest, AdhesionDependsOnAffinities)
 {
-	environment env(0.1, 2, 2, 1);
+	environment env(make_mesh(2), 2, 1, 0.1);
 	add_agent(env, { 0, 0 }, 1, 0);
 	add_agent(env, { 1, 0 }, 1, 1);
 
@@ -302,7 +294,7 @@ class SolvePairComplexTest : public ::testing::TestWithParam<index_t>
 
 TEST(SolvePair, RepulsiveForce1D_Overlapping)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
@@ -322,7 +314,7 @@ TEST(SolvePair, RepulsiveForce1D_Overlapping)
 
 TEST(SolvePair, NoForce1D_FarApart)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 5 });
 	connect_pair(env);
@@ -338,7 +330,7 @@ TEST(SolvePair, NoForce1D_FarApart)
 
 TEST(SolvePair, AdhesiveForce1D_InAdhesionRange)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 3 });
 
@@ -358,7 +350,7 @@ TEST(SolvePair, AdhesiveForce1D_InAdhesionRange)
 
 TEST(SolvePair, NewtonsThirdLaw1D_ForceSymmetry)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
@@ -374,7 +366,7 @@ TEST(SolvePair, NewtonsThirdLaw1D_ForceSymmetry)
 
 TEST(SolvePair, SimplePressure1D_Accumulates)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
@@ -392,7 +384,7 @@ TEST(SolvePair, SimplePressure1D_Accumulates)
 
 TEST(SolvePair, ZeroRepulsion1D_NoRepulsiveForce)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 0.5 });
 
@@ -413,7 +405,7 @@ TEST(SolvePair, ZeroRepulsion1D_NoRepulsiveForce)
 
 TEST(SolvePair, RepulsiveForce2D_Overlapping)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0.5, 0.5 });
 
@@ -434,7 +426,7 @@ TEST(SolvePair, RepulsiveForce2D_Overlapping)
 
 TEST(SolvePair, AdhesiveForce2D_InAdhesionRange)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 3, 4 });
 
@@ -453,7 +445,7 @@ TEST(SolvePair, AdhesiveForce2D_InAdhesionRange)
 
 TEST(SolvePair, NewtonsThirdLaw2D_ForceSymmetry)
 {
-	environment env(0.1, 2, 1, 1);
+	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 	add_agent(env, { 0.5, 0.5 });
 
@@ -470,7 +462,7 @@ TEST(SolvePair, NewtonsThirdLaw2D_ForceSymmetry)
 
 TEST(SolvePair, RepulsiveForce3D_Overlapping)
 {
-	environment env(0.1, 3, 1, 1);
+	environment env(make_mesh(3), 1, 1, 0.1);
 	add_agent(env, { 0, 0, 0 });
 	add_agent(env, { 0.5, 0.5, 0.5 });
 
@@ -491,7 +483,7 @@ TEST(SolvePair, RepulsiveForce3D_Overlapping)
 
 TEST(SolvePair, AdhesiveForce3D_DirectionalAccuracy)
 {
-	environment env(0.1, 3, 1, 1);
+	environment env(make_mesh(3), 1, 1, 0.1);
 	add_agent(env, { 0, 0, 0 });
 	add_agent(env, { 1, 2, 2 });
 
@@ -514,7 +506,7 @@ TEST(SolvePair, AdhesiveForce3D_DirectionalAccuracy)
 
 TEST(SolvePair, NewtonsThirdLaw3D_ForceSymmetry)
 {
-	environment env(0.1, 3, 1, 1);
+	environment env(make_mesh(3), 1, 1, 0.1);
 	add_agent(env, { 0, 0, 0 });
 	add_agent(env, { 0.5, 0.5, 0.5 });
 
@@ -532,7 +524,7 @@ TEST(SolvePair, NewtonsThirdLaw3D_ForceSymmetry)
 
 TEST(SolvePair, ZeroDistance1D_Minimum)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 0 });
 
@@ -552,7 +544,7 @@ TEST(SolvePair, ZeroDistance1D_Minimum)
 
 TEST(SolvePair, ZeroAffinity1D_NoAdhesion)
 {
-	environment env(0.1, 1, 1, 1);
+	environment env(make_mesh(1), 1, 1, 0.1);
 	add_agent(env, { 0 });
 	add_agent(env, { 3 });
 
@@ -572,7 +564,7 @@ TEST(SolvePair, ZeroAffinity1D_NoAdhesion)
 
 TEST(SolvePair, DifferentCellTypes1D_AffinityLookup)
 {
-	environment env(0.1, 1, 2, 1);
+	environment env(make_mesh(1), 2, 1, 0.1);
 	add_agent(env, { 0 }, 1, 0);
 	add_agent(env, { 3 }, 1, 1);
 
@@ -596,8 +588,8 @@ TEST_P(SolvePairComplexTest, Complex)
 	const index_t dims = GetParam();
 	const real_t radius = dims == 1 ? static_cast<real_t>(2) : static_cast<real_t>(4);
 
-	environment env(0.1, dims, 2, 1);
 	auto mesh = make_mesh(dims);
+	environment env(mesh, 2, 1, 0.1);
 
 	add_agent(env, {}, radius, 0);
 	add_agent(env, {}, radius, 1);

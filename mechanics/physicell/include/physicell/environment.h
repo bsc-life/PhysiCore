@@ -1,13 +1,13 @@
 #pragma once
 
-#include <memory>
-#include <optional>
+#include <filesystem>
 
 #include <common/mesh.h>
 #include <common/timestep_executor.h>
 #include <common/types.h>
 
 #include "mechanical_agent_container.h"
+#include "mechanical_parameters.h"
 #include "serializer.h"
 #include "solver.h"
 
@@ -16,28 +16,29 @@ namespace physicore::mechanics::physicell {
 class environment : public timestep_executor
 {
 public:
-	environment(real_t timestep, index_t dims, index_t agent_types_count, index_t substrates_count);
+	environment(const cartesian_mesh& mesh, index_t agent_types_count, index_t substrates_count, real_t timestep);
 
 	void run_single_timestep() override;
 
 	void serialize_state(real_t current_time) override;
 
+	static std::unique_ptr<environment> create_from_config(const std::filesystem::path& config_file);
+
+	mechanical_agent_interface* create_with_type(index_t agent_type_index);
+
+	mechanical_container_ptr agents;
+	solver_ptr solver;
+	serializer_ptr serializer;
+
 	real_t mechanics_timestep;
+	real_t simulation_time = 0.0;
+	cartesian_mesh mesh;
+
+	index_t agent_types_count;
+	std::vector<mechanical_parameters> agent_types;
+
 	bool automated_spring_adhesion = true;
 	bool virtual_wall_at_domain_edges = true;
-
-	serializer_ptr serializer;
-	solver_ptr solver;
-
-	std::unique_ptr<mechanical_agent_container> agents;
-
-	// Mesh data for spatial queries
-	void set_mesh(cartesian_mesh mesh) { this->mesh_ = std::move(mesh); }
-	const cartesian_mesh& get_mesh() const;
-	bool has_mesh() const { return mesh_.has_value(); }
-
-private:
-	std::optional<cartesian_mesh> mesh_;
 };
 
 } // namespace physicore::mechanics::physicell

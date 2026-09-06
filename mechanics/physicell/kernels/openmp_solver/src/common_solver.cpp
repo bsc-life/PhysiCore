@@ -1,7 +1,5 @@
 #include "common_solver.h"
 
-#include <span>
-
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
 std::size_t common_solver::get_mesh_index(const voxel_pos_t& position, const cartesian_mesh& mesh)

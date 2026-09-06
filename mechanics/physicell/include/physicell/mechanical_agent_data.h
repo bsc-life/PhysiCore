@@ -1,17 +1,11 @@
 #pragma once
 
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
 #include <functional>
-#include <vector>
 
 #include <common/base_agent_data.h>
 #include <common/types.h>
 
 namespace physicore::mechanics::physicell {
-
-struct mechanical_parameters;
 
 /**
  * @brief Mechanics-related properties for agents
@@ -69,12 +63,9 @@ struct motility_properties
 struct state_properties
 {
 	// Spatial relationships
-	std::vector<std::vector<index_t>> neighbors;	  // neighbor indices for mechanics
-	std::vector<std::vector<index_t>> springs;		  // spring attachments
-	std::vector<std::vector<index_t>> attached_cells; // attachments not modeled as springs
+	std::vector<std::vector<index_t>> neighbors; // neighbor indices for mechanics
+	std::vector<std::vector<index_t>> springs;	 // spring attachments
 
-	// Orientation and pressure
-	std::vector<real_t> orientation;	 // dims per agent
 	std::vector<real_t> simple_pressure; // scalar mechanics pressure proxy
 
 	// Cell metadata

@@ -1,16 +1,8 @@
-#include "../include/physicell/openmp_solver/position_solver.h"
+#include "position_solver.h"
 
 #include <algorithm>
-#include <array>
-#include <cmath>
-#include <vector>
-
-#include <common/mesh.h>
-#include <common/types.h>
-#include <physicell/mechanical_agent_container.h>
 
 #include "common_solver.h"
-#include "random.h"
 #include "solver_helper.h"
 
 using namespace physicore::mechanics::physicell;

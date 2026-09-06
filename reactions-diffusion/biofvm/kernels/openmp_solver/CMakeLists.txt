@@ -18,7 +18,7 @@ target_sources(
 
 target_link_libraries(
   reactions-diffusion.biofvm.kernels.openmp_solver_internal_iface
-  INTERFACE $<BUILD_INTERFACE:reactions-diffusion.biofvm_iface> common hwy::hwy)
+  INTERFACE $<BUILD_INTERFACE:reactions-diffusion.biofvm_iface> hwy::hwy)
 
 find_path(NOARR_STRUCTURES_INCLUDE_DIRS "noarr/introspection.hpp")
 target_include_directories(
