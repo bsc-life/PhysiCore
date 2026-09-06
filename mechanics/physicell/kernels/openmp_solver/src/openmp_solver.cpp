@@ -1,6 +1,6 @@
 #include "openmp_solver.h"
 
-#include <physicell/openmp_solver/position_solver.h>
+#include "position_solver.h"
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 

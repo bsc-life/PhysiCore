@@ -7,8 +7,8 @@
 #include <common/base_agent_generic_storage.h>
 #include <common/types.h>
 
-#include "agent_interface.h"
 #include "mechanical_agent_data.h"
+#include "mechanical_agent_interface.h"
 
 namespace physicore::mechanics::physicell {
 

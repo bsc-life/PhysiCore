@@ -1,6 +1,7 @@
 add_library(mechanics.physicell)
 add_library(mechanics::physicell ALIAS mechanics.physicell)
 add_library(mechanics.physicell_internal_iface INTERFACE)
+add_library(mechanics.physicell_iface INTERFACE)
 
 if(${BUILD_SHARED_LIBS})
   set_target_properties(
@@ -35,22 +36,31 @@ target_sources(
     ${CMAKE_SOURCE_DIR}/reactions-diffusion/include/reactions_diffusion/reactions_diffusion_interface.h
 )
 
-target_sources(
+target_include_directories(
   mechanics.physicell_internal_iface
-  INTERFACE FILE_SET HEADERS BASE_DIRS
-            "${CMAKE_CURRENT_SOURCE_DIR}/include/physicell"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/physicell>)
+
+target_sources(
+  mechanics.physicell_iface INTERFACE FILE_SET HEADERS BASE_DIRS
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+target_link_libraries(mechanics.physicell_internal_iface
+                      INTERFACE common reactions-diffusion.interface)
+
+target_link_libraries(mechanics.physicell_iface
+                      INTERFACE common reactions-diffusion.interface)
 
 find_package(pugixml CONFIG REQUIRED)
 find_package(VTK CONFIG REQUIRED)
 
-target_link_libraries(mechanics.physicell_internal_iface INTERFACE common
-                                                                   VTK::IOXML)
+target_link_libraries(mechanics.physicell_internal_iface
+                      INTERFACE pugixml::pugixml VTK::IOXML)
 
 target_link_libraries(
   mechanics.physicell
-  PUBLIC common
-  PRIVATE mechanics.physicell_internal_iface pugixml::pugixml VTK::IOXML)
+  PUBLIC common mechanics.physicell_iface
+  PRIVATE mechanics.physicell_internal_iface)
 
 add_subdirectory(kernels/openmp_solver)
 

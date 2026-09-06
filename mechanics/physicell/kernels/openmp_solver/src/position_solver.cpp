@@ -1,4 +1,4 @@
-#include "../include/physicell/openmp_solver/position_solver.h"
+#include "position_solver.h"
 
 #include <algorithm>
 

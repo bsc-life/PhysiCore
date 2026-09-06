@@ -1,7 +1,8 @@
 #include <cmath>
 
 #include <gtest/gtest.h>
-#include <physicell/openmp_solver/position_solver.h>
+
+#include "position_solver.h"
 
 using namespace physicore::mechanics::physicell;
 using physicore::cartesian_mesh;

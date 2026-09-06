@@ -3,8 +3,8 @@
 #include <common/base_agent_data.h>
 #include <gtest/gtest.h>
 
-#include "physicell/mechanical_agent_container.h"
-#include "physicell/mechanical_agent_data.h"
+#include "mechanical_agent_container.h"
+#include "mechanical_agent_data.h"
 
 namespace physicore::mechanics::physicell::tests {
 

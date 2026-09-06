@@ -2,11 +2,9 @@
 #include <chrono>
 #include <iostream>
 
-#include <common/mesh.h>
-#include <common/types.h>
 #include <physicell/environment.h>
-#include <physicell/mechanical_agent.h>
-#include <physicell/openmp_solver/position_solver.h>
+
+#include "position_solver.h"
 
 using namespace physicore;
 using namespace physicore::mechanics::physicell;

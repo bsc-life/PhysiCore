@@ -1,16 +1,9 @@
-#include <array>
-#include <filesystem>
-#include <fstream>
-#include <memory>
-#include <vector>
 #include <vtkPointData.h>
-#include <vtkSmartPointer.h>
-#include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridReader.h>
 
 #include <gmock/gmock.h>
 
-#include "physicell/vtk_agents_serializer.h"
+#include "vtk_agents_serializer.h"
 
 using namespace physicore;
 using namespace physicore::mechanics::physicell;

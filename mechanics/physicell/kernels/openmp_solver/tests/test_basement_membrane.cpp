@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include <physicell/openmp_solver/position_solver.h>
+
+#include "position_solver.h"
 
 using namespace physicore;
 using namespace physicore::mechanics::physicell;

@@ -2,9 +2,9 @@
 
 #include <gtest/gtest.h>
 
-#include "physicell/environment.h"
-#include "physicell/serializer.h"
-#include "physicell/solver.h"
+#include "environment.h"
+#include "serializer.h"
+#include "solver.h"
 
 namespace physicore::mechanics::physicell::tests {
 
