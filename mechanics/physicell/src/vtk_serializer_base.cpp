@@ -1,7 +1,6 @@
 #include "vtk_serializer_base.h"
 
 #include <filesystem>
-#include <fstream>
 
 using namespace physicore::mechanics::physicell;
 

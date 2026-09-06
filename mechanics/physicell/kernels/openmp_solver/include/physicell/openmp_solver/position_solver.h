@@ -1,10 +1,7 @@
 #pragma once
 
 #include <common/generic_agent_solver.h>
-#include <common/mesh.h>
-#include <common/types.h>
 #include <physicell/environment.h>
-
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 

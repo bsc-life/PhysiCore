@@ -1,7 +1,7 @@
 #include <common/base_agent_data.h>
 #include <gtest/gtest.h>
 
-#include "physicell/agent_data.h"
+#include "physicell/mechanical_agent_data.h"
 
 namespace physicore::mechanics::physicell::tests {
 

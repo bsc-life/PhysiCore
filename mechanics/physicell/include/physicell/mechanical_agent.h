@@ -4,12 +4,11 @@
 #include <span>
 #include <tuple>
 
-#include <common/base_agent_data.h>
 #include <common/base_agent_generic_storage.h>
 #include <common/types.h>
 
-#include "agent_data.h"
 #include "agent_interface.h"
+#include "mechanical_agent_data.h"
 
 namespace physicore::mechanics::physicell {
 

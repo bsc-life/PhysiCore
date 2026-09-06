@@ -1,6 +1,6 @@
 #pragma once
 
-#include <physicell/solver.h>
+#include <physicell/environment.h>
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 

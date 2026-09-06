@@ -1,15 +1,7 @@
 #include "vtk_agents_serializer.h"
 
-#include <array>
-#include <filesystem>
-#include <iomanip>
 #include <ranges>
-#include <sstream>
-#include <vtkCellArray.h>
-#include <vtkCellType.h>
 #include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkSmartPointer.h>
 
 using namespace physicore::mechanics::physicell;
 

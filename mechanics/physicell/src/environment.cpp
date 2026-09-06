@@ -1,10 +1,5 @@
 #include "environment.h"
 
-#include <algorithm>
-#include <memory>
-
-#include <common/base_agent_data.h>
-
 #include "config_reader.h"
 #include "environment_builder.h"
 

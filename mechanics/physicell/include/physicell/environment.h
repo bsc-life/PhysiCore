@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <memory>
 
 #include <common/mesh.h>
 #include <common/timestep_executor.h>

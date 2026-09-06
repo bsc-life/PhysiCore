@@ -9,7 +9,6 @@
 
 #include <common/generic_agent_solver.h>
 #include <common/types.h>
-#include <reactions_diffusion/reactions_diffusion_interface.h>
 
 #include "environment.h"
 #include "mechanical_agent.h"

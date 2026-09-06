@@ -1,10 +1,5 @@
 #include "environment_builder.h"
 
-#include <string_view>
-
-#include <common/types.h>
-
-#include "environment.h"
 #include "solver_registry.h"
 #include "vtk_agents_serializer.h"
 

@@ -1,9 +1,6 @@
 #pragma once
 
-#include <cassert>
-#include <cstdint>
 #include <functional>
-#include <vector>
 
 #include <common/base_agent_data.h>
 #include <common/types.h>

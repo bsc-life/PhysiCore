@@ -17,7 +17,7 @@ target_sources(
   PRIVATE src/environment.cpp
           src/environment_builder.cpp
           src/config_reader.cpp
-          src/agent_data.cpp
+          src/mechanical_agent_data.cpp
           src/mechanical_agent.cpp
           src/vtk_serializer_base.cpp
           src/vtk_agents_serializer.cpp

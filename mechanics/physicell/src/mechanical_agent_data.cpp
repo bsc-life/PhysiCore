@@ -1,6 +1,6 @@
-#include "physicell/agent_data.h"
-
 #include <cassert>
+
+#include "physicell/mechanical_agent_data.h"
 
 namespace physicore::mechanics::physicell {
 

@@ -1,7 +1,5 @@
 #include "physicell/mechanical_agent.h"
 
-#include <tuple>
-
 namespace physicore::mechanics::physicell {
 
 mechanical_agent::mechanical_agent(index_t index, mechanical_agent_data& data)

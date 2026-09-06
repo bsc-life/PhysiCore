@@ -1,16 +1,7 @@
-#include <algorithm>
-#include <array>
 #include <cmath>
-#include <cstdint>
-#include <stdexcept>
-#include <vector>
 
-#include <common/generic_agent_solver.h>
 #include <gtest/gtest.h>
 #include <physicell/openmp_solver/position_solver.h>
-#include <physicell/openmp_solver/register_solver.h>
-
-#include "physicell/environment.h"
 
 using namespace physicore::mechanics::physicell;
 using physicore::cartesian_mesh;

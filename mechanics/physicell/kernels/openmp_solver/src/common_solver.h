@@ -1,8 +1,5 @@
 #pragma once
 
-#include <array>
-#include <cassert>
-#include <cstddef>
 #include <vector>
 
 #include <common/mesh.h>
@@ -36,9 +33,9 @@ public:
 	{
 		assert(cells_in_voxels.size() == mesh.voxel_count());
 
-		const sindex_t grid_x = static_cast<sindex_t>(mesh.grid_shape[0]);
-		const sindex_t grid_y = static_cast<sindex_t>(mesh.grid_shape[1]);
-		const sindex_t grid_z = static_cast<sindex_t>(mesh.grid_shape[2]);
+		const auto grid_x = static_cast<sindex_t>(mesh.grid_shape[0]);
+		const auto grid_y = static_cast<sindex_t>(mesh.grid_shape[1]);
+		const auto grid_z = static_cast<sindex_t>(mesh.grid_shape[2]);
 
 		for (sindex_t z = static_cast<sindex_t>(position[2]) - 1; z <= static_cast<sindex_t>(position[2]) + 1; z++)
 		{

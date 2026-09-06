@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <span>
-
 #include <common/base_agent_interface.h>
 #include <common/types.h>
 
