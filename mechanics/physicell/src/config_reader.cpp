@@ -1,6 +1,7 @@
 #include "config_reader.h"
 
 #include <cmath>
+#include <numbers>
 #include <pugixml.hpp>
 #include <stdexcept>
 #include <string>
@@ -68,26 +69,17 @@ void parse_cell_affinities(const pugi::xml_node& mechanics_node, mechanical_para
 void parse_volume_params(const pugi::xml_node& volume_node, mechanical_parameters& params)
 {
 	const real_t total_volume = parse_real(volume_node, "total");
-	params.radius = std::cbrt(total_volume / (4.0 / 3.0 * M_PI));
+	params.radius = std::cbrt(total_volume / (4.0 / 3.0 * std::numbers::pi));
 }
 
 void set_relative_maximum_adhesion_distance(mechanical_parameters& params, real_t value)
 {
-	double temp1 = value;
-	temp1 /= 2.0;
+	// solves repulsion/adhesion balance so cells settle at the given relative equilibrium distance
+	const real_t numerator = 1.0 - value / 2.0;
+	const real_t denominator = 1.0 - value / (2 * params.relative_maximum_adhesion_distance);
+	const real_t ratio = numerator / denominator;
 
-	double temp2 = 1.0;
-	temp2 -= temp1; // 1 - s_relative/2.0
-
-	temp1 /= params.relative_maximum_adhesion_distance; // s_relative/(2*relative_maximum_adhesion_distance);
-	temp1 *= -1.0;										// -s_relative/(2*relative_maximum_adhesion_distance);
-	temp1 += 1.0;										// 1.0 -s_relative/(2*relative_maximum_adhesion_distance);
-
-	temp2 /= temp1;
-	temp2 *= temp2;
-
-	params.cell_cell_adhesion_strength = params.cell_cell_repulsion_strength;
-	params.cell_cell_adhesion_strength *= temp2;
+	params.cell_cell_adhesion_strength = params.cell_cell_repulsion_strength * ratio * ratio;
 }
 
 void set_absolute_maximum_adhesion_distance(mechanical_parameters& params, real_t value)

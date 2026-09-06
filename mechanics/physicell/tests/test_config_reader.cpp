@@ -545,7 +545,8 @@ TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsTrue)
 
 	// Initial conditions verification
 	ASSERT_TRUE(config.initial_conditions.cell_positions_file.has_value());
-	EXPECT_EQ(config.initial_conditions.cell_positions_file.value(), "./config/cells.csv");
+	EXPECT_EQ(config.initial_conditions.cell_positions_file.value(), // NOLINT(bugprone-unchecked-optional-access)
+			  "./config/cells.csv");
 }
 
 TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
