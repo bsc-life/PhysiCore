@@ -115,8 +115,6 @@ mechanical_agent_interface* environment::create_with_type(index_t agent_type_ind
 	agent->chemotaxis_direction() = (int)type.simple_chemotaxis_direction;
 	std::ranges::copy(type.chemotaxis_sensitivities, agent->chemotactic_sensitivities().begin());
 
-	std::ranges::fill(agent->orientation(), 0.0);
-
 	agent->simple_pressure() = 0.0;
 	agent->agent_type_index() = agent_type_index;
 	agent->is_movable() = 1;

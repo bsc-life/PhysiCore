@@ -66,12 +66,9 @@ struct motility_properties
 struct state_properties
 {
 	// Spatial relationships
-	std::vector<std::vector<index_t>> neighbors;	  // neighbor indices for mechanics
-	std::vector<std::vector<index_t>> springs;		  // spring attachments
-	std::vector<std::vector<index_t>> attached_cells; // attachments not modeled as springs
+	std::vector<std::vector<index_t>> neighbors; // neighbor indices for mechanics
+	std::vector<std::vector<index_t>> springs;	 // spring attachments
 
-	// Orientation and pressure
-	std::vector<real_t> orientation;	 // dims per agent
 	std::vector<real_t> simple_pressure; // scalar mechanics pressure proxy
 
 	// Cell metadata

@@ -41,9 +41,7 @@ public:
 
 	virtual std::span<index_t> neighbors() = 0;
 	virtual std::span<index_t> springs() = 0;
-	virtual std::span<index_t> attached_cells() = 0;
 
-	virtual std::span<real_t> orientation() = 0;
 	virtual real_t& simple_pressure() = 0;
 	virtual index_t& agent_type_index() = 0;
 	virtual std::uint8_t& is_movable() = 0;

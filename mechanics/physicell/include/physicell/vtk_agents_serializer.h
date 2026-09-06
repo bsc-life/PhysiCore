@@ -51,7 +51,6 @@ class vtk_agents_serializer : public vtk_serializer_base,
 	vtkSmartPointer<vtkRealArray> previous_velocity_array;
 	vtkSmartPointer<vtkRealArray> migration_bias_direction_array;
 	vtkSmartPointer<vtkRealArray> motility_vector_array;
-	vtkSmartPointer<vtkRealArray> orientation_array;
 
 	std::vector<vtkSmartPointer<vtkRealArray>> cell_adhesion_affinity_arrays;
 	std::vector<vtkSmartPointer<vtkRealArray>> chemotactic_sensitivity_arrays;

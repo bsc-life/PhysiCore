@@ -79,9 +79,6 @@ void mechanical_agent_data::remove_at(index_t position)
 		// State properties
 		state_data.neighbors[position] = std::move(state_data.neighbors[last]);
 		state_data.springs[position] = std::move(state_data.springs[last]);
-		state_data.attached_cells[position] = std::move(state_data.attached_cells[last]);
-		base_storage_t::move_vector(&state_data.orientation[position * base_data.dims],
-									&state_data.orientation[last * base_data.dims], base_data.dims);
 		base_storage_t::move_scalar(&state_data.simple_pressure[position], &state_data.simple_pressure[last]);
 		base_storage_t::move_scalar(&state_data.agent_type_index[position], &state_data.agent_type_index[last]);
 		base_storage_t::move_scalar(&state_data.is_movable[position], &state_data.is_movable[last]);
@@ -127,8 +124,6 @@ void mechanical_agent_data::resize_storage()
 	// State properties
 	state_data.neighbors.resize(agents_count);
 	state_data.springs.resize(agents_count);
-	state_data.attached_cells.resize(agents_count);
-	state_data.orientation.resize(agents_count * base_data.dims);
 	state_data.simple_pressure.resize(agents_count);
 	state_data.agent_type_index.resize(agents_count);
 	state_data.is_movable.resize(agents_count);

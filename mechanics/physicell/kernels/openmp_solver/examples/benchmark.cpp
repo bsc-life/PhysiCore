@@ -35,7 +35,6 @@ void configure_agent(mechanical_agent_interface* agent, real_t radius)
 	std::ranges::fill(agent->previous_velocity(), 0.0);
 	std::ranges::fill(agent->motility_vector(), 0.0);
 	std::ranges::fill(agent->migration_bias_direction(), 0.0);
-	std::ranges::fill(agent->orientation(), 0.0);
 	std::ranges::fill(agent->cell_adhesion_affinities(), 1.0);
 }
 

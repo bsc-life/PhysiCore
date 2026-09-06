@@ -63,7 +63,6 @@ std::unique_ptr<environment> make_single_agent_environment()
 	mech_data.motility_data.chemotaxis_direction[0] = 2;
 	mech_data.motility_data.chemotactic_sensitivities = { 0.01, 0.02 };
 
-	mech_data.state_data.orientation = { 0.1, 0.2, 0.3 };
 	mech_data.state_data.simple_pressure[0] = 12.0;
 	mech_data.state_data.agent_type_index[0] = 1;
 	mech_data.state_data.is_movable[0] = 1;

@@ -167,11 +167,6 @@ void vtk_agents_serializer::initialize_arrays(index_t agent_types_count, index_t
 	motility_vector_array->SetNumberOfComponents(3);
 	unstructured_grid->GetPointData()->AddArray(motility_vector_array);
 
-	orientation_array = vtkSmartPointer<vtkRealArray>::New();
-	orientation_array->SetName("orientation");
-	orientation_array->SetNumberOfComponents(3);
-	unstructured_grid->GetPointData()->AddArray(orientation_array);
-
 	cell_adhesion_affinity_arrays.clear();
 	cell_adhesion_affinity_arrays.reserve(agent_types_count);
 	for (index_t i = 0; i < agent_types_count; ++i)
@@ -257,7 +252,6 @@ void vtk_agents_serializer::serialize(const environment& e, real_t current_time)
 	previous_velocity_array->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
 	migration_bias_direction_array->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
 	motility_vector_array->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
-	orientation_array->SetNumberOfTuples(static_cast<vtkIdType>(agent_count));
 
 	for (auto& arr : cell_adhesion_affinity_arrays)
 	{
@@ -306,7 +300,6 @@ void vtk_agents_serializer::serialize(const environment& e, real_t current_time)
 		std::array<double, 3> previous_velocity = { 0.0, 0.0, 0.0 };
 		std::array<double, 3> migration_bias_dir = { 0.0, 0.0, 0.0 };
 		std::array<double, 3> motility_vector = { 0.0, 0.0, 0.0 };
-		std::array<double, 3> orientation = { 0.0, 0.0, 0.0 };
 
 		for (index_t d = 0; d < dims && d < 3; ++d)
 		{
@@ -315,14 +308,12 @@ void vtk_agents_serializer::serialize(const environment& e, real_t current_time)
 			previous_velocity[d] = data.previous_velocity[offset];
 			migration_bias_dir[d] = data.motility_data.migration_bias_direction[offset];
 			motility_vector[d] = data.motility_data.motility_vector[offset];
-			orientation[d] = data.state_data.orientation[offset];
 		}
 
 		velocity_array->SetTuple(static_cast<vtkIdType>(i), velocity.data());
 		previous_velocity_array->SetTuple(static_cast<vtkIdType>(i), previous_velocity.data());
 		migration_bias_direction_array->SetTuple(static_cast<vtkIdType>(i), migration_bias_dir.data());
 		motility_vector_array->SetTuple(static_cast<vtkIdType>(i), motility_vector.data());
-		orientation_array->SetTuple(static_cast<vtkIdType>(i), orientation.data());
 
 		for (index_t t = 0; t < stored_agent_types; ++t)
 		{

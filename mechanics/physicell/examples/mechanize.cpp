@@ -61,8 +61,6 @@ void configure_agent(mechanical_agent_interface* agent, const agent_group& group
 	std::ranges::copy_n(group.motility_vector.begin(), (int)motility_vector.size(), motility_vector.begin());
 	auto migration_bias_direction = agent->migration_bias_direction();
 	std::ranges::fill(migration_bias_direction, 0.0);
-	auto orientation = agent->orientation();
-	std::ranges::fill(orientation, 0.0);
 	auto affinities = agent->cell_adhesion_affinities();
 	std::ranges::fill(affinities, 1.0);
 }

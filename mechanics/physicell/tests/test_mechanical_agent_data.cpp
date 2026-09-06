@@ -67,8 +67,6 @@ void expect_container_sizes(const agent_data& data, index_t dims, index_t agent_
 	// State properties
 	EXPECT_EQ(data.state_data.neighbors.size(), n);
 	EXPECT_EQ(data.state_data.springs.size(), n);
-	EXPECT_EQ(data.state_data.attached_cells.size(), n);
-	EXPECT_EQ(data.state_data.orientation.size(), n * dims);
 	EXPECT_EQ(data.state_data.simple_pressure.size(), n);
 	EXPECT_EQ(data.state_data.agent_type_index.size(), n);
 	EXPECT_EQ(data.state_data.is_movable.size(), n);
@@ -160,16 +158,6 @@ TEST(MechanicalAgentDataTest, RemoveMovesLastAgentDataToRemovedSlot)
 	data.velocity[2 * dims + 1] = 2.2;
 	data.velocity[2 * dims + 2] = 2.3;
 
-	data.state_data.orientation[0 * dims + 0] = 10.0;
-	data.state_data.orientation[0 * dims + 1] = 20.0;
-	data.state_data.orientation[0 * dims + 2] = 30.0;
-	data.state_data.orientation[1 * dims + 0] = 11.0;
-	data.state_data.orientation[1 * dims + 1] = 21.0;
-	data.state_data.orientation[1 * dims + 2] = 31.0;
-	data.state_data.orientation[2 * dims + 0] = 12.0;
-	data.state_data.orientation[2 * dims + 1] = 22.0;
-	data.state_data.orientation[2 * dims + 2] = 32.0;
-
 	data.mechanics_data.cell_adhesion_affinities[0 * agent_types_count + 0] = 0.01;
 	data.mechanics_data.cell_adhesion_affinities[0 * agent_types_count + 1] = 0.02;
 	data.mechanics_data.cell_adhesion_affinities[1 * agent_types_count + 0] = 0.11;
@@ -199,9 +187,6 @@ TEST(MechanicalAgentDataTest, RemoveMovesLastAgentDataToRemovedSlot)
 	EXPECT_DOUBLE_EQ(data.velocity[0 * dims + 0], 0.1);
 	EXPECT_DOUBLE_EQ(data.velocity[0 * dims + 1], 0.2);
 	EXPECT_DOUBLE_EQ(data.velocity[0 * dims + 2], 0.3);
-	EXPECT_DOUBLE_EQ(data.state_data.orientation[0 * dims + 0], 10.0);
-	EXPECT_DOUBLE_EQ(data.state_data.orientation[0 * dims + 1], 20.0);
-	EXPECT_DOUBLE_EQ(data.state_data.orientation[0 * dims + 2], 30.0);
 	ASSERT_EQ(data.state_data.neighbors[0].size(), 1);
 	EXPECT_EQ(data.state_data.neighbors[0][0], 1);
 
@@ -210,9 +195,6 @@ TEST(MechanicalAgentDataTest, RemoveMovesLastAgentDataToRemovedSlot)
 	EXPECT_DOUBLE_EQ(data.velocity[1 * dims + 0], 2.1);
 	EXPECT_DOUBLE_EQ(data.velocity[1 * dims + 1], 2.2);
 	EXPECT_DOUBLE_EQ(data.velocity[1 * dims + 2], 2.3);
-	EXPECT_DOUBLE_EQ(data.state_data.orientation[1 * dims + 0], 12.0);
-	EXPECT_DOUBLE_EQ(data.state_data.orientation[1 * dims + 1], 22.0);
-	EXPECT_DOUBLE_EQ(data.state_data.orientation[1 * dims + 2], 32.0);
 
 	EXPECT_DOUBLE_EQ(data.mechanics_data.cell_adhesion_affinities[1 * agent_types_count + 0], 0.21);
 	EXPECT_DOUBLE_EQ(data.mechanics_data.cell_adhesion_affinities[1 * agent_types_count + 1], 0.22);

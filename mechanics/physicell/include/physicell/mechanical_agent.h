@@ -61,9 +61,6 @@ public:
 
 	std::span<index_t> neighbors() override;
 	std::span<index_t> springs() override;
-	std::span<index_t> attached_cells() override;
-
-	std::span<real_t> orientation() override;
 
 	real_t& simple_pressure() override;
 	index_t& agent_type_index() override;

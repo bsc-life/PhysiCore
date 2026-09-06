@@ -175,15 +175,12 @@ TEST_F(MechanicalAgentTest, NeighborsSpringsAndAttachedCells)
 	mechanical_agent agent(0, data);
 	EXPECT_EQ(agent.neighbors().size(), 0U);
 	EXPECT_EQ(agent.springs().size(), 0U);
-	EXPECT_EQ(agent.attached_cells().size(), 0U);
 
 	data.state_data.neighbors[0] = { 10, 20, 30 };
 	data.state_data.springs[0] = { 1, 2 };
-	data.state_data.attached_cells[0] = { 99 };
 
 	auto neighbors = agent.neighbors();
 	auto springs = agent.springs();
-	auto attached = agent.attached_cells();
 
 	ASSERT_EQ(neighbors.size(), 3U);
 	EXPECT_EQ(neighbors[0], static_cast<index_t>(10));
@@ -199,18 +196,6 @@ TEST_F(MechanicalAgentTest, NeighborsSpringsAndAttachedCells)
 
 	springs[0] = 123;
 	EXPECT_EQ(data.state_data.springs[0][0], static_cast<index_t>(123));
-
-	ASSERT_EQ(attached.size(), 1U);
-	EXPECT_EQ(attached[0], static_cast<index_t>(99));
-
-	attached[0] = 77;
-	EXPECT_EQ(data.state_data.attached_cells[0][0], static_cast<index_t>(77));
-}
-
-TEST_F(MechanicalAgentTest, Orientation)
-{
-	mechanical_agent agent(0, data);
-	set_and_expect_vec3([&]() { return agent.orientation(); }, { 10.0, 20.0, 30.0 });
 }
 
 TEST_F(MechanicalAgentTest, StateScalars)
