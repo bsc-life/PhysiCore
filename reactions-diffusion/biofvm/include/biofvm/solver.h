@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 
 #include <biofvm/biofvm_export.h>
@@ -22,6 +23,9 @@ public:
 	virtual real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const = 0;
 	virtual real_t& get_substrate_density(index_t s, index_t x, index_t y, index_t z) = 0;
 
+	// Get the substrate gradient at a given voxel
+	virtual std::array<real_t, 3> get_substrate_gradient(const microenvironment& m, index_t s, index_t x, index_t y,
+														 index_t z) const = 0;
 	// Transfer data to/from device (if applicable)
 	virtual void transfer_to_device([[maybe_unused]] microenvironment& m) { /* Default host solver */ }
 	virtual void transfer_to_host([[maybe_unused]] microenvironment& m) { /* Default host solver */ }

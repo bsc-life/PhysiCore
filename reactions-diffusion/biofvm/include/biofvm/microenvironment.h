@@ -33,7 +33,9 @@ public:
 	void run_single_timestep() override;
 	void serialize_state(real_t current_time) override;
 
-	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const override;
+	real_t get_substrate_density(index_t s, real_t x, real_t y, real_t z) const override;
+
+	std::array<real_t, 3> get_substrate_gradient(index_t s, real_t x, real_t y, real_t z) const override;
 
 	void print_info(std::ostream& os) const;
 

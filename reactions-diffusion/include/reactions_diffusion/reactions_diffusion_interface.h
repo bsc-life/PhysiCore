@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <memory>
 #include <span>
 #include <string>
 
@@ -20,9 +22,13 @@ public:
 	virtual std::span<const std::string> get_substrate_names() const = 0;
 	virtual std::span<const std::string> get_substrate_units() const = 0;
 
-	virtual real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const = 0;
+	virtual real_t get_substrate_density(index_t s, real_t x, real_t y, real_t z) const = 0;
+
+	virtual std::array<real_t, 3> get_substrate_gradient(index_t s, real_t x, real_t y, real_t z) const = 0;
 
 	~reactions_diffusion_interface() override = default;
 };
+
+using reactions_diffusion_interface_ptr = std::shared_ptr<reactions_diffusion_interface>;
 
 } // namespace physicore::reactions_diffusion

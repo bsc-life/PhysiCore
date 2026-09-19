@@ -94,10 +94,22 @@ void microenvironment::serialize_state(real_t current_time)
 		agents_serializer->serialize(*this, current_time);
 }
 
-real_t microenvironment::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
+real_t microenvironment::get_substrate_density(index_t s, real_t x, real_t y, real_t z) const
 {
+	const std::array<real_t, 3> position = { x, y, z };
+	const std::array<index_t, 3> coords = mesh.voxel_position({ position.data(), (std::size_t)mesh.dims });
+
 	const auto* solver_ptr = this->solver.get();
-	return solver_ptr->get_substrate_density(s, x, y, z);
+	return solver_ptr->get_substrate_density(s, coords[0], coords[1], coords[2]);
+}
+
+std::array<real_t, 3> microenvironment::get_substrate_gradient(index_t s, real_t x, real_t y, real_t z) const
+{
+	const std::array<real_t, 3> position = { x, y, z };
+	const std::array<index_t, 3> coords = mesh.voxel_position({ position.data(), (std::size_t)mesh.dims });
+
+	const auto* solver_ptr = this->solver.get();
+	return solver_ptr->get_substrate_gradient(*this, s, coords[0], coords[1], coords[2]);
 }
 
 void microenvironment::print_info(std::ostream& os) const

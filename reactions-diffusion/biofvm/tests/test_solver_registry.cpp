@@ -20,6 +20,11 @@ public:
 		static real_t dummy = 0;
 		return dummy;
 	}
+	std::array<real_t, 3> get_substrate_gradient(const microenvironment& /*m*/, index_t /*s*/, index_t /*x*/,
+												 index_t /*y*/, index_t /*z*/) const override
+	{
+		return { 0, 0, 0 };
+	}
 	void reinitialize_dirichlet(microenvironment& /*m*/) override {}
 	void recompute_positional_data(microenvironment& /*m*/) override {}
 };
