@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <common/types.h>
+#include <physicell/migration_bias_functor.h>
 #include <physicell/physicell_export.h>
 
 namespace physicore::mechanics::physicell {
@@ -21,6 +22,8 @@ public:
 	virtual void initialize(environment& e) = 0;
 
 	virtual void solve(environment& e, index_t iterations) = 0;
+
+	virtual migration_bias_func_ptr create_migration_bias_functor(environment& e, migration_bias_type type) = 0;
 
 	virtual ~solver() = default;
 };

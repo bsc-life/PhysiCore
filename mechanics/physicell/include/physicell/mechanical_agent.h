@@ -57,6 +57,7 @@ public:
 	int8_t& chemotaxis_direction() override;
 
 	std::span<real_t> chemotactic_sensitivities() override;
+	migration_bias_func_ptr& migration_bias_functor() override;
 
 	std::span<index_t> neighbors() override;
 	std::span<index_t> springs() override;

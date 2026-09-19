@@ -104,6 +104,11 @@ std::span<real_t> mechanical_agent::chemotactic_sensitivities()
 			 data.substrates_count };
 }
 
+migration_bias_func_ptr& mechanical_agent::migration_bias_functor()
+{
+	return data.motility_data.migration_bias_functors[this->index];
+}
+
 std::span<index_t> mechanical_agent::neighbors() { return { data.state_data.neighbors[this->index] }; }
 
 std::span<index_t> mechanical_agent::springs() { return { data.state_data.springs[this->index] }; }

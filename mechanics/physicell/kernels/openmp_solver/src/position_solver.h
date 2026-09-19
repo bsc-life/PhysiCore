@@ -8,6 +8,8 @@ namespace physicore::mechanics::physicell::kernels::openmp_solver {
 class position_solver : private generic_agent_solver<mechanical_agent>
 {
 public:
+	migration_bias_func_ptr create_migration_bias_functor(environment& e, migration_bias_type type);
+
 	void update_cell_forces(environment& e);
 
 	void update_cell_neighbors(environment& e, const cartesian_mesh& mesh);

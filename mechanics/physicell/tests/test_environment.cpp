@@ -17,6 +17,10 @@ class MockSolver : public solver
 public:
 	void initialize(environment& /* e */) override {}
 	void solve(environment& /* e */, index_t /* iterations */) override { solve_called = true; }
+	migration_bias_func_ptr create_migration_bias_functor(environment& /* e */, migration_bias_type /* type */) override
+	{
+		return nullptr;
+	}
 	bool solve_called = false;
 };
 

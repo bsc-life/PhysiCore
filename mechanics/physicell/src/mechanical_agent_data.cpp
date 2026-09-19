@@ -75,6 +75,7 @@ void mechanical_agent_data::remove_at(index_t position)
 									&motility_data.chemotactic_sensitivities[last * substrates_count],
 									substrates_count);
 		motility_data.direction_update_funcs[position] = std::move(motility_data.direction_update_funcs[last]);
+		motility_data.migration_bias_functors[position] = std::move(motility_data.migration_bias_functors[last]);
 
 		// State properties
 		state_data.neighbors[position] = std::move(state_data.neighbors[last]);
@@ -117,6 +118,7 @@ void mechanical_agent_data::resize_storage()
 	motility_data.motility_vector.resize(agents_count * base_data.dims);
 	motility_data.restrict_to_2d.resize(agents_count);
 	motility_data.direction_update_funcs.resize(agents_count);
+	motility_data.migration_bias_functors.resize(agents_count);
 	motility_data.chemotaxis_index.resize(agents_count);
 	motility_data.chemotaxis_direction.resize(agents_count);
 	motility_data.chemotactic_sensitivities.resize(agents_count * substrates_count);

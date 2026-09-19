@@ -2,6 +2,7 @@
 
 #include <common/base_agent_interface.h>
 #include <common/types.h>
+#include <physicell/migration_bias_functor.h>
 
 namespace physicore::mechanics::physicell {
 
@@ -35,6 +36,7 @@ public:
 	virtual index_t& chemotaxis_index() = 0;
 	virtual int8_t& chemotaxis_direction() = 0;
 	virtual std::span<real_t> chemotactic_sensitivities() = 0;
+	virtual migration_bias_func_ptr& migration_bias_functor() = 0;
 
 	virtual std::span<index_t> neighbors() = 0;
 	virtual std::span<index_t> springs() = 0;

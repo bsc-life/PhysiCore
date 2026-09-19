@@ -5,6 +5,7 @@
 #include <common/mesh.h>
 #include <common/timestep_executor.h>
 #include <common/types.h>
+#include <reactions_diffusion/reactions_diffusion_interface.h>
 
 #include "mechanical_agent_container.h"
 #include "mechanical_parameters.h"
@@ -29,6 +30,8 @@ public:
 	mechanical_container_ptr agents;
 	solver_ptr solver;
 	serializer_ptr serializer;
+
+	reactions_diffusion::reactions_diffusion_interface_ptr diffusion;
 
 	real_t mechanics_timestep;
 	real_t simulation_time = 0.0;

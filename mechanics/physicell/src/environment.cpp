@@ -2,6 +2,7 @@
 
 #include "config_reader.h"
 #include "environment_builder.h"
+#include "mechanical_parameters.h"
 
 using namespace physicore::mechanics::physicell;
 
@@ -107,8 +108,24 @@ mechanical_agent_interface* environment::create_with_type(index_t agent_type_ind
 	agent->restrict_to_2d() = type.restrict_to_2d;
 
 	agent->chemotaxis_index() = type.simple_chemotaxis_substrate;
-	agent->chemotaxis_direction() = (int)type.simple_chemotaxis_direction;
+	agent->chemotaxis_direction() = (int8_t)type.simple_chemotaxis_direction;
 	std::ranges::copy(type.chemotaxis_sensitivities, agent->chemotactic_sensitivities().begin());
+
+	{
+		migration_bias_type bias_type = migration_bias_type::none;
+		if (type.simple_chemotaxis_direction != chemotaxis_direction_kind::NONE)
+		{
+			bias_type = migration_bias_type::simple;
+		}
+		else if (type.advanced_chemotaxis_enabled)
+		{
+			bias_type = migration_bias_type::advanced;
+			if (type.advanced_chemotaxis_normalize_each_gradient)
+				bias_type = migration_bias_type::advanced_normalized;
+		}
+
+		agent->migration_bias_functor() = solver->create_migration_bias_functor(*this, bias_type);
+	}
 
 	agent->simple_pressure() = 0.0;
 	agent->agent_type_index() = agent_type_index;

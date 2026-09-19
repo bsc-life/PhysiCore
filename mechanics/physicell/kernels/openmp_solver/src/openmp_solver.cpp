@@ -35,4 +35,10 @@ void openmp_solver::solve(environment& e, index_t iterations)
 	}
 }
 
+migration_bias_func_ptr openmp_solver::create_migration_bias_functor(environment& e, migration_bias_type type)
+{
+	position_solver mechanics_position_solver;
+	return mechanics_position_solver.create_migration_bias_functor(e, type);
+}
+
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver

@@ -4,6 +4,7 @@
 
 #include <common/base_agent_data.h>
 #include <common/types.h>
+#include <physicell/migration_bias_functor.h>
 
 namespace physicore::mechanics::physicell {
 
@@ -50,6 +51,7 @@ struct motility_properties
 	std::vector<real_t> motility_vector; // dims per agent
 	std::vector<std::uint8_t> restrict_to_2d;
 	std::vector<direction_update_func> direction_update_funcs;
+	std::vector<migration_bias_func_ptr> migration_bias_functors;
 
 	// Chemotaxis parameters
 	std::vector<index_t> chemotaxis_index;

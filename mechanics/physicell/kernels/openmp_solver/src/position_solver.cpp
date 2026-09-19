@@ -3,6 +3,8 @@
 #include <algorithm>
 
 #include "common_solver.h"
+#include "physicell/mechanical_agent_data.h"
+#include "physicell/migration_bias_functor.h"
 #include "reactions_diffusion/reactions_diffusion_interface.h"
 #include "solver_helper.h"
 
@@ -167,39 +169,59 @@ void update_cell_neighbors_internal(environment& e, index_t agents_count, const 
 }
 
 template <index_t dims>
-void chemotaxis_function(const index_t i, const mechanical_agent_data& data,
-						 real_t* PHYSICORE_RESTRICT migration_bias_direction,
-						 const reactions_diffusion::reactions_diffusion_interface& rdi)
+class simple_chemotaxis_functor : public migration_bias_functor
 {
-	const auto gradient = rdi.get_substrate_gradient(data.motility_data.chemotaxis_index[i],
-													 { &data.base_data.positions[i * dims], dims });
+	const mechanical_agent_data& data;
+	const reactions_diffusion::reactions_diffusion_interface& rdi;
 
-	position_helper<dims>::normalize_and_scale(gradient.data(), data.motility_data.chemotaxis_direction[i]);
+public:
+	simple_chemotaxis_functor(const mechanical_agent_data& data,
+							  const reactions_diffusion::reactions_diffusion_interface& rdi)
+		: data(data), rdi(rdi)
+	{}
 
-	for (index_t d = 0; d < dims; ++d)
+	void update_migration_bias(index_t i, real_t* migration_bias_direction) override
 	{
-		migration_bias_direction[d] = gradient[d];
+		auto gradient = rdi.get_substrate_gradient(data.motility_data.chemotaxis_index[i],
+												   { &data.base_data.positions[i * dims], dims });
+
+		position_helper<dims>::normalize_and_scale(gradient.data(), data.motility_data.chemotaxis_direction[i]);
+
+		for (index_t d = 0; d < dims; ++d)
+		{
+			migration_bias_direction[d] = gradient[d];
+		}
 	}
-}
+};
 
 template <index_t dims, bool normalized>
-void advanced_chemotaxis_function(const index_t i, const mechanical_agent_data& data,
-								  real_t* PHYSICORE_RESTRICT migration_bias_direction,
-								  const reactions_diffusion::reactions_diffusion_interface& rdi)
+class advanced_chemotaxis_functor : public migration_bias_functor
 {
-	for (index_t s = 0; s < data.substrates_count; ++s)
+	const mechanical_agent_data& data;
+	const reactions_diffusion::reactions_diffusion_interface& rdi;
+
+public:
+	advanced_chemotaxis_functor(const mechanical_agent_data& data,
+								const reactions_diffusion::reactions_diffusion_interface& rdi)
+		: data(data), rdi(rdi)
+	{}
+
+	void update_migration_bias(index_t i, real_t* migration_bias_direction) override
 	{
-		const auto gradient = rdi.get_substrate_gradient(s, { &data.base_data.positions[i * dims], dims });
+		for (index_t s = 0; s < data.substrates_count; ++s)
+		{
+			auto gradient = rdi.get_substrate_gradient(s, { &data.base_data.positions[i * dims], dims });
 
-		if constexpr (normalized)
-			position_helper<dims>::normalize(gradient.data());
+			if constexpr (normalized)
+				position_helper<dims>::normalize(gradient.data());
 
-		position_helper<dims>::update_velocity(
-			migration_bias_direction, gradient.data(),
-			data.motility_data.chemotactic_sensitivities[i * data.substrates_count + s]);
+			position_helper<dims>::update_velocity(
+				migration_bias_direction, gradient.data(),
+				data.motility_data.chemotactic_sensitivities[i * data.substrates_count + s]);
+		}
+		position_helper<dims>::normalize(migration_bias_direction);
 	}
-	position_helper<dims>::normalize(migration_bias_direction);
-}
+};
 
 template <index_t dims>
 void update_motility_single(
@@ -426,6 +448,42 @@ void update_positions_internal(index_t agents_count, real_t time_step, real_t* P
 }
 
 } // namespace
+
+migration_bias_func_ptr position_solver::create_migration_bias_functor(environment& e, migration_bias_type type)
+{
+	if (type == migration_bias_type::none)
+		return nullptr;
+	if (!e.diffusion)
+		return nullptr;
+
+	auto& data = retrieve_agent_data(*e.agents);
+	const auto& rdi = *e.diffusion;
+
+	const index_t dims = data.base_data.dims;
+
+	if (dims == 1)
+	{
+		if (type == migration_bias_type::simple)
+			return std::make_unique<simple_chemotaxis_functor<1>>(data, rdi);
+		if (type == migration_bias_type::advanced)
+			return std::make_unique<advanced_chemotaxis_functor<1, false>>(data, rdi);
+		return std::make_unique<advanced_chemotaxis_functor<1, true>>(data, rdi);
+	}
+	if (dims == 2)
+	{
+		if (type == migration_bias_type::simple)
+			return std::make_unique<simple_chemotaxis_functor<2>>(data, rdi);
+		if (type == migration_bias_type::advanced)
+			return std::make_unique<advanced_chemotaxis_functor<2, false>>(data, rdi);
+		return std::make_unique<advanced_chemotaxis_functor<2, true>>(data, rdi);
+	}
+
+	if (type == migration_bias_type::simple)
+		return std::make_unique<simple_chemotaxis_functor<3>>(data, rdi);
+	if (type == migration_bias_type::advanced)
+		return std::make_unique<advanced_chemotaxis_functor<3, false>>(data, rdi);
+	return std::make_unique<advanced_chemotaxis_functor<3, true>>(data, rdi);
+}
 
 void position_solver::update_cell_forces(environment& e)
 {
