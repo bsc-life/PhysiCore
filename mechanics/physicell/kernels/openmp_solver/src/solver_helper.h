@@ -73,7 +73,9 @@ struct position_helper<1>
 		motility_vector[0] = (1 - migration_bias) * walk[0] + migration_bias * migration_bias_direction[0];
 	}
 
-	static void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
+	static void normalize(real_t* PHYSICORE_RESTRICT vector) { normalize_and_scale(vector, 1); }
+
+	static constexpr void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
 	{
 		real_t length = std::abs(vector[0]);
 
@@ -147,7 +149,9 @@ struct position_helper<2>
 		motility_vector[1] = (1 - migration_bias) * walk[1] + migration_bias * migration_bias_direction[1];
 	}
 
-	static void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
+	static void normalize(real_t* PHYSICORE_RESTRICT vector) { normalize_and_scale(vector, 1); }
+
+	static constexpr void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
 	{
 		real_t length = std::sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
 
@@ -247,7 +251,9 @@ struct position_helper<3>
 		motility_vector[2] = (1 - migration_bias) * walk[2] + migration_bias * migration_bias_direction[2];
 	}
 
-	static void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
+	static void normalize(real_t* PHYSICORE_RESTRICT vector) { normalize_and_scale(vector, 1); }
+
+	static constexpr void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
 	{
 		real_t length = std::sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
 

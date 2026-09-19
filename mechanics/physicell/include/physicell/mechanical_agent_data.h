@@ -32,13 +32,15 @@ struct mechanics_properties
 	std::vector<real_t> detachment_rate;
 };
 
+struct mechanical_agent_data;
+
 /**
  * @brief Motility-related properties for agents
  * Includes migration speed, persistence, and chemotaxis
  */
 struct motility_properties
 {
-	using direction_update_func = std::function<void(index_t)>; // TODO: it needs access to substrate concentrations
+	using direction_update_func = std::function<void(index_t, mechanical_agent_data&, real_t*)>;
 	// Migration parameters
 	std::vector<std::uint8_t> is_motile;
 	std::vector<real_t> persistence_time;

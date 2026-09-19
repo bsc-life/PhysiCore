@@ -22,9 +22,9 @@ public:
 	virtual std::span<const std::string> get_substrate_names() const = 0;
 	virtual std::span<const std::string> get_substrate_units() const = 0;
 
-	virtual real_t get_substrate_density(index_t s, real_t x, real_t y, real_t z) const = 0;
+	virtual real_t get_substrate_density(index_t s, std::span<const real_t> position) const = 0;
 
-	virtual std::array<real_t, 3> get_substrate_gradient(index_t s, real_t x, real_t y, real_t z) const = 0;
+	virtual std::array<real_t, 3> get_substrate_gradient(index_t s, std::span<const real_t> position) const = 0;
 
 	~reactions_diffusion_interface() override = default;
 };

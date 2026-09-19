@@ -70,7 +70,7 @@ TEST(UpdateMotilityTest, RefreshesBiasedDirectionAndCallsCallback)
 	bool callback_called = false;
 	index_t callback_type = -1;
 	auto& data = agent_retriever().retrieve_agent_data(*env.agents);
-	data.motility_data.direction_update_funcs[0] = [&](index_t type) {
+	data.motility_data.direction_update_funcs[0] = [&](index_t type, mechanical_agent_data&, real_t*) {
 		callback_called = true;
 		callback_type = type;
 		agent->migration_bias_direction()[0] = 3;
