@@ -165,7 +165,7 @@ TEST_F(MechanicalAgentTest, ChemotaxisParameters)
 	sensitivities[1] = 1.1;
 
 	EXPECT_EQ(agent.chemotaxis_index(), static_cast<index_t>(1));
-	EXPECT_EQ(agent.chemotaxis_direction(), static_cast<index_t>(2));
+	EXPECT_EQ(agent.chemotaxis_direction(), static_cast<int8_t>(2));
 	EXPECT_DOUBLE_EQ(agent.chemotactic_sensitivities()[0], 0.9);
 	EXPECT_DOUBLE_EQ(agent.chemotactic_sensitivities()[1], 1.1);
 }

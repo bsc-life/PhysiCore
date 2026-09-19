@@ -54,7 +54,7 @@ public:
 
 	std::uint8_t& restrict_to_2d() override;
 	index_t& chemotaxis_index() override;
-	index_t& chemotaxis_direction() override;
+	int8_t& chemotaxis_direction() override;
 
 	std::span<real_t> chemotactic_sensitivities() override;
 

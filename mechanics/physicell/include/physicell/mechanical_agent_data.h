@@ -53,7 +53,7 @@ struct motility_properties
 
 	// Chemotaxis parameters
 	std::vector<index_t> chemotaxis_index;
-	std::vector<index_t> chemotaxis_direction;
+	std::vector<int8_t> chemotaxis_direction;
 	std::vector<real_t> chemotactic_sensitivities; // flattened: agents x substrates_count
 };
 

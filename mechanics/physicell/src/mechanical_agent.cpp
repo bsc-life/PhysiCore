@@ -96,7 +96,7 @@ std::uint8_t& mechanical_agent::restrict_to_2d() { return data.motility_data.res
 
 index_t& mechanical_agent::chemotaxis_index() { return data.motility_data.chemotaxis_index[this->index]; }
 
-index_t& mechanical_agent::chemotaxis_direction() { return data.motility_data.chemotaxis_direction[this->index]; }
+int8_t& mechanical_agent::chemotaxis_direction() { return data.motility_data.chemotaxis_direction[this->index]; }
 
 std::span<real_t> mechanical_agent::chemotactic_sensitivities()
 {
