@@ -43,26 +43,26 @@ TEST(UpdateSpringAttachmentsTest, Simple2D)
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.3);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a2->position()[1], 99.4);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 99.4);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 99.4);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 99.4);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.3);
 
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.4973);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.4973);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.4973);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.4973);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.4973);
-	EXPECT_FLOAT_EQ(a2->position()[1], 99.0054);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.4973);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 99.0054);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 99.0054);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.4973);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 99.0054);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.4973);
 }
 
 TEST(UpdateSpringAttachmentsTest, Complex2D)
@@ -96,14 +96,14 @@ TEST(UpdateSpringAttachmentsTest, Complex2D)
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.734847);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.73484692283495356);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.3);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.734847);
-	EXPECT_FLOAT_EQ(a2->position()[1], 98.96515);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.73484692283495356);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 98.965153077165041);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 98.5303);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.734847);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 98.530306154330091);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.73484692283495356);
 }
 
 TEST(UpdateSpringAttachmentsTest, Simple3D)
@@ -138,40 +138,40 @@ TEST(UpdateSpringAttachmentsTest, Simple3D)
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.3);
-	EXPECT_FLOAT_EQ(a1->position()[2], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[2], 0.3);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a2->position()[1], 99.1);
-	EXPECT_FLOAT_EQ(a2->position()[2], 0.3);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 99.1);
+	EXPECT_DOUBLE_EQ(a2->position()[2], 0.3);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 99.1);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.3);
-	EXPECT_FLOAT_EQ(a3->position()[2], 0.3);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 99.1);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a3->position()[2], 0.3);
 
-	EXPECT_FLOAT_EQ(a4->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a4->position()[1], 0.3);
-	EXPECT_FLOAT_EQ(a4->position()[2], 99.1);
+	EXPECT_DOUBLE_EQ(a4->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a4->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a4->position()[2], 99.1);
 
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.4964);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.4964);
-	EXPECT_FLOAT_EQ(a1->position()[2], 0.4964);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.4964);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.4964);
+	EXPECT_DOUBLE_EQ(a1->position()[2], 0.4964);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.4964);
-	EXPECT_FLOAT_EQ(a2->position()[1], 98.5108);
-	EXPECT_FLOAT_EQ(a2->position()[2], 0.4964);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.4964);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 98.5108);
+	EXPECT_DOUBLE_EQ(a2->position()[2], 0.4964);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 98.5108);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.4964);
-	EXPECT_FLOAT_EQ(a3->position()[2], 0.4964);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 98.5108);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.4964);
+	EXPECT_DOUBLE_EQ(a3->position()[2], 0.4964);
 
-	EXPECT_FLOAT_EQ(a4->position()[0], 0.4964);
-	EXPECT_FLOAT_EQ(a4->position()[1], 0.4964);
-	EXPECT_FLOAT_EQ(a4->position()[2], 98.5108);
+	EXPECT_DOUBLE_EQ(a4->position()[0], 0.4964);
+	EXPECT_DOUBLE_EQ(a4->position()[1], 0.4964);
+	EXPECT_DOUBLE_EQ(a4->position()[2], 98.5108);
 }
 
 TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
@@ -206,8 +206,8 @@ TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0);
-		EXPECT_FLOAT_EQ(a2->position()[d], 100);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 100);
 	}
 
 	env.automated_spring_adhesion = true;
@@ -218,8 +218,8 @@ TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0);
-		EXPECT_FLOAT_EQ(a2->position()[d], 100);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 100);
 	}
 }
 
@@ -263,8 +263,8 @@ TEST_P(UpdateSpringAttachmentsComplexTest, AttachAndDetach)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0.3);
-		EXPECT_FLOAT_EQ(a2->position()[d], 99.7);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0.3);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 99.7);
 	}
 
 	a1->attachment_rate() = 0;
@@ -278,8 +278,8 @@ TEST_P(UpdateSpringAttachmentsComplexTest, AttachAndDetach)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0.2);
-		EXPECT_FLOAT_EQ(a2->position()[d], 99.8);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0.2);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 99.8);
 	}
 }
 

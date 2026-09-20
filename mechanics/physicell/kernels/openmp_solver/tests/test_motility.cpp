@@ -64,8 +64,8 @@ TEST_P(UpdateMotilityTest, NonMotileAgentIsUnchanged)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(agent->motility_vector()[d], static_cast<real_t>(d + 1));
-		EXPECT_FLOAT_EQ(agent->velocity()[d], static_cast<real_t>(10 + d));
+		EXPECT_DOUBLE_EQ(agent->motility_vector()[d], static_cast<real_t>(d + 1));
+		EXPECT_DOUBLE_EQ(agent->velocity()[d], static_cast<real_t>(10 + d));
 	}
 }
 
@@ -99,8 +99,8 @@ TEST(UpdateMotilityTest, SimpleChemotaxis2D)
 	for (index_t iters = 0; iters < 4; iters++)
 	{
 		solver.update_motility(env);
-		EXPECT_FLOAT_EQ(agent->motility_vector()[0], 1.7888544);
-		EXPECT_FLOAT_EQ(agent->motility_vector()[1], 3.5777087);
+		EXPECT_DOUBLE_EQ(agent->motility_vector()[0], 1.7888543819998319);
+		EXPECT_DOUBLE_EQ(agent->motility_vector()[1], 3.5777087639996639);
 	}
 }
 
@@ -123,9 +123,9 @@ TEST(UpdateMotilityTest, SimpleChemotaxis3D)
 	for (index_t iters = 0; iters < 4; iters++)
 	{
 		solver.update_motility(env);
-		EXPECT_FLOAT_EQ(agent->motility_vector()[0], -1.0690449);
-		EXPECT_FLOAT_EQ(agent->motility_vector()[1], -2.13809);
-		EXPECT_FLOAT_EQ(agent->motility_vector()[2], -3.207135);
+		EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -1.0690449676496976);
+		EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -2.1380899352993952);
+		EXPECT_DOUBLE_EQ(agent->motility_vector()[2], -3.2071349029490928);
 	}
 }
 
@@ -148,15 +148,15 @@ TEST(UpdateMotilityTest, AdvancedChemotaxis2D)
 	agent->migration_bias_functor() = solver.create_migration_bias_functor(env, migration_bias_type::ADVANCED);
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -2.7724349);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], -2.8833323);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -2.7724348650071384);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -2.8833322596074238);
 
 	diffusion->gradients[0] = { 7, 8, 9 };
 	diffusion->gradients[1] = { 10, 11, 12 };
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -2.78318);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], -2.87296);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -2.7831808633080484);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -2.8729608911566951);
 }
 
 TEST(UpdateMotilityTest, AdvancedChemotaxis3D)
@@ -178,17 +178,17 @@ TEST(UpdateMotilityTest, AdvancedChemotaxis3D)
 	agent->migration_bias_functor() = solver.create_migration_bias_functor(env, migration_bias_type::ADVANCED);
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -2.2194839);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], -2.3082631);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[2], -2.3970425);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -2.2194838080923764);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -2.3082631604160713);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[2], -2.3970425127397665);
 
 	diffusion->gradients[0] = { 7, 8, 9 };
 	diffusion->gradients[1] = { 10, 11, 12 };
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -2.2365043);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], -2.30865);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[2], -2.380795);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -2.2365043827950686);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -2.3086496854658769);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[2], -2.3807949881366857);
 }
 
 TEST(UpdateMotilityTest, AdvancedChemotaxisNormalized2D)
@@ -211,15 +211,15 @@ TEST(UpdateMotilityTest, AdvancedChemotaxisNormalized2D)
 		solver.create_migration_bias_functor(env, migration_bias_type::ADVANCED_NORMALIZED);
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -3.999887);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], 0.030078145);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -3.9998869115509263);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], 0.03007814494936302);
 
 	diffusion->gradients[0] = { 7, 8, 9 };
 	diffusion->gradients[1] = { 10, 11, 12 };
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -3.0567069);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], -2.5800278);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -3.0567067942346622);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -2.5800278242840045);
 }
 
 TEST(UpdateMotilityTest, AdvancedChemotaxisNormalized3D)
@@ -242,17 +242,17 @@ TEST(UpdateMotilityTest, AdvancedChemotaxisNormalized3D)
 		solver.create_migration_bias_functor(env, migration_bias_type::ADVANCED_NORMALIZED);
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -3.6244786);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], -1.6669483);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[2], 0.290582);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -3.6244786454349001);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -1.6669482948352403);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[2], 0.29058205576442014);
 
 	diffusion->gradients[0] = { 7, 8, 9 };
 	diffusion->gradients[1] = { 10, 11, 12 };
 
 	solver.update_motility(env);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[0], -2.62217);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[1], -2.2937832);
-	EXPECT_FLOAT_EQ(agent->motility_vector()[2], -1.965397);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[0], -2.6221695411266128);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[1], -2.2937832575232844);
+	EXPECT_DOUBLE_EQ(agent->motility_vector()[2], -1.9653969739199562);
 }
 
 INSTANTIATE_TEST_SUITE_P(Dimensions, UpdateMotilityTest, ::testing::Values(index_t(1), index_t(2), index_t(3)));

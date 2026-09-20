@@ -208,9 +208,9 @@ TEST(UpdateCellForcesTest, SingleAgentNoNeighborsLeavesZeroForces)
 
 	auto& data = retrieve_environment_agent_data(env);
 	EXPECT_EQ(data.agents_count, 1);
-	EXPECT_FLOAT_EQ(data.velocity[0], 0);
-	EXPECT_FLOAT_EQ(data.velocity[1], 0);
-	EXPECT_FLOAT_EQ(data.state_data.simple_pressure[0], 0);
+	EXPECT_DOUBLE_EQ(data.velocity[0], 0);
+	EXPECT_DOUBLE_EQ(data.velocity[1], 0);
+	EXPECT_DOUBLE_EQ(data.state_data.simple_pressure[0], 0);
 }
 
 TEST(UpdateCellForcesTest, TwoAgentsRepelSymmetrically)

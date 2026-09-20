@@ -26,7 +26,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleEdge)
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
-		EXPECT_FLOAT_EQ(a1->position()[d], -485);
+		EXPECT_DOUBLE_EQ(a1->position()[d], -485);
 
 	for (index_t i = 0; i < 10; ++i)
 	{
@@ -34,7 +34,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleEdge)
 		solver.update_positions(env);
 
 		for (index_t d = 0; d < dims; ++d)
-			EXPECT_FLOAT_EQ(a1->position()[d], -490);
+			EXPECT_DOUBLE_EQ(a1->position()[d], -490);
 	}
 }
 
@@ -65,8 +65,8 @@ TEST_P(UpdateBasementMembraneTest, MultipleEdge)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], -485);
-		EXPECT_FLOAT_EQ(a2->position()[d], 485);
+		EXPECT_DOUBLE_EQ(a1->position()[d], -485);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 485);
 	}
 
 	for (index_t i = 0; i < 10; ++i)
@@ -76,8 +76,8 @@ TEST_P(UpdateBasementMembraneTest, MultipleEdge)
 
 		for (index_t d = 0; d < dims; ++d)
 		{
-			EXPECT_FLOAT_EQ(a1->position()[d], -490);
-			EXPECT_FLOAT_EQ(a2->position()[d], 490);
+			EXPECT_DOUBLE_EQ(a1->position()[d], -490);
+			EXPECT_DOUBLE_EQ(a2->position()[d], 490);
 		}
 	}
 }
@@ -103,7 +103,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleCenter)
 		solver.update_positions(env);
 
 		for (index_t d = 0; d < dims; ++d)
-			EXPECT_FLOAT_EQ(a1->position()[d], 0);
+			EXPECT_DOUBLE_EQ(a1->position()[d], 0);
 	}
 }
 
@@ -125,7 +125,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleOneOff)
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
-		EXPECT_FLOAT_EQ(a1->position()[d], d == dims - 1 ? 0 : -485);
+		EXPECT_DOUBLE_EQ(a1->position()[d], d == dims - 1 ? 0 : -485);
 
 	for (index_t i = 0; i < 10; ++i)
 	{
@@ -133,7 +133,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleOneOff)
 		solver.update_positions(env);
 
 		for (index_t d = 0; d < dims; ++d)
-			EXPECT_FLOAT_EQ(a1->position()[d], d == dims - 1 ? 0 : -490);
+			EXPECT_DOUBLE_EQ(a1->position()[d], d == dims - 1 ? 0 : -490);
 	}
 }
 
@@ -156,7 +156,7 @@ TEST_P(UpdateBasementMembraneTest, NoMove)
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
-		EXPECT_FLOAT_EQ(a1->position()[d], -500);
+		EXPECT_DOUBLE_EQ(a1->position()[d], -500);
 
 	env.virtual_wall_at_domain_edges = true;
 	a1->is_movable() = 0;
@@ -164,7 +164,7 @@ TEST_P(UpdateBasementMembraneTest, NoMove)
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
-		EXPECT_FLOAT_EQ(a1->position()[d], -500);
+		EXPECT_DOUBLE_EQ(a1->position()[d], -500);
 }
 
 INSTANTIATE_TEST_SUITE_P(Dimensions, UpdateBasementMembraneTest, ::testing::Values(index_t(1), index_t(2), index_t(3)));
