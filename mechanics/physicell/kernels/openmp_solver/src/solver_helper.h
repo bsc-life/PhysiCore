@@ -59,7 +59,7 @@ struct position_helper<1>
 		velocity[0] += force * difference[0];
 	}
 
-	static void random_walk(bool, real_t* PHYSICORE_RESTRICT walk)
+	static void random_walk(bool /*unused*/, real_t* PHYSICORE_RESTRICT walk)
 	{
 		real_t rand = random::uniform();
 		walk[0] = rand < 0.5 ? -1 : 1;
@@ -86,8 +86,10 @@ struct position_helper<1>
 										   const real_t* PHYSICORE_RESTRICT position, const cartesian_mesh& mesh,
 										   const real_t radius, const real_t repulsion_strength)
 	{
-		update_membrane_velocity(position[0], mesh.bounding_box_mins[0], 1, radius, repulsion_strength, velocity[0]);
-		update_membrane_velocity(position[0], mesh.bounding_box_maxs[0], -1, radius, repulsion_strength, velocity[0]);
+		update_membrane_velocity(position[0], (real_t)mesh.bounding_box_mins[0], 1, radius, repulsion_strength,
+								 velocity[0]);
+		update_membrane_velocity(position[0], (real_t)mesh.bounding_box_maxs[0], -1, radius, repulsion_strength,
+								 velocity[0]);
 	}
 
 	static constexpr void fill(real_t* PHYSICORE_RESTRICT data, real_t val) { data[0] = val; }
@@ -135,7 +137,7 @@ struct position_helper<2>
 		velocity[1] += force * difference[1];
 	}
 
-	static void random_walk(bool, real_t* PHYSICORE_RESTRICT walk)
+	static void random_walk(bool /*unused*/, real_t* PHYSICORE_RESTRICT walk)
 	{
 		real_t theta = random::uniform(0, 2 * std::numbers::pi_v<real_t>);
 		walk[0] = std::cos(theta);
@@ -165,10 +167,14 @@ struct position_helper<2>
 										   const real_t* PHYSICORE_RESTRICT position, const cartesian_mesh& mesh,
 										   const real_t radius, const real_t repulsion_strength)
 	{
-		update_membrane_velocity(position[0], mesh.bounding_box_mins[0], 1, radius, repulsion_strength, velocity[0]);
-		update_membrane_velocity(position[0], mesh.bounding_box_maxs[0], -1, radius, repulsion_strength, velocity[0]);
-		update_membrane_velocity(position[1], mesh.bounding_box_mins[1], 1, radius, repulsion_strength, velocity[1]);
-		update_membrane_velocity(position[1], mesh.bounding_box_maxs[1], -1, radius, repulsion_strength, velocity[1]);
+		update_membrane_velocity(position[0], (real_t)mesh.bounding_box_mins[0], 1, radius, repulsion_strength,
+								 velocity[0]);
+		update_membrane_velocity(position[0], (real_t)mesh.bounding_box_maxs[0], -1, radius, repulsion_strength,
+								 velocity[0]);
+		update_membrane_velocity(position[1], (real_t)mesh.bounding_box_mins[1], 1, radius, repulsion_strength,
+								 velocity[1]);
+		update_membrane_velocity(position[1], (real_t)mesh.bounding_box_maxs[1], -1, radius, repulsion_strength,
+								 velocity[1]);
 	}
 
 	static constexpr void fill(real_t* PHYSICORE_RESTRICT data, real_t val)
@@ -274,12 +280,18 @@ struct position_helper<3>
 										   const real_t* PHYSICORE_RESTRICT position, const cartesian_mesh& mesh,
 										   const real_t radius, const real_t repulsion_strength)
 	{
-		update_membrane_velocity(position[0], mesh.bounding_box_mins[0], 1, radius, repulsion_strength, velocity[0]);
-		update_membrane_velocity(position[0], mesh.bounding_box_maxs[0], -1, radius, repulsion_strength, velocity[0]);
-		update_membrane_velocity(position[1], mesh.bounding_box_mins[1], 1, radius, repulsion_strength, velocity[1]);
-		update_membrane_velocity(position[1], mesh.bounding_box_maxs[1], -1, radius, repulsion_strength, velocity[1]);
-		update_membrane_velocity(position[2], mesh.bounding_box_mins[2], 1, radius, repulsion_strength, velocity[2]);
-		update_membrane_velocity(position[2], mesh.bounding_box_maxs[2], -1, radius, repulsion_strength, velocity[2]);
+		update_membrane_velocity(position[0], (real_t)mesh.bounding_box_mins[0], 1, radius, repulsion_strength,
+								 velocity[0]);
+		update_membrane_velocity(position[0], (real_t)mesh.bounding_box_maxs[0], -1, radius, repulsion_strength,
+								 velocity[0]);
+		update_membrane_velocity(position[1], (real_t)mesh.bounding_box_mins[1], 1, radius, repulsion_strength,
+								 velocity[1]);
+		update_membrane_velocity(position[1], (real_t)mesh.bounding_box_maxs[1], -1, radius, repulsion_strength,
+								 velocity[1]);
+		update_membrane_velocity(position[2], (real_t)mesh.bounding_box_mins[2], 1, radius, repulsion_strength,
+								 velocity[2]);
+		update_membrane_velocity(position[2], (real_t)mesh.bounding_box_maxs[2], -1, radius, repulsion_strength,
+								 velocity[2]);
 	}
 
 	static constexpr void fill(real_t* PHYSICORE_RESTRICT data, real_t val)
