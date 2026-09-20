@@ -21,7 +21,7 @@ void openmp_solver::solve(environment& e, index_t iterations)
 
 	for (index_t i = 0; i < iterations; ++i)
 	{
-		mechanics_position_solver.update_cell_neighbors(e, e.mesh);
+		mechanics_position_solver.update_cell_neighbors(e);
 
 		mechanics_position_solver.update_cell_forces(e);
 

@@ -3,16 +3,23 @@
 #include <common/generic_agent_solver.h>
 #include <physicell/environment.h>
 
+#include "grid_space_partitioner.h"
+
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
 class position_solver : private generic_agent_solver<mechanical_agent>
 {
+	static constexpr index_t mesh_voxel_size = 30;
+	grid_space_partitioner partitioner;
+
 public:
+	void initialize(environment& e);
+
 	migration_bias_func_ptr create_migration_bias_functor(environment& e, migration_bias_type type);
 
 	void update_cell_forces(environment& e);
 
-	void update_cell_neighbors(environment& e, const cartesian_mesh& mesh);
+	void update_cell_neighbors(environment& e);
 
 	void update_motility(environment& e);
 

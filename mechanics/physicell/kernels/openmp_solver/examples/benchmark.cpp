@@ -124,6 +124,8 @@ int main()
 
 	make_agents(e, p_solver, 2'000'000, spacing);
 
+	p_solver.initialize(e);
+
 	for (index_t i = 0; i < 100; ++i)
 	{
 		std::size_t neighbors_duration = 0;
@@ -139,7 +141,7 @@ int main()
 			{
 				auto start = std::chrono::steady_clock::now();
 
-				p_solver.update_cell_neighbors(e, e.mesh);
+				p_solver.update_cell_neighbors(e);
 
 				auto end = std::chrono::steady_clock::now();
 

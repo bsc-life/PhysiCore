@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "common_solver.h"
 #include "physicell/mechanical_agent_data.h"
 #include "physicell/migration_bias_functor.h"
 #include "reactions_diffusion/reactions_diffusion_interface.h"
@@ -128,15 +127,20 @@ void update_cell_forces_internal(index_t agents_count, index_t cell_def_count, r
 }
 
 template <index_t dims>
-void update_cell_neighbors_single(environment& e, index_t i, const real_t* PHYSICORE_RESTRICT position,
-								  const real_t* PHYSICORE_RESTRICT radius,
-								  const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
-								  std::vector<index_t>* PHYSICORE_RESTRICT neighbors, const cartesian_mesh& mesh,
-								  const std::vector<std::vector<index_t>>& cells_in_voxels)
+void update_cell_neighbors_internal(index_t agents_count, const real_t* PHYSICORE_RESTRICT position,
+									const real_t* PHYSICORE_RESTRICT radius,
+									const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
+									const std::uint8_t* PHYSICORE_RESTRICT is_movable,
+									std::vector<index_t>* PHYSICORE_RESTRICT neighbors,
+									const grid_space_partitioner& partitioner)
 {
-	(void)e;
-	common_solver::for_each_in_mech_neighborhood(
-		mesh, cells_in_voxels, common_solver::get_mesh_position(position + dims * i, mesh), i, [=](index_t j) {
+#pragma omp for
+	for (index_t i = 0; i < agents_count; i++)
+	{
+		if (is_movable[i] == 0)
+			continue;
+
+		partitioner.for_each_in_neighborhood<dims>(position + dims * i, i, [=](index_t j) {
 			const real_t adhesion_distance =
 				relative_maximum_adhesion_distance[i] * radius[i] + relative_maximum_adhesion_distance[j] * radius[j];
 
@@ -147,24 +151,6 @@ void update_cell_neighbors_single(environment& e, index_t i, const real_t* PHYSI
 				neighbors[i].push_back(j);
 			}
 		});
-}
-
-template <index_t dims>
-void update_cell_neighbors_internal(environment& e, index_t agents_count, const real_t* PHYSICORE_RESTRICT position,
-									const real_t* PHYSICORE_RESTRICT radius,
-									const real_t* PHYSICORE_RESTRICT relative_maximum_adhesion_distance,
-									const std::uint8_t* PHYSICORE_RESTRICT is_movable,
-									std::vector<index_t>* PHYSICORE_RESTRICT neighbors, const cartesian_mesh& mesh,
-									const std::vector<std::vector<index_t>>& cells_in_voxels)
-{
-#pragma omp for
-	for (index_t i = 0; i < agents_count; i++)
-	{
-		if (is_movable[i] == 0)
-			continue;
-
-		update_cell_neighbors_single<dims>(e, i, position, radius, relative_maximum_adhesion_distance, neighbors, mesh,
-										   cells_in_voxels);
 	}
 }
 
@@ -451,6 +437,8 @@ void update_positions_internal(index_t agents_count, real_t time_step, real_t* P
 
 } // namespace
 
+void position_solver::initialize(environment& e) { partitioner.initialize(mesh_voxel_size, e.mesh); }
+
 migration_bias_func_ptr position_solver::create_migration_bias_functor(environment& e, migration_bias_type type)
 {
 	if (type == migration_bias_type::NONE)
@@ -523,18 +511,12 @@ void position_solver::update_cell_forces(environment& e)
 									   data.state_data.is_movable.data(), data.state_data.neighbors.data());
 }
 
-void position_solver::update_cell_neighbors(environment& e, const cartesian_mesh& mesh)
+void position_solver::update_cell_neighbors(environment& e)
 {
 	auto& data = retrieve_agent_data(*e.agents);
 	const index_t dims = data.base_data.dims;
 
-	std::vector<std::vector<index_t>> cells_in_voxels(mesh.voxel_count());
-	for (index_t i = 0; i < data.agents_count; i++)
-	{
-		const auto voxel_pos = common_solver::get_mesh_position(data.base_data.positions.data() + dims * i, mesh);
-		const auto voxel_idx = common_solver::get_mesh_index(voxel_pos, mesh);
-		cells_in_voxels[voxel_idx].push_back(i);
-	}
+	partitioner.update_partitioning(data.base_data.positions.data(), data.agents_count);
 
 	// clear neighbors
 #pragma omp for
@@ -542,20 +524,20 @@ void position_solver::update_cell_neighbors(environment& e, const cartesian_mesh
 		data.state_data.neighbors[i].clear();
 
 	if (dims == 1)
-		update_cell_neighbors_internal<1>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+		update_cell_neighbors_internal<1>(data.agents_count, data.base_data.positions.data(), data.radius.data(),
 										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
-										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
-										  cells_in_voxels);
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(),
+										  partitioner);
 	else if (dims == 2)
-		update_cell_neighbors_internal<2>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+		update_cell_neighbors_internal<2>(data.agents_count, data.base_data.positions.data(), data.radius.data(),
 										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
-										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
-										  cells_in_voxels);
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(),
+										  partitioner);
 	else if (dims == 3)
-		update_cell_neighbors_internal<3>(e, data.agents_count, data.base_data.positions.data(), data.radius.data(),
+		update_cell_neighbors_internal<3>(data.agents_count, data.base_data.positions.data(), data.radius.data(),
 										  data.mechanics_data.relative_maximum_adhesion_distance.data(),
-										  data.state_data.is_movable.data(), data.state_data.neighbors.data(), mesh,
-										  cells_in_voxels);
+										  data.state_data.is_movable.data(), data.state_data.neighbors.data(),
+										  partitioner);
 }
 
 void position_solver::update_motility(environment& e)

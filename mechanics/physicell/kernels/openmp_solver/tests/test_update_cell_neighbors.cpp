@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include "physicell/environment.h"
 #include "position_solver.h"
 
 using namespace physicore::mechanics::physicell;
@@ -28,9 +29,10 @@ mechanical_agent_data& retrieve_environment_agent_data(environment& env)
 	return agent_retriever().retrieve_agent_data(*env.agents);
 }
 
-kernels::openmp_solver::position_solver& position_solver_instance()
+kernels::openmp_solver::position_solver& position_solver_instance(environment& env)
 {
 	static kernels::openmp_solver::position_solver solver;
+	solver.initialize(env);
 	return solver;
 }
 
@@ -78,8 +80,7 @@ cartesian_mesh make_mesh(index_t dims)
 TEST(UpdateCellNeighborsTest, NoAgentsDoesNotCrash)
 {
 	environment env(make_mesh(2), 1, 1, 0.1);
-	auto mesh = make_mesh(2);
-	position_solver_instance().update_cell_neighbors(env, mesh);
+	position_solver_instance(env).update_cell_neighbors(env);
 	EXPECT_EQ(retrieve_environment_agent_data(env).agents_count, 0);
 }
 
@@ -88,8 +89,7 @@ TEST(UpdateCellNeighborsTest, SingleAgentHasNoNeighbors)
 	environment env(make_mesh(2), 1, 1, 0.1);
 	add_agent(env, { 0, 0 });
 
-	auto mesh = make_mesh(2);
-	position_solver_instance().update_cell_neighbors(env, mesh);
+	position_solver_instance(env).update_cell_neighbors(env);
 
 	ASSERT_EQ(retrieve_environment_agent_data(env).agents_count, 1);
 	EXPECT_TRUE(retrieve_environment_agent_data(env).state_data.neighbors[0].empty());
@@ -101,8 +101,7 @@ TEST(UpdateCellNeighborsTest, DistanceEqualThresholdCountsAsNeighbor)
 	add_agent(env, { 0, 0 }, 1, 1, 1);
 	add_agent(env, { 2, 0 }, 1, 1, 1); // adhesion_distance = 1*1 + 1*1 = 2
 
-	auto mesh = make_mesh(2);
-	position_solver_instance().update_cell_neighbors(env, mesh);
+	position_solver_instance(env).update_cell_neighbors(env);
 
 	EXPECT_EQ(sorted_neighbors(env, 0), (std::vector<index_t> { 1 }));
 	EXPECT_EQ(sorted_neighbors(env, 1), (std::vector<index_t> { 0 }));
@@ -114,8 +113,7 @@ TEST(UpdateCellNeighborsTest, DistanceAboveThresholdIsNotNeighbor)
 	add_agent(env, { 0, 0 }, 1, 1, 1);
 	add_agent(env, { 2.0001, 0 }, 1, 1, 1);
 
-	auto mesh = make_mesh(2);
-	position_solver_instance().update_cell_neighbors(env, mesh);
+	position_solver_instance(env).update_cell_neighbors(env);
 
 	EXPECT_TRUE(retrieve_environment_agent_data(env).state_data.neighbors[0].empty());
 	EXPECT_TRUE(retrieve_environment_agent_data(env).state_data.neighbors[1].empty());
@@ -132,8 +130,7 @@ TEST(UpdateCellNeighborsTest, ClearsPreviousNeighborsAndRespectsMovableFlag)
 	data.state_data.neighbors[0] = { 2, 12345 }; // garbage to prove clear
 	data.state_data.neighbors[1] = { 0, 2 };	 // should be cleared, then skipped (immovable)
 
-	auto mesh = make_mesh(2);
-	position_solver_instance().update_cell_neighbors(env, mesh);
+	position_solver_instance(env).update_cell_neighbors(env);
 
 	EXPECT_EQ(sorted_neighbors(env, 0), (std::vector<index_t> { 1 }));
 	EXPECT_TRUE(retrieve_environment_agent_data(env).state_data.neighbors[1].empty());
@@ -141,6 +138,6 @@ TEST(UpdateCellNeighborsTest, ClearsPreviousNeighborsAndRespectsMovableFlag)
 
 	// Integration: neighbor list should drive a non-zero force.
 	std::ranges::fill(data.velocity, static_cast<real_t>(0));
-	position_solver_instance().update_cell_forces(env);
+	position_solver_instance(env).update_cell_forces(env);
 	EXPECT_NEAR(data.velocity[0], -data.velocity[2], 1e-6);
 }

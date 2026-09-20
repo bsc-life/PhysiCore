@@ -18,6 +18,8 @@ struct cartesian_mesh
 	std::array<index_t, 3> voxel_shape; // [dx, dy, dz]
 	std::array<index_t, 3> grid_shape;	// [x_size, y_size, z_size]
 
+	constexpr cartesian_mesh() noexcept = default;
+
 	constexpr cartesian_mesh(index_t dims, std::array<sindex_t, 3> bounding_box_mins,
 							 std::array<sindex_t, 3> bounding_box_maxs, std::array<index_t, 3> voxel_shape) noexcept
 		: dims(dims),

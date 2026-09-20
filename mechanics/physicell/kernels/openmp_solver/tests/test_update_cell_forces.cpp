@@ -605,9 +605,11 @@ TEST_P(SolvePairComplexTest, Complex)
 
 	clear_kinematics_and_pressure(env);
 
+	position_solver_instance().initialize(env);
+
 #pragma omp parallel
 	{
-		position_solver_instance().update_cell_neighbors(env, mesh);
+		position_solver_instance().update_cell_neighbors(env);
 		position_solver_instance().update_cell_forces(env);
 	}
 

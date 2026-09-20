@@ -11,15 +11,17 @@ find_package(OpenMP 4)
 target_sources(
   mechanics.physicell.kernels.openmp_solver
   PRIVATE src/openmp_solver.cpp src/register_solver.cpp src/position_solver.cpp
-          src/common_solver.cpp src/random.cpp
+          src/grid_space_partitioner.cpp src/random.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(mechanics.physicell.kernels.openmp_solver_internal_iface
                       INTERFACE $<BUILD_INTERFACE:mechanics.physicell_iface>)
 
+find_path(NOARR_STRUCTURES_INCLUDE_DIRS "noarr/introspection.hpp")
 target_include_directories(
   mechanics.physicell.kernels.openmp_solver_internal_iface
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<BUILD_INTERFACE:${NOARR_STRUCTURES_INCLUDE_DIRS}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 
 if(OpenMP_CXX_FOUND)
