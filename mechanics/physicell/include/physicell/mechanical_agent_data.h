@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 #include <common/base_agent_data.h>
 #include <common/types.h>
 #include <physicell/migration_bias_functor.h>
@@ -33,8 +31,6 @@ struct mechanics_properties
 	std::vector<real_t> detachment_rate;
 };
 
-struct mechanical_agent_data;
-
 /**
  * @brief Motility-related properties for agents
  * Includes migration speed, persistence, and chemotaxis
@@ -61,7 +57,6 @@ struct motility_properties
  * @brief State-related properties for agents
  * Includes neighbor tracking, attachments, orientation, and mobility
  */
-// Warning: "state_properties" can lead to antipatterns if misused. Use with caution.1
 struct state_properties
 {
 	// Spatial relationships
