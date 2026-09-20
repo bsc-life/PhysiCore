@@ -41,7 +41,6 @@ struct mechanical_agent_data;
  */
 struct motility_properties
 {
-	using direction_update_func = std::function<void(index_t, mechanical_agent_data&, real_t*)>;
 	// Migration parameters
 	std::vector<std::uint8_t> is_motile;
 	std::vector<real_t> persistence_time;
@@ -50,7 +49,6 @@ struct motility_properties
 	std::vector<real_t> migration_bias;
 	std::vector<real_t> motility_vector; // dims per agent
 	std::vector<std::uint8_t> restrict_to_2d;
-	std::vector<direction_update_func> direction_update_funcs;
 	std::vector<migration_bias_func_ptr> migration_bias_functors;
 
 	// Chemotaxis parameters

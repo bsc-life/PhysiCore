@@ -36,7 +36,7 @@ void configure_agent(mechanical_agent_interface* agent, real_t radius)
 	std::ranges::fill(agent->cell_adhesion_affinities(), 1.0);
 }
 
-void make_agents(environment& e, index_t count, real_t spacing)
+void make_agents(environment& e, position_solver& p_solver, index_t count, real_t spacing)
 {
 	sindex_t x = 0;
 	sindex_t y = 0;
@@ -46,6 +46,9 @@ void make_agents(environment& e, index_t count, real_t spacing)
 	{
 		auto* a = e.agents->create();
 		configure_agent(a, spacing * 0.5);
+
+		a->migration_bias_functor() =
+			p_solver.create_migration_bias_functor(e, migration_bias_type::ADVANCED_NORMALIZED);
 
 		auto pos = a->position();
 		pos[0] = static_cast<real_t>(x);
@@ -66,6 +69,25 @@ void make_agents(environment& e, index_t count, real_t spacing)
 	}
 }
 } // namespace
+
+class mock_diffusion_interface : public reactions_diffusion::reactions_diffusion_interface
+{
+public:
+	std::array<std::array<real_t, 3>, 2> gradients {};
+
+	std::span<const std::string> get_substrate_names() const override { return {}; }
+	std::span<const std::string> get_substrate_units() const override { return {}; }
+
+	real_t get_substrate_density(index_t /*s*/, std::span<const real_t> /*position*/) const override { return 0; }
+
+	std::array<real_t, 3> get_substrate_gradient(index_t substrate, std::span<const real_t> /*position*/) const override
+	{
+		return gradients[substrate];
+	}
+
+	void run_single_timestep() override {}
+	void serialize_state(real_t /*current_time*/) override {}
+};
 
 /**
  * @brief Benchmark for the physicell OpenMP position solver.
@@ -96,10 +118,11 @@ int main()
 	const real_t mechanics_timestep = 0.1;
 
 	environment e(mesh, 1, 1, mechanics_timestep);
-
-	make_agents(e, 2'000'000, spacing);
+	e.diffusion = std::make_shared<mock_diffusion_interface>();
 
 	position_solver p_solver;
+
+	make_agents(e, p_solver, 2'000'000, spacing);
 
 	for (index_t i = 0; i < 100; ++i)
 	{

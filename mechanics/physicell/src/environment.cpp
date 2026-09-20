@@ -112,16 +112,16 @@ mechanical_agent_interface* environment::create_with_type(index_t agent_type_ind
 	std::ranges::copy(type.chemotaxis_sensitivities, agent->chemotactic_sensitivities().begin());
 
 	{
-		migration_bias_type bias_type = migration_bias_type::none;
+		migration_bias_type bias_type = migration_bias_type::NONE;
 		if (type.simple_chemotaxis_direction != chemotaxis_direction_kind::NONE)
 		{
-			bias_type = migration_bias_type::simple;
+			bias_type = migration_bias_type::SIMPLE;
 		}
 		else if (type.advanced_chemotaxis_enabled)
 		{
-			bias_type = migration_bias_type::advanced;
+			bias_type = migration_bias_type::ADVANCED;
 			if (type.advanced_chemotaxis_normalize_each_gradient)
-				bias_type = migration_bias_type::advanced_normalized;
+				bias_type = migration_bias_type::ADVANCED_NORMALIZED;
 		}
 
 		agent->migration_bias_functor() = solver->create_migration_bias_functor(*this, bias_type);

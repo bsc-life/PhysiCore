@@ -208,6 +208,7 @@ public:
 
 	void update_migration_bias(index_t i, real_t* migration_bias_direction) override
 	{
+		position_helper<dims>::fill(migration_bias_direction, 0);
 		for (index_t s = 0; s < data.substrates_count; ++s)
 		{
 			auto gradient = rdi.get_substrate_gradient(s, { &data.base_data.positions[i * dims], dims });
@@ -224,13 +225,14 @@ public:
 };
 
 template <index_t dims>
-void update_motility_single(
-	index_t i, real_t time_step, real_t* PHYSICORE_RESTRICT motility_vector, real_t* PHYSICORE_RESTRICT velocity,
-	const real_t* PHYSICORE_RESTRICT persistence_time, const real_t* PHYSICORE_RESTRICT migration_bias,
-	real_t* PHYSICORE_RESTRICT migration_bias_direction, const std::uint8_t* PHYSICORE_RESTRICT restrict_to_2d,
-	const std::uint8_t* PHYSICORE_RESTRICT is_motile, const real_t* PHYSICORE_RESTRICT migration_speed,
-	const motility_properties::direction_update_func* PHYSICORE_RESTRICT update_migration_bias_direction_f,
-	mechanical_agent_data& data)
+void update_motility_single(index_t i, real_t time_step, real_t* PHYSICORE_RESTRICT motility_vector,
+							real_t* PHYSICORE_RESTRICT velocity, const real_t* PHYSICORE_RESTRICT persistence_time,
+							const real_t* PHYSICORE_RESTRICT migration_bias,
+							real_t* PHYSICORE_RESTRICT migration_bias_direction,
+							const std::uint8_t* PHYSICORE_RESTRICT restrict_to_2d,
+							const std::uint8_t* PHYSICORE_RESTRICT is_motile,
+							const real_t* PHYSICORE_RESTRICT migration_speed,
+							const migration_bias_func_ptr* PHYSICORE_RESTRICT update_migration_bias_direction_f)
 {
 	if (is_motile[i] == 0)
 		return;
@@ -243,7 +245,7 @@ void update_motility_single(
 
 		if (update_migration_bias_direction_f[i])
 		{
-			update_migration_bias_direction_f[i](i, data, migration_bias_direction + i * dims);
+			update_migration_bias_direction_f[i]->update_migration_bias(i, migration_bias_direction + i * dims);
 		}
 
 		position_helper<dims>::update_motility_vector(motility_vector + i * dims, random_walk.data(),
@@ -256,21 +258,21 @@ void update_motility_single(
 }
 
 template <index_t dims>
-void update_motility_internal(
-	index_t agents_count, real_t time_step, real_t* PHYSICORE_RESTRICT motility_vector,
-	real_t* PHYSICORE_RESTRICT velocity, const real_t* PHYSICORE_RESTRICT persistence_time,
-	const real_t* PHYSICORE_RESTRICT migration_bias, real_t* PHYSICORE_RESTRICT migration_bias_direction,
-	const std::uint8_t* PHYSICORE_RESTRICT restrict_to_2d, const std::uint8_t* PHYSICORE_RESTRICT is_motile,
-	const real_t* PHYSICORE_RESTRICT migration_speed,
-	const motility_properties::direction_update_func* PHYSICORE_RESTRICT update_migration_bias_direction_f,
-	mechanical_agent_data& data)
+void update_motility_internal(index_t agents_count, real_t time_step, real_t* PHYSICORE_RESTRICT motility_vector,
+							  real_t* PHYSICORE_RESTRICT velocity, const real_t* PHYSICORE_RESTRICT persistence_time,
+							  const real_t* PHYSICORE_RESTRICT migration_bias,
+							  real_t* PHYSICORE_RESTRICT migration_bias_direction,
+							  const std::uint8_t* PHYSICORE_RESTRICT restrict_to_2d,
+							  const std::uint8_t* PHYSICORE_RESTRICT is_motile,
+							  const real_t* PHYSICORE_RESTRICT migration_speed,
+							  const migration_bias_func_ptr* PHYSICORE_RESTRICT update_migration_bias_direction_f)
 {
 #pragma omp for
 	for (index_t i = 0; i < agents_count; i++)
 	{
 		update_motility_single<dims>(i, time_step, motility_vector, velocity, persistence_time, migration_bias,
 									 migration_bias_direction, restrict_to_2d, is_motile, migration_speed,
-									 update_migration_bias_direction_f, data);
+									 update_migration_bias_direction_f);
 	}
 }
 
@@ -451,7 +453,7 @@ void update_positions_internal(index_t agents_count, real_t time_step, real_t* P
 
 migration_bias_func_ptr position_solver::create_migration_bias_functor(environment& e, migration_bias_type type)
 {
-	if (type == migration_bias_type::none)
+	if (type == migration_bias_type::NONE)
 		return nullptr;
 	if (!e.diffusion)
 		return nullptr;
@@ -463,24 +465,24 @@ migration_bias_func_ptr position_solver::create_migration_bias_functor(environme
 
 	if (dims == 1)
 	{
-		if (type == migration_bias_type::simple)
+		if (type == migration_bias_type::SIMPLE)
 			return std::make_unique<simple_chemotaxis_functor<1>>(data, rdi);
-		if (type == migration_bias_type::advanced)
+		if (type == migration_bias_type::ADVANCED)
 			return std::make_unique<advanced_chemotaxis_functor<1, false>>(data, rdi);
 		return std::make_unique<advanced_chemotaxis_functor<1, true>>(data, rdi);
 	}
 	if (dims == 2)
 	{
-		if (type == migration_bias_type::simple)
+		if (type == migration_bias_type::SIMPLE)
 			return std::make_unique<simple_chemotaxis_functor<2>>(data, rdi);
-		if (type == migration_bias_type::advanced)
+		if (type == migration_bias_type::ADVANCED)
 			return std::make_unique<advanced_chemotaxis_functor<2, false>>(data, rdi);
 		return std::make_unique<advanced_chemotaxis_functor<2, true>>(data, rdi);
 	}
 
-	if (type == migration_bias_type::simple)
+	if (type == migration_bias_type::SIMPLE)
 		return std::make_unique<simple_chemotaxis_functor<3>>(data, rdi);
-	if (type == migration_bias_type::advanced)
+	if (type == migration_bias_type::ADVANCED)
 		return std::make_unique<advanced_chemotaxis_functor<3, false>>(data, rdi);
 	return std::make_unique<advanced_chemotaxis_functor<3, true>>(data, rdi);
 }
@@ -566,21 +568,21 @@ void position_solver::update_motility(environment& e)
 			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
 			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
 			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
-			data.motility_data.direction_update_funcs.data(), data);
+			data.motility_data.migration_bias_functors.data());
 	else if (data.base_data.dims == 2)
 		update_motility_internal<2>(
 			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
 			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
 			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
 			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
-			data.motility_data.direction_update_funcs.data(), data);
+			data.motility_data.migration_bias_functors.data());
 	else if (data.base_data.dims == 3)
 		update_motility_internal<3>(
 			data.agents_count, e.mechanics_timestep, data.motility_data.motility_vector.data(), data.velocity.data(),
 			data.motility_data.persistence_time.data(), data.motility_data.migration_bias.data(),
 			data.motility_data.migration_bias_direction.data(), data.motility_data.restrict_to_2d.data(),
 			data.motility_data.is_motile.data(), data.motility_data.migration_speed.data(),
-			data.motility_data.direction_update_funcs.data(), data);
+			data.motility_data.migration_bias_functors.data());
 }
 
 void position_solver::update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh)

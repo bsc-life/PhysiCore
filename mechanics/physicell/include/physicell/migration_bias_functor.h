@@ -8,10 +8,10 @@ namespace physicore::mechanics::physicell {
 
 enum class migration_bias_type
 {
-	none,
-	simple,
-	advanced,
-	advanced_normalized
+	NONE,
+	SIMPLE,
+	ADVANCED,
+	ADVANCED_NORMALIZED
 };
 
 class migration_bias_functor
