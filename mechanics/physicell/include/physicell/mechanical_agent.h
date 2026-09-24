@@ -3,15 +3,12 @@
 #include <memory>
 #include <span>
 #include <tuple>
-#include <vector>
 
-#include <common/base_agent_data.h>
 #include <common/base_agent_generic_storage.h>
 #include <common/types.h>
 
-#include "agent_data.h"
-#include "agent_interface.h"
-#include "mechanical_parameters.h"
+#include "mechanical_agent_data.h"
+#include "mechanical_agent_interface.h"
 
 namespace physicore::mechanics::physicell {
 
@@ -57,15 +54,13 @@ public:
 
 	std::uint8_t& restrict_to_2d() override;
 	index_t& chemotaxis_index() override;
-	index_t& chemotaxis_direction() override;
+	int8_t& chemotaxis_direction() override;
 
 	std::span<real_t> chemotactic_sensitivities() override;
+	migration_bias_func_ptr& migration_bias_functor() override;
 
 	std::span<index_t> neighbors() override;
 	std::span<index_t> springs() override;
-	std::span<index_t> attached_cells() override;
-
-	std::span<real_t> orientation() override;
 
 	real_t& simple_pressure() override;
 	index_t& agent_type_index() override;

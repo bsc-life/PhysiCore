@@ -445,7 +445,7 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 					EXPECT_EQ(value, 20.0);
 
 				const real_t value2 = cell_data->GetArray("Glucose")->GetTuple1(static_cast<vtkIdType>(voxel_idx));
-				EXPECT_EQ(value2, m->get_substrate_density(1, x, y, z));
+				EXPECT_EQ(value2, m->solver->get_substrate_density(1, x, y, z));
 			}
 
 	m->solver->solve(*m, 1);
@@ -476,6 +476,6 @@ TEST_F(VtkSerializerTest, BoundaryConditionsEffect)
 			{
 				const std::size_t voxel_idx = m->mesh.linearize(x, y, z);
 				const real_t value = glucose_array->GetTuple1(static_cast<vtkIdType>(voxel_idx));
-				EXPECT_EQ(value, m->get_substrate_density(1, x, y, z));
+				EXPECT_EQ(value, m->solver->get_substrate_density(1, x, y, z));
 			}
 }

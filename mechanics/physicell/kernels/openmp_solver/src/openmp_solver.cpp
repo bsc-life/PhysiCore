@@ -1,6 +1,6 @@
 #include "openmp_solver.h"
 
-#include <physicell/openmp_solver/position_solver.h>
+#include "position_solver.h"
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
@@ -21,18 +21,24 @@ void openmp_solver::solve(environment& e, index_t iterations)
 
 	for (index_t i = 0; i < iterations; ++i)
 	{
-		mechanics_position_solver.update_cell_neighbors(e, e.get_mesh());
+		mechanics_position_solver.update_cell_neighbors(e);
 
 		mechanics_position_solver.update_cell_forces(e);
 
 		mechanics_position_solver.update_motility(e);
 
-		mechanics_position_solver.update_basement_membrane_interactions(e, e.get_mesh());
+		mechanics_position_solver.update_basement_membrane_interactions(e, e.mesh);
 
 		mechanics_position_solver.update_spring_attachments(e);
 
 		mechanics_position_solver.update_positions(e);
 	}
+}
+
+migration_bias_func_ptr openmp_solver::create_migration_bias_functor(environment& e, migration_bias_type type)
+{
+	position_solver mechanics_position_solver;
+	return mechanics_position_solver.create_migration_bias_functor(e, type);
 }
 
 } // namespace physicore::mechanics::physicell::kernels::openmp_solver

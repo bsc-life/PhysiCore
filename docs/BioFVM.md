@@ -107,10 +107,10 @@ std::cout << "Time: " << m->simulation_time << std::endl;
 ##### Query Substrate Densities
 
 ```cpp
-// Get substrate density at a specific voxel
+// Get substrate density at a specific world-space position
 real_t density = m->get_substrate_density(
     substrate_idx,  // Substrate index
-    x, y, z         // Voxel coordinates
+    x, y, z         // World coordinates
 );
 ```
 

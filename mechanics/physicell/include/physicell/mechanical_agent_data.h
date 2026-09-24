@@ -1,17 +1,10 @@
 #pragma once
 
-#include <cassert>
-#include <cstddef>
-#include <cstdint>
-#include <functional>
-#include <vector>
-
 #include <common/base_agent_data.h>
 #include <common/types.h>
+#include <physicell/migration_bias_functor.h>
 
 namespace physicore::mechanics::physicell {
-
-struct mechanical_parameters;
 
 /**
  * @brief Mechanics-related properties for agents
@@ -44,7 +37,6 @@ struct mechanics_properties
  */
 struct motility_properties
 {
-	using direction_update_func = std::function<void(index_t)>; // TODO: it needs access to substrate concentrations
 	// Migration parameters
 	std::vector<std::uint8_t> is_motile;
 	std::vector<real_t> persistence_time;
@@ -53,11 +45,11 @@ struct motility_properties
 	std::vector<real_t> migration_bias;
 	std::vector<real_t> motility_vector; // dims per agent
 	std::vector<std::uint8_t> restrict_to_2d;
-	std::vector<direction_update_func> direction_update_funcs;
+	std::vector<migration_bias_func_ptr> migration_bias_functors;
 
 	// Chemotaxis parameters
 	std::vector<index_t> chemotaxis_index;
-	std::vector<index_t> chemotaxis_direction;
+	std::vector<int8_t> chemotaxis_direction;
 	std::vector<real_t> chemotactic_sensitivities; // flattened: agents x substrates_count
 };
 
@@ -65,16 +57,12 @@ struct motility_properties
  * @brief State-related properties for agents
  * Includes neighbor tracking, attachments, orientation, and mobility
  */
-// Warning: "state_properties" can lead to antipatterns if misused. Use with caution.1
 struct state_properties
 {
 	// Spatial relationships
-	std::vector<std::vector<index_t>> neighbors;	  // neighbor indices for mechanics
-	std::vector<std::vector<index_t>> springs;		  // spring attachments
-	std::vector<std::vector<index_t>> attached_cells; // attachments not modeled as springs
+	std::vector<std::vector<index_t>> neighbors; // neighbor indices for mechanics
+	std::vector<std::vector<index_t>> springs;	 // spring attachments
 
-	// Orientation and pressure
-	std::vector<real_t> orientation;	 // dims per agent
 	std::vector<real_t> simple_pressure; // scalar mechanics pressure proxy
 
 	// Cell metadata

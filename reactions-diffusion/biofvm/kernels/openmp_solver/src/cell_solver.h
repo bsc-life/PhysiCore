@@ -42,7 +42,7 @@ namespace physicore::reactions_diffusion::biofvm::kernels::openmp_solver {
 
 class cell_solver : private generic_agent_solver<agent>
 {
-	bool compute_internalized_substrates_;
+	bool compute_internalized_substrates_ {};
 
 	std::vector<real_t> numerators_;
 	std::vector<real_t> denominators_;

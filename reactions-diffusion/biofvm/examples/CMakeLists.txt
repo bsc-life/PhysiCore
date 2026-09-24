@@ -8,7 +8,8 @@ add_custom_command(
     ${CMAKE_CURRENT_BINARY_DIR}/settings.xml
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/settings.xml)
 
-add_custom_target(copy_xml ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/settings.xml)
+add_custom_target(reactions-diffusion.biofvm.copy_xml ALL
+                  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/settings.xml)
 
 foreach(example ${ALL_EXAMPLES})
   add_executable(reactions-diffusion.biofvm.${example} ${example}.cpp)
@@ -16,5 +17,6 @@ foreach(example ${ALL_EXAMPLES})
   target_link_libraries(reactions-diffusion.biofvm.${example}
                         PRIVATE reactions-diffusion.biofvm)
 
-  add_dependencies(reactions-diffusion.biofvm.${example} copy_xml)
+  add_dependencies(reactions-diffusion.biofvm.${example}
+                   reactions-diffusion.biofvm.copy_xml)
 endforeach()

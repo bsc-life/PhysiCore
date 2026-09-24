@@ -1,6 +1,4 @@
-#include "physicell/mechanical_agent.h"
-
-#include <tuple>
+#include "mechanical_agent.h"
 
 namespace physicore::mechanics::physicell {
 
@@ -98,7 +96,7 @@ std::uint8_t& mechanical_agent::restrict_to_2d() { return data.motility_data.res
 
 index_t& mechanical_agent::chemotaxis_index() { return data.motility_data.chemotaxis_index[this->index]; }
 
-index_t& mechanical_agent::chemotaxis_direction() { return data.motility_data.chemotaxis_direction[this->index]; }
+int8_t& mechanical_agent::chemotaxis_direction() { return data.motility_data.chemotaxis_direction[this->index]; }
 
 std::span<real_t> mechanical_agent::chemotactic_sensitivities()
 {
@@ -106,17 +104,14 @@ std::span<real_t> mechanical_agent::chemotactic_sensitivities()
 			 data.substrates_count };
 }
 
+migration_bias_func_ptr& mechanical_agent::migration_bias_functor()
+{
+	return data.motility_data.migration_bias_functors[this->index];
+}
+
 std::span<index_t> mechanical_agent::neighbors() { return { data.state_data.neighbors[this->index] }; }
 
 std::span<index_t> mechanical_agent::springs() { return { data.state_data.springs[this->index] }; }
-
-std::span<index_t> mechanical_agent::attached_cells() { return { data.state_data.attached_cells[this->index] }; }
-
-std::span<real_t> mechanical_agent::orientation()
-{
-	const index_t dims = data.base_data.dims;
-	return { &data.state_data.orientation[this->index * dims], dims };
-}
 
 real_t& mechanical_agent::simple_pressure() { return data.state_data.simple_pressure[this->index]; }
 

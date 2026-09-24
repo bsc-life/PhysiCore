@@ -1,8 +1,6 @@
-#include <common/mesh.h>
 #include <gtest/gtest.h>
-#include <physicell/openmp_solver/position_solver.h>
 
-#include "physicell/environment.h"
+#include "position_solver.h"
 
 using namespace physicore;
 using namespace physicore::mechanics::physicell;
@@ -19,8 +17,7 @@ public:
 TEST(UpdateSpringAttachmentsTest, Simple2D)
 {
 	const index_t dims = 2;
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x, real_t y) {
 		auto* agent = env.agents->create();
@@ -46,33 +43,32 @@ TEST(UpdateSpringAttachmentsTest, Simple2D)
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.3);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a2->position()[1], 99.4);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 99.4);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 99.4);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 99.4);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.3);
 
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.4973);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.4973);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.4973);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.4973);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.4973);
-	EXPECT_FLOAT_EQ(a2->position()[1], 99.0054);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.4973);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 99.0054);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 99.0054);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.4973);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 99.0054);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.4973);
 }
 
 TEST(UpdateSpringAttachmentsTest, Complex2D)
 {
 	const index_t dims = 2;
-	environment env(0.1, dims, 2, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 2, 1, 0.1);
 
 	auto create_agent = [&](real_t x, real_t y, index_t type) {
 		auto* agent = env.agents->create();
@@ -100,21 +96,20 @@ TEST(UpdateSpringAttachmentsTest, Complex2D)
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.734847);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.73484692283495356);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.3);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.734847);
-	EXPECT_FLOAT_EQ(a2->position()[1], 98.96515);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.73484692283495356);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 98.965153077165041);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 98.5303);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.734847);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 98.530306154330091);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.73484692283495356);
 }
 
 TEST(UpdateSpringAttachmentsTest, Simple3D)
 {
 	const index_t dims = 3;
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x, real_t y, real_t z) {
 		auto* agent = env.agents->create();
@@ -143,47 +138,46 @@ TEST(UpdateSpringAttachmentsTest, Simple3D)
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.3);
-	EXPECT_FLOAT_EQ(a1->position()[2], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a1->position()[2], 0.3);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a2->position()[1], 99.1);
-	EXPECT_FLOAT_EQ(a2->position()[2], 0.3);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 99.1);
+	EXPECT_DOUBLE_EQ(a2->position()[2], 0.3);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 99.1);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.3);
-	EXPECT_FLOAT_EQ(a3->position()[2], 0.3);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 99.1);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a3->position()[2], 0.3);
 
-	EXPECT_FLOAT_EQ(a4->position()[0], 0.3);
-	EXPECT_FLOAT_EQ(a4->position()[1], 0.3);
-	EXPECT_FLOAT_EQ(a4->position()[2], 99.1);
+	EXPECT_DOUBLE_EQ(a4->position()[0], 0.3);
+	EXPECT_DOUBLE_EQ(a4->position()[1], 0.3);
+	EXPECT_DOUBLE_EQ(a4->position()[2], 99.1);
 
 	solver.update_spring_attachments(env);
 	solver.update_positions(env);
 
-	EXPECT_FLOAT_EQ(a1->position()[0], 0.4964);
-	EXPECT_FLOAT_EQ(a1->position()[1], 0.4964);
-	EXPECT_FLOAT_EQ(a1->position()[2], 0.4964);
+	EXPECT_DOUBLE_EQ(a1->position()[0], 0.4964);
+	EXPECT_DOUBLE_EQ(a1->position()[1], 0.4964);
+	EXPECT_DOUBLE_EQ(a1->position()[2], 0.4964);
 
-	EXPECT_FLOAT_EQ(a2->position()[0], 0.4964);
-	EXPECT_FLOAT_EQ(a2->position()[1], 98.5108);
-	EXPECT_FLOAT_EQ(a2->position()[2], 0.4964);
+	EXPECT_DOUBLE_EQ(a2->position()[0], 0.4964);
+	EXPECT_DOUBLE_EQ(a2->position()[1], 98.5108);
+	EXPECT_DOUBLE_EQ(a2->position()[2], 0.4964);
 
-	EXPECT_FLOAT_EQ(a3->position()[0], 98.5108);
-	EXPECT_FLOAT_EQ(a3->position()[1], 0.4964);
-	EXPECT_FLOAT_EQ(a3->position()[2], 0.4964);
+	EXPECT_DOUBLE_EQ(a3->position()[0], 98.5108);
+	EXPECT_DOUBLE_EQ(a3->position()[1], 0.4964);
+	EXPECT_DOUBLE_EQ(a3->position()[2], 0.4964);
 
-	EXPECT_FLOAT_EQ(a4->position()[0], 0.4964);
-	EXPECT_FLOAT_EQ(a4->position()[1], 0.4964);
-	EXPECT_FLOAT_EQ(a4->position()[2], 98.5108);
+	EXPECT_DOUBLE_EQ(a4->position()[0], 0.4964);
+	EXPECT_DOUBLE_EQ(a4->position()[1], 0.4964);
+	EXPECT_DOUBLE_EQ(a4->position()[2], 98.5108);
 }
 
 TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
 {
 	const index_t dims = GetParam();
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x) {
 		auto* agent = env.agents->create();
@@ -212,8 +206,8 @@ TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0);
-		EXPECT_FLOAT_EQ(a2->position()[d], 100);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 100);
 	}
 
 	env.automated_spring_adhesion = true;
@@ -224,16 +218,15 @@ TEST_P(UpdateSpringAttachmentsComplexTest, NoMove)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0);
-		EXPECT_FLOAT_EQ(a2->position()[d], 100);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 100);
 	}
 }
 
 TEST_P(UpdateSpringAttachmentsComplexTest, AttachAndDetach)
 {
 	const index_t dims = GetParam();
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x) {
 		auto* agent = env.agents->create();
@@ -270,8 +263,8 @@ TEST_P(UpdateSpringAttachmentsComplexTest, AttachAndDetach)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0.3);
-		EXPECT_FLOAT_EQ(a2->position()[d], 99.7);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0.3);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 99.7);
 	}
 
 	a1->attachment_rate() = 0;
@@ -285,16 +278,15 @@ TEST_P(UpdateSpringAttachmentsComplexTest, AttachAndDetach)
 
 	for (index_t d = 0; d < dims; ++d)
 	{
-		EXPECT_FLOAT_EQ(a1->position()[d], 0.2);
-		EXPECT_FLOAT_EQ(a2->position()[d], 99.8);
+		EXPECT_DOUBLE_EQ(a1->position()[d], 0.2);
+		EXPECT_DOUBLE_EQ(a2->position()[d], 99.8);
 	}
 }
 
 TEST_P(UpdateSpringAttachmentsComplexTest, MaxAttachmentsLimit)
 {
 	const index_t dims = GetParam();
-	environment env(0.1, dims, 1, 1);
-	env.set_mesh(physicore::cartesian_mesh { dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } });
+	environment env({ dims, { -500, -500, -500 }, { 500, 500, 500 }, { 20, 20, 20 } }, 1, 1, 0.1);
 
 	auto create_agent = [&](real_t x) {
 		auto* agent = env.agents->create();

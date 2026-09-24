@@ -52,7 +52,7 @@ endif()
 include(CTest)
 
 add_subdirectory(common)
-add_subdirectory(reactions-diffusion/biofvm)
+add_subdirectory(reactions-diffusion)
 add_subdirectory(mechanics/micromechanics)
 add_subdirectory(mechanics/physicell)
 add_subdirectory(phenotype/physicore)
