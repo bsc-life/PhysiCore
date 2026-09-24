@@ -77,7 +77,7 @@ public:
 
 	void remove_agent(base_agent_interface* agent) override
 	{
-		index_t index = generic_agent_interface_container<base_agent_interface>::get_agent_index(agent);
+		const index_t index = generic_agent_interface_container<base_agent_interface>::get_agent_index(agent);
 		remove_at(index);
 	}
 

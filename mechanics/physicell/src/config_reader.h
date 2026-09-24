@@ -25,10 +25,10 @@ struct domain_config
 
 struct overall_config
 {
-	real_t max_time;
+	real_t max_time {};
 	std::string time_units;
 	std::string space_units;
-	real_t dt_mechanics;
+	real_t dt_mechanics {};
 };
 
 struct options_config

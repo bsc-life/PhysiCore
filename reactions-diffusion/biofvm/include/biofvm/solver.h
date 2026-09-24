@@ -13,6 +13,12 @@ class microenvironment;
 class BIOFVM_EXPORT solver
 {
 public:
+	solver() = default;
+	solver(const solver&) = delete;
+	solver(solver&&) = delete;
+	solver& operator=(const solver&) = delete;
+	solver& operator=(solver&&) = delete;
+
 	// Set initial values (such as substrate densities) in the microenvironment
 	virtual void initialize(microenvironment& m) = 0;
 

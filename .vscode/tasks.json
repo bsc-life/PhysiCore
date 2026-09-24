@@ -22,7 +22,7 @@
         {
             "label": "Run linting with clang-tidy",
             "type": "shell",
-            "command": "run-clang-tidy -p build",
+            "command": "run-clang-tidy -p build -header-filter='^${workspaceFolder}/(common|reactions-diffusion|mechanics|phenotype)/'",
             "problemMatcher": [
                 "$gcc"
             ],
@@ -42,7 +42,7 @@
         {
             "label": "Run and fix linting with clang-tidy",
             "type": "shell",
-            "command": "run-clang-tidy -p build -fix",
+            "command": "run-clang-tidy -p build -header-filter='^${workspaceFolder}/(common|reactions-diffusion|mechanics|phenotype)/' -fix",
             "problemMatcher": [
                 "$gcc"
             ],

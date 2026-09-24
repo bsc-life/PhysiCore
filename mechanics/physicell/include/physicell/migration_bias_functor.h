@@ -1,12 +1,13 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 
 #include <common/types.h>
 
 namespace physicore::mechanics::physicell {
 
-enum class migration_bias_type
+enum class migration_bias_type : std::uint8_t
 {
 	NONE,
 	SIMPLE,

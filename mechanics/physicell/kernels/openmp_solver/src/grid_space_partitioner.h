@@ -10,7 +10,7 @@ namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
 class grid_space_partitioner
 {
-	cartesian_mesh partitioning_mesh;
+	cartesian_mesh partitioning_mesh {};
 
 	std::unique_ptr<std::atomic<index_t>[]> agents_in_voxels_sizes;
 	std::unique_ptr<std::vector<index_t>[]> agents_in_voxels;

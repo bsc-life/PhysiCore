@@ -61,7 +61,7 @@ struct position_helper<1>
 
 	static void random_walk(bool /*unused*/, real_t* PHYSICORE_RESTRICT walk)
 	{
-		real_t rand = random::uniform();
+		const real_t rand = random::uniform();
 		walk[0] = rand < 0.5 ? -1 : 1;
 	}
 
@@ -77,7 +77,7 @@ struct position_helper<1>
 
 	static constexpr void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
 	{
-		real_t length = std::abs(vector[0]);
+		const real_t length = std::abs(vector[0]);
 
 		vector[0] = length > zero_threshold ? vector[0] * scale / length : 0;
 	}
@@ -139,7 +139,7 @@ struct position_helper<2>
 
 	static void random_walk(bool /*unused*/, real_t* PHYSICORE_RESTRICT walk)
 	{
-		real_t theta = random::uniform(0, 2 * std::numbers::pi_v<real_t>);
+		const real_t theta = random::uniform(0, 2 * std::numbers::pi_v<real_t>);
 		walk[0] = std::cos(theta);
 		walk[1] = std::sin(theta);
 	}
@@ -157,7 +157,7 @@ struct position_helper<2>
 
 	static constexpr void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
 	{
-		real_t length = std::sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+		const real_t length = std::sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
 
 		vector[0] = length > zero_threshold ? vector[0] * scale / length : 0;
 		vector[1] = length > zero_threshold ? vector[1] * scale / length : 0;
@@ -269,7 +269,7 @@ struct position_helper<3>
 
 	static constexpr void normalize_and_scale(real_t* PHYSICORE_RESTRICT vector, real_t scale)
 	{
-		real_t length = std::sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
+		const real_t length = std::sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
 
 		vector[0] = length > zero_threshold ? vector[0] * scale / length : 0;
 		vector[1] = length > zero_threshold ? vector[1] * scale / length : 0;
