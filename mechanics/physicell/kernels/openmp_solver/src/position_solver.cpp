@@ -567,7 +567,7 @@ void position_solver::update_motility(environment& e)
 			data.motility_data.migration_bias_functors.data());
 }
 
-void position_solver::update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh)
+void position_solver::update_basement_membrane_interactions(environment& e)
 {
 	if (!e.virtual_wall_at_domain_edges) // note: where do we include this
 		return;
@@ -577,15 +577,15 @@ void position_solver::update_basement_membrane_interactions(environment& e, cons
 	if (data.base_data.dims == 1)
 		update_basement_membrane_interactions_internal<1>(
 			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
-			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), e.mesh);
 	else if (data.base_data.dims == 2)
 		update_basement_membrane_interactions_internal<2>(
 			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
-			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), e.mesh);
 	else if (data.base_data.dims == 3)
 		update_basement_membrane_interactions_internal<3>(
 			data.agents_count, data.velocity.data(), data.base_data.positions.data(), data.radius.data(),
-			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), mesh);
+			data.mechanics_data.cell_BM_repulsion_strength.data(), data.state_data.is_movable.data(), e.mesh);
 }
 
 void position_solver::update_spring_attachments(environment& e)

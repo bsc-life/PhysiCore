@@ -23,7 +23,7 @@ public:
 
 	void update_motility(environment& e);
 
-	void update_basement_membrane_interactions(environment& e, const cartesian_mesh& mesh);
+	void update_basement_membrane_interactions(environment& e);
 
 	void update_spring_attachments(environment& e);
 

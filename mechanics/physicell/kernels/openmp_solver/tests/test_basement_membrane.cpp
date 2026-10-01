@@ -22,7 +22,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleEdge)
 		a1->position()[d] = -500;
 
 	kernels::openmp_solver::position_solver solver;
-	solver.update_basement_membrane_interactions(env, env.mesh);
+	solver.update_basement_membrane_interactions(env);
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
@@ -30,7 +30,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleEdge)
 
 	for (index_t i = 0; i < 10; ++i)
 	{
-		solver.update_basement_membrane_interactions(env, env.mesh);
+		solver.update_basement_membrane_interactions(env);
 		solver.update_positions(env);
 
 		for (index_t d = 0; d < dims; ++d)
@@ -60,7 +60,7 @@ TEST_P(UpdateBasementMembraneTest, MultipleEdge)
 	}
 
 	kernels::openmp_solver::position_solver solver;
-	solver.update_basement_membrane_interactions(env, env.mesh);
+	solver.update_basement_membrane_interactions(env);
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
@@ -71,7 +71,7 @@ TEST_P(UpdateBasementMembraneTest, MultipleEdge)
 
 	for (index_t i = 0; i < 10; ++i)
 	{
-		solver.update_basement_membrane_interactions(env, env.mesh);
+		solver.update_basement_membrane_interactions(env);
 		solver.update_positions(env);
 
 		for (index_t d = 0; d < dims; ++d)
@@ -99,7 +99,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleCenter)
 
 	for (index_t i = 0; i < 10; ++i)
 	{
-		solver.update_basement_membrane_interactions(env, env.mesh);
+		solver.update_basement_membrane_interactions(env);
 		solver.update_positions(env);
 
 		for (index_t d = 0; d < dims; ++d)
@@ -121,7 +121,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleOneOff)
 		a1->position()[d] = d == dims - 1 ? 0 : -500;
 
 	kernels::openmp_solver::position_solver solver;
-	solver.update_basement_membrane_interactions(env, env.mesh);
+	solver.update_basement_membrane_interactions(env);
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
@@ -129,7 +129,7 @@ TEST_P(UpdateBasementMembraneTest, SimpleOneOff)
 
 	for (index_t i = 0; i < 10; ++i)
 	{
-		solver.update_basement_membrane_interactions(env, env.mesh);
+		solver.update_basement_membrane_interactions(env);
 		solver.update_positions(env);
 
 		for (index_t d = 0; d < dims; ++d)
@@ -152,7 +152,7 @@ TEST_P(UpdateBasementMembraneTest, NoMove)
 
 	kernels::openmp_solver::position_solver solver;
 	env.virtual_wall_at_domain_edges = false;
-	solver.update_basement_membrane_interactions(env, env.mesh);
+	solver.update_basement_membrane_interactions(env);
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)
@@ -160,7 +160,7 @@ TEST_P(UpdateBasementMembraneTest, NoMove)
 
 	env.virtual_wall_at_domain_edges = true;
 	a1->is_movable() = 0;
-	solver.update_basement_membrane_interactions(env, env.mesh);
+	solver.update_basement_membrane_interactions(env);
 	solver.update_positions(env);
 
 	for (index_t d = 0; d < dims; ++d)

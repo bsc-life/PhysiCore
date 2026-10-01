@@ -171,7 +171,7 @@ int main()
 			{
 				auto start = std::chrono::steady_clock::now();
 
-				p_solver.update_basement_membrane_interactions(e, e.mesh);
+				p_solver.update_basement_membrane_interactions(e);
 
 				auto end = std::chrono::steady_clock::now();
 

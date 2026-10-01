@@ -27,7 +27,7 @@ void openmp_solver::solve(environment& e, index_t iterations)
 
 		mechanics_position_solver.update_motility(e);
 
-		mechanics_position_solver.update_basement_membrane_interactions(e, e.mesh);
+		mechanics_position_solver.update_basement_membrane_interactions(e);
 
 		mechanics_position_solver.update_spring_attachments(e);
 
