@@ -1,12 +1,11 @@
 #include "openmp_solver.h"
 
-#include "position_solver.h"
 
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
 void openmp_solver::initialize(environment& e)
 {
-	(void)e;
+	mechanics_position_solver.initialize(e);
 	initialized = true;
 }
 
@@ -16,8 +15,6 @@ void openmp_solver::solve(environment& e, index_t iterations)
 	{
 		initialize(e);
 	}
-
-	position_solver mechanics_position_solver;
 
 	for (index_t i = 0; i < iterations; ++i)
 	{

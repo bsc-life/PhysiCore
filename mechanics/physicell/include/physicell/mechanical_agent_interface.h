@@ -6,6 +6,13 @@
 
 namespace physicore::mechanics::physicell {
 
+enum class cell_flag_t : std::uint8_t
+{
+	NONE = 0,
+	REMOVE = 1,
+	DIVIDE = 2
+};
+
 class mechanical_agent_interface : public virtual base_agent_interface
 {
 public:
@@ -34,7 +41,7 @@ public:
 	virtual std::uint8_t& restrict_to_2d() = 0;
 
 	virtual index_t& chemotaxis_index() = 0;
-	virtual int8_t& chemotaxis_direction() = 0;
+	virtual std::int8_t& chemotaxis_direction() = 0;
 	virtual std::span<real_t> chemotactic_sensitivities() = 0;
 	virtual migration_bias_func_ptr& migration_bias_functor() = 0;
 
@@ -44,6 +51,7 @@ public:
 	virtual real_t& simple_pressure() = 0;
 	virtual index_t& agent_type_index() = 0;
 	virtual std::uint8_t& is_movable() = 0;
+	virtual cell_flag_t& flag() = 0;
 };
 
 } // namespace physicore::mechanics::physicell

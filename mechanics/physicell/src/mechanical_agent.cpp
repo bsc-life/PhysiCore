@@ -119,4 +119,6 @@ index_t& mechanical_agent::agent_type_index() { return data.state_data.agent_typ
 
 std::uint8_t& mechanical_agent::is_movable() { return data.state_data.is_movable[this->index]; }
 
+cell_flag_t& mechanical_agent::flag() { return data.state_data.flags[this->index]; }
+
 } // namespace physicore::mechanics::physicell

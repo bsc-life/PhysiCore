@@ -65,6 +65,7 @@ public:
 	real_t& simple_pressure() override;
 	index_t& agent_type_index() override;
 	std::uint8_t& is_movable() override;
+	cell_flag_t& flag() override;
 };
 
 } // namespace physicore::mechanics::physicell

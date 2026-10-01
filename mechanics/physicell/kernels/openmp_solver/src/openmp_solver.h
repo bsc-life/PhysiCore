@@ -2,11 +2,15 @@
 
 #include <physicell/solver.h>
 
+#include "position_solver.h"
+
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
 
 class openmp_solver : public solver
 {
 	bool initialized = false;
+
+	position_solver mechanics_position_solver;
 
 public:
 	void initialize(environment& e) override;

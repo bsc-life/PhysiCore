@@ -7,9 +7,8 @@
 #include "reactions_diffusion/reactions_diffusion_interface.h"
 #include "solver_helper.h"
 
-using namespace physicore::mechanics::physicell;
-
 namespace physicore::mechanics::physicell::kernels::openmp_solver {
+
 constexpr real_t simple_pressure_coefficient = 36.64504274775163; // 1 / (12 * (1 - sqrt(pi/(2*sqrt(3))))^2)
 
 namespace {

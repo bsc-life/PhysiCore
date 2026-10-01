@@ -42,6 +42,9 @@ public:
 
 	bool automated_spring_adhesion = true;
 	bool virtual_wall_at_domain_edges = true;
+
+	index_t divisions_count = 0;
+	index_t removals_count = 0;
 };
 
 } // namespace physicore::mechanics::physicell

@@ -4,6 +4,8 @@
 #include <common/types.h>
 #include <physicell/migration_bias_functor.h>
 
+#include "mechanical_agent_interface.h"
+
 namespace physicore::mechanics::physicell {
 
 /**
@@ -68,6 +70,8 @@ struct state_properties
 	// Cell metadata
 	std::vector<index_t> agent_type_index; // link to cell definition
 	std::vector<std::uint8_t> is_movable;  // mobility toggle per agent
+
+	std::vector<cell_flag_t> flags; // state flag per agent
 };
 
 struct mechanical_agent_data

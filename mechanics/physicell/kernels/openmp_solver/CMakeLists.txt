@@ -11,7 +11,7 @@ find_package(OpenMP 4)
 target_sources(
   mechanics.physicell.kernels.openmp_solver
   PRIVATE src/openmp_solver.cpp src/register_solver.cpp src/position_solver.cpp
-          src/grid_space_partitioner.cpp src/random.cpp
+          src/grid_space_partitioner.cpp src/random.cpp src/container_solver.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(mechanics.physicell.kernels.openmp_solver_internal_iface
