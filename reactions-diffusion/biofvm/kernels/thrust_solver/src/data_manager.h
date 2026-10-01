@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include <biofvm/agent.h>
 #include <biofvm/agent_container.h>
 #include <biofvm/microenvironment.h>
@@ -23,7 +25,7 @@ namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLV
 
 class diffusion_solver;
 
-enum class data_residency
+enum class data_residency : std::uint8_t
 {
 	HOST,
 	DEVICE
@@ -34,9 +36,9 @@ enum class data_residency
 // Therefore, the exposed public pointers to their residency conterparts. I.e., host densities and device agent_data.
 class data_manager : private generic_agent_solver<agent>
 {
-	data_residency residency;
+	data_residency residency {};
 
-	std::size_t densities_size_bytes;
+	std::size_t densities_size_bytes {};
 
 	thrust::device_vector<real_t> d_positions;
 	thrust::device_vector<real_t> d_secretion_rates;

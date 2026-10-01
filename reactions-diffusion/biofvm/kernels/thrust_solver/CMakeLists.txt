@@ -32,8 +32,7 @@ target_sources(
 
 target_link_libraries(
   reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
-  INTERFACE $<BUILD_INTERFACE:reactions-diffusion.biofvm_iface> common
-            ThrustTBB)
+  INTERFACE $<BUILD_INTERFACE:reactions-diffusion.biofvm_iface> ThrustTBB)
 
 target_include_directories(
   reactions-diffusion.biofvm.kernels.tbb_thrust_solver_internal_iface
@@ -102,8 +101,7 @@ if(${CUDAToolkit_FOUND})
 
   target_link_libraries(
     reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface
-    INTERFACE $<BUILD_INTERFACE:reactions-diffusion.biofvm_iface> common
-              ThrustCUDA)
+    INTERFACE $<BUILD_INTERFACE:reactions-diffusion.biofvm_iface> ThrustCUDA)
 
   target_include_directories(
     reactions-diffusion.biofvm.kernels.cuda_thrust_solver_internal_iface

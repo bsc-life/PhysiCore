@@ -1,11 +1,6 @@
-#include "physicell/agent_data.h"
+#include "mechanical_agent_data.h"
 
-#include <algorithm>
 #include <cassert>
-#include <memory>
-
-#include "physicell/mechanical_agent.h"
-#include "physicell/mechanical_parameters.h"
 
 namespace physicore::mechanics::physicell {
 
@@ -79,14 +74,11 @@ void mechanical_agent_data::remove_at(index_t position)
 		base_storage_t::move_vector(&motility_data.chemotactic_sensitivities[position * substrates_count],
 									&motility_data.chemotactic_sensitivities[last * substrates_count],
 									substrates_count);
-		motility_data.direction_update_funcs[position] = std::move(motility_data.direction_update_funcs[last]);
+		motility_data.migration_bias_functors[position] = std::move(motility_data.migration_bias_functors[last]);
 
 		// State properties
 		state_data.neighbors[position] = std::move(state_data.neighbors[last]);
 		state_data.springs[position] = std::move(state_data.springs[last]);
-		state_data.attached_cells[position] = std::move(state_data.attached_cells[last]);
-		base_storage_t::move_vector(&state_data.orientation[position * base_data.dims],
-									&state_data.orientation[last * base_data.dims], base_data.dims);
 		base_storage_t::move_scalar(&state_data.simple_pressure[position], &state_data.simple_pressure[last]);
 		base_storage_t::move_scalar(&state_data.agent_type_index[position], &state_data.agent_type_index[last]);
 		base_storage_t::move_scalar(&state_data.is_movable[position], &state_data.is_movable[last]);
@@ -124,7 +116,7 @@ void mechanical_agent_data::resize_storage()
 	motility_data.migration_bias.resize(agents_count);
 	motility_data.motility_vector.resize(agents_count * base_data.dims);
 	motility_data.restrict_to_2d.resize(agents_count);
-	motility_data.direction_update_funcs.resize(agents_count);
+	motility_data.migration_bias_functors.resize(agents_count);
 	motility_data.chemotaxis_index.resize(agents_count);
 	motility_data.chemotaxis_direction.resize(agents_count);
 	motility_data.chemotactic_sensitivities.resize(agents_count * substrates_count);
@@ -132,8 +124,6 @@ void mechanical_agent_data::resize_storage()
 	// State properties
 	state_data.neighbors.resize(agents_count);
 	state_data.springs.resize(agents_count);
-	state_data.attached_cells.resize(agents_count);
-	state_data.orientation.resize(agents_count * base_data.dims);
 	state_data.simple_pressure.resize(agents_count);
 	state_data.agent_type_index.resize(agents_count);
 	state_data.is_movable.resize(agents_count);

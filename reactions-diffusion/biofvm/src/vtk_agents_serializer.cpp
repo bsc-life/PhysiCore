@@ -9,7 +9,6 @@
 #include <vtkPoints.h>
 #include <vtkSmartPointer.h>
 
-#include "agent_container.h"
 #include "microenvironment.h"
 
 using namespace physicore::reactions_diffusion::biofvm;

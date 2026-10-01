@@ -52,7 +52,9 @@ class diffusion_solver
 public:
 	diffusion_solver() = default;
 	diffusion_solver(const diffusion_solver&) = delete;
+	diffusion_solver(diffusion_solver&&) = delete;
 	diffusion_solver& operator=(const diffusion_solver&) = delete;
+	diffusion_solver& operator=(diffusion_solver&&) = delete;
 
 	static void precompute_values(thrust::device_ptr<real_t>& b, thrust::device_ptr<real_t>& c,
 								  thrust::device_ptr<real_t>& e, index_t shape, index_t dims, index_t n,

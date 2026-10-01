@@ -94,10 +94,20 @@ void microenvironment::serialize_state(real_t current_time)
 		agents_serializer->serialize(*this, current_time);
 }
 
-real_t microenvironment::get_substrate_density(index_t s, index_t x, index_t y, index_t z) const
+real_t microenvironment::get_substrate_density(index_t s, std::span<const real_t> position) const
 {
+	const std::array<index_t, 3> coords = mesh.voxel_position(position);
+
 	const auto* solver_ptr = this->solver.get();
-	return solver_ptr->get_substrate_density(s, x, y, z);
+	return solver_ptr->get_substrate_density(s, coords[0], coords[1], coords[2]);
+}
+
+std::array<real_t, 3> microenvironment::get_substrate_gradient(index_t s, std::span<const real_t> position) const
+{
+	const std::array<index_t, 3> coords = mesh.voxel_position(position);
+
+	const auto* solver_ptr = this->solver.get();
+	return solver_ptr->get_substrate_gradient(*this, s, coords[0], coords[1], coords[2]);
 }
 
 void microenvironment::print_info(std::ostream& os) const
@@ -253,3 +263,13 @@ void microenvironment::update_dirichlet_boundary_max(char dimension, index_t sub
 }
 
 void microenvironment::update_dirichlet_conditions() { solver->reinitialize_dirichlet(*this); }
+
+std::span<const std::string> microenvironment::get_substrate_names() const
+{
+	return { substrates_names.data(), substrates_names.size() };
+}
+
+std::span<const std::string> microenvironment::get_substrate_units() const
+{
+	return { substrates_units.data(), substrates_units.size() };
+}

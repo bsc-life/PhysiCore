@@ -45,7 +45,7 @@ TEST(MicroenvironmentBuilder, GetDensityIndex)
 
 	EXPECT_EQ(builder.get_density_index("O2"), 0);
 	EXPECT_EQ(builder.get_density_index("Glucose"), 1);
-	EXPECT_THROW(builder.get_density_index("NotFound"), std::runtime_error);
+	EXPECT_THROW((void)builder.get_density_index("NotFound"), std::runtime_error);
 }
 
 TEST(MicroenvironmentBuilder, AddDirichletNode)
