@@ -70,6 +70,7 @@ void expect_container_sizes(const agent_data& data, index_t dims, index_t agent_
 	EXPECT_EQ(data.state_data.simple_pressure.size(), n);
 	EXPECT_EQ(data.state_data.agent_type_index.size(), n);
 	EXPECT_EQ(data.state_data.is_movable.size(), n);
+	EXPECT_EQ(data.state_data.flags.size(), n);
 }
 } // namespace
 
@@ -175,6 +176,9 @@ TEST(MechanicalAgentDataTest, RemoveMovesLastAgentDataToRemovedSlot)
 	data.state_data.neighbors[0] = { 1 };
 	data.state_data.neighbors[1] = { 0, 2 };
 	data.state_data.neighbors[2] = { 42 };
+	data.state_data.flags[0] = cell_flag_t::NONE;
+	data.state_data.flags[1] = cell_flag_t::REMOVE;
+	data.state_data.flags[2] = cell_flag_t::DIVIDE;
 
 	// Remove the middle agent, expect last data to move into slot 1.
 	sync_remove_at(base, data, 1);
@@ -189,6 +193,7 @@ TEST(MechanicalAgentDataTest, RemoveMovesLastAgentDataToRemovedSlot)
 	EXPECT_DOUBLE_EQ(data.velocity[0 * dims + 2], 0.3);
 	ASSERT_EQ(data.state_data.neighbors[0].size(), 1);
 	EXPECT_EQ(data.state_data.neighbors[0][0], 1);
+	EXPECT_EQ(data.state_data.flags[0], cell_flag_t::NONE);
 
 	// Slot 1 now contains what was previously slot 2.
 	EXPECT_DOUBLE_EQ(data.radius[1], 30.0);
@@ -203,6 +208,7 @@ TEST(MechanicalAgentDataTest, RemoveMovesLastAgentDataToRemovedSlot)
 
 	ASSERT_EQ(data.state_data.neighbors[1].size(), 1);
 	EXPECT_EQ(data.state_data.neighbors[1][0], 42);
+	EXPECT_EQ(data.state_data.flags[1], cell_flag_t::DIVIDE);
 }
 
 } // namespace physicore::mechanics::physicell::tests

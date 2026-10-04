@@ -82,6 +82,7 @@ void mechanical_agent_data::remove_at(index_t position)
 		base_storage_t::move_scalar(&state_data.simple_pressure[position], &state_data.simple_pressure[last]);
 		base_storage_t::move_scalar(&state_data.agent_type_index[position], &state_data.agent_type_index[last]);
 		base_storage_t::move_scalar(&state_data.is_movable[position], &state_data.is_movable[last]);
+		base_storage_t::move_scalar(&state_data.flags[position], &state_data.flags[last]);
 	}
 
 	// Sync with base class
@@ -127,6 +128,7 @@ void mechanical_agent_data::resize_storage()
 	state_data.simple_pressure.resize(agents_count);
 	state_data.agent_type_index.resize(agents_count);
 	state_data.is_movable.resize(agents_count);
+	state_data.flags.resize(agents_count);
 }
 
 } // namespace physicore::mechanics::physicell
