@@ -20,8 +20,7 @@ target_link_libraries(mechanics.physicell.kernels.openmp_solver_internal_iface
 find_path(NOARR_STRUCTURES_INCLUDE_DIRS "noarr/introspection.hpp")
 target_include_directories(
   mechanics.physicell.kernels.openmp_solver_internal_iface
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<BUILD_INTERFACE:${NOARR_STRUCTURES_INCLUDE_DIRS}>
+  INTERFACE $<BUILD_INTERFACE:${NOARR_STRUCTURES_INCLUDE_DIRS}>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 
 if(OpenMP_CXX_FOUND)
@@ -43,3 +42,9 @@ endif()
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
+
+install(
+  TARGETS mechanics.physicell.kernels.openmp_solver
+          mechanics.physicell.kernels.openmp_solver_internal_iface
+  EXPORT PhysiCellTargets
+  FILE_SET HEADERS)

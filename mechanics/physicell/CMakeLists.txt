@@ -3,6 +3,11 @@ add_library(mechanics::physicell ALIAS mechanics.physicell)
 add_library(mechanics.physicell_internal_iface INTERFACE)
 add_library(mechanics.physicell_iface INTERFACE)
 
+include(GenerateExportHeader)
+generate_export_header(
+  mechanics.physicell BASE_NAME physicell EXPORT_FILE_NAME
+  ${CMAKE_CURRENT_BINARY_DIR}/include/mechanics/physicell/physicell_export.h)
+
 if(${BUILD_SHARED_LIBS})
   set_target_properties(
     mechanics.physicell
@@ -59,8 +64,8 @@ target_link_libraries(mechanics.physicell_internal_iface
 
 target_link_libraries(
   mechanics.physicell
-  PUBLIC common mechanics.physicell_iface
-  PRIVATE mechanics.physicell_internal_iface)
+  PRIVATE mechanics.physicell_internal_iface
+  PUBLIC common)
 
 add_subdirectory(kernels/openmp_solver)
 
@@ -71,3 +76,29 @@ endif()
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
+
+install(
+  TARGETS mechanics.physicell mechanics.physicell_internal_iface
+  EXPORT PhysiCellTargets
+  FILE_SET HEADERS)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/PhysiCellConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion)
+
+configure_package_config_file(
+  cmake/PhysiCellConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/PhysiCellConfig.cmake"
+  INSTALL_DESTINATION lib/cmake/PhysiCell)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PhysiCellConfig.cmake"
+              "${CMAKE_CURRENT_BINARY_DIR}/PhysiCellConfigVersion.cmake"
+        DESTINATION lib/cmake/PhysiCell)
+
+install(
+  EXPORT PhysiCellTargets
+  NAMESPACE PhysiCore::
+  FILE PhysiCellTargets.cmake
+  DESTINATION lib/cmake/PhysiCell)

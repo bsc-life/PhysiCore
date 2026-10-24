@@ -1,0 +1,17 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# For static builds, find all transitive dependencies
+# For shared builds, dependencies are embedded in the shared library
+if(NOT @BUILD_SHARED_LIBS@)
+  # Core dependencies for main BioFVM library
+  find_dependency(VTK CONFIG)
+  find_dependency(pugixml CONFIG)
+
+  # OpenMP solver dependencies
+  find_dependency(OpenMP 4)
+  find_dependency(hwy)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/PhysiCellTargets.cmake")

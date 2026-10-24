@@ -13,3 +13,8 @@ install(
   TARGETS common
   EXPORT BioFVMTargets
   FILE_SET HEADERS)
+
+install(
+  TARGETS common
+  EXPORT PhysiCoreTargets
+  FILE_SET HEADERS)

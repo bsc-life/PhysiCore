@@ -39,12 +39,6 @@ target_link_libraries(
 target_link_libraries(reactions-diffusion.biofvm
                       PRIVATE reactions-diffusion.biofvm.kernels.openmp_solver)
 
-install(
-  TARGETS reactions-diffusion.biofvm.kernels.openmp_solver
-          reactions-diffusion.biofvm.kernels.openmp_solver_internal_iface
-  EXPORT BioFVMTargets
-  FILE_SET HEADERS)
-
 if(PHYSICORE_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
@@ -52,3 +46,9 @@ endif()
 if(PHYSICORE_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
+
+install(
+  TARGETS reactions-diffusion.biofvm.kernels.openmp_solver
+          reactions-diffusion.biofvm.kernels.openmp_solver_internal_iface
+  EXPORT BioFVMTargets
+  FILE_SET HEADERS)
