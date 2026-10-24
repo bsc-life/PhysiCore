@@ -9,8 +9,6 @@ namespace physicore::mechanics::physicell {
 class solver_registry : public physicore::factory_registry<solver>
 {
 public:
-	using base_t = physicore::factory_registry<solver>;
-
 	static solver_registry& instance();
 };
 

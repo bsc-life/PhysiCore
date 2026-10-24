@@ -25,12 +25,12 @@ struct domain_config
 
 struct overall_config
 {
-	real_t max_time;
+	real_t max_time {};
 	std::string time_units;
 	std::string space_units;
-	real_t dt_diffusion;
-	real_t dt_mechanics; // Stored for future use by mechanics module
-	real_t dt_phenotype; // Stored for future use by phenotype module
+	real_t dt_diffusion {};
+	real_t dt_mechanics {}; // Stored for future use by mechanics module
+	real_t dt_phenotype {}; // Stored for future use by phenotype module
 };
 
 struct dirichlet_boundary_config
@@ -45,11 +45,11 @@ struct variable_config
 {
 	std::string name;
 	std::string units;
-	index_t id;
-	real_t diffusion_coefficient;
-	real_t decay_rate;
-	real_t initial_condition;
-	dirichlet_boundary_config boundary_conditions;
+	index_t id {};
+	real_t diffusion_coefficient {};
+	real_t decay_rate {};
+	real_t initial_condition {};
+	dirichlet_boundary_config boundary_conditions {};
 };
 
 struct solver_config
@@ -60,13 +60,13 @@ struct solver_config
 struct microenvironment_config
 {
 	std::vector<variable_config> variables;
-	bool calculate_gradients;
-	bool track_internalized_substrates;
+	bool calculate_gradients {};
+	bool track_internalized_substrates {};
 };
 
 struct physicell_config
 {
-	domain_config domain;
+	domain_config domain {};
 	overall_config overall;
 	microenvironment_config microenvironment;
 	solver_config solver;

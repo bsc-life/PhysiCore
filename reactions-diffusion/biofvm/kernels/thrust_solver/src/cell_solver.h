@@ -40,7 +40,7 @@ namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLV
 
 class cell_solver
 {
-	bool compute_internalized_substrates_;
+	bool compute_internalized_substrates_ {};
 
 	thrust::device_vector<real_t> numerators_;
 	thrust::device_vector<real_t> denominators_;
@@ -59,7 +59,9 @@ class cell_solver
 public:
 	cell_solver() = default;
 	cell_solver(const cell_solver&) = delete;
+	cell_solver(cell_solver&&) = delete;
 	cell_solver& operator=(const cell_solver&) = delete;
+	cell_solver& operator=(cell_solver&&) = delete;
 
 	void initialize(const microenvironment& m);
 

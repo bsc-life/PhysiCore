@@ -11,6 +11,12 @@ class microenvironment;
 class BIOFVM_EXPORT serializer
 {
 public:
+	serializer() = default;
+	serializer(const serializer&) = delete;
+	serializer(serializer&&) = delete;
+	serializer& operator=(const serializer&) = delete;
+	serializer& operator=(serializer&&) = delete;
+
 	virtual void serialize(const microenvironment& m, real_t current_time) = 0;
 
 	virtual ~serializer() = default;

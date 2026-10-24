@@ -388,7 +388,7 @@ TEST(DirichletSolverTest, DynamicBoundaryModification)
 	}
 
 	// Verify the boundary value was updated
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(0, 0, 1, 1), 20.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(0, 0, 1, 1), 20.0);
 }
 
 TEST(DirichletSolverTest, DynamicInteriorVoxelModification)
@@ -421,7 +421,7 @@ TEST(DirichletSolverTest, DynamicInteriorVoxelModification)
 		env->run_single_timestep();
 	}
 
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(1, 5, 5, 5), 0.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(1, 5, 5, 5), 0.0);
 }
 
 TEST(DirichletSolverTest, DisableDirichletConditionsDynamically)
@@ -454,7 +454,7 @@ TEST(DirichletSolverTest, DisableDirichletConditionsDynamically)
 	}
 
 	// Verify condition was disabled
-	EXPECT_NE(env->get_substrate_density(1, 0, 1, 1), 160.0);
+	EXPECT_NE(env->solver->get_substrate_density(1, 0, 1, 1), 160.0);
 }
 
 TEST(DirichletSolverTest, MultipleSubstrateModification)
@@ -495,11 +495,11 @@ TEST(DirichletSolverTest, MultipleSubstrateModification)
 		env->run_single_timestep();
 	}
 
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(0, 5, 5, 5), 80.0);
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(1, 5, 5, 5), 100.0);
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(2, 5, 5, 5), 0.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(0, 5, 5, 5), 80.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(1, 5, 5, 5), 100.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(2, 5, 5, 5), 0.0);
 
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(0, 2, 2, 2), 200.0);
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(1, 2, 2, 2), 60.0);
-	EXPECT_DOUBLE_EQ(env->get_substrate_density(2, 2, 2, 2), 15.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(0, 2, 2, 2), 200.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(1, 2, 2, 2), 60.0);
+	EXPECT_DOUBLE_EQ(env->solver->get_substrate_density(2, 2, 2, 2), 15.0);
 }

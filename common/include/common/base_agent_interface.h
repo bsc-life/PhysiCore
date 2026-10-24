@@ -19,6 +19,10 @@ protected:
 
 public:
 	explicit base_agent_interface(index_t index) : index(index) {}
+	base_agent_interface(const base_agent_interface&) = delete;
+	base_agent_interface(base_agent_interface&&) = delete;
+	base_agent_interface& operator=(const base_agent_interface&) = delete;
+	base_agent_interface& operator=(base_agent_interface&&) = delete;
 
 	virtual std::span<real_t> position() = 0;
 	virtual ~base_agent_interface() = default;

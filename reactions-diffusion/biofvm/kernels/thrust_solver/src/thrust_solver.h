@@ -28,6 +28,8 @@ public:
 	void solve(microenvironment& m, index_t iterations) override;
 	real_t get_substrate_density(index_t s, index_t x, index_t y, index_t z) const override;
 	real_t& get_substrate_density(index_t s, index_t x, index_t y, index_t z) override;
+	std::array<real_t, 3> get_substrate_gradient(const microenvironment& m, index_t s, index_t x, index_t y,
+												 index_t z) const override;
 	void transfer_to_device(microenvironment& m) override;
 	void transfer_to_host(microenvironment& m) override;
 	void reinitialize_dirichlet(microenvironment& m) override;

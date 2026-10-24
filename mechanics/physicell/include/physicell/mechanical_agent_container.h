@@ -3,7 +3,6 @@
 #include <common/base_agent.h>
 #include <common/generic_agent_container.h>
 
-#include "agent_data.h"
 #include "mechanical_agent.h"
 
 namespace physicore::mechanics::physicell {
@@ -22,7 +21,7 @@ namespace physicore::mechanics::physicell {
  * @see physicore::generic_agent_and_data_container for implementation details
  * @see physicore::biofvm::agent_container for similar pattern in reactions-diffusion module
  */
-using mechanical_agent_container = physicore::generic_agent_and_data_container<physicore::base_agent, mechanical_agent>;
+using mechanical_agent_container = physicore::generic_agent_and_data_container<base_agent, mechanical_agent>;
 
 /**
  * @brief Interface-only container for mechanical agents (polymorphic access).

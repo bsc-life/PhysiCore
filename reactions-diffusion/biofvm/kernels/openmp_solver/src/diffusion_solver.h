@@ -53,7 +53,7 @@ private:
 	std::size_t xs_tile_size_ = 48;
 	std::size_t alignment_size_ = HWY_ALIGNMENT;
 
-	std::size_t substrate_copies_;
+	std::size_t substrate_copies_ {};
 
 	hwy::AlignedUniquePtr<real_t[]> substrates_;
 
@@ -64,7 +64,7 @@ public:
 	template <std::size_t dims = 3>
 	auto get_substrates_layout() const
 	{
-		std::size_t xs_size = problem.nx * problem.substrates_count * sizeof(real_t);
+		const std::size_t xs_size = problem.nx * problem.substrates_count * sizeof(real_t);
 		std::size_t xs_size_padded = (xs_size + alignment_size_ - 1) / alignment_size_ * alignment_size_;
 		xs_size_padded /= sizeof(real_t);
 

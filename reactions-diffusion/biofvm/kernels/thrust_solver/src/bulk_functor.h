@@ -7,6 +7,12 @@ namespace physicore::reactions_diffusion::biofvm::kernels::PHYSICORE_THRUST_SOLV
 
 struct device_bulk_functor
 {
+	device_bulk_functor() = default;
+	device_bulk_functor(const device_bulk_functor&) = delete;
+	device_bulk_functor(device_bulk_functor&&) = delete;
+	device_bulk_functor& operator=(const device_bulk_functor&) = delete;
+	device_bulk_functor& operator=(device_bulk_functor&&) = delete;
+
 	PHYSICORE_THRUST_DEVICE_FN virtual real_t supply_rates(index_t s, index_t x, index_t y, index_t z) = 0;
 	PHYSICORE_THRUST_DEVICE_FN virtual real_t uptake_rates(index_t s, index_t x, index_t y, index_t z) = 0;
 	PHYSICORE_THRUST_DEVICE_FN virtual real_t supply_target_densities(index_t s, index_t x, index_t y, index_t z) = 0;

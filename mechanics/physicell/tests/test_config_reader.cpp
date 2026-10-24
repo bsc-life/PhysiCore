@@ -1,6 +1,4 @@
-#include <filesystem>
 #include <fstream>
-#include <stdexcept>
 
 #include <common/types.h>
 #include <gtest/gtest.h>
@@ -13,7 +11,8 @@ using namespace physicore::mechanics::physicell;
 namespace {
 // Helper to create a complete test XML with domain and overall sections
 std::string create_complete_xml(const std::string& microenv_section, const std::string& cell_defs_section,
-								const std::string& domain_section = "", const std::string& overall_section = "")
+								const std::string& domain_section = "", const std::string& overall_section = "",
+								const std::string& initial_conditions_section = "")
 {
 	const std::string domain = domain_section.empty() ? R"(
 	<domain>
@@ -41,7 +40,7 @@ std::string create_complete_xml(const std::string& microenv_section, const std::
 
 	return R"(<?xml version="1.0"?>
 <PhysiCell_settings version="devel-version">)"
-		   + domain + overall + microenv_section + cell_defs_section + R"(
+		   + domain + overall + microenv_section + cell_defs_section + initial_conditions_section + R"(
 	</PhysiCell_settings>)";
 }
 } // namespace
@@ -98,6 +97,9 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_ParsesAllFields)
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
@@ -136,7 +138,6 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_ParsesAllFields)
 	EXPECT_DOUBLE_EQ(config.domain.dy, 25.0);
 	EXPECT_DOUBLE_EQ(config.domain.dz, 25.0);
 	EXPECT_FALSE(config.domain.use_2D);
-	EXPECT_FALSE(config.is_2D); // Should match domain.use_2D
 }
 
 TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
@@ -164,6 +165,9 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -192,7 +196,6 @@ TEST_F(MechanicsConfigReaderTest, DomainConfig_2DFlag)
 	auto config = parse_simulation_parameters(test_config_file);
 
 	EXPECT_TRUE(config.domain.use_2D);
-	EXPECT_TRUE(config.is_2D);
 }
 
 // ============================================================================
@@ -218,6 +221,9 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_ParsesAllFields)
 <cell_definitions>
 <cell_definition name="default" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -271,6 +277,9 @@ TEST_F(MechanicsConfigReaderTest, OverallConfig_DifferentTimeUnits)
 <cell_definitions>
 <cell_definition name="cell" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -318,6 +327,9 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 <cell_definitions>
 <cell_definition name="default cell" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
@@ -357,70 +369,184 @@ TEST_F(MechanicsConfigReaderTest, ParsesBasicMechanicsParameters)
 	EXPECT_DOUBLE_EQ(params.relative_maximum_adhesion_distance, 1.25);
 
 	// Attachment parameters
-	EXPECT_DOUBLE_EQ(params.attachment_elastic_coefficient, 0.5);
+	EXPECT_DOUBLE_EQ(params.attachment_elastic_constant, 0.5);
 	EXPECT_DOUBLE_EQ(params.attachment_rate, 10.0);
 	EXPECT_DOUBLE_EQ(params.detachment_rate, 0.1);
 
 	// Motility parameters
-	EXPECT_TRUE(params.is_movable);
-	EXPECT_DOUBLE_EQ(params.motility_speed, 2.0);
-	EXPECT_DOUBLE_EQ(params.motility_persistence_time, 5.0);
-	EXPECT_DOUBLE_EQ(params.motility_bias, 0.5);
+	EXPECT_TRUE(params.is_motile);
+	EXPECT_DOUBLE_EQ(params.migration_speed, 2.0);
+	EXPECT_DOUBLE_EQ(params.persistence_time, 5.0);
+	EXPECT_DOUBLE_EQ(params.migration_bias, 0.5);
 }
 
-TEST_F(MechanicsConfigReaderTest, CornerCase_DefaultDomain2DFalse)
+TEST_F(MechanicsConfigReaderTest, ParseOptions)
 {
-	// When domain section is missing, should default to use_2D = false
-	const std::string no_domain = R"(
-<overall>
-<max_time>14400</max_time>
-<time_units>min</time_units>
-<space_units>micron</space_units>
-<dt_mechanics>0.1</dt_mechanics>
-</overall>)";
-
 	const std::string microenv = R"(
 <microenvironment_setup>
-<variable name="v1" ID="0" />
+<variable name="oxygen" ID="0" />
+<variable name="glucose" ID="1" />
 </microenvironment_setup>)";
 
 	const std::string cells = R"(
 <cell_definitions>
-<cell_definition name="default" ID="0">
+<cell_definition name="default cell" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
-<cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
-<cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
-<relative_maximum_adhesion_distance>1.0</relative_maximum_adhesion_distance>
+<cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
+<cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
+<relative_maximum_adhesion_distance>1.25</relative_maximum_adhesion_distance>
 <cell_adhesion_affinities>
-<cell_adhesion_affinity name="default">1.0</cell_adhesion_affinity>
+<cell_adhesion_affinity name="default cell">1.0</cell_adhesion_affinity>
 </cell_adhesion_affinities>
-<attachment_elastic_constant>0.0</attachment_elastic_constant>
-<attachment_rate>0.0</attachment_rate>
-<detachment_rate>0.0</detachment_rate>
+<attachment_elastic_constant>0.5</attachment_elastic_constant>
+<attachment_rate>10.0</attachment_rate>
+<detachment_rate>0.1</detachment_rate>
 </mechanics>
 <motility>
-<speed>0</speed>
-<persistence_time>0</persistence_time>
-<migration_bias>0</migration_bias>
+<speed>2.0</speed>
+<persistence_time>5.0</persistence_time>
+<migration_bias>0.5</migration_bias>
 <options>
-<enabled>false</enabled>
-<use_2D>false</use_2D>
+<enabled>true</enabled>
+<use_2D>true</use_2D>
 </options>
 </motility>
 </phenotype>
 </cell_definition>
-</cell_definitions>)";
+</cell_definitions>
+<options>
+<virtual_wall_at_domain_edge>true</virtual_wall_at_domain_edge>
+<disable_automated_spring_adhesions>false</disable_automated_spring_adhesions>
+</options>
+)";
 
-	const std::string xml = R"(<?xml version="1.0"?>
-<PhysiCell_settings version="devel-version">)"
-							+ no_domain + microenv + cells + R"(
-</PhysiCell_settings>)";
+	write_config(create_complete_xml(microenv, cells));
 
-	write_config(xml);
 	auto config = parse_simulation_parameters(test_config_file);
 
-	EXPECT_FALSE(config.is_2D);
+	// Options verification
+	EXPECT_TRUE(config.options.virtual_wall_at_domain_edge);
+	EXPECT_FALSE(config.options.disable_automated_spring_adhesions);
+}
+
+TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsFalse)
+{
+	const std::string microenv = R"(
+<microenvironment_setup>
+<variable name="oxygen" ID="0" />
+<variable name="glucose" ID="1" />
+</microenvironment_setup>)";
+
+	const std::string initial_conditions = R"(
+<initial_conditions>
+<cell_positions type="csv" enabled="false">
+<folder>./config</folder>
+<filename>cells.csv</filename>
+</cell_positions>
+</initial_conditions>
+)";
+
+	const std::string cells = R"(
+<cell_definitions>
+<cell_definition name="default cell" ID="0">
+<phenotype>
+<volume>
+<total>1000</total>
+</volume>
+<mechanics>
+<cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
+<cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
+<relative_maximum_adhesion_distance>1.25</relative_maximum_adhesion_distance>
+<cell_adhesion_affinities>
+<cell_adhesion_affinity name="default cell">1.0</cell_adhesion_affinity>
+</cell_adhesion_affinities>
+<attachment_elastic_constant>0.5</attachment_elastic_constant>
+<attachment_rate>10.0</attachment_rate>
+<detachment_rate>0.1</detachment_rate>
+</mechanics>
+<motility>
+<speed>2.0</speed>
+<persistence_time>5.0</persistence_time>
+<migration_bias>0.5</migration_bias>
+<options>
+<enabled>true</enabled>
+<use_2D>true</use_2D>
+</options>
+</motility>
+</phenotype>
+</cell_definition>
+</cell_definitions>
+)";
+
+	write_config(create_complete_xml(microenv, cells, initial_conditions));
+
+	auto config = parse_simulation_parameters(test_config_file);
+
+	// Initial conditions verification
+	EXPECT_FALSE(config.initial_conditions.cell_positions_file.has_value());
+}
+
+TEST_F(MechanicsConfigReaderTest, ParseInitialConditionsTrue)
+{
+	const std::string microenv = R"(
+<microenvironment_setup>
+<variable name="oxygen" ID="0" />
+<variable name="glucose" ID="1" />
+</microenvironment_setup>)";
+
+	const std::string initial_conditions = R"(
+<initial_conditions>
+<cell_positions type="csv" enabled="true">
+<folder>./config</folder>
+<filename>cells.csv</filename>
+</cell_positions>
+</initial_conditions>
+)";
+
+	const std::string cells = R"(
+<cell_definitions>
+<cell_definition name="default cell" ID="0">
+<phenotype>
+<volume>
+<total>1000</total>
+</volume>
+<mechanics>
+<cell_cell_adhesion_strength>0.4</cell_cell_adhesion_strength>
+<cell_cell_repulsion_strength>10.0</cell_cell_repulsion_strength>
+<relative_maximum_adhesion_distance>1.25</relative_maximum_adhesion_distance>
+<cell_adhesion_affinities>
+<cell_adhesion_affinity name="default cell">1.0</cell_adhesion_affinity>
+</cell_adhesion_affinities>
+<attachment_elastic_constant>0.5</attachment_elastic_constant>
+<attachment_rate>10.0</attachment_rate>
+<detachment_rate>0.1</detachment_rate>
+</mechanics>
+<motility>
+<speed>2.0</speed>
+<persistence_time>5.0</persistence_time>
+<migration_bias>0.5</migration_bias>
+<options>
+<enabled>true</enabled>
+<use_2D>true</use_2D>
+</options>
+</motility>
+</phenotype>
+</cell_definition>
+</cell_definitions>
+)";
+
+	write_config(create_complete_xml(microenv, cells, initial_conditions));
+
+	auto config = parse_simulation_parameters(test_config_file);
+
+	// Initial conditions verification
+	ASSERT_TRUE(config.initial_conditions.cell_positions_file.has_value());
+	EXPECT_EQ(config.initial_conditions.cell_positions_file.value(), // NOLINT(bugprone-unchecked-optional-access)
+			  "./config/cells.csv");
 }
 
 TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
@@ -433,6 +559,9 @@ TEST_F(MechanicsConfigReaderTest, CornerCase_NoSubstrates)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -479,6 +608,9 @@ TEST_F(MechanicsConfigReaderTest, Negative_MissingRequiredElement)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <!-- Missing cell_cell_adhesion_strength (required) -->
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>
@@ -520,6 +652,9 @@ TEST_F(MechanicsConfigReaderTest, Negative_UnknownCellTypeInAffinity)
 <cell_definitions>
 <cell_definition name="cell1" ID="0">
 <phenotype>
+<volume>
+<total>1000</total>
+</volume>
 <mechanics>
 <cell_cell_adhesion_strength>0.0</cell_cell_adhesion_strength>
 <cell_cell_repulsion_strength>0.0</cell_cell_repulsion_strength>

@@ -1,5 +1,7 @@
 #include "openmp_solver.h"
 
+#include <biofvm/microenvironment.h>
+
 #include "dirichlet_solver.h"
 
 using namespace physicore;
@@ -53,6 +55,38 @@ real_t& openmp_solver::get_substrate_density(index_t s, index_t x, index_t y, in
 	auto* densities = d_solver.get_substrates_pointer();
 
 	return dens_l | noarr::get_at<'s', 'x', 'y', 'z'>(densities, s, x, y, z);
+}
+
+std::array<real_t, 3> openmp_solver::get_substrate_gradient(const microenvironment& m, index_t s, index_t x, index_t y,
+															index_t z) const
+{
+	std::array<real_t, 3> gradient = { 0.0, 0.0, 0.0 };
+
+	std::array<index_t, 3> coords = { x, y, z };
+
+	for (index_t dim = 0; dim < m.mesh.dims; ++dim)
+	{
+		auto lower = coords;
+		auto upper = coords;
+
+		real_t distance = 2.0 * (real_t)m.mesh.voxel_shape[dim];
+
+		if (coords[dim] > 0)
+			lower[dim] -= 1;
+		else
+			distance = (real_t)m.mesh.voxel_shape[dim];
+
+		if (coords[dim] < m.mesh.grid_shape[dim] - 1)
+			upper[dim] += 1;
+		else
+			distance = (real_t)m.mesh.voxel_shape[dim];
+
+		gradient[dim] = (get_substrate_density(s, upper[0], upper[1], upper[2])
+						 - get_substrate_density(s, lower[0], lower[1], lower[2]))
+						/ distance;
+	}
+
+	return gradient;
 }
 
 void openmp_solver::reinitialize_dirichlet([[maybe_unused]] microenvironment& m)

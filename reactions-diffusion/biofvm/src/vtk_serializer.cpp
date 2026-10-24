@@ -60,7 +60,7 @@ void vtk_serializer::serialize(const microenvironment& m, real_t current_time)
 				{
 					const std::size_t voxel_idx = m.mesh.linearize(x_idx, y_idx, z_idx);
 					data_arrays[s_idx]->SetValue(static_cast<vtkIdType>(voxel_idx),
-												 m.get_substrate_density(s_idx, x_idx, y_idx, z_idx));
+												 m.solver->get_substrate_density(s_idx, x_idx, y_idx, z_idx));
 				}
 
 	std::ostringstream ss;
